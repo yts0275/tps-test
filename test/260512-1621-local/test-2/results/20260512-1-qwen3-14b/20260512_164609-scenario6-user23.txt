@@ -1,0 +1,11 @@
+<think>
+Okay, let's see. The user provided a Python code and wants a 3-line analysis of what it does. First, I need to understand the code structure.
+
+There are three main classes: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, stock, and methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages products, adds them, and shows inventory. The run_system function initializes products, processes orders, checks inventory, and generates reports.
+
+So, the first line should mention the main components: product management, order processing, and inventory tracking. The second line can talk about the features like stock updates, invoice printing, and handling stock shortages. The third line would be about the report generation at the end. Need to make sure each line is concise and covers different aspects without overlapping too much.
+</think>
+
+이 코드는 제품 관리, 주문 처리, 재고 추적을 위한 시스템을 구현합니다.  
+제품 재고 업데이트, 주문 내역 출력, 재고 부족 시 알림 기능이 포함되어 있으며,  
+최종 자산 가치를 계산하는 간단한 리포트도 생성합니다.

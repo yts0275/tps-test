@@ -1,0 +1,74 @@
+아래는 그림에 있는 워크플로우 노드들(및 화살표 라벨)을 가능한 한 상세히 읽어 낸 흐름 설명이다. 먼저 각 노드의 역할과 화살표 라벨의 의미(그림에서 보이는 텍스트)를 정리한 뒤, 시작부터 종료까지 가능한 경로와 반복(루프) 패턴을 단계별로 서술한다.
+
+노드 역할(그림에서 보이는 이름 기준)
+- start: 워크플로우 시작 지점.
+- SoftwareEngineer: 사람(또는 주된 워크플로우 주체). 다음 작업(분기)을 선택한다.
+- CodeAnalyzer: 코드 분석 단계(분석을 실행하고 결과를 생성).
+- Editor: 코드 편집/수정 단계(편집과 테스트 요청을 수행).
+- swe_tool: 소프트웨어 엔지니어용 도구(별도 작업 또는 보조 작업을 수행).
+- code_analysis_tool: CodeAnalyzer가 실제로 호출하는 하위 도구(분석 엔진).
+- code_edit_tool: Editor가 편집 작업에서 호출하는 하위 도구(편집기/수정 도구).
+- test_tool: Editor가 편집 후 테스트를 위해 호출하는 하위 도구.
+- end: 워크플로우 종료 지점.
+
+화살표 라벨(그림에 표시된 라벨들)
+- analyze_code: SoftwareEngineer → CodeAnalyzer 로의 전이(분기) 라벨. "코드 분석을 수행하라"는 의미.
+- edit_file: SoftwareEngineer → Editor 로의 전이 라벨. "파일을 편집하라"는 의미.
+- continue: 여러 곳에서 보이는 라벨로, 다음 단계로 계속 진행/다음 작업을 요청한다는 의미(보조 흐름/반복 유도).
+- done: CodeAnalyzer/Editor → SoftwareEngineer 쪽으로 되돌아올 때의 라벨. 해당 작업이 완료되었음을 알린다.
+
+상세 흐름: 시작부터 가능한 경로와 루프
+1. 시작
+   - start → SoftwareEngineer 로 진입.
+
+2. SoftwareEngineer가 선택할 수 있는 주된 분기(동작)
+   - analyze_code: SoftwareEngineer → CodeAnalyzer. (분석 수행 요청)
+   - edit_file: SoftwareEngineer → Editor. (편집/수정 요청)
+   - continue: SoftwareEngineer → swe_tool 또는 SoftwareEngineer → end (그림상 SoftwareEngineer에서 swe_tool로 가는 continue 화살표가 있고, 별도로 SoftwareEngineer에서 직접 end로 이어지는 continue 화살표도 보인다). 즉, 엔지니어가 도구를 호출하거나(보조 작업) 워크플로우를 종료할 수 있다.
+
+3. CodeAnalyzer 노드 내부 동작 및 전이
+   - 진입: SoftwareEngineer가 analyze_code를 선택하면 CodeAnalyzer로 이동한다.
+   - 하위 도구 호출: CodeAnalyzer → code_analysis_tool (아래쪽으로 내려가는 연결). 실제 코드 분석 엔진/툴을 호출하여 분석을 수행한다.
+   - 결과 분기:
+     - done: 분석이 끝나면 CodeAnalyzer → SoftwareEngineer 로 "done"을 반환하여 엔지니어에게 작업 완료를 알린다(다음 결정으로 복귀).
+     - continue: 분석 결과에 따라 편집이 필요하면 CodeAnalyzer → Editor 로 "continue" 전이를 한다(편집 단계로 넘김). (그림상 CodeAnalyzer에서 Editor로 가는 흐름/또는 양방향 continue가 보이며, 분석→편집 흐름을 암시)
+   - (또는) CodeAnalyzer에서 자기 자신이나 다른 툴로 보조 호출을 할 수 있는 점선 흐름도 보인다(비동기/보조 호출 의미 가능).
+
+4. Editor 노드 내부 동작 및 전이
+   - 진입: SoftwareEngineer가 edit_file을 선택하거나(CodeAnalyzer의 continue에 의해) Editor로 이동.
+   - 하위 도구 호출:
+     - Editor → code_edit_tool: 실제 편집/수정 툴을 호출(수정 작업 수행).
+     - Editor → test_tool: 편집 후 테스트를 수행하기 위해 테스트 툴을 호출.
+   - 결과 분기:
+     - done: 편집/테스트가 완료되면 Editor → SoftwareEngineer 로 "done"을 반환(엔지니어에게 수정 완료 알림).
+     - continue: 편집 결과에 따라 추가 분석이 필요하면 Editor → CodeAnalyzer 로 "continue" 전이(수정 후 재분석). 그림에서 Editor와 CodeAnalyzer 사이에 continue 연결이 보이며, 편집→분석→편집의 반복 사이클을 허용한다.
+
+5. swe_tool 경로
+   - SoftwareEngineer → swe_tool (continue 라벨). swe_tool은 엔지니어의 별도 도구를 실행하는 노드이다.
+   - swe_tool에서 다시 SoftwareEngineer로 되돌아오는 점선/continue가 보인다(보조 작업 후 복귀).
+   - SoftwareEngineer는 이후 계속 다른 분기를 선택하거나 끝내기(end)로 갈 수 있다.
+
+6. 종료
+   - SoftwareEngineer → end (continue 라벨로 표시된 화살표가 보임). 워크플로우를 종료한다.
+   - 또한 모든 작업(분석/편집)이 done으로 돌아와 최종적으로 엔지니어가 종료를 선택함으로써 end에 도달할 수 있다.
+
+반복(루프) 패턴과 상호작용 요약
+- 주된 반복 패턴은 Editor ↔ CodeAnalyzer 간의 continue 루프이다: 코드를 분석하고(CodeAnalyzer) -> 편집이 필요하면 Editor로 이동 -> 편집/테스트 후 다시 분석 필요시 CodeAnalyzer로 돌아가 재분석. 이 루프는 수정이 완료되어 더 이상의 분석/편집이 필요 없을 때까지 반복된다.
+- 각 작업(분석 또는 편집)은 내부적으로 하위 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출하여 실제 실행을 수행한다.
+- 각 노드에서 작업 완료 시엔 "done"으로 SoftwareEngineer에게 돌아가며, SoftwareEngineer는 다음 동작(분석, 편집, 다른 도구 호출, 종료)을 결정한다.
+- swe_tool은 엔지니어의 보조/별도 작업 경로로, 수행 후 엔지니어로 돌아오거나(continue) 엔지니어가 워크플로우를 종료할 수 있다.
+
+구체적 시나리오 예시(한 번의 작업 사이클)
+1) start → SoftwareEngineer.
+2) 엔지니어가 analyze_code 선택 → CodeAnalyzer로 이동.
+3) CodeAnalyzer가 code_analysis_tool 실행 → 결과에서 수정 필요 판정 → CodeAnalyzer → Editor (continue).
+4) Editor가 code_edit_tool로 편집하고 test_tool로 테스트 → 수정 후 정상화되면 Editor → SoftwareEngineer (done).
+5) SoftwareEngineer가 다시 analyze_code 선택 → CodeAnalyzer 재실행 → 더 이상 문제없으면 CodeAnalyzer → SoftwareEngineer (done).
+6) SoftwareEngineer가 모든 작업 종료 결정 → end.
+
+마무리 요약
+- 그림은 엔지니어 중심의 반복적 코드 개발 사이클(분석→편집→재분석)을 모델링한다.
+- SoftwareEngineer는 분석(CodeAnalyzer), 편집(Editor), 보조도구(swe_tool), 종료(end)를 선택할 수 있고, 두 주요 작업 노드(CodeAnalyzer, Editor)는 각각 하위 툴을 호출하며 "continue"로 서로 이어지거나 "done"으로 엔지니어에게 완료를 알린다.
+- 이 구조는 수정-분석-수정의 반복 루프와, 필요 시 외부 도구 호출 및 최종 종료를 자연스럽게 허용하도록 설계되어 있다.
+
+원하시면 이 흐름을 상태전이(state-transition) 표로 정리하거나, 가능한 모든 경로(유향 그래프의 경로 목록)를 나열해 드리겠습니다. 어느 방식으로 추가 정리할지 알려 주세요.

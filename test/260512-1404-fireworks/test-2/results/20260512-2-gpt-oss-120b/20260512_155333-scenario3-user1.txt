@@ -1,0 +1,57 @@
+아래는 **Python** 으로 구현한 퀵소트(Quick Sort) 예시입니다.  
+각 코드 라인마다 무엇을 하는지 상세히 설명하는 주석을 한글로 달아 놓았습니다.  
+
+```python
+# quick_sort 함수: 리스트 전체를 정렬한 새로운 리스트를 반환한다
+def quick_sort(arr):
+    # 리스트가 비어 있거나 원소가 하나뿐이면 이미 정렬된 것이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot) 선택: 여기서는 리스트의 마지막 원소를 피벗으로 사용
+    pivot = arr[-1]
+
+    # 피벗보다 작은 원소들을 담을 리스트
+    less = []
+    # 피벗과 같은 원소들을 담을 리스트 (피벗 자체도 여기에 포함)
+    equal = []
+    # 피벗보다 큰 원소들을 담을 리스트
+    greater = []
+
+    # 리스트의 모든 원소를 하나씩 검사한다
+    for element in arr:
+        if element < pivot:          # 피벗보다 작으면 less에 추가
+            less.append(element)
+        elif element == pivot:       # 피벗과 같으면 equal에 추가
+            equal.append(element)
+        else:                        # 피벗보다 크면 greater에 추가
+            greater.append(element)
+
+    # 재귀적으로 less와 greater를 정렬한 뒤,
+    # 정렬된 less + equal + 정렬된 greater 를 이어붙여 반환한다
+    return quick_sort(less) + equal + quick_sort(greater)
+
+
+# ------------------------------------------------------------
+# 아래는 quick_sort 함수를 실제로 사용해 보는 예시이다.
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    # 정렬하고 싶은 임의의 리스트
+    unsorted_list = [33, 10, 55, 71, 29, 3, 18, 42]
+
+    # quick_sort 함수를 호출하여 정렬된 새 리스트를 얻는다
+    sorted_list = quick_sort(unsorted_list)
+
+    # 결과 출력
+    print("원본 리스트 :", unsorted_list)
+    print("정렬된 리스트 :", sorted_list)
+```
+
+### 코드 흐름 간단 요약
+1. **Base case** – 리스트 길이가 0 또는 1이면 그대로 반환.  
+2. **피벗 선택** – 여기선 마지막 원소를 피벗으로 사용했지만, 다른 전략(중간값, 무작위 등)도 가능.  
+3. **분할 단계** – 리스트를 `less`, `equal`, `greater` 세 부분으로 나눈다.  
+4. **재귀 호출** – `less`와 `greater` 부분을 각각 다시 `quick_sort` 로 정렬한다.  
+5. **병합 단계** – 정렬된 `less`, `equal`, `greater` 를 차례대로 이어붙여 최종 정렬 결과를 만든다.  
+
+이 구현은 **추가적인 메모리를 사용**(세 개의 서브 리스트)하므로 *in‑place* 버전보다 메모리 효율은 낮지만, 이해하기 쉽고 코드가 직관적입니다. 필요에 따라 `in‑place` 버전(인덱스를 활용한 교환)으로 바꿀 수 있습니다.

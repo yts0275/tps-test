@@ -1,0 +1,28 @@
+아래는 **퀵소트(Quick Sort) 구현 예시**이며, **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr, start, end):  # 퀵소트를 수행하는 함수(배열, 시작 인덱스, 끝 인덱스)
+    if start >= end:  # 구간의 길이가 0 또는 1이면 이미 정렬됨(기저 조건)
+        return  # 재귀를 종료
+
+    pivot = arr[end]  # 피벗을 구간의 마지막 원소로 선택
+    i = start - 1  # i는 pivot보다 작은 값들의 마지막 위치를 가리키기 위한 변수
+
+    for j in range(start, end):  # j는 start부터 end-1까지 피벗 전 구간을 순회
+        if arr[j] <= pivot:  # 현재 값이 pivot보다 작거나 같으면
+            i += 1  # i를 한 칸 이동(작은 영역 확장)
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j의 값을 swap(작은 값 앞으로 이동)
+
+    arr[i + 1], arr[end] = arr[end], arr[i + 1]  # 피벗을 올바른 위치(i+1)로 swap
+    pivot_index = i + 1  # 피벗이 최종적으로 놓인 인덱스 저장
+
+    quicksort(arr, start, pivot_index - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+    quicksort(arr, pivot_index + 1, end)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+
+data = [10, 7, 8, 9, 1, 5]  # 정렬할 예시 배열
+quicksort(data, 0, len(data) - 1)  # 배열 전체에 대해 퀵소트 수행
+print(data)  # 정렬 결과 출력
+```
+
+원하시면 **자바/자바스크립트/C++ 버전**으로도 바꿔드릴게요. 어떤 언어로 구현해드릴까요?

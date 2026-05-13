@@ -1,0 +1,32 @@
+아래는 **퀵소트(Quick Sort)** 구현 예시입니다. **각 줄마다 주석**을 달았습니다(파이썬).
+
+```python
+def quicksort(arr, left, right):  # 퀵소트를 수행하는 함수 정의: arr(배열), left(왼쪽 인덱스), right(오른쪽 인덱스)
+    if left >= right:  # 구간이 1개 이하이면 정렬할 게 없으므로 종료
+        return  # 종료
+
+    pivot = arr[(left + right) // 2]  # 피벗(기준값)을 가운데 값으로 선택
+    i = left  # i 포인터를 왼쪽 끝으로 설정
+    j = right  # j 포인터를 오른쪽 끝으로 설정
+
+    while i <= j:  # i가 j를 넘어갈 때까지(교차할 때까지) 반복
+        while arr[i] < pivot:  # i가 피벗보다 작은 값이면 i를 오른쪽으로 이동
+            i += 1  # i 증가
+        while arr[j] > pivot:  # j가 피벗보다 큰 값이면 j를 왼쪽으로 이동
+            j -= 1  # j 감소
+
+        if i <= j:  # i가 j보다 크지 않다면 두 값을 바꿀 수 있음
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j의 원소를 서로 교환
+            i += 1  # i를 다음 위치로 이동
+            j -= 1  # j를 다음(왼쪽) 위치로 이동
+
+    quicksort(arr, left, j)  # 왼쪽 파티션(left ~ j)에 대해 퀵소트 재귀 호출
+    quicksort(arr, i, right)  # 오른쪽 파티션(i ~ right)에 대해 퀵소트 재귀 호출
+
+
+data = [5, 3, 8, 4, 2, 7, 1, 10]  # 예시 입력 배열
+quicksort(data, 0, len(data) - 1)  # 배열 전체에 대해 퀵소트 실행(왼쪽 0, 오른쪽 마지막 인덱스)
+print(data)  # 정렬 결과 출력
+```
+
+원하시면 **(1) C / Java / JavaScript 버전**, **(2) 주석 더 촘촘하게**, **(3) 피벗을 첫/마지막/랜덤으로 바꾼 버전** 중 원하는 스타일로도 바꿔드릴게요. 어떤 언어로 구현할까요?

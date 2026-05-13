@@ -1,0 +1,34 @@
+이 워크플로우의 전체적인 흐름을 노드 단위로 하나씩 살펴보면 다음과 같습니다.
+
+1. **start**  
+   워크플로우의 시작점으로, 곧바로 **SoftwareEngineer** 노드로 흐름이 이어집니다. 즉, 모든 작업은 소프트웨어 엔지니어가 중심이 되어 수행됩니다.
+
+2. **SoftwareEngineer**  
+   중심 노드로서 여러 방향으로 흐름이 갈라집니다. 엔지니어는 다음과 같은 작업을 수행하며 여러 도구와 연결됩니다.
+   - **CodeAnalyzer**로 `analyze_code` (코드 분석) 요청을 보내고, 분석이 완료되면 `done` 신호를 받아 다시 본인에게 돌아옵니다.
+   - **Editor**로 `edit_file` (파일 편집) 요청을 보내고, 편집이 끝나면 `done` 신호로 다시 돌아옵니다.
+   - **swe_tool** (소프트웨어 엔지니어링 도구)로 `continue` 신호를 보내 작업을 이어갈 수 있으며, 이 흐름은 **end** 노드로 가는 경로를 포함합니다.
+   - 필요에 따라 **CodeAnalyzer**나 **Editor**에서 `continue` 신호를 받아 다시 작업을 이어나갈 수도 있습니다.
+
+3. **CodeAnalyzer**  
+   SoftwareEngineer의 분석 요청을 받아 내부적으로 **code_analysis_tool**을 실행합니다. 분석이 완료되면 `done` 상태로 돌려보내며 전체 흐름은 다시 SoftwareEngineer를 향합니다. 또한, `continue` 신호를 통해 반복적으로 분석하거나 추가 조치를 취할 수도 있습니다.
+
+4. **code_analysis_tool**  
+   CodeAnalyzer의 하위 도구로, 실제 코드 분석 작업을 수행합니다. 분석이 끝나면 CodeAnalyzer로 결과를 전달하여 다음 단계로 넘어갈 수 있게 합니다.
+
+5. **Editor**  
+   SoftwareEngineer가 편집 요청을 전달하면, 편집 도중 **code_edit_tool**과 **test_tool**을 활용합니다. 편집이 완료되면 `done` 상태로 SoftwareEngineer에게 되돌아가고, 필요한 경우 `continue` 신호로 재편집이나 테스트를 반복할 수 있게 합니다.
+
+6. **code_edit_tool**  
+   Editor에서 코드 편집을 수행할 때 사용하는 도구입니다. 이 도구가 실제로 편집 작업을 처리한 뒤 Editor에 결과를 전달합니다.
+
+7. **test_tool**  
+   Editor의 편집 과정 중 테스트를 수행하는 데 사용됩니다. 테스트 결과에 따라 Editor가 다시 SoftwareEngineer에게 피드백을 줄 수 있습니다.
+
+8. **swe_tool**  
+   SoftwareEngineer가 `continue` 신호를 보내는 확장 도구입니다. 워크플로우 중간에 추가 작업이 필요할 때 활용되며, 해당 작업이 끝나면 이후 다시 **SoftwareEngineer**나 **end**로 흐름을 이어갈 수 있습니다.
+
+9. **end**  
+   워크플로우의 종료 지점으로, SoftwareEngineer가 `continue` 상태로 수렴한 후 최종적으로 도달하게 됩니다. 모든 도구와 상호작용을 마치고 작업이 종료된 상태를 의미합니다.
+
+따라서 전체 흐름은 SoftwareEngineer를 중심으로 CodeAnalyzer와 Editor를 통해 분석 및 편집 작업을 수행하고, 각각의 하위 도구(code_analysis_tool, code_edit_tool, test_tool)를 거쳐 필요한 결과를 되돌린 뒤, 필요 시 swe_tool과의 상호작용을 거쳐 최종적으로 작업이 종료되는 구조입니다.

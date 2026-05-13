@@ -1,0 +1,33 @@
+아래는 **퀵소트(Quick Sort) 구현** 예시이며, **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 함수를 정의(배열, 시작 인덱스, 끝 인덱스 받음)
+    if low >= high:  # 구간 길이가 0 또는 1이면 정렬할 필요가 없으므로 종료
+        return  # 재귀 호출 종료
+    
+    pivot = arr[high]  # 피벗을 구간의 마지막 원소로 설정
+    i = low - 1  # 피벗보다 작은 값의 마지막 위치를 가리키는 인덱스(초기값은 low-1)
+    
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗 이하이면
+            i += 1  # 작은 값 구역을 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]  # arr[i]와 arr[j]를 swap하여 작은 값들을 앞으로 보냄
+    
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 제자리(i+1 위치)로 이동
+    pivot_index = i + 1  # 피벗의 최종 위치를 기록
+    
+    quicksort(arr, low, pivot_index - 1)  # 피벗 왼쪽(작은 값들)을 재귀적으로 정렬
+    quicksort(arr, pivot_index + 1, high)  # 피벗 오른쪽(큰 값들)을 재귀적으로 정렬
+
+
+# 사용 예시용 코드(입력 배열 정의)
+data = [10, 7, 8, 9, 1, 5]  # 정렬할 원본 배열
+
+# 전체 범위에서 퀵소트 호출
+quicksort(data, 0, len(data) - 1)  # 배열 전체(0 ~ 끝 인덱스)를 정렬
+
+# 정렬 결과 출력
+print(data)  # 정렬된 배열 출력
+```
+
+원하시면 **C/C++/Java 버전**으로도 바꿔드릴게요. 어떤 언어로 구현해드릴까요?

@@ -1,0 +1,66 @@
+물론입니다! 아래는 **퀵정렬**(Quick Sort)의 Python 구현 코드이며, 각 줄에 주석을 달아 설명했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 재귀적으로 퀵정렬을 수행하는 함수
+    # arr: 정렬할 배열, low: 시작 인덱스, high: 끝 인덱스
+
+    if low < high:
+        # 만약 시작 인덱스가 끝 인덱스보다 작다면, 정렬을 진행함
+
+        pi = partition(arr, low, high)
+        # 피벗을 기준으로 배열을 분할하고, 피벗의 위치를 반환함
+
+        quicksort(arr, low, pi - 1)
+        # 피벗의 왼쪽 부분을 재귀적으로 정렬
+
+        quicksort(arr, pi + 1, high)
+        # 피벗의 오른쪽 부분을 재귀적으로 정렬
+
+
+def partition(arr, low, high):
+    # 배열을 피벗을 기준으로 나누는 함수
+    # 피벗은 항상 마지막 요소로 선택됨
+
+    pivot = arr[high]
+    # 마지막 요소를 피벗으로 설정
+
+    i = low - 1
+    # i는 큰 값들이 배치될 위치를 추적함
+
+    for j in range(low, high):
+        # 배열의 첫 번째부터 끝 바로 전까지 반복
+
+        if arr[j] <= pivot:
+            # 현재 요소가 피벗보다 작거나 같으면
+
+            i += 1
+            # i를 증가시켜서 교환할 위치를 찾음
+
+            arr[i], arr[j] = arr[j], arr[i]
+            # i와 j 위치의 요소를 서로 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗을 올바른 위치로 이동시킴 (피벗의 왼쪽은 작은 값들, 오른쪽은 큰 값들)
+
+    return i + 1
+    # 피벗이 있는 최종 위치를 반환
+
+
+# 사용 예시:
+if __name__ == "__main__":
+    arr = [10, 7, 8, 9, 1, 5]
+    n = len(arr)
+    quicksort(arr, 0, n - 1)
+    print("정렬된 배열:", arr)
+```
+
+### 설명 요약:
+
+- `quicksort`: 재귀적으로 배열을 정렬하는 메인 함수입니다.
+- `partition`: 배열을 피벗을 기준으로 나누고, 피벗의 최종 위치를 반환합니다.
+- **피벗**: 일반적으로 마지막 요소를 사용합니다.
+- 시간 복잡도: 평균적으로 $O(n \log n)$, 최악의 경우 $O(n^2)$
+- 공간 복잡도: $O(\log n)$ (재귀 호출 스택에 따라 다름)
+
+필요하시면 C++ 또는 Java 버전도 제공해 드릴 수 있어요!

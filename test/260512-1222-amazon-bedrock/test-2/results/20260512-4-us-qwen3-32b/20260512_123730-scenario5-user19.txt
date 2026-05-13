@@ -1,0 +1,49 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort)를 구현한 코드이며, 각 줄에 대해 친절하게 주석을 달아 설명드리겠습니다.
+
+Python 퀵소트 구현:
+
+```python
+# 퀵소트를 수행하는 함수 정의
+def quicksort(arr):
+    # 배열이 비어 있거나 하나의 원소만 있는 경우, 그대로 반환(기저 조건)
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 설정합니다. 일반적으로 첫 번째 요소를 사용하지만 여기서는 마지막 요소를 사용합니다.
+    pivot = arr[-1]
+    
+    # 피벗보다 작거나 같은 요소들을 모을 리스트
+    left = []
+    
+    # 피벗보다 큰 요소들을 모을 리스트
+    right = []
+    
+    # 피벗을 제외한 리스트를 순회하며 left와 right에 분류
+    for num in arr[:-1]:
+        if num <= pivot:
+            left.append(num)
+        else:
+            right.append(num)
+    
+    # 재귀적으로 왼쪽 리스트 정렬 + 피벗 + 오른쪽 리스트 정렬
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 예시 실행
+data = [3, 6, 8, 10, 1, 2, 1]
+print("정렬 전:", data)
+sorted_data = quicksort(data)
+print("정렬 후:", sorted_data)
+```
+
+---
+
+### 설명:
+
+- 함수 `quicksort`는 재귀적으로 작동하며, 배열을 두 부분(작은 요소, 큰 요소)으로 나누고 피벗을 기준으로 재귀 호출합니다.
+- `pivot = arr[-1]`에서는 배열의 마지막 요소를 피벗으로 사용합니다. (피벗 선택 방법은 여러 가지가 있음)
+- `for num in arr[:-1]`은 피벗 제외한 나머지 요소들을 순회합니다.
+- `return quicksort(left) + [pivot] + quicksort(right)`에서 실제 재귀 호출이 이루어집니다.
+
+---
+
+궁금하다면 다른 버전(예: 중간 요소를 피벗으로 사용)도 만들 수 있어요! 도와드릴까요? 😊

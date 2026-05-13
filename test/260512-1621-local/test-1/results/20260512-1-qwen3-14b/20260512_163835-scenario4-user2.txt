@@ -1,0 +1,19 @@
+<think>
+Okay, let me try to understand this code. So, the user wants a 3-line analysis of what the code does. Let me start by reading through the code step by step.
+
+First, there's an import for datetime. Then, there are three classes: Product, Order, and InventoryManager. 
+
+The Product class has attributes like product_id, name, price, and stock. It has a method to update stock, which checks if adding a quantity would make the stock negative. If so, it returns False; otherwise, it updates the stock. The __str__ method formats the product info for display.
+
+Next, the Order class. It has an order ID, customer name, items list, total amount, and order date. The add_item method tries to decrease the product's stock by the quantity. If successful, it adds the item to the order and updates the total. The print_invoice method formats and prints the invoice details.
+
+Then the InventoryManager class manages a dictionary of products. It can add products and display the inventory. The show_inventory method loops through all products and prints them using their __str__ method.
+
+The run_system function initializes the inventory with some products, shows the inventory, creates two orders. The first order successfully adds items, the second tries to order more than available stock, which should fail. Then it shows the updated inventory and calculates the total asset value.
+
+So putting it all together, this code is a simple inventory and order management system. It tracks products, processes orders with stock checks, generates invoices, and provides reports. The main purpose is to manage product stock, handle orders, and report on inventory status and asset value.
+</think>
+
+이 코드는 간단한 재고 관리 및 주문 처리 시스템을 구현한 것입니다.  
+- `Product` 클래스는 제품 정보와 재고 관리 기능을 제공하고, `Order` 클래스는 주문 생성 및 인보이스 출력을 처리합니다.  
+- `InventoryManager`는 재고 데이터를 관리하며, 주문 시 재고 확인과 자산 가치 계산 기능을 포함합니다.

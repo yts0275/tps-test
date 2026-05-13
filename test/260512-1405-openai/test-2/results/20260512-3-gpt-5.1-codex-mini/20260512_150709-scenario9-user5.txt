@@ -1,0 +1,39 @@
+주어진 워크플로우는 “SoftwareEngineer”라는 중앙 노드를 중심으로 여러 도구와 상호작용하며 진행되는 일련의 흐름으로 구성되어 있습니다. 각 노드 간 연결과 흐름을 최대한 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   워크플로우가 시작되면 첫 번째로 “SoftwareEngineer” 노드에 진입합니다. 이 노드는 워크플로우의 중심 인물로서, 이후 여러 도구와 상호작용하며 작업을 수행합니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (분기: analyze_code)**  
+   “SoftwareEngineer”는 “analyze_code”라는 흐름을 따라 “CodeAnalyzer” 노드로 이동합니다. 이 흐름은 코드 분석 작업이 필요할 때 실행됩니다.
+
+3. **CodeAnalyzer → code_analysis_tool (실제 분석 도구)**  
+   “CodeAnalyzer” 노드는 “code_analysis_tool”이라는 실제 도구에 연결됩니다. 여기서는 코드 분석을 실행하고 결과를 도출하는 작업이 이루어집니다.
+
+4. **CodeAnalyzer → SoftwareEngineer (분기: done)**  
+   분석이 완료되면 “done” 흐름을 따라 다시 “SoftwareEngineer”로 돌아옵니다. 이 시점에서 분석 결과를 받아 다음 단계 작업을 계획합니다.
+
+5. **CodeAnalyzer → Editor (분기: continue)**  
+   분석 결과가 코드 수정이 필요함을 나타내면 “continue” 흐름을 통해 “Editor” 노드로 이동합니다. 즉, 분석 후 필요한 수정 단계로 전환됩니다.
+
+6. **SoftwareEngineer → Editor (분기: edit_file)**  
+   같은 맥락에서, 상황에 따라 “SoftwareEngineer”는 직접 “edit_file” 흐름을 통해 “Editor”로 이동할 수도 있습니다. 이는 코드 수정이 직접적으로 필요할 때의 흐름입니다.
+
+7. **Editor → code_edit_tool / test_tool**  
+   “Editor” 노드는 실제 수정과 관련된 도구들로 이어집니다. 하나는 “code_edit_tool”이며 코드를 직접 편집하는 기능을 제공합니다. 또 다른 하나는 “test_tool”로, 수정한 코드의 테스트 또는 검증 작업을 수행합니다.
+
+8. **Editor → CodeAnalyzer (분기: continue)**  
+   수정 후 다시 코드 분석이 필요한 경우 “continue” 흐름을 타고 “CodeAnalyzer”로 되돌아가 추가 분석을 진행합니다. 이는 피드백 루프를 형성합니다.
+
+9. **Editor → SoftwareEngineer (분기: done)**  
+   편집 및 필요한 검증이 완료되면 “done” 흐름을 따라 “softwareEngineer”로 다시 복귀하여 결과를 확인하고 다음 단계를 계획합니다.
+
+10. **SoftwareEngineer → swe_tool (분기: continue)**  
+   코드 분석/수정이 완료된 이후, 또는 추가적인 툴(“swe_tool”)을 활용해야 할 때 “continue” 흐름을 통해 “swe_tool”로 이동합니다. 이 노드는 추가적인 엔지니어링 툴이나 작업을 수행하는 위치로 보입니다.
+
+11. **swe_tool → end**  
+   “swe_tool”에서 모든 작업이 끝나면 그 다음 흐름은 “end”로 연결되어 최종 종료 단계로 이행합니다.
+
+12. **SoftwareEngineer → end (분기: continue)**  
+   혹은 “SoftwareEngineer” 노드에서 직접 “continue” 흐름을 타고 “end”로 가는 경우도 있습니다. 이는 외부 도구를 통해 추가 작업 없이 바로 종료할 수 있는 시나리오를 나타냅니다.
+
+이처럼 워크플로우는 “SoftwareEngineer”를 중심으로 코드를 분석하고 수정하며 필요한 도구를 순환적으로 활용하는 구조를 갖고 있으며, 각 단계간의 “analyze_code”, “edit_file”, “done”, “continue” 같은 레이블을 통해 구체적인 흐름을 구분합니다.

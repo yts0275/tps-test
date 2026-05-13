@@ -1,0 +1,16 @@
+물론입니다! 아래는 퀵소트 구현이며, 각 줄마다 한국어 주석을 달아 이해를 도왔습니다.
+
+```python
+def quick_sort(arr):  # 배열을 받아 퀵소트로 정렬된 새로운 배열을 반환하는 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr[:]  # 새로운 배열을 만들어 복사한 후 반환
+
+    pivot = arr[len(arr) // 2]  # 중간 위치의 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들로 이루어진 부분 배열 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들로 이루어진 부분 배열 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들로 이루어진 부분 배열 생성
+
+    return quick_sort(left) + middle + quick_sort(right)  # 왼쪽과 오른쪽 부분 배열을 재귀적으로 정렬한 후 합쳐 반환
+```
+
+필요하시면 이 코드를 테스트하는 예시도 드릴 수 있어요.

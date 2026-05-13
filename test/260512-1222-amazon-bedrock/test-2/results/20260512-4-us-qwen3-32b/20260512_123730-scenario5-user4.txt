@@ -1,0 +1,58 @@
+물론입니다! 아래는 Python에서 **퀵소트**(Quick Sort)를 구현한 예시이며, 각 줄마다 주석을 달아 설명을 함께 추가했습니다.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 만약 배열의 요소 개수가 0이거나 1개라면 이미 정렬된 것으로 간주하고 배열을 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(Pivot)을 선택 (이 예시에서는 리스트의 중간 요소를 선택)
+    pivot = arr[len(arr) // 2]
+
+    # 피벗보다 작거나 같은 요소를 모을 리스트
+    left = [x for x in arr if x < pivot]
+
+    # 피벗과 같은 요소를 모을 리스트
+    middle = [x for x in arr if x == pivot]
+
+    # 피벗보다 큰 요소를 모을 리스트
+    right = [x for x in arr if x > pivot]
+
+    # 순환(Calling quick_sort recursively):
+    # 왼쪽, 중간, 오른쪽 리스트를 각각 퀵소트한 후, 결합하여 반환
+    return quick_sort(left) + middle + quick_sort(right)
+
+
+# 예시 실행
+sample_list = [3, 6, 8, 10, 1, 2, 1]
+print("정렬 전:", sample_list)
+sorted_list = quick_sort(sample_list)
+print("정렬 후:", sorted_list)
+```
+
+---
+
+### 주석 설명 정리
+
+1. `if len(arr) <= 1: return arr`  
+   - 재귀의 종료 조건. 요소가 1개 이하면 이미 정렬 되었다고 판단.
+
+2. `pivot = arr[len(arr) // 2]`  
+   - 피벗을 리스트 중간에 위치한 요소로 설정.
+
+3. `left = [x for x in arr if x < pivot]`  
+   - 피벗보다 작은 요소들을 새로운 리스트에 저장.
+
+4. `middle = [x for x in arr if x == pivot]`  
+   - 피벗과 같은 요소들을 저장.
+
+5. `right = [x for x in arr if x > pivot]`  
+   - 피벗보다 큰 요소들을 저장.
+
+6. `return quick_sort(left) + middle + quick_sort(right)`  
+   - 왼쪽과 오른쪽 부분을 다시 퀵소트로 정렬하고, 결합.
+
+---
+
+필요하다면 인플레이스(공간 최적화) 버전의 퀵소트도 만들어 드릴 수 있습니다!

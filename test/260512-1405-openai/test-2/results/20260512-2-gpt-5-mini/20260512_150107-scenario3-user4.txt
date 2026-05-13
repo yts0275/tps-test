@@ -1,0 +1,31 @@
+아래는 파이썬으로 구현한 퀵소트(제자리 정렬, Lomuto 분할 방식) 예제입니다. 코드의 각 줄마다 한국어 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 재귀 함수 정의: 정렬할 리스트와 부분구간의 시작/끝 인덱스 받음
+    if low < high:  # 부분구간에 원소가 2개 이상 있는 경우에만 정렬 진행
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗의 최종 위치 인덱스를 받음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분구간을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분구간을 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 함수 정의: 피벗을 마지막 원소로 사용
+    pivot = arr[high]  # 피벗 값을 설정(구간의 마지막 원소)
+    i = low - 1  # 작은 요소들의 경계 인덱스를 초기화(경계는 i이며, i보다 작거나 같은 원소는 피벗보다 작거나 같음)
+    for j in range(low, high):  # 현재 요소를 순회하면서 피벗과 비교
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 경계를 오른쪽으로 한 칸 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 경계 오른쪽으로 이동(스왑)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 경계의 다음 위치로 옮겨 피벗의 최종 위치 확보
+    return i + 1  # 피벗의 최종 위치 인덱스 반환
+
+def quicksort_inplace(arr):  # 편의 함수: 사용자가 인덱스를 직접 주지 않아도 되도록 래퍼 제공
+    if len(arr) <= 1:  # 길이가 0이거나 1이면 이미 정렬되어 있으므로 바로 반환
+        return  # 아무 작업도 하지 않음
+    quicksort(arr, 0, len(arr) - 1)  # 전체 배열을 대상으로 퀵소트 수행
+
+# 사용 예시
+data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트 정의
+quicksort_inplace(data)  # 제자리 퀵소트 수행
+print(data)  # 정렬된 결과 출력
+```
+
+원하면 다른 분할 방식(Hoare 분할), 비재귀(반복) 구현, 안정 정렬이 필요한 경우 대체 알고리즘 소개 등도 설명해 드리겠습니다. 어떤 방식으로 보고 싶으신가요?

@@ -1,0 +1,55 @@
+물론입니다! 아래는 **퀵소트(Quick Sort)** 알고리즘의 파이썬 구현 코드이며, 각 줄마다 주석으로 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 배열의 하위 범위가 유효한지 확인 (low < high인 경우 정렬 진행)
+    if low < high:
+        # 파티션 함수를 호출하여 피벗의 올바른 위치를 찾고,
+        # 피벗의 인덱스를 반환받음
+        pi = partition(arr, low, high)
+
+        # 피벗 기준으로 왼쪽 부분배열에 대해 재귀적으로 퀵정렬 수행
+        quicksort(arr, low, pi - 1)
+
+        # 피벗 기준으로 오른쪽 부분배열에 대해 재귀적으로 퀵정렬 수행
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 가장 오른쪽 요소를 피벗으로 선택
+    pivot = arr[high]
+
+    # i는 작은 요소들의 인덱스를 나타냄 (초기값은 low-1)
+    i = low - 1
+
+    # j는 현재 탐색 중인 요소의 인덱스
+    for j in range(low, high):
+        # 만약 현재 요소가 피벗보다 작거나 같다면
+        if arr[j] <= pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피벗을 올바른 위치로 이동시킴 (i+1 위치에 놓음)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+
+    # 피벗의 최종 위치 인덱스 반환
+    return i + 1
+
+# 테스트용 예제 배열
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+
+# 퀵정렬 시작
+quicksort(arr, 0, n - 1)
+
+# 정렬된 결과 출력
+print("정렬된 배열:", arr)
+```
+
+### 💡 설명
+
+- `quicksort` 함수는 메인 퀵소트 구현 함수로, 배열의 일부분을 정렬합니다.
+- `partition` 함수는 특정 범위 내에서 피벗을 기준으로 배열을 분할하고, 피벗의 위치를 반환합니다.
+- 이 알고리즘은 평균 시간 복잡도 O(n log n)을 가지며, 공간 복잡도는 O(log n)입니다.
+
+필요하시면 C++, Java 등 다른 언어로도 구현해드릴 수 있어요! 😊

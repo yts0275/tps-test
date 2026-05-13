@@ -1,0 +1,80 @@
+아래에 **파이썬**, **자바**, **C++** 세 가지 버전의 퀵소트 구현을 각각 제공했습니다.  
+각 줄마다 한글 주석을 달아 구현 내용을 설명했습니다.
+
+---
+
+### 1️⃣ 파이썬 (Python) 버전
+```python
+def quicksort(arr):                 # 1번: 정렬할 리스트를 인자로 받는 함수 선언
+    if len(arr) <= 1:                # 2번: 리스트 길이가 1 이하이면 정렬이 끝난 것임
+        return arr                  # 3번: 이미 정렬된 리스트 그대로 반환
+    else:                            # 4번: 리스트가 2개 이상인 경우
+        pivot = arr[len(arr)//2]     # 5번: 중간 값을 피벗으로 선택
+        left = [x for x in arr if x < pivot]    # 6번: 피벗보다 작은 값들 모음
+        middle = [x for x in arr if x == pivot]  # 7번: 피벗과 같은 값들 모음
+        right = [x for x in arr if x > pivot]   # 8번: 피벗보다 큰 값들 모음
+        return quicksort(left) + middle + quicksort(right)  # 9번: 재귀 호출해 정렬된 결과 합침
+```
+
+---
+
+### 2️⃣ 자바 (Java) 버전
+```java
+public class QuickSort {           // 1번: QuickSort 클래스 선언
+    public static void quicksort(int[] arr, int low, int high) { // 2번: 재귀 정렬 메서드
+        if (low < high) {          // 3번: 정렬 범위가 유효할 때만 실행
+            int pivotIndex = partition(arr, low, high); // 4번: 피벗 인덱스 찾기
+            quicksort(arr, low, pivotIndex - 1); // 5번: 피벗 왼쪽 부분 재귀 정렬
+            quicksort(arr, pivotIndex + 1, high); // 6번: 피벗 오른쪽 부분 재귀 정렬
+        }                           // 7번: 재귀 종료 조건
+    }
+
+    private static int partition(int[] arr, int low, int high) { // 8번: 파티션 메서드
+        int pivot = arr[low];            // 9번: 첫 번째 요소를 피벗으로 지정
+        int left = low;                  // 10번: 왼쪽 포인터 초기화
+        int right = high;                // 11번: 오른쪽 포인터 초기화
+        while (left < right) {           // 12번: 두 포인터가 만날 때까지 반복
+            while (left < right && arr[right] >= pivot) right--; // 13번: 피벗보다 큰 값이 있을 때 오른쪽 포인터 이동
+            if (left < right) arr[left++] = arr[right];          // 14번: 작은 값을 왼쪽에 두고 포인터 이동
+            while (left < right && arr[left] <= pivot) left++;    // 15번: 피벗보다 작은 값이 있을 때 왼쪽 포인터 이동
+            if (left < right) arr[right--] = arr[left];          // 16번: 큰 값을 오른쪽에 두고 포인터 이동
+        }
+        arr[left] = pivot;               // 17번: 피벗을 최종 위치에 삽입
+        return left;                     // 18번: 피벗 인덱스 반환
+    }
+}
+```
+
+---
+
+### 3️⃣ C++ 버전
+```cpp
+#include <vector>                       // 1번: 벡터 헤더 포함
+#include <algorithm>                    // 2번: swap 함수를 사용하기 위해 포함
+
+int partition(std::vector<int>& arr, int low, int high) { // 3번: 파티션 함수 정의
+    int pivot = arr[low];                     // 4번: 첫 번째 요소를 피벗으로 지정
+    int left = low;                           // 5번: 왼쪽 포인터
+    int right = high;                         // 6번: 오른쪽 포인터
+    while (left < right) {                   // 7번: 두 포인터가 만날 때까지 반복
+        while (left < right && arr[right] >= pivot) right--; // 8번: 피벗보다 큰 값이 있으면 오른쪽 포인터 이동
+        if (left < right) arr[left++] = arr[right];         // 9번: 작은 값을 왼쪽에 놓고 포인터 증가
+        while (left < right && arr[left] <= pivot) left++;   //10번: 피벗보다 작은 값이 있으면 왼쪽 포인터 이동
+        if (left < right) arr[right--] = arr[left];         //11번: 큰 값을 오른쪽에 놓고 포인터 감소
+    }
+    arr[left] = pivot;                       // 12번: 피벗을 정렬된 위치에 삽입
+    return left;                             // 13번: 피벗 인덱스 반환
+}
+
+void quicksort(std::vector<int>& arr, int low, int high) { // 14번: 재귀 정렬 함수
+    if (low < high) {                                    // 15번: 범위가 유효하면
+        int pivotIndex = partition(arr, low, high);       // 16번: 파티션 후 피벗 인덱스 받기
+        quicksort(arr, low, pivotIndex - 1);              // 17번: 왼쪽 부분 재귀 호출
+        quicksort(arr, pivotIndex + 1, high);             // 18번: 오른쪽 부분 재귀 호출
+    }                                                     // 19번: 재귀 종료
+}
+```
+
+---
+
+필요한 언어를 선택해서 그대로 복사·붙여넣기하면 바로 실행할 수 있습니다. 기초적인 주석이 포함된 형태로 드렸으니, 이해가 어려우신 부분이 있으면 언제든지 추가로 물어보세요!

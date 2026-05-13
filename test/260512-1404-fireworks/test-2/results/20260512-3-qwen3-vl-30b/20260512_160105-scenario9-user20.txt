@@ -1,0 +1,114 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 노드들 간의 흐름을 최대한 상세하게 설명한 것입니다.
+
+---
+
+### **1. 전체적인 흐름 개요**
+
+이 워크플로우는 **소프트웨어 엔지니어**(SoftwareEngineer)라는 주체가 중심이 되어, 코드 분석, 편집, 테스트 등의 작업을 수행하는 자동화된 프로세스를 나타냅니다. 이 과정은 `start`에서 시작하여, 여러 도구와 툴을 활용하며 반복적으로 작업을 수행하다가, 조건에 따라 `end`로 종료됩니다. 핵심은 **SoftwareEngineer**가 각 작업을 수행하고, 그 결과에 따라 다음 작업으로 이동하거나 반복하는 점입니다.
+
+---
+
+### **2. 노드별 상세 설명 및 흐름 분석**
+
+#### **2.1. `start` 노드**
+- **역할**: 워크플로우의 시작점을 나타냅니다.
+- **흐름**: `start` 노드는 단방향으로 `SoftwareEngineer` 노드로 연결됩니다. 이는 워크플로우가 시작되면 바로 **SoftwareEngineer**가 활성화된다는 의미입니다.
+- **특징**: 시작점으로, 이전 상태가 없으며, 다음 노드로의 유일한 연결은 `SoftwareEngineer`입니다.
+
+---
+
+#### **2.2. `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 핵심 주체로, 코드 분석, 편집, 테스트 등의 작업을 조정하고 실행하는 역할을 합니다.
+- **특징**: 이 노드는 여러 작업을 **초기화**하고, **결과를 평가**하며, **다음 작업을 결정**하는 중심 노드입니다. 또한, 반복적인 작업을 수행할 수 있는 **루프**를 형성합니다.
+
+##### **2.2.1. `SoftwareEngineer` → `CodeAnalyzer`**
+- **조건**: `analyze_code` 이벤트가 발생할 때.
+- **흐름**: `SoftwareEngineer`가 `analyze_code` 작업을 요청하면, `CodeAnalyzer` 노드로 제어가 전달됩니다.
+- **상태 전이**: `SoftwareEngineer` → `CodeAnalyzer` (단방향)
+
+##### **2.2.2. `SoftwareEngineer` → `Editor`**
+- **조건**: `edit_file` 작업이 필요할 때.
+- **흐름**: `SoftwareEngineer`가 파일 편집을 요청하면, `Editor` 노드로 제어가 전달됩니다.
+- **상태 전이**: `SoftwareEngineer` → `Editor` (단방향)
+
+##### **2.2.3. `SoftwareEngineer` → `swe_tool`**
+- **조건**: `SoftwareEngineer`가 완전히 작업을 마쳤거나, 특정 조건에 따라 종료를 결정할 때.
+- **흐름**: `swe_tool` 노드를 거쳐 `end`로 이동합니다.
+- **상태 전이**: `SoftwareEngineer` → `swe_tool` → `end`
+
+##### **2.2.4. `SoftwareEngineer` ← `CodeAnalyzer`**
+- **조건**: `CodeAnalyzer`가 작업을 완료하면, `done` 이벤트를 발행합니다.
+- **흐름**: `CodeAnalyzer`에서 `done` 이벤트를 보내면, `SoftwareEngineer`로 제어가 돌아옵니다.
+- **상태 전이**: `CodeAnalyzer` → `SoftwareEngineer` (반환)
+
+##### **2.2.5. `SoftwareEngineer` ← `Editor`**
+- **조건**: `Editor`가 작업을 완료하면, `done` 이벤트를 발행합니다.
+- **흐름**: `Editor`에서 `done` 이벤트를 보내면, `SoftwareEngineer`로 제어가 돌아옵니다.
+- **상태 전이**: `Editor` → `SoftwareEngineer` (반환)
+
+##### **2.2.6. `SoftwareEngineer` ← `swe_tool`**
+- **조건**: `swe_tool`이 작업을 완료하면, `done` 이벤트를 발행합니다.
+- **흐름**: `swe_tool`에서 `done` 이벤트를 보내면, `SoftwareEngineer`로 제어가 돌아옵니다.
+- **상태 전이**: `swe_tool` → `SoftwareEngineer` (반환)
+
+---
+
+#### **2.3. `CodeAnalyzer` 노드**
+- **역할**: 코드 분석 작업을 수행하는 도구 또는 서비스입니다.
+- **특징**: `code_analysis_tool`이라는 하위 도구를 사용합니다.
+
+##### **2.3.1. `CodeAnalyzer` → `code_analysis_tool`**
+- **조건**: `CodeAnalyzer`가 코드 분석을 시작할 때.
+- **흐름**: `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 실제 분석 작업을 수행합니다.
+- **상태 전이**: `CodeAnalyzer` → `code_analysis_tool` (단방향)
+
+##### **2.3.2. `code_analysis_tool` → `CodeAnalyzer`**
+- **조건**: `code_analysis_tool`이 분석을 완료하면, 결과를 `CodeAnalyzer`로 반환합니다.
+- **흐름**: 분석 결과가 `CodeAnalyzer`로 돌아오면, `CodeAnalyzer`는 이를 평가하고 `done` 이벤트를 `SoftwareEngineer`로 보냅니다.
+- **상태 전이**: `code_analysis_tool` → `CodeAnalyzer` (반환)
+
+---
+
+#### **2.4. `Editor` 노드**
+- **역할**: 코드 편집 작업을 수행하는 도구 또는 서비스입니다.
+- **특징**: `code_edit_tool`과 `test_tool`이라는 두 가지 하위 도구를 사용합니다.
+
+##### **2.4.1. `Editor` → `code_edit_tool`**
+- **조건**: `Editor`가 코드 편집을 시작할 때.
+- **흐름**: `Editor`는 `code_edit_tool`을 호출하여 코드를 수정합니다.
+- **상태 전이**: `Editor` → `code_edit_tool` (단방향)
+
+##### **2.4.2. `Editor` → `test_tool`**
+- **조건**: `Editor`가 코드 수정 후 테스트를 수행할 때.
+- **흐름**: `Editor`는 `test_tool`을 호출하여 코드의 동작을 검증합니다.
+- **상태 전이**: `Editor` → `test_tool` (단방향)
+
+##### **2.4.3. `code_edit_tool` → `Editor`**
+- **조건**: `code_edit_tool`이 편집을 완료하면, 결과를 `Editor`로 반환합니다.
+- **흐름**: 편집 결과가 `Editor`로 돌아오면, `Editor`는 이를 평가하고 `done` 이벤트를 `SoftwareEngineer`로 보냅니다.
+- **상태 전이**: `code_edit_tool` → `Editor` (반환)
+
+##### **2.4.4. `test_tool` → `Editor`**
+- **조건**: `test_tool`이 테스트를 완료하면, 결과를 `Editor`로 반환합니다.
+- **흐름**: 테스트 결과가 `Editor`로 돌아오면, `Editor`는 결과를 평가하고 `done` 이벤트를 `SoftwareEngineer`로 보냅니다.
+- **상태 전이**: `test_tool` → `Editor` (반환)
+
+---
+
+#### **2.5. `swe_tool` 노드**
+- **역할**: 소프트웨어 엔지니어링 관련 툴을 사용하여 최종 작업을 수행합니다.
+- **특징**: `SoftwareEngineer`가 작업을 완료하거나, 특정 조건에 따라 이 툴을 호출합니다.
+
+##### **2.5.1. `swe_tool` → `end`**
+- **조건**: `swe_tool`이 작업을 완료하면, `end` 노드로 이동합니다.
+- **흐름**: `swe_tool`이 작업을 마치면, 워크플로우가 종료됩니다.
+- **상태 전이**: `swe_tool` → `end` (단방향)
+
+##### **2.5.2. `swe_tool` ← `SoftwareEngineer`**
+- **조건**: `SoftwareEngineer`가 `swe_tool`을 호출할 때.
+- **흐름**: `SoftwareEngineer`가 `swe_tool`을 실행하면, `swe_tool`이 작업을 수행합니다.
+- **상태 전이**: `SoftwareEngineer` → `swe_tool` (단방향)
+
+##### **2.5.3. `swe_tool` → `SoftwareEngineer`**
+- **조건**: `swe_tool`이 작업을 완료하면, `done` 이벤트를 `SoftwareEngineer`로 보냅니다.
+- **흐름**: `swe_tool`이 작업을 마치고 결과를 `Software

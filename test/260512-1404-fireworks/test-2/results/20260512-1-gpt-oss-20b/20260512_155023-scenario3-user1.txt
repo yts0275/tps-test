@@ -1,0 +1,39 @@
+다음은 파이썬으로 구현한 퀵소트(QuickSort) 알고리즘이며, **각 줄마다 한 줄 주석**을 달았습니다.  
+(문법적으로 빈 줄이 있으면 주석이 없으므로 전체 코드 블록에 빈 줄이 없습니다.)
+
+```python
+def quicksort(arr, low, high):  # 함수 정의
+    if low < high:  # 재귀 종료 조건 확인
+        pivot_index = partition(arr, low, high)  # 배열 분할 및 피벗 위치 반환
+        quicksort(arr, low, pivot_index - 1)  # 왼쪽 부분 배열에 대해 재귀 호출
+        quicksort(arr, pivot_index + 1, high)  # 오른쪽 부분 배열에 대해 재귀 호출
+
+def partition(arr, low, high):  # 분할 함수 정의
+    pivot = arr[high]  # 피벗을 가장 마지막 원소로 설정
+    i = low - 1  # 작은 값들을 모을 인덱스 초기화
+    for j in range(low, high):  # pivot 이전까지 순회
+        if arr[j] < pivot:  # 현재 원소가 피벗보다 작으면
+            i += 1  # i를 한 칸 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 원소를 앞쪽으로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 적절한 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+def main():  # 프로그램 실행 함수
+    arr = [3, 6, 8, 10, 1, 2, 1]  # 예시 배열
+    print("원본 배열:", arr)  # 원본 배열 출력
+    quicksort(arr, 0, len(arr) - 1)  # quicksort 호출
+    print("정렬된 배열:", arr)  # 정렬된 배열 출력
+
+if __name__ == "__main__":  # 메인 블록
+    main()  # main 함수 실행
+```
+
+### 사용 예시
+```
+$ python quicksort.py
+원본 배열: [3, 6, 8, 10, 1, 2, 1]
+정렬된 배열: [1, 1, 2, 3, 6, 8, 10]
+```
+
+이 코드는 `list` 를 인수로 받아 인덱스 범위(`low`, `high`)를 지정하면, **위치 교환을 이용해** 재귀적으로 정렬을 수행합니다.  
+모든 줄에 주석을 달았으니, 각 줄이 수행하는 역할을 바로 알 수 있습니다.

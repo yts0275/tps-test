@@ -1,0 +1,33 @@
+아래는 **퀵소트(Quick Sort)** 예시 구현입니다. **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr, left, right):  # 퀵소트를 재귀로 구현하는 함수 정의
+    if left >= right:  # 정렬할 원소가 0개 또는 1개이면 종료
+        return  # 재귀 종료
+
+    pivot = arr[(left + right) // 2]  # 피벗을 가운데 값으로 선택
+    i = left  # 왼쪽 포인터 i를 시작
+    j = right  # 오른쪽 포인터 j를 시작
+
+    while i <= j:  # i가 j를 넘어갈 때까지 반복
+        while arr[i] < pivot:  # i가 피벗보다 작은 값인 동안 i를 오른쪽으로 이동
+            i += 1  # i 증가
+        while arr[j] > pivot:  # j가 피벗보다 큰 값인 동안 j를 왼쪽으로 이동
+            j -= 1  # j 감소
+
+        if i <= j:  # i가 j보다 크지 않으면(교환 가능하면) 실행
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j의 값을 교환
+            i += 1  # 교환 후 i를 한 칸 이동
+            j -= 1  # 교환 후 j를 한 칸 이동
+
+    quicksort(arr, left, j)  # 왼쪽 파티션을 재귀적으로 정렬
+    quicksort(arr, i, right)  # 오른쪽 파티션을 재귀적으로 정렬
+
+
+# 사용 예시 코드 시작
+data = [5, 3, 8, 4, 2, 7, 1, 10]  # 정렬할 배열 생성
+quicksort(data, 0, len(data) - 1)  # 퀵소트 호출(처음 인덱스~마지막 인덱스)
+print(data)  # 정렬된 배열 출력
+```
+
+원하면 **자바/자바스크립트/C++** 버전으로도 똑같이 “각 줄마다 주석” 달아서 만들어 줄게요. 어떤 언어로 해줄까요?

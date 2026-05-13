@@ -1,0 +1,108 @@
+다음 이미지는 “SoftwareEngineer”를 중심으로 여러 단계의 Node(작업 도구/서브모듈)가 루프 형태로 동작하는 워크플로우를 보여줍니다. 전반적으로 **start → SoftwareEngineer(분기/조합) → 각 도구(Code 분석기/편집기/테스트 도구/기타 스웨 도구) → 다시 SoftwareEngineer로 제어를 반환**하는 구조이며, 마지막에는 **end**로 종료합니다.
+
+아래는 그림에 보이는 흐름을 **노드 단위로 가능한 한 상세히** 정리한 것입니다.
+
+---
+
+## 1) 시작: `start`
+- 워크플로우가 최상단의 **start** 노드에서 시작합니다.
+- start에서 내려오는 화살표가 바로 **`SoftwareEngineer`** 노드로 이어집니다.
+
+---
+
+## 2) 중앙 제어 노드: `SoftwareEngineer`
+- **`SoftwareEngineer`**는 이 워크플로우의 오케스트레이터(중앙 작업 노드) 역할을 합니다.
+- 그림에서 `SoftwareEngineer`에서 나가는 화살표가 여러 갈래로 뻗고, 각 갈래의 작업이 끝난 뒤 다시 `SoftwareEngineer` 쪽으로 되돌아오는 형태가 보입니다.
+- 즉, `SoftwareEngineer`는 다음과 같은 경우를 순차/반복적으로 판단합니다.
+  1. 코드 분석이 필요한가? → CodeAnalyzer로 보냄
+  2. 코드 수정이 필요한가? → Editor로 보냄
+  3. 추가 도구/스웨 도구(swe_tool)가 필요한가? → swe_tool로 보냄
+  4. 작업이 충분히 완료되었으면 → end로 종료
+
+> 그림에 “continue”가 여러 곳에 표시되어 있는데, 이는 특정 작업을 수행한 뒤 **다음 단계로 진행(continue)하거나, 계속 루프를 돌며 추가 작업을 반복**함을 의미합니다.
+
+---
+
+## 3) 코드 분석 분기: `SoftwareEngineer → CodeAnalyzer → code_analysis_tool`
+### (1) SoftwareEngineer가 분석을 요청
+- `SoftwareEngineer`에서 왼쪽 방향으로 점선/실선 화살표가 나가 **`CodeAnalyzer`** 노드로 연결됩니다.
+- 이 연결 위에 **“analyze_code”** 라벨이 보입니다.
+  - 의미상: “지금 상황에서 코드를 분석하라”라는 이벤트/요청이 CodeAnalyzer로 전달된 것처럼 표현됩니다.
+
+### (2) CodeAnalyzer의 내부 실행: `code_analysis_tool`
+- **`CodeAnalyzer`** 아래로 **`code_analysis_tool`** 노드가 위치합니다.
+- 즉, CodeAnalyzer는 실제 분석을 위해 **code_analysis_tool**을 호출/사용합니다.
+  - code_analysis_tool이 코드를 읽고 결함/개선점/필요 변경 사항 등을 도출하는 역할을 합니다(정확한 구현은 그림엔 없지만, 명칭상 코드 분석 수행).
+
+### (3) CodeAnalyzer 완료 후: `CodeAnalyzer → SoftwareEngineer`
+- `CodeAnalyzer`에서 다시 **“done”** 라벨과 함께 `SoftwareEngineer`로 복귀하는 화살표가 보입니다.
+- 또한 `CodeAnalyzer` 측에는 **“continue”**가 표시되어 있어,
+  - 분석 결과를 바탕으로 다음 단계(편집/테스트/추가 분석 등)로 넘어가기 위한 제어 플래그가 세팅되거나,
+  - 혹은 “아직 더 볼 게 있으니 계속” 같은 반복 진행이 이루어질 수 있음을 시사합니다.
+
+---
+
+## 4) 코드 수정 분기: `SoftwareEngineer → Editor → code_edit_tool`
+### (1) SoftwareEngineer가 편집을 요청
+- `SoftwareEngineer`에서 아래쪽-가운데 영역으로 점선 화살표가 뻗어 **`Editor`** 노드로 연결됩니다.
+- 이 경로에 **“edit_file”** 라벨이 보입니다.
+  - 의미상: “파일(코드)을 수정하라”는 요청이 Editor로 들어간 흐름입니다.
+
+### (2) Editor의 내부 실행: `code_edit_tool`
+- **`Editor`** 아래로 **`code_edit_tool`** 노드가 있습니다.
+- 따라서 Editor는 실제로 소스 코드를 수정하기 위해 code_edit_tool을 사용합니다.
+  - 예: 분석 결과를 반영해 특정 함수/모듈 수정, 버그 수정, 리팩토링, 포맷/스타일 조정 등
+
+### (3) Editor 완료 후: `Editor → SoftwareEngineer`
+- `Editor`로부터 **“done”** 라벨과 함께 `SoftwareEngineer`로 되돌아오는 화살표가 그려져 있습니다.
+- Editor 쪽에도 **“continue”** 라벨이 있어,
+  - 수정 후에도 추가 수정/재분석/테스트 반복이 필요할 수 있으며,
+  - 또는 다음 단계(테스트)로 넘어가라는 진행 제어를 의미하는 것으로 해석됩니다.
+
+---
+
+## 5) 테스트 분기(또는 테스트 실행 루프): `Editor → test_tool`
+### (1) Editor가 테스트를 호출하는 형태로 연결
+- 그림에서 `Editor`에서 아래쪽으로 이어지는 선이 **`test_tool`** 노드로 연결됩니다.
+- 여기서 핵심은 “test_tool이 Editor의 하위 단계로 붙어 있다”는 점입니다.
+  - 즉, 편집(Edit) 후 검증(Testing)이 이어지는 구조로 표현됩니다.
+
+### (2) 테스트 결과 반영
+- test_tool의 결과는 다시 `Editor` 또는 `SoftwareEngineer`로 이어지는 점선/루프 구조로 표시됩니다.
+- 전체적으로 “수정 → 테스트 → 계속/추가수정” 형태의 반복 가능성을 보여주며,
+- 잘 통과하면 다음 단계로 진행하거나, 실패하면 다시 Editor/CodeAnalyzer로 되돌아가 수정 사이클을 도는 식입니다.
+
+---
+
+## 6) 추가 도구 분기: `SoftwareEngineer → swe_tool → end`
+### (1) SoftwareEngineer가 swe_tool을 호출
+- `SoftwareEngineer`의 오른쪽 아래 쪽에서 **`swe_tool`** 노드로 연결되는 경로가 있습니다.
+- 경로 위에 **“continue”**와 같은 표기가 있고, swe_tool로 제어가 넘어가는 분기가 존재합니다.
+
+### (2) swe_tool 완료 후 종료로 이동
+- `swe_tool` 오른쪽 끝에는 보라색 **`end`** 노드가 있고, swe_tool에서 end로 향하는 흐름이 점선으로 보입니다.
+- 즉, swe_tool 수행이 “최종 정리/최종 결과 생성/최종 실행 단계”에 해당하는 역할일 가능성이 큽니다.
+- 그리고 완료 시 **end**로 워크플로우가 종료됩니다.
+
+---
+
+## 7) 전체 흐름을 한 줄로 요약하면
+1. **start**
+2. **SoftwareEngineer**에서 상태를 판단하며 작업 분기
+3. 필요 시 **CodeAnalyzer → code_analysis_tool**로 분석 수행 → **done** 후 SoftwareEngineer 복귀
+4. 필요 시 **Editor → code_edit_tool**로 수정 수행 → **done** 후 SoftwareEngineer 복귀
+5. 편집 후/필요 시 **test_tool**로 테스트 수행 → 결과에 따라 계속(continue) 또는 재루프
+6. 최종 단계로 **swe_tool**을 수행
+7. **end**에서 종료
+
+---
+
+## 8) “continue / done / analyze_code / edit_file” 표기의 의미(그림 기준 해석)
+- **done**: 해당 서브 작업(분석/편집/도구 수행)이 완료되어 상위 노드로 복귀한다는 신호
+- **continue**: 완료 후 바로 종료가 아니라, 다음 단계로 진행하거나 루프를 유지할 수 있다는 의미(반복/다음 액션)
+- **analyze_code**: CodeAnalyzer를 트리거하는 이벤트/요청
+- **edit_file**: Editor를 트리거하는 이벤트/요청
+
+---
+
+원하시면, 제가 위 구조를 바탕으로 **“실제로 어떤 조건에서 CodeAnalyzer→Editor→test_tool로 돌아가는지”**를 가능한 시나리오(예: 테스트 실패 시 재수정, 분석 결과에 따라 수정 범위 결정 등) 형태로 더 구체적인 상태전이 다이어그램처럼도 재구성해 드릴게요.

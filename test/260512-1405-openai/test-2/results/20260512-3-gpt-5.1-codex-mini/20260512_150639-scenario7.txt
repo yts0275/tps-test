@@ -1,0 +1,35 @@
+이 Workflow 는 `start` 노드에서 시작하여 `SoftwareEngineer` 노드를 중심으로 여러 도구와 작업 흐름이 분기되고 다시 합류하는 구조를 가지고 있습니다. 각 노드 사이의 흐름을 최대한 상세하게 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   Workflow는 `start` 노드에서 출발하여 첫 번째 행위자로 `SoftwareEngineer`를 지정합니다. 즉, 소프트웨어 엔지니어가 전체 흐름의 중심이 되어 다양한 작업과 도구를 사용하게 됩니다.
+
+2. **SoftwareEngineer의 선택지**  
+   `SoftwareEngineer` 노드는 여러 방향으로 갈래를 가집니다. 주요 흐름은 다음과 같습니다.
+
+   - `analyze_code` 경로: 소프트웨어 엔지니어가 코드 분석 작업을 수행하려는 경우 `CodeAnalyzer` 노드로 진행합니다.
+   - `edit_file` 경로: 파일 편집을 수행하고자 할 경우 `Editor` 노드로 이동합니다.
+   - `swe_tool` 경로: 특정 SSE(SWE) 도구를 사용하려 할 때 `swe_tool` 노드로 연결됩니다.
+   - `continue` 경로: 추가 작업을 연속적으로 이어가거나 종료 지점으로 접근할 수 있도록 `continue` 화살표로 `end` 노드까지 이어집니다.
+
+3. **CodeAnalyzer 흐름**  
+   - `SoftwareEngineer` → `CodeAnalyzer`(`analyze_code`): 코드 분석 작업을 맡습니다.
+   - `CodeAnalyzer` → `code_analysis_tool`: 실제 분석 도구를 호출하여 구체적인 분석이 이루어지고, 해당 도구가 처리 결과를 반환.
+   - 분석이 끝나면 `CodeAnalyzer`는 `done` 상태로 다시 `SoftwareEngineer`로 돌아와 다음 작업을 결정하거나, `continue` 경로를 통해 `Editor`로 넘어가 코드 편집을 이어갈 수 있습니다.
+
+4. **Editor 흐름**  
+   - `SoftwareEngineer` → `Editor`(`edit_file`): 편집 작업을 시작.
+   - `Editor`는 여러 하위 도구를 사용할 수 있습니다: `code_edit_tool`을 이용해 실제 코드 수정, 또는 `test_tool`을 통해 편집 이후 테스트 수행.
+   - 각 도구 사용 이후 `Editor`는 `continue`나 `done` 상태로 `SoftwareEngineer`에게 결과를 전달합니다. 다시 한 번 소프트웨어 엔지니어가 다음 단계(예: 추가 테스트, 분석 등)를 결정하게 됩니다.
+
+5. **swe_tool 흐름**  
+   - `SoftwareEngineer` → `swe_tool`: 특정 SWE 도구를 사용하는 경우로, 이 경로는 별도의 하위 노드 없이 `end`로 연결될 수도 있지만, `SoftwareEngineer`가 추가 작업을 결정할 수 있도록 `continue` 화살표로 다시 돌아오기도 합니다.
+
+6. **SoftwareEngineer → end**  
+   - 여러 작업이 완료된 뒤 `SoftwareEngineer`는 `continue` 상태를 통해 `end` 노드로 진행하여 Workflow를 종료합니다.
+
+7. **전체 흐름 요약**  
+   - 주요 활동은 `SoftwareEngineer`를 중심으로 `CodeAnalyzer`나 `Editor`가 역할을 수행하며, 각각은 다시 `code_analysis_tool`, `code_edit_tool`, `test_tool` 같은 세부 도구와 연결됩니다.
+   - 각 도구가 작업을 수행한 후에는 `done`/`continue` 경로를 통해 `SoftwareEngineer`로 돌아와 다음 단계를 결정하거나 `swe_tool`과 같은 다른 도구를 거쳐 `end`로 마무리합니다.
+   - 화살표의 점선은 상태 변화(예: continue, done)를 나타내며, 여러 작업을 순환하는 점선 흐름이 `SoftwareEngineer`를 중심으로 구성되어 있습니다.
+
+이와 같이 Workflow는 `SoftwareEngineer`가 주도적으로 다양한 분석/편집 도구를 활용하면서 작업을 반복하고, 필요한 시점에 종료 지점으로 이동하는 유연한 흐름을 구현하고 있습니다.

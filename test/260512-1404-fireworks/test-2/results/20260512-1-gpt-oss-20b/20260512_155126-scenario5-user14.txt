@@ -1,0 +1,40 @@
+```python
+# 퀵소트 구현 (인‑플레이스 방식)
+
+def quicksort(arr, low, high):
+    # 현재 서브배열이 정렬되어야 할 최소 두 개의 원소를 가지고 있는지 확인
+    if low < high:
+        # 서브배열을 파티션하고 피봇(기준값) 위치를 반환받는다
+        pivot_index = partition(arr, low, high)
+        # 피봇보다 작은 부분을 재귀적으로 정렬한다
+        quicksort(arr, low, pivot_index - 1)
+        # 피봇보다 큰 부분을 재귀적으로 정렬한다
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    # 가장 오른쪽 원소를 피봇으로 정한다
+    pivot = arr[high]
+    # 피봇보다 작은 원소가 놓일 위치를 기록할 변수를 초기화한다
+    i = low - 1
+    # low부터 high-1까지 순회하면서 피봇보다 작은 원소가 나오면 앞쪽으로 이동시킨다
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1          # 작은 값이 놓일 위치를 하나 증가시킨다
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 원소와 현재 원소를 교환
+    # 마지막으로 피봇을 그 위치 바로 뒤에 놓는다
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피봇이 위치한 인덱스를 반환한다
+    return i + 1
+
+# 사용 예시
+if __name__ == "__main__":
+    # 정렬할 리스트를 정의한다
+    data = [3, 6, 8, 10, 1, 2, 1]
+    # 인‑플레이스 퀵소트 호출: 0부터 len(data)-1까지 정렬
+    quicksort(data, 0, len(data) - 1)
+    # 정렬된 결과를 출력한다
+    print(data)
+```
+
+위 코드는 각 코드 라인마다 한 줄의 주석을 달아, 동작을 한눈에 파악할 수 있도록 구성했습니다.  
+필요에 따라 입력 리스트를 변경하거나, 람다식 혹은 다른 피봇 선택 전략으로 바꾸어 실험해 보세요.

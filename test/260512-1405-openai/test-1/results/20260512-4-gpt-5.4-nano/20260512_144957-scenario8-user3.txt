@@ -1,0 +1,119 @@
+이미지에 보이는 워크플로우는 **“start → SoftwareEngineer”를 중심으로 여러 Node(도구/단계)가 병렬처럼 연결되거나, 특정 조건에서 되돌아가며 반복**되는 구조입니다. 아래는 노드들 간 흐름을 “화살표 방향(실행 순서/되돌림)” 기준으로 최대한 상세히 풀어쓴 설명입니다.
+
+---
+
+## 1) 시작 단계
+
+### ✅ start
+- 워크플로우의 엔트리 노드입니다.
+- 화살표가 아래에서 위가 아니라, **start → SoftwareEngineer**로 연결됩니다.
+
+### → SoftwareEngineer
+- “SoftwareEngineer” 노드는 이 워크플로우의 **조정자(오케스트레이터) 역할**을 하는 상위 스테이지처럼 보입니다.
+- 이후 여러 작업(코드 분석, 편집, 테스트, 특정 도구 실행 등)을 호출하고, 작업이 끝나면 다시 SoftwareEngineer로 돌아오는 형태가 반복됩니다.
+
+---
+
+## 2) SoftwareEngineer에서 뻗어 나가는 주요 작업들
+
+이미지에서 SoftwareEngineer 주변으로 여러 개의 화살표가 뻗어 있고, 각각의 작업이 완료되면 **done/continue** 표기가 있는 루프로 SoftwareEngineer로 다시 합류합니다. 큰 흐름은 다음과 같습니다.
+
+---
+
+## 3) CodeAnalyzer 경로 (코드 분석)
+
+### 3-1) SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer 노드에서 **“analyze_code”**라는 라벨이 달린 흐름으로 **CodeAnalyzer**가 호출됩니다.
+- 즉, 현재 코드(또는 입력된 코드 상태)에 대해 분석을 수행하라는 의미입니다.
+
+### 3-2) CodeAnalyzer → code_analysis_tool
+- CodeAnalyzer 내부(또는 하위 노드)로 **code_analysis_tool**이 존재합니다.
+- CodeAnalyzer는 이 도구를 실행해 실제 정적 분석/스캔/리포트 생성 같은 작업을 수행합니다.
+
+### 3-3) code_analysis_tool 실행 결과 → CodeAnalyzer → (done 또는 continue)
+- 이미지에서 **CodeAnalyzer로 “done”**이 표시된 흐름이 보입니다.
+- 또한 **“continue”**가 점선으로 연결되어, 분석이 끝났을 때
+  - 다음 단계로 진행할지,
+  - 혹은 다시 SoftwareEngineer로 돌아가 다른 작업을 수행할지
+  를 결정하는 분기(또는 반복) 장치로 해석됩니다.
+
+### 3-4) CodeAnalyzer → SoftwareEngineer (done)
+- 분석이 끝나면 **CodeAnalyzer에서 “done”** 표기가 되어 **SoftwareEngineer로 되돌아가는 화살표**가 존재합니다.
+- 즉 “코드 분석 완료” 상태가 SoftwareEngineer에 피드백되고, SoftwareEngineer가 다음 행동(편집/테스트/추가 분석 등)을 결정합니다.
+
+---
+
+## 4) Editor 경로 (코드 수정/편집)
+
+### 4-1) SoftwareEngineer → Editor
+- SoftwareEngineer에서 **편집 단계**로 가는 화살표가 있고, 라벨은 **“edit_file”**로 보입니다.
+- 즉 분석 결과를 바탕으로 특정 파일을 수정하라는 의미입니다.
+
+### 4-2) Editor의 하위 도구/연결
+- Editor 아래에는 **code_edit_tool**이 연결되어 있습니다.
+- Editor는 실제로는 이 도구를 통해 코드 수정 작업을 수행합니다.
+  - 예: 파일 열기/수정/패치 적용/리라이트/포맷팅 등
+
+### 4-3) Editor → test_tool 연결(중요)
+- 이미지에서 Editor에서 **“test_tool”**로 가는 아래 방향 화살표(실행)가 있으며,
+- 이는 “코드를 고쳤으니 바로 테스트를 실행한다”는 흐름으로 해석됩니다.
+
+### 4-4) test_tool 실행 후 Editor로 continue
+- test_tool 쪽에서 **continue**가 점선으로 연결되어 다시 Editor로 들어오는 형태가 보입니다.
+- 즉 테스트 결과가 특정 조건을 만족하면 “계속 진행” 또는 “추가 수정” 같은 후속 동작을 트리거합니다.
+
+### 4-5) Editor 완료 → SoftwareEngineer (done)
+- Editor로부터 **“done”**이 다시 SoftwareEngineer로 돌아가는 화살표가 있습니다.
+- 따라서 편집(및 테스트 관련 진행)까지 완료하면 SoftwareEngineer가 “다음 스텝”을 판단합니다.
+
+---
+
+## 5) SWE tool 경로 (swe_tool)
+
+### 5-1) SoftwareEngineer → swe_tool
+- SoftwareEngineer에서 **swe_tool**로 연결된 화살표가 있으며,
+- 라벨이 따로 보이진 않지만 오른쪽 아래에 **swe_tool 노드**가 별도로 존재합니다.
+- 이 단계는 보통 “상위 수준 SWE 작업(예: 문제 해결 도구/자동화된 엔지니어링 실행)” 혹은 “특정 기능 호출”로 해석될 수 있습니다.
+
+### 5-2) swe_tool → (continue) 및 최종 end로의 흐름
+- 이미지 오른쪽에 **end** 노드가 있고,
+- swe_tool에서 **end로 직접 가는 듯한 점선/화살표 흐름**이 보입니다.
+- 즉 swe_tool이 완료되면 워크플로우가 종료 단계(end)로 진입할 수 있습니다.
+- 또한 “continue” 루프 표기가 함께 있어, 매번 곧바로 끝나는 게 아니라 상황에 따라 되돌아가거나(또는 조건이 만족될 때 끝나는) 구조일 수 있습니다.
+
+---
+
+## 6) end 단계
+
+### ✅ end
+- 최종 종료 노드입니다.
+- 이미지에서 여러 경로(특히 swe_tool 쪽)에서 end로 향하는 화살표가 보입니다.
+- 즉 최종적으로:
+  - 코드 분석과 수정/테스트가 충분히 이뤄졌거나,
+  - swe_tool이 최종 해결을 수행했거나,
+  - 혹은 더 이상 반복할 필요가 없다고 판단되면
+- end로 종료됩니다.
+
+---
+
+## 7) “continue / done / 점선”의 의미(이미지 기준 해석)
+
+이미지에서 **점선(dotted) 화살표**와 **continue / done 라벨**이 같이 등장합니다. 이를 워크플로우 관점에서 정리하면:
+
+- **done**
+  - 특정 작업(예: CodeAnalyzer, Editor)이 **완료**되어 상위(SoftwareEngineer)로 결과/상태를 전달하는 신호.
+- **continue**
+  - 결과를 받은 뒤 **다음 단계로 이어지거나**, 반복 구조를 **계속 수행**하라는 신호.
+- **점선 화살표**
+  - “항상 고정 순서로 흐르는 단일 직렬”이라기보다,
+  - 조건/상태에 따라 흐름이 이어지거나, 중간 분기/재시도를 표현하는 시각적 장치로 보입니다.
+
+---
+
+## 8) 전체 흐름을 한 문장으로 요약
+
+**start에서 SoftwareEngineer가 코드 분석(CodeAnalyzer→code_analysis_tool)과 코드 수정(Editor→code_edit_tool) 및 테스트(test_tool)를 수행하면서, 완료(done) 및 계속(continue) 상태에 따라 반복/다음 단계로 진행하고, 최종적으로 swe_tool 작업 또는 해결 조건이 충족되면 end로 종료되는 구조**입니다.
+
+---
+
+원하시면, 제가 이 워크플로우를 **(1) 순차 시나리오 버전(가장 가능성 높은 단일 실행 경로)**, **(2) 반복/분기 시나리오 버전(continue로 되돌아갈 때의 케이스들)** 두 가지로 나눠 더 “알고리즘처럼” 재구성해서 써드릴게요.

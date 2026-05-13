@@ -1,0 +1,29 @@
+```python
+# QuickSort(퀵소트) 알고리즘을 파이썬으로 구현한 예시입니다.
+# 각 줄마다 해당 줄이 수행하는 역할을 주석으로 기록했습니다.
+
+def partition(arr, low, high):
+    # 파티션 루틴: 배열을 재배치하고 피벗이 올바른 위치에 놓이도록 함
+    pivot = arr[high]          # 가장 오른쪽 원소를 피벗으로 선택
+    i = low - 1                # 피벗보다 작은 값이 마지막으로 위치할 인덱스
+    for j in range(low, high): # low부터 high-1까지 순회
+        if arr[j] <= pivot:    # 현재 원소가 피벗보다 작거나 같으면
+            i += 1              # i 증가시키고
+            arr[i], arr[j] = arr[j], arr[i]  # arr[i]와 arr[j]를 교환
+    arr[i+1], arr[high] = arr[high], arr[i+1]  # 피벗을 올바른 위치에 놓음
+    return i + 1                # 피벗이 놓인 인덱스를 반환
+
+def quicksort(arr, low, high):
+    # 재귀적으로 배열을 정렬하는 QuickSort 함수
+    if low < high:              # 정렬 범위가 유효한지 확인
+        pi = partition(arr, low, high)  # 파티션 수행 후 피벗 인덱스 찾기
+        quicksort(arr, low, pi - 1)     # 피벗 앞쪽 부분을 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)    # 피벗 뒷쪽 부분을 재귀적으로 정렬
+
+# 프로그램 실행 예시
+if __name__ == "__main__":
+    arr = [10, 7, 8, 9, 1, 5]     # 정렬할 배열 정의
+    print("Original array:", arr) # 원본 배열 출력
+    quicksort(arr, 0, len(arr) - 1)  # QuickSort 호출
+    print("Sorted array:  ", arr)   # 정렬된 배열 출력
+```

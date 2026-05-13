@@ -1,0 +1,80 @@
+아래는 그림에 나타난 Workflow의 Node(노드)들 간 흐름을 가능한 한 상세하게 서술한 내용입니다. 그림에 보이는 노드명(라벨)과 엣지(점·선, 라벨 포함)를 그대로 사용하여 각 경로와 의미를 설명합니다.
+
+주요 노드와 도구
+- start: 워크플로우 시작 지점(원형).
+- SoftwareEngineer: 주체 역할 노드(사람/오케스트레이터).
+- CodeAnalyzer: 코드 분석을 담당하는 역할 노드.
+- Editor: 코드 편집(수정) 인터랙션을 담당하는 역할 노드.
+- swe_tool: Software Engineer가 직접 호출할 수 있는 도구 노드(오른쪽).
+- end: 워크플로우 종료 지점(원형).
+- code_analysis_tool, code_edit_tool, test_tool: 각각 CodeAnalyzer와 Editor가 내부적으로 호출하는 구체적 도구(하위 도구) 노드들.
+
+엣지 종류와 라벨(그림에 보이는 주요 라벨)
+- 시작: start -> SoftwareEngineer
+- SoftwareEngineer -> CodeAnalyzer: 라벨 "analyze_code" (대시선)
+- SoftwareEngineer -> Editor: 라벨 "edit_file" (대시선)
+- SoftwareEngineer -> swe_tool: 라벨 "continue" (대시선)
+- SoftwareEngineer -> end: 라벨 "continue" (점선)
+- CodeAnalyzer -> code_analysis_tool: 하위 도구 호출(점·선)
+- Editor -> code_edit_tool: 하위 도구 호출(점·선)
+- Editor -> test_tool: 하위 도구 호출(점·선)
+- CodeAnalyzer -> (SoftwareEngineer): 라벨 "done" 또는 "continue"로 되돌아가는 경로(점선)
+- Editor -> (SoftwareEngineer): 라벨 "done" 또는 "continue"로 되돌아가는 경로(점선)
+- CodeAnalyzer <-> Editor: 상호 연결된 "continue" 흐름(점선) — CodeAnalyzer로부터 Editor로 또는 그 반대로 이어질 수 있음을 나타냄
+
+흐름의 의미(상세)
+1. 시작 및 역할 분기
+   - 워크플로우는 start에서 시작해 SoftwareEngineer 노드로 진입합니다.
+   - SoftwareEngineer는 이 워크플로우의 중심(결정자)으로, 다음 주요 활동들 가운데 하나(또는 여러개)를 수행하기 위해 각 역할 노드 또는 도구로 분기합니다.
+
+2. 코드 분석 경로 (SoftwareEngineer -> CodeAnalyzer)
+   - SoftwareEngineer가 "analyze_code" 액션을 수행하면 CodeAnalyzer 노드로 흐릅니다.
+   - CodeAnalyzer는 내부적으로 code_analysis_tool을 호출(연결)해 실제 코드 분석을 수행합니다.
+   - 분석이 끝난 후 두 가지 주요 결과/흐름이 가능합니다:
+     - "done" 라벨이 붙은 경로로 SoftwareEngineer에게 완료 보고(되돌아감). 이 경우 SoftwareEngineer는 다음 단계(예: 다른 작업 또는 종료)를 결정합니다.
+     - "continue" 라벨로 Editor 쪽(혹은 Editor를 거쳐 다른 흐름)으로 넘어가 추가 편집/조정 단계로 진입할 수 있습니다.
+   - 또한 CodeAnalyzer와 Editor 사이에는 직접 "continue" 연결이 있어, 분석 결과에 따라 바로 편집 단계로 이동(또는 편집 후 재분석으로 순환)하는 흐름을 나타냅니다.
+
+3. 편집 경로 (SoftwareEngineer -> Editor)
+   - SoftwareEngineer가 "edit_file" 액션을 수행하면 Editor 노드로 흐릅니다.
+   - Editor는 code_edit_tool(편집 툴)과 test_tool(테스트 툴)을 호출하여 파일 수정과 테스트를 수행할 수 있습니다.
+   - Editor 내부에서 편집과 테스트는 반복적일 수 있으며, 테스트 실패 시 다시 편집으로 돌아오는 루프가 존재하는 것으로 해석됩니다(점선 화살표들).
+   - 편집/테스트 완료 후 Editor는:
+     - "done" 라벨로 SoftwareEngineer에게 완료 보고(되돌아감).
+     - 또는 "continue" 라벨로 다른 컴포넌트(예: swe_tool 또는 워크플로우 종료)로 흐름을 연결할 수 있습니다.
+   - Editor와 CodeAnalyzer 간에도 "continue" 연결이 있어 편집 후 재분석으로 되돌아가거나, 분석 후 편집으로 바로 이어지는 사이클이 가능함을 시사합니다.
+
+4. 도구(swe_tool)와 종료
+   - SoftwareEngineer는 직접 swe_tool을 호출(점선)할 수 있으며, 이 호출은 다른 작업들과 병렬적/대체적 단계로 존재합니다.
+   - swe_tool을 사용한 후에는 다시 SoftwareEngineer로 돌아오거나(그림상 연결을 통해) 또는 "continue"를 통해 끝으로 나아갈 수 있습니다.
+   - SoftwareEngineer는 상황에 따라 바로 end로 이어지는 "continue" 경로를 통해 워크플로우를 종료할 수 있습니다.
+
+5. 반복성과 제어
+   - 다수의 점선과 "continue", "done" 라벨은 이 워크플로우가 일직선의 일회용 흐름이 아니라 반복(분석→편집→테스트→재분석)의 형태임을 의미합니다.
+   - "done"은 특정 역할에서 그 역할의 책임이 완료되어 제어를 상위(SoftwareEngineer)로 반환함을 나타냅니다.
+   - "continue"는 다음 단계로 자연스럽게 이어져 추가 작업(다른 역할 노드 혹은 종료)으로 진행함을 의미합니다.
+   - CodeAnalyzer와 Editor 사이의 양방향 continue는 실제 개발 사이클에서 분석→수정→분석의 반복 루프를 시각화한 것으로 해석됩니다.
+
+예시적 시나리오(구체적 경로 예)
+- 시나리오 A (분석 → 편집 → 테스트 → 종료)
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer (analyze_code) → CodeAnalyzer
+  3) CodeAnalyzer → code_analysis_tool (분석 수행)
+  4) 분석 후 CodeAnalyzer (continue) → Editor
+  5) Editor → code_edit_tool로 수정, → test_tool로 테스트
+  6) 테스트 통과 시 Editor (done) → SoftwareEngineer
+  7) SoftwareEngineer → swe_tool(선택) → 이후 SoftwareEngineer (continue) → end
+
+- 시나리오 B (직접 편집 후 재분석 반복)
+  1) start → SoftwareEngineer (edit_file) → Editor
+  2) Editor → code_edit_tool로 수정
+  3) Editor → test_tool로 테스트 실패 → Editor로 돌아와 재수정(반복)
+  4) 만족스러운 상태가 되면 Editor (continue) → CodeAnalyzer로 보내 재분석
+  5) CodeAnalyzer 완료 후 (done) → SoftwareEngineer → end
+
+요약
+- SoftwareEngineer가 중심 제어자이며, 주요 액션( analyze_code, edit_file, continue )을 통해 CodeAnalyzer, Editor, swe_tool 또는 end로 분기한다.
+- CodeAnalyzer와 Editor는 각각 하위 도구(code_analysis_tool, code_edit_tool, test_tool)를 호출하여 실제 작업을 수행하고, 완료 시 "done"으로 SoftwareEngineer에게 보고하거나 "continue"로 다음 역할로 연결된다.
+- 전체 구조는 분석-편집-테스트의 반복 사이클을 지원하며, 필요 시 워크플로우를 종료하거나 추가 도구(swe_tool)를 호출하는 유연한 흐름을 갖는다.
+
+원하시면 이 흐름을 상태 다이어그램 형식(유한 상태 머신)으로 정리하거나 각 엣지에 조건(어떤 결과일 때 continue/ done으로 가는지)을 추정하여 더 구체적인 시나리오 표로 만들어 드리겠습니다. 어떤 방식으로 정리해 드릴까요?

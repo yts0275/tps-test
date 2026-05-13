@@ -1,0 +1,76 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort)를 구현한 코드입니다. 각 라인마다 친절하게 주석도 달아드리겠습니다.
+
+```python
+# 퀵소트를 위한 파티션 함수 정의
+# 리스트, 시작 인덱스, 끝 인덱스를 인자로 받습니다.
+def partition(arr, low, high):
+    """
+    피벗을 기준으로 리스트를 분할하는 함수
+    파티션은 피벗보다 작은 값을 왼쪽, 크거나 같은 값을 오른쪽으로 배치
+    """
+    
+    # 피벗 값: 오른쪽 끝 값 (여기서는 arr[high]로 선택)
+    pivot = arr[high]
+    
+    # i는 마지막으로 pivot보다 작았던 인덱스 (초기값은 low - 1)
+    i = low - 1
+    
+    # j가 low부터 high - 1까지 반복하면서 비교
+    for j in range(low, high):
+        # 현재 원소(arr[j])가 pivot보다 작으면
+        if arr[j] < pivot:
+            # i의 위치를 증가하고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # i+1 위치에 피벗 값을 올려 파티션 완성
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 파티션 경계 (피벗이 위치한 인덱스) 반환
+    return i + 1
+
+
+# 퀵소트 재귀 함수
+def quick_sort(arr, low, high):
+    """
+    퀵소트 재귀 함수
+    리스트를 재귀적으로 정렬
+    """
+
+    # low가 high보다 작으면 아직 정리되지 않은 부분이 있음
+    if low < high:
+
+        # 파티션 수행, 피벗 인덱스 반환
+        pi = partition(arr, low, high)
+
+        # 피벗을 기준으로 왼쪽 리스트 정렬 (재귀 호출)
+        quick_sort(arr, low, pi - 1)
+
+        # 피벗을 기준으로 오른쪽 리스트 정렬 (재귀 호출)
+        quick_sort(arr, pi + 1, high)
+
+
+# 예시: 퀵소트 실행
+if __name__ == "__main__":
+    # 예시 리스트
+    arr = [5, 2, 9, 1, 5, 3]
+
+    # 리스트 출력 (정렬 전)
+    print("정렬 전:", arr)
+
+    # 퀵소트 수행 (리스트와 시작, 끝 인덱스 전달)
+    quick_sort(arr, 0, len(arr) - 1)
+
+    # 정렬 후 다시 출력
+    print("정렬 후:", arr)
+```
+
+---
+
+### 💡 간단한 설명
+
+- **partition 함수**: 리스트를 피벗 기준으로 좌우로 나눔.
+- **quick_sort 함수**: 재귀적으로 좌우 부분을 또다시 퀵소트 하여 정렬.
+- **시간복잡도**: 평균 O(n log n), 최악 O(n²) (보통 잘 선택되면 효율적).
+
+궁금한 부분이나 더 설명해 드릴까요? 😊

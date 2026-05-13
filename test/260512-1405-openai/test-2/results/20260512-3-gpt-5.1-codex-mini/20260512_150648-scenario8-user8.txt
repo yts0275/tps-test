@@ -1,0 +1,29 @@
+이 워크플로우는 `start` 노드에서 시작하여 `SoftwareEngineer`(소프트웨어 엔지니어) 노드로 흐름이 이어집니다. 여기서부터 여러 도구와 작업 노드를 순차적으로 또는 반복적으로 이동하는 구조로, 각 노드 간 흐름(화살표)에는 상태를 나타내는 레이블(예: `analyze_code`, `edit_file`, `done`, `continue`)이 붙어 있습니다.
+
+1. **SoftwareEngineer 노드**  
+   - `start`에서 직접 연결되며 워크플로우의 중심 허브 역할을 합니다.
+   - 여기에서 세 가지 주요 방향으로 흐름이 갈라집니다.
+     1. **CodeAnalyzer 방향 (`analyze_code`)**  
+        - `SoftwareEngineer`는 `analyze_code`라는 액션 명세와 함께 `CodeAnalyzer` 노드로 이동합니다.
+        - 이는 엔지니어가 분석을 요구하는 코드 조각을 `CodeAnalyzer`로 넘긴다는 의미이며, 이후 결과를 받아 `done` 상태로 다시 `SoftwareEngineer`에게 리턴합니다.
+     2. **Editor 방향 (`edit_file`)**  
+        - `SoftwareEngineer`는 `edit_file` 액션을 통해 `Editor` 노드로 이동하여 파일 편집 작업을 수행합니다.  
+        - 작업이 끝나면 `done` 상태로 다시 `SoftwareEngineer`에게 돌아오고, 필요하면 계속(`continue`) 다시 진입하거나 다음 도구로 넘어갈 수 있습니다.
+     3. **swe_tool 방향 (`continue`)**  
+        - `SoftwareEngineer`에서 `swe_tool`(소프트웨어 엔지니어 도구) 노드로 바로 연결되어 있으며 이것은 추가적인 작업이나 도구에 대한 액세스를 의미합니다. 이후 작업이 완료되면 다시 `SoftwareEngineer`로 돌아오는 흐름으로 보여집니다.
+   - 또한 `SoftwareEngineer`는 `end` 노드로 `continue` 레이블을 달고 직접 이어져 워크플로우 종료로 이어질 수 있습니다. 이는 모든 작업이 끝난 이후 종료 조건을 만족하면 곧바로 종료되는 경로입니다.
+
+2. **CodeAnalyzer 노드 흐름**  
+   - `CodeAnalyzer`는 `code_analysis_tool`로 이어지며 실제 코드 분석 도구를 호출하는 세부 단계를 나타냅니다.
+   - `code_analysis_tool`에서 결과를 다시 `CodeAnalyzer`로 반환한 후, `done` 상태로 `SoftwareEngineer`로 복귀합니다.
+   - 복귀 이후 `SoftwareEngineer`는 필요한 경우 `continue`로 도구들을 다시 호출하거나 다른 작업으로 전환합니다.
+
+3. **Editor 노드 흐름**  
+   - `Editor`는 `code_edit_tool`, `test_tool`과 연결되어 있으며, 각각 편집과 테스트 도구를 나타냅니다.
+   - `code_edit_tool`을 통해 실제 파일 편집 작업을 수행하고, `test_tool`로 이동해 수정된 코드에 대한 테스트를 수행한 뒤 결과를 다시 `Editor`로 되돌립니다.
+   - 완료 후 `Editor`는 `done` 레이블을 통해 `SoftwareEngineer`로 돌아가며, 이후 `continue`를 통해 추가 조작 또는 다른 흐름(예: `CodeAnalyzer`)으로 전환할 수 있습니다.
+
+4. **종합 흐름**  
+   - `SoftwareEngineer`에서 시작하여 코드 분석 → 편집 → 도구 이용 등 반복적인 사이클을 거친 다음, 모든 작업이 완료되면 `continue`를 통해 `swe_tool` 또는 직접 `end`로 종료합니다.
+   - `CodeAnalyzer`와 `Editor`는 각각 세부 도구(`code_analysis_tool`, `code_edit_tool`, `test_tool`)와 연계되며, 각 도구는 `done` 시점에 다시 상위 노드로 피드백을 주고, 필요할 경우 `continue`로 이어집니다.
+   - 전체적으로 본 워크플로우는 `SoftwareEngineer`를 중심으로 다양한 도구와 작업 노드가 상호작용하여 반복적인 코드 분석・편집・테스트 과정을 수행한 뒤 종료로 나아가는 구조입니다.

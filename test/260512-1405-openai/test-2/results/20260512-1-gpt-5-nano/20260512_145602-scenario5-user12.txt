@@ -1,0 +1,23 @@
+다음은 파이썬으로 작성한 퀵소트 구현이며, 각 줄마다 주석을 달아둔 버전입니다.
+
+def quicksort(arr):  # QuickSort 알고리즘으로 배열을 제자리에서 정렬합니다
+    def _quicksort(a, low, high):  # 재귀적으로 부분 배열을 정렬하는 도우미 함수
+        if low < high:  # 하위 배열에 최소 두 개의 원소가 있는지 확인합니다
+            p = partition(a, low, high)  # 피벗 인덱스를 얻습니다
+            _quicksort(a, low, p - 1)  # 왼쪽 부분 배열 정렬
+            _quicksort(a, p + 1, high)  # 오른쪽 부분 배열 정렬
+
+    def partition(a, low, high):  # 피벗을 기준으로 배열을 분할하는 함수
+        pivot = a[high]  # 마지막 원소를 피벗으로 선택합니다
+        i = low - 1  # 피벗보다 작거나 같은 원소의 끝 인덱스 초기화
+        for j in range(low, high):  # low에서 high-1까지 순회합니다
+            if a[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+                i += 1  # 작거나 같은 영역의 크기를 확장합니다
+                a[i], a[j] = a[j], a[i]  # 해당 원소를 왼쪽 영역으로 이동합니다
+        a[i + 1], a[high] = a[high], a[i + 1]  # 피벗을 정확한 위치에 배치합니다
+        return i + 1  # 피벗의 최종 인덱스를 반환합니다
+
+    if arr is None:  # 입력이 None일 경우 처리합니다
+        return None  # None을 반환합니다
+    _quicksort(arr, 0, len(arr) - 1)  # 배열 전체에 대해 퀵소트를 시작합니다
+    return arr  # 정렬된 배열을 반환합니다

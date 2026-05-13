@@ -1,0 +1,32 @@
+아래는 Python으로 구현한 in-place 퀵소트 코드입니다. 각 줄마다 한국어 주석을 달았습니다.
+
+```python
+def partition(arr, low, high):  # 배열과 시작·끝 인덱스를 받아 파티션을 수행하는 함수 정의
+    pivot = arr[high]  # 피벗을 배열의 마지막 요소로 선택
+    i = low - 1  # 작은 요소들의 경계 인덱스를 초기화
+    for j in range(low, high):  # low부터 high-1까지 반복하며 요소를 검사
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 경계 인덱스를 하나 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 요소를 왼쪽 영역으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 경계 바로 다음 위치로 교환하여 올바른 위치로 이동
+    return i + 1  # 최종 피벗 위치 인덱스를 반환
+
+def quicksort_recursive(arr, low, high):  # 실제 재귀 퀵소트 구현 함수 정의
+    if low < high:  # 분할할 범위가 유효한지 확인
+        p = partition(arr, low, high)  # 파티션을 수행하고 피벗 인덱스를 얻음
+        quicksort_recursive(arr, low, p - 1)  # 피벗 왼쪽 부분 배열에 대해 재귀 호출
+        quicksort_recursive(arr, p + 1, high)  # 피벗 오른쪽 부분 배열에 대해 재귀 호출
+
+def quicksort(arr):  # 사용하기 편하도록 배열만 받아 전체 정렬을 수행하는 래퍼 함수 정의
+    if not isinstance(arr, list):  # 입력이 리스트인지 검사
+        raise TypeError("quicksort 함수는 리스트를 입력으로 받습니다.")  # 리스트가 아니면 예외 발생
+    quicksort_recursive(arr, 0, len(arr) - 1)  # 내부 재귀 함수로 전체 배열을 정렬
+
+# 사용 예시
+arr = [33, 10, 55, 71, 29, 3, 18]  # 정렬할 샘플 배열 정의
+print("정렬 전:", arr)  # 정렬 전 배열을 출력
+quicksort(arr)  # 퀵소트 호출로 배열을 제자리에서 정렬
+print("정렬 후:", arr)  # 정렬 후 배열을 출력
+```
+
+원하시면 다른 피벗 선택 전략(예: 중앙값 피벗), 비재귀(스택 사용) 구현, 또는 언어(예: C/C++, Java) 버전도 제공해 드리겠습니다.

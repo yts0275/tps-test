@@ -1,0 +1,3 @@
+상품(Product), 주문(Order), 재고관리(InventoryManager) 클래스로 구성된 간단한 재고/주문 처리 시스템이며 run_system()에서 실행 흐름을 시연합니다.
+Product.update_stock은 재고를 음수로 만들지 못하게 검사하고, Order.add_item은 재고를 차감해 주문 항목과 총액을 기록한 뒤 영수증(print_invoice)을 출력합니다.
+run_system은 초기 상품 등록, 주문 성공 및 재고 부족(실패) 시나리오를 보여주고 최종 재고 현황 및 창고 자산 가치를 계산해 출력합니다.

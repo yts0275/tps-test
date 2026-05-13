@@ -1,0 +1,32 @@
+```python
+# 파이썬으로 퀵소트(QuickSort) 알고리즘을 구현한 예시입니다.
+# 각 코드 라인마다 한 줄씩 주석을 달아 이해를 돕습니다.
+
+def quicksort(arr):
+    # 배열이 비어 있거나, 한 요소만 있으면 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 마지막 요소를 피벗으로 선택
+    pivot = arr[-1]
+
+    # 피벗보다 작은 값들을 모은 리스트
+    less = [x for x in arr[:-1] if x <= pivot]
+    # 피벗보다 큰 값들을 모은 리스트
+    greater = [x for x in arr[:-1] if x > pivot]
+
+    # 재귀적으로 왼쪽, 오른쪽 부분 배열을 정렬 후 피벗과 합침
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 사용 예시
+if __name__ == "__main__":
+    unsorted = [8, 3, 9, 1, 5, 4, 7, 2, 6]
+    # 퀵소트 함수를 호출하여 정렬된 리스트를 얻음
+    sorted_list = quicksort(unsorted)
+    # 결과 출력
+    print("정렬 전:", unsorted)
+    print("정렬 후:", sorted_list)
+```
+
+위 코드에서는 재귀적으로 정렬을 수행하며, 각 단계마다 피벗을 기준으로 두 개의 서브배열(`less`, `greater`)을 구성해 정리합니다.  
+주석은 한 줄씩 달려 있어 각 라인의 동작을 바로 이해할 수 있습니다.

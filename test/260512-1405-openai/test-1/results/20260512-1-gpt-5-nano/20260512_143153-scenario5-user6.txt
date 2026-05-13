@@ -1,0 +1,22 @@
+다음은 각 줄에 주석을 달아놓은 파이썬 QuickSort 구현입니다.
+
+def quicksort(arr, low, high):  # QuickSort 함수 정의
+    if low < high:  # 부분 배열의 길이가 2 이상인지 확인
+        pi = partition(arr, low, high)  # 피봇의 최종 인덱스 계산
+        quicksort(arr, low, pi - 1)  # 피봇 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 피봇 오른쪽 부분 배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # 파티션 함수 정의
+    pivot = arr[high]  # 피봇으로 마지막 요소 선택
+    i = low - 1  # 작은 요소를 구분하는 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같으면
+            i += 1  # 작은 영역의 끝 인덱스 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소를 작은 영역으로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 올바른 위치로 이동
+    return i + 1  # 피봇의 최종 위치를 반환
+
+data = [10, 7, 8, 9, 1, 5]  # 정렬할 데이터
+n = len(data)  # 배열의 길이 계산
+quicksort(data, 0, n - 1)  # 배열 전체를 정렬하도록 QuickSort 시작
+print(data)  # 정렬된 결과 출력

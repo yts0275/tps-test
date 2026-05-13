@@ -1,0 +1,28 @@
+다음은 각 줄 끝에 주석을 다 달아 만든 파이썬 퀵소트 구현입니다.
+
+```python
+def quicksort(arr):  # 퀵소트 외부 함수: 배열을 제자리에서 정렬합니다
+    def partition(a, low, high):  # 파티션 함수: 피봇 위치를 결정합니다
+        pivot = a[high]  # 피봇으로 마지막 원소를 선택합니다
+        i = low - 1  # 피봇보다 작거나 같은 원소의 경계 인덱스
+        for j in range(low, high):  # j를 low에서 high-1까지 순회합니다
+            if a[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같으면
+                i += 1  # 경계 인덱스를 하나 증가시킵니다
+                a[i], a[j] = a[j], a[i]  # 원소를 왼쪽 부분으로 교환합니다
+        a[i + 1], a[high] = a[high], a[i + 1]  # 피봇을 올바른 위치로 이동합니다
+        return i + 1  # 피봇의 최종 인덱스를 반환합니다
+
+    def _quicksort(a, low, high):  # 내부 재귀 함수: 부분 배열 정렬
+        if low < high:  # 구간에 원소가 두 개 이상인지 검사합니다
+            p = partition(a, low, high)  # 파티션으로 피봇 인덱스 얻기
+            _quicksort(a, low, p - 1)  # 피봇 왼쪽 부분 재귀 정렬
+            _quicksort(a, p + 1, high)  # 피봇 오른쪽 부분 재귀 정렬
+
+    _quicksort(arr, 0, len(arr) - 1)  # 정렬 시작: 전체 배열에 대해 호출
+    return arr  # 제자리에서 정렬한 배열을 반환합니다
+
+if __name__ == "__main__":  # 스크립트로 실행될 때의 진입점
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬 대상 배열 생성
+    print("정렬 전:", data)  # 정렬 전 배열 출력
+    print("정렬 후 :", quicksort(data))  # 정렬 후 결과 출력
+```

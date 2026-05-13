@@ -1,0 +1,27 @@
+```python
+# 파이썬으로 구현한 퀵소트(Quick Sort) 알고리즘
+# 각 줄마다 주석을 달아 이해를 돕는다.
+
+def quick_sort(arr, low, high):  # 배열 arr을 인덱스 low부터 high까지 정렬하는 함수
+    if low < high:  # 정렬할 범위가 두 개 이상의 요소를 포함할 때만 실행
+        pi = partition(arr, low, high)  # 피벗을 기준으로 배열을 나누는 함수 호출
+        quick_sort(arr, low, pi - 1)  # 피벗 왼쪽 부분 재귀 정렬
+        quick_sort(arr, pi + 1, high)  # 피벗 오른쪽 부분 재귀 정렬
+
+def partition(arr, low, high):   # 피벗을 기준으로 배열을 나누는 함수
+    pivot = arr[high]  # 가장 오른쪽 요소를 피벗으로 선택
+    i = low - 1  # i는 피벗보다 작은 요소가 있는 위치를 추적
+    for j in range(low, high):  # low부터 high-1까지 반복
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같을 때
+            i += 1  # i를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 피벗보다 작은 요소를 앞쪽으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 정해진 위치(결과적으로 i+1)로 이동
+    return i + 1  # 피벗이 확정된 인덱스를 반환
+
+# 예시 실행
+if __name__ == "__main__":
+    data = [9, 3, 7, 1, 6, 8, 2, 5, 4]  # 정렬할 배열
+    print("정렬 전:", data)  # 정렬 전 배열 출력
+    quick_sort(data, 0, len(data) - 1)  # quick_sort 함수 호출
+    print("정렬 후 :", data)  # 정렬 후 배열 출력
+```

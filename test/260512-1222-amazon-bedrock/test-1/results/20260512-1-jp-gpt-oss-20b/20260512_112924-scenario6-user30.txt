@@ -1,0 +1,3 @@
+1. `Product`, `Order`, `InventoryManager` 클래스가 제품 재고, 주문 처리, 재고 관리 기능을 담당하며, `Product.update_stock` 로 재고를 조정하고 `Order.add_item` 으로 주문에 품목을 추가합니다.  
+2. `print_invoice` 와 `show_inventory` 메서드가 각각 주문 영수증과 현재 재고 현황을 포맷에 맞춰 콘솔에 출력합니다.  
+3. `run_system` 함수는 초기 데이터 부여, 두 건의 주문(재고 부족 시나리오 포함), 최종 재고 점검, 창고 자산 가치를 계산해 보고서를 표시하는 전체 흐름을 실행합니다.

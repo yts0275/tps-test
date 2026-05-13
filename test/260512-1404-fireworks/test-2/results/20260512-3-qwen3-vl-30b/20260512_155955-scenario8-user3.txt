@@ -1,0 +1,124 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 모든 노드와 그间的 연결 관계를 최대한 상세히 설명한 것입니다.
+
+---
+
+### **1. 전체적인 흐름 개요**
+이 워크플로우는 소프트웨어 엔지니어(Software Engineer)가 코드를 분석하고, 편집하고, 테스트하는 일련의 작업을 자동화하는 시스템을 나타냅니다. 시작 노드에서 시작하여, 주요 작업을 수행하는 'SoftwareEngineer' 노드를 중심으로 여러 도구(Analysis, Editor, Test 등)와 상호작용하며, 최종적으로 'end' 노드로 종료됩니다. 전체적인 흐름은 반복 가능하며, 각 단계에서 'continue' 또는 'done' 이벤트를 통해 다음 단계로 전환됩니다.
+
+---
+
+### **2. 노드별 상세 설명 및 흐름 분석**
+
+#### **2.1. `start` 노드**
+- **역할**: 워크플로우의 시작점.
+- **특징**: 원형 노드로, 흐름의 첫 번째 지점입니다.
+- **연결**: `start` 노드는 단일한 실선 화살표를 통해 `SoftwareEngineer` 노드로 연결됩니다.
+- **흐름**: 워크플로우는 이 노드에서 시작되어 `SoftwareEngineer` 노드로 진입합니다.
+
+---
+
+#### **2.2. `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 중심 제어 노드. 소프트웨어 엔지니어의 역할을 시뮬레이션하며, 다른 도구와의 상호작용을 조정합니다.
+- **특징**: 사각형 노드로, 흐름의 핵심 제어점입니다.
+- **입력**: `start` 노드에서 진입.
+- **출력**: `SoftwareEngineer` 노드는 세 가지 주요 경로로 나뉩니다:
+  1. `analyze_code` 경로 → `CodeAnalyzer`
+  2. `edit_file` 경로 → `Editor`
+  3. `swc_tool` 경로 → `end` (직접 종료 가능)
+
+- **상세 흐름**:
+  - **`analyze_code` 경로**:
+    - `SoftwareEngineer` 노드에서 `analyze_code` 이벤트를 발생시켜 `CodeAnalyzer` 노드로 전환.
+    - `CodeAnalyzer` 노드가 완료되면 `done` 이벤트를 발행하여 `SoftwareEngineer` 노드로 돌아옵니다.
+    - `CodeAnalyzer` 노드는 `code_analysis_tool` 노드를 호출하며, 이 도구는 분석 결과를 반환합니다.
+    - `CodeAnalyzer` 노드는 `continue` 이벤트를 통해 `SoftwareEngineer` 노드로 다시 연결되며, 이는 분석 후 추가 작업을 수행할 수 있음을 의미합니다.
+  
+  - **`edit_file` 경로**:
+    - `SoftwareEngineer` 노드에서 `edit_file` 이벤트를 발생시켜 `Editor` 노드로 전환.
+    - `Editor` 노드는 `code_edit_tool`과 `test_tool`을 사용하여 파일을 편집하고 테스트합니다.
+    - `Editor` 노드가 완료되면 `done` 이벤트를 발행하여 `SoftwareEngineer` 노드로 돌아옵니다.
+    - `Editor` 노드는 `continue` 이벤트를 통해 `SoftwareEngineer` 노드로 다시 연결되며, 이는 편집 후 추가 작업을 수행할 수 있음을 의미합니다.
+    - `Editor` 노드는 `code_edit_tool`과 `test_tool`과의 상호작용을 통해 작업을 수행합니다.
+
+  - **`swc_tool` 경로**:
+    - `SoftwareEngineer` 노드에서 `swc_tool` 이벤트를 발생시켜 `swc_tool` 노드로 전환.
+    - `swc_tool` 노드는 `SoftwareEngineer` 노드에서 직접 연결되며, 이는 특정 도구를 사용하여 작업을 수행할 수 있음을 의미합니다.
+    - `swc_tool` 노드는 `end` 노드로 연결되며, 이는 작업의 종료를 의미합니다.
+
+---
+
+#### **2.3. `CodeAnalyzer` 노드**
+- **역할**: 코드 분석을 수행하는 도구.
+- **특징**: 사각형 노드로, `SoftwareEngineer` 노드에서 호출됩니다.
+- **입력**: `SoftwareEngineer` 노드에서 `analyze_code` 이벤트를 통해 진입.
+- **출력**:
+  - `done` 이벤트: `CodeAnalyzer`가 분석을 완료하면 `SoftwareEngineer` 노드로 돌아갑니다.
+  - `continue` 이벤트: `CodeAnalyzer`가 분석 후 추가 작업을 수행할 수 있음을 의미하며, `SoftwareEngineer` 노드로 다시 연결됩니다.
+- **내부 동작**:
+  - `code_analysis_tool` 노드를 호출하여 코드 분석을 수행.
+  - 분석 결과를 `SoftwareEngineer` 노드에 반환.
+
+---
+
+#### **2.4. `Editor` 노드**
+- **역할**: 코드 편집 및 테스트를 수행하는 도구.
+- **특징**: 사각형 노드로, `SoftwareEngineer` 노드에서 호출됩니다.
+- **입력**: `SoftwareEngineer` 노드에서 `edit_file` 이벤트를 통해 진입.
+- **출력**:
+  - `done` 이벤트: `Editor`가 편집 및 테스트를 완료하면 `SoftwareEngineer` 노드로 돌아갑니다.
+  - `continue` 이벤트: `Editor`가 작업 후 추가 작업을 수행할 수 있음을 의미하며, `SoftwareEngineer` 노드로 다시 연결됩니다.
+- **내부 동작**:
+  - `code_edit_tool` 노드를 호출하여 코드를 편집.
+  - `test_tool` 노드를 호출하여 코드를 테스트.
+  - 편집 및 테스트 결과를 `SoftwareEngineer` 노드에 반환.
+
+---
+
+#### **2.5. `code_analysis_tool` 노드**
+- **역할**: 코드 분석을 수행하는 도구.
+- **특징**: 사각형 노드로, `CodeAnalyzer` 노드에서 호출됩니다.
+- **입력**: `CodeAnalyzer` 노드에서 호출.
+- **출력**: `CodeAnalyzer` 노드로 결과를 반환.
+- **내부 동작**: 코드 분석을 수행하고 결과를 `CodeAnalyzer` 노드에 전달.
+
+---
+
+#### **2.6. `code_edit_tool` 노드**
+- **역할**: 코드 편집을 수행하는 도구.
+- **특징**: 사각형 노드로, `Editor` 노드에서 호출됩니다.
+- **입력**: `Editor` 노드에서 호출.
+- **출력**: `Editor` 노드로 결과를 반환.
+- **내부 동작**: 코드를 편집하고 결과를 `Editor` 노드에 전달.
+
+---
+
+#### **2.7. `test_tool` 노드**
+- **역할**: 코드 테스트를 수행하는 도구.
+- **특징**: 사각형 노드로, `Editor` 노드에서 호출됩니다.
+- **입력**: `Editor` 노드에서 호출.
+- **출력**: `Editor` 노드로 결과를 반환.
+- **내부 동작**: 코드를 테스트하고 결과를 `Editor` 노드에 전달.
+
+---
+
+#### **2.8. `swc_tool` 노드**
+- **역할**: 특정 도구를 사용하여 작업을 수행.
+- **특징**: 사각형 노드로, `SoftwareEngineer` 노드에서 직접 호출됩니다.
+- **입력**: `SoftwareEngineer` 노드에서 `swc_tool` 이벤트를 통해 진입.
+- **출력**: `end` 노드로 연결.
+- **내부 동작**: `swc_tool`이 작업을 수행하고, 작업이 완료되면 워크플로우를 종료합니다.
+
+---
+
+#### **2.9. `end` 노드**
+- **역할**: 워크플로우의 종료점.
+- **특징**: 원형 노드로, 흐름의 마지막 지점입니다.
+- **입력**: `swc_tool` 노드에서 진입.
+- **출력**: 없음.
+- **흐름**: 워크플로우가 이 노드에 도달하면 종료됩니다.
+
+---
+
+### **3. 흐름의 반복성 및 조건성**
+- **반복성**: `SoftwareEngineer` 노드는 `CodeAnalyzer`와 `Editor` 노드에서 `continue` 이벤트를 통해 다시 돌아올 수 있습니다. 이는 작업이 반복적으로 수행될 수 있음을 의미합니다.
+- **조건성**: `SoftwareEngineer` 노드는 `analyze_code`, `edit_file`, `swc_tool` 등의 이벤트를

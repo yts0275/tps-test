@@ -1,0 +1,103 @@
+물론이에요! 아래는 퀵소트(Quick Sort) 알고리즘을 구현한 Python 코드이며, 각 줄마다 자세한 주석을 달았습니다. 퀵소트는 분할 정복(divide and conquer) 방식을 사용하여 배열을 정렬하는 알고리즘입니다.
+
+```python
+# 퀵소트 함수 정의: 정렬할 리스트와 시작 인덱스, 끝 인덱스를 파라미터로 받음
+def quicksort(arr, low, high):
+    # 시작 인덱스가 끝 인덱스보다 작거나 같을 때만 정렬 수행 (즉, 요소가 1개 이상일 때)
+    if low < high:
+        # 피벗을 기준으로 배열을 분할하고, 피벗의 올바른 위치를 반환
+        # partition 함수는 피벗을 올바른 위치에 두고, 그 위치를 반환
+        pivot_index = partition(arr, low, high)
+        
+        # 피벗 왼쪽 부분을 재귀적으로 정렬 (피벗보다 작은 값들)
+        quicksort(arr, low, pivot_index - 1)
+        
+        # 피벗 오른쪽 부분을 재귀적으로 정렬 (피벗보다 큰 값들)
+        quicksort(arr, pivot_index + 1, high)
+
+
+# 분할 함수: 피벗을 기준으로 배열을 나누고, 피벗의 최종 위치를 반환
+def partition(arr, low, high):
+    # 마지막 요소를 피벗으로 선택 (이 예시에서는 맨 오른쪽 요소를 피벗으로 사용)
+    pivot = arr[high]
+    
+    # i는 작은 값들을 모을 위치를 가리키는 인덱스
+    i = low - 1  # i는 피벗보다 작은 값을 저장할 위치를 가리킴
+    
+    # low부터 high-1까지의 요소를 순회 (high는 피벗이므로 제외)
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작거나 같으면,
+        if arr[j] <= pivot:
+            # i를 한 칸 오른쪽으로 이동
+            i += 1
+            # i 위치와 j 위치의 요소를 교환 (작은 값을 i 위치로 이동)
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동 (i+1 위치에 위치시킴)
+    # i+1 위치는 피벗보다 큰 값들 중 가장 작은 값의 위치이거나, 피벗보다 작은 값들 끝 위치 다음
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 위치를 반환
+    return i + 1
+
+
+# 퀵소트를 사용하여 정렬하는 편의 함수 (사용자에게 편하게 제공)
+def sort_array(arr):
+    # 전체 배열을 정렬 (0부터 len(arr)-1까지)
+    quicksort(arr, 0, len(arr) - 1)
+    return arr
+
+
+# 예시 사용법
+if __name__ == "__main__":
+    # 정렬할 배열
+    numbers = [64, 34, 25, 12, 22, 11, 90]
+    
+    print("정렬 전:", numbers)
+    
+    # 퀵소트로 정렬
+    sorted_numbers = sort_array(numbers)
+    
+    print("정렬 후:", sorted_numbers)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+- `quicksort(arr, low, high)`:
+  - 배열 `arr`의 `low`부터 `high`까지를 정렬.
+  - 재귀적으로 작게 나누어 정렬.
+
+- `partition(arr, low, high)`:
+  - 피벗을 선택하고, 배열을 피벗 기준으로 나눔.
+  - 피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽으로 배치.
+  - 피벗의 최종 위치를 반환.
+
+- `pivot = arr[high]`:
+  - 피벗은 배열의 마지막 요소로 선택 (단순화를 위해).
+
+- `i = low - 1`:
+  - `i`는 피벗보다 작은 값들이 들어갈 위치를 가리킴.
+
+- `for j in range(low, high)`:
+  - 피벗을 제외한 모든 요소를 확인.
+
+- `arr[i], arr[j] = arr[j], arr[i]`:
+  - `j` 위치의 요소가 피벗보다 작거나 같으면, `i` 위치와 교환.
+
+- `arr[i + 1], arr[high] = arr[high], arr[i + 1]`:
+  - 피벗을 올바른 위치로 이동.
+
+- `return i + 1`:
+  - 피벗의 최종 위치를 반환.
+
+---
+
+### ✅ 실행 예시:
+```
+정렬 전: [64, 34, 25, 12, 22, 11, 90]
+정렬 후: [11, 12, 22, 25, 34, 64, 90]
+```
+
+이 알고리즘은 평균 시간 복잡도가 **O(n log n)** 이며, 최악의 경우 **O(n²)** 이지만, 일반적으로 매우 효율적입니다.

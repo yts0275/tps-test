@@ -1,0 +1,128 @@
+아래 이미지는 “SoftwareEngineer”를 중심으로 여러 노드(Agent/도구)들이 **분석 → 편집 → 테스트**를 반복하며 최종적으로 종료(end)에 도달하는 형태의 Workflow입니다. 노드 간 화살표의 **방향(진행 흐름)**과 “done/continue” 라벨(반복/다음 단계 전환)을 기준으로 최대한 상세히 풀어쓰면 다음과 같습니다.
+
+---
+
+## 1) 시작(start) → SoftwareEngineer 진입
+1. **start** 노드에서 워크플로우가 시작됩니다.
+2. 곧바로 중앙의 **SoftwareEngineer** 노드로 이동합니다.
+3. **SoftwareEngineer**는 워크플로우의 “오케스트레이션(지휘/조율)” 역할을 하는 상위 노드로 보입니다.  
+   - 이후 여러 하위 단계(코드 분석, 코드 편집, 테스트 등)를 호출하고,
+   - 각 단계 결과에 따라 **done이면 다음 단계로**, **continue이면 반복/추가 진행**을 수행합니다.
+
+---
+
+## 2) CodeAnalyzer 단계(분석 파이프라인)
+이미지 왼쪽에 있는 **CodeAnalyzer**가 첫 번째 큰 축(분석)입니다.
+
+### 2-1. SoftwareEngineer → CodeAnalyzer
+- **SoftwareEngineer**에서 **CodeAnalyzer**로 연결된 경로가 존재합니다.
+- (점선 화살표 포함) 전형적으로 “분석을 수행하라”는 지시/호출이 이 흐름을 통해 발생합니다.
+
+### 2-2. CodeAnalyzer → code_analysis tool 호출
+- **CodeAnalyzer** 내부에서 실제 분석 기능을 수행하는 도구가 내려갑니다:
+  - **code_analysis_tool**  
+- 즉, CodeAnalyzer 노드는 “분석 로직/결과 해석”을 담당하고,
+- **code_analysis_tool**은 “정적 분석 등 실제 도구 실행”을 담당하는 구조로 보입니다.
+
+### 2-3. code_analysis_tool 결과 → CodeAnalyzer(되돌림)
+- **code_analysis_tool**에서 결과가 돌아오면, **CodeAnalyzer** 노드는 그 결과를 바탕으로 다음 상태 전환을 합니다.
+- 이미지에 “done”과 “continue” 라벨이 함께 나타나는데, 이는 일반적으로 다음 의미로 해석됩니다.
+
+### 2-4. done/continue에 따른 분기(핵심 반복 구조)
+- **done**: 분석 목표를 충분히 달성했으므로 다음 단계로 진행(예: 편집/수정 단계 호출)
+- **continue**: 아직 분석이 덜 되었거나 추가 점검이 필요하여 분석을 더 이어감(또는 다음 관련 구성요소/파일을 계속 분석)
+
+또한 이미지의 점선 흐름은 “분석이 끝나면 다시 중앙(SoftwareEngineer)으로 돌아가 판단”하는 형태를 강하게 시사합니다.
+
+---
+
+## 3) Editor 단계(편집/수정 파이프라인)
+이미지 가운데 하단에 **Editor**가 있으며, CodeAnalyzer와 함께 루프를 이룹니다.
+
+### 3-1. SoftwareEngineer → Editor
+- 분석 단계가 완료되면(또는 중간 결과가 필요하면) **SoftwareEngineer**에서 **Editor**로 분기되는 흐름이 있습니다.
+- 또한 Editor로 들어가기 전 “필요한 파일 수정” 같은 명령이 **edit_file** 라벨로 표현되어 있습니다.
+  - 이미지에는 **edit_file**이라는 중간 라벨이 보이는데,
+  - 이는 “분석 결과에 따라 특정 파일을 수정 대상으로 지정/가공한 뒤 편집한다”는 의도로 읽힙니다.
+
+### 3-2. Editor → code_edit tool 호출
+- **Editor** 노드는 실제 수정 작업 도구로 내려갑니다:
+  - **code_edit_tool**
+- 즉,
+  - **Editor** = 수정 계획/문장 생성/어떤 변경을 할지 결정
+  - **code_edit_tool** = 실제 코드 변경 실행(패치 적용, 코드 삽입/수정 등)
+
+### 3-3. code_edit_tool 결과 → Editor(되돌림)
+- 도구 실행이 끝나면 결과가 **Editor**로 되돌아가고,
+- Editor는 수정이 잘 되었는지(또는 추가 수정이 필요한지) 판단합니다.
+
+### 3-4. Editor 결과의 done/continue 처리
+- 이미지에서 **Editor** 주변에도 **done / continue** 표시가 보입니다.
+- 해석하면:
+  - **done**: 수정이 충분하므로 테스트 단계로 넘어간다.
+  - **continue**: 수정이 더 필요하므로 다시 편집을 반복하거나(혹은 분석으로 되돌아가 원인 재점검) 추가 조치를 취한다.
+
+---
+
+## 4) test 단계(검증 파이프라인)
+이미지 가운데 하단에 **test_tool**이 있으며, Editor와 연결됩니다.
+
+### 4-1. Editor → test_tool
+- **Editor**에서 **test_tool**로 흐름이 내려갑니다.
+- 이는 “방금 수정한 코드가 의도대로 동작하는지 검증”을 의미합니다.
+
+### 4-2. test_tool 결과 → Editor 또는 SoftwareEngineer
+- 테스트 결과가 다시 상위 노드로 반환됩니다.
+- 이후 라벨에 따라:
+  - **continue**: 테스트가 실패했거나 추가 검증이 필요하므로 더 수정/분석을 수행
+  - (반대로) **done**: 테스트가 통과하여 작업 완료 조건을 만족
+
+이미지에는 **SoftwareEngineer**로 다시 올라가는 듯한 점선 구조가 있어, 테스트 결과를 기준으로 중앙에서 “다음 행동(추가 편집 vs 종료)”을 결정하는 오케스트레이션 패턴으로 보입니다.
+
+---
+
+## 5) swe_tool 단계(추가 기능/도구 실행 축)
+오른쪽 아래에 **swe_tool** 노드가 따로 있습니다.
+
+### 5-1. SoftwareEngineer → swe_tool
+- **SoftwareEngineer**에서 **swe_tool**로 향하는 화살표가 보입니다.
+- 이는 “SW engineering 관련 추가 실행 도구” 또는 “통합 작업 도구”로 해석됩니다.
+  - 예: 프로젝트 컨텍스트에 접근해 작업 수행, 특정 자동화, 커맨드 실행 계열 등
+
+### 5-2. swe_tool 완료 → end 또는 SoftwareEngineer 복귀
+- swe_tool 쪽에도 **done/continue**와 유사한 점선 흐름이 그려져 있고,
+- 결과가 충분하면 곧바로 **end**로 이어질 수 있습니다.
+- 반대로 “continue”면 다시 SoftwareEngineer로 돌아가 재시도/추가 작업을 수행합니다.
+
+---
+
+## 6) continue 루프와 end 도달(종료 조건)
+이미지 상단과 우측에 **continue** 및 **end**가 연결되어 있습니다.
+
+### 6-1. continue 의미(반복/지속 실행)
+- **continue**는 일반적으로 “아직 완전히 끝나지 않았으니 다음 반복을 진행”하는 신호입니다.
+- Workflow 관점에서는 아래 중 하나가 반복될 가능성이 큽니다.
+  1) CodeAnalyzer를 다시 돌려 원인을 더 찾음  
+  2) Editor로 돌아가 수정 범위를 조정  
+  3) 수정 후 다시 test_tool로 검증
+
+### 6-2. done 의미(완료)
+- **done**이 어느 지점에서든 만족되면(분석 완료, 수정 완료, 테스트 통과, 또는 swe_tool 완료 등)
+- 그에 따라 **SoftwareEngineer**는 최종 종료 경로를 선택합니다.
+
+### 6-3. end로 이동
+- 최종적으로 조건을 만족하면 **end** 노드로 이동하며 워크플로우가 종료됩니다.
+
+---
+
+# 한 줄 요약(전체 흐름 순서)
+**start → SoftwareEngineer(오케스트레이션)**  
+→ **CodeAnalyzer(=code_analysis_tool)** 로 코드 점검  
+→ 분석 결과를 바탕으로 **Editor(=code_edit_tool)** 로 수정  
+→ **test_tool**로 검증  
+→ 필요하면 **continue**로 다시 분석/편집/테스트를 반복  
+→ 최종적으로 충분하면 **swe_tool** 및/또는 완료 판단 후 **end**.
+
+---
+
+원하시면, 제가 이미지에 있는 각 화살표를 기준으로 **“정확한 경로(어느 노드에서 어느 노드로)들을 목록 형태로”** 재구성해서, 예를 들어 `SoftwareEngineer → CodeAnalyzer → ... → Editor → ...`처럼 “경로 그래프”로 더 엄밀하게 정리해드릴 수도 있어요.

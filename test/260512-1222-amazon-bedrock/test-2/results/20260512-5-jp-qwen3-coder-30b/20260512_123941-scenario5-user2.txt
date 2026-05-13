@@ -1,0 +1,74 @@
+물론입니다! 아래는 **빠른 정렬**(Quick Sort) 알고리즘의 Python 구현 코드이며, 각 줄에 **주석**을 추가해서 설명해드렸습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 재귀적으로 퀵소트를 호출하는 함수
+    # arr: 정렬할 배열
+    # low: 현재 범위의 시작 인덱스
+    # high: 현재 범위의 끝 인덱스
+
+    if low < high:
+        # 만약 시작 인덱스가 끝 인덱스보다 작다면 정렬 수행
+        pi = partition(arr, low, high)
+        # pivot(기준값)의 위치를 얻어오는 함수 호출
+        # pi는 피벗이 있는 올바른 위치(index)를 반환함
+
+        quicksort(arr, low, pi - 1)
+        # 피벗 왼쪽 부분을 재귀적으로 정렬
+
+        quicksort(arr, pi + 1, high)
+        # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+
+def partition(arr, low, high):
+    # 배열을 피벗 기준으로 두 부분으로 나누는 함수
+
+    pivot = arr[high]
+    # 마지막 요소를 피벗으로 설정
+    # 피벗은 비교 기준이 되는 값
+
+    i = low - 1
+    # i는 작은 값을 위치시킬 인덱스 (초기값은 low-1)
+
+    for j in range(low, high):
+        # j는 현재 탐색 중인 인덱스
+        # high는 피벗이므로 제외
+
+        if arr[j] <= pivot:
+            # 현재 원소가 피벗보다 작거나 같으면 교환
+            i += 1  # i를 증가시켜서 적절한 위치를 설정
+            arr[i], arr[j] = arr[j], arr[i]
+            # arr[i]와 arr[j]를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗을 올바른 위치로 이동 (피벗을 기준으로 왼쪽은 작고 오른쪽은 큼)
+
+    return i + 1
+    # 피벗이 위치한 인덱스를 반환
+
+
+# 예제 사용법
+if __name__ == "__main__":
+    arr = [10, 7, 8, 9, 1, 5]
+    # 정렬할 배열 선언
+
+    n = len(arr)
+    # 배열의 길이 저장
+
+    quicksort(arr, 0, n - 1)
+    # 전체 배열을 퀵소트로 정렬
+
+    print("정렬된 배열:", arr)
+    # 결과 출력
+```
+
+---
+
+### 🔍 설명 요약:
+
+- `quicksort()` 함수는 재귀적으로 정렬을 진행합니다.
+- `partition()` 함수는 피벗을 기준으로 배열을 분할하고, 피벗의 위치를 반환합니다.
+- 피벗은 일반적으로 마지막 요소를 선택하지만 다른 전략도 적용할 수 있습니다.
+- 이 구현은 **인-place 정렬**이며, 평균 시간 복잡도는 O(n log n), 최악의 경우 O(n²)입니다.
+
+필요 시 Java, C++ 등 다른 언어로도 구현해드릴 수 있어요! 😊

@@ -1,0 +1,82 @@
+아래는 주어진 다이어그램을 바탕으로 Workflow의 Node(노드) 간 흐름을 가능한 한 상세히 서술한 내용입니다. 그림의 화살표와 라벨(예: analyze_code, edit_file, done, continue) 및 실선/점선의 의미를 종합해 해석한 설명입니다. (다이어그램 일부가 모호한 부분은 합리적 가정으로 보완해 기술합니다.)
+
+1) 전체 구조 개요
+- 시작 노드: start → SoftwareEngineer.
+- 중심 역할: SoftwareEngineer(개발자)가 여러 작업을 시작(또는 종료)한다.
+- 주요 하위 작업 노드: CodeAnalyzer, Editor, swe_tool.
+- 도구(tool) 노드(종속 실행): code_analysis_tool, code_edit_tool, test_tool.
+- 에지 라벨: analyze_code, edit_file, done, continue 등. 점선(dashed)은 제어흐름(또는 비동기 호출/상태 전환)을 나타내고, 실선은 “도구 호출/실행”을 나타내는 것으로 해석함.
+
+2) SoftwareEngineer 노드에서 가능한 출발 분기
+- analyze_code: 개발자가 코드 분석을 시작하면 SoftwareEngineer → CodeAnalyzer로 이동.
+- edit_file: 수정 작업을 시작하면 SoftwareEngineer → Editor로 이동.
+- continue (또는 다른 continue 라벨의 분기): 개발자가 툴(swe_tool)을 사용하거나 단순히 반복/다음 단계로 진행할 수 있음 → SoftwareEngineer → swe_tool로 이동.
+- 직접 종료: SoftwareEngineer에서 end로 가는 경로(완료 시 종료).
+
+3) CodeAnalyzer 노드의 동작과 흐름
+- 진입: analyze_code 라벨로 진입.
+- 내부 동작: CodeAnalyzer는 code_analysis_tool을 호출/실행(다이어그램에서 CodeAnalyzer → code_analysis_tool은 실선).
+- 종료/전환:
+  - done: 분석이 완료되면 CodeAnalyzer → SoftwareEngineer(또는 “done” 라벨을 통해 상위 상태로 복귀).
+  - continue: 분석 결과가 충분히 문제를 지적하면 CodeAnalyzer → Editor로 이어져 “계속해서 수정”하도록 넘김. (다이어그램에 CodeAnalyzer → Editor로 이어지는 점선/continue가 있음)
+- 반복 가능성: Editor에서 수정 후 다시 분석해야 하면 Editor → CodeAnalyzer로 되돌아오는 화살표가 있어 반복(분석→수정→재분석) 루프 형성.
+
+4) Editor 노드의 동작과 흐름
+- 진입: edit_file 라벨로 진입.
+- 내부 동작: Editor는 code_edit_tool을 호출/실행(실선). 또한 수정 후 검증을 위해 test_tool을 호출할 수 있음(다이어그램에서 Editor → test_tool은 점선으로 표시되어 “선택적/보조적 테스트 호출”로 해석).
+- 종료/전환:
+  - done: 편집/수정이 완료되면 Editor → SoftwareEngineer로 “done” 또는 완료 상태로 복귀.
+  - continue: 편집 후 추가 검증(분석)이 필요하면 Editor → CodeAnalyzer로 “continue” 하여 재분석 루프로 이동.
+- 테스트: test_tool 호출은 편집 결과를 자동/수동으로 검증하는 단계로, 실패 시 다시 Editor로 돌아오거나 분석(또는 둘 다)로 이행할 수 있음(다이어그램상 시험 트리거 흐름은 점선이므로 선택적/비동기적).
+
+5) swe_tool 노드와 종료 흐름
+- SoftwareEngineer에서 직접 swe_tool을 호출할 수 있음(continue 라벨). swe_tool은 독립적인 툴 사용(예: 빌드/배포/기타 SWE 전용 도구)을 나타냄.
+- swe_tool 호출 후 다시 SoftwareEngineer로 돌아오거나(다이어그램의 점선 되돌이), 특정 경우 end로 이어져 전체 워크플로우를 종료할 수 있음(오른쪽의 end 노드).
+- 또한 SoftwareEngineer는 상황에 따라 직접 end로 이동해 워크플로우를 종료한다.
+
+6) 대표적 실행 경로(예시 시나리오)
+- 단순 분석 후 종료:
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer (analyze_code) → CodeAnalyzer
+  3) CodeAnalyzer → code_analysis_tool 실행
+  4) 분석 완료(done) → SoftwareEngineer
+  5) SoftwareEngineer → end (종료)
+
+- 수정-테스트-재분석 반복 후 종료:
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer (analyze_code) → CodeAnalyzer → code_analysis_tool
+  3) CodeAnalyzer (continue) → Editor
+  4) Editor → code_edit_tool 로 수정 수행
+  5) Editor → test_tool 로 테스트(선택적)
+  6) 테스트/수정 결과에 따라 Editor (continue) → CodeAnalyzer (재분석)
+  7) 재분석 후 문제가 없으면 CodeAnalyzer (done) → SoftwareEngineer → end
+
+- 툴 사용(예: 빌드/배포) 경로:
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer → swe_tool (continue)
+  3) swe_tool 수행 → 결과에 따라 SoftwareEngineer 복귀 또는 end
+
+7) 제어/상태 라벨 의미 정리
+- analyze_code: 코드 분석 작업 트리거.
+- edit_file: 코드 편집(수정) 작업 트리거.
+- done: 현재 작업의 정상 완료 후 상위(개발자) 상태로 복귀.
+- continue: 단일 작업이 완전 종료가 아니라 다음 단계(다른 노드)로 이어지는 반복/연속 흐름(예: 분석 후 편집, 편집 후 재분석).
+- 점선 화살표: 상태 전이/제어 흐름(때로 비동기 호출 또는 선택적 경로).
+- 실선 화살표(툴로 향하는 것): 실제 도구 실행/작업 수행을 나타냄.
+
+8) 루프와 종료 조건(실무적 해석)
+- 주된 루프: CodeAnalyzer ↔ Editor 간의 반복(분석→수정→재분석) — 흔히 코드 개선이 완료될 때까지 반복.
+- 종료 트리거: SoftwareEngineer가 더 이상 작업할 필요가 없다고 판단하면 end로 이동.
+- 선택적 툴 호출: Editor가 test_tool을 호출해 검증을 수행하고, 결과에 따라 다시 Editor 또는 CodeAnalyzer로 돌아가 수정을 계속한다.
+
+9) 모호한 점/가정 표기
+- 다이어그램이 점선/실선으로 구분되어 있으나 정확한 의미(동기 vs 비동기, 직접 호출 vs 상태 전이)는 명세에 따라 다를 수 있음. 위 설명은 일반적인 워크플로우 해석(툴 호출은 실선, 상태 전이는 점선)으로 가정해 작성함.
+- Editor → test_tool이 점선인 점으로 보아 테스트는 선택적 보조 단계로 해석했음. 필요시 모든 테스트 성공/실패 시의 분기(성공 시 done/실패 시 continue 등)를 더 명확히 적을 수 있음.
+
+요약
+- SoftwareEngineer가 중심에서 analyze_code 또는 edit_file 또는 swe_tool을 선택한다.
+- analyze_code → CodeAnalyzer → code_analysis_tool 실행 → (done → 복귀) 또는 (continue → Editor)로 이어진다.
+- edit_file → Editor → code_edit_tool 실행, 필요시 test_tool 호출 → (done → 복귀) 또는 (continue → CodeAnalyzer)로 이어진다.
+- 반복(분석↔편집)은 계속될 수 있고, 작업 완료 시 SoftwareEngineer → end로 종료된다.
+
+원하시면 이 흐름을 상태 전이 다이어그램(state machine) 형태로 표나 테이블로 정리하거나, 각 엣지에 대한 성공/실패 분기(예: 테스트 실패 시 어디로 가는지)를 상세화해서 더 구체적인 시나리오로 풀어드리겠습니다. 어느 형태로 더 보길 원하시나요?

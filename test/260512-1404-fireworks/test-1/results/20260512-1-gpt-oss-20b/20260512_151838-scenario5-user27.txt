@@ -1,0 +1,25 @@
+아래는 **Python**으로 구현한 퀵소트(QuickSort) 알고리즘입니다.  
+각 실행 라인마다 꼭 필요한 주석을 달아 이해가 쉽도록 하였습니다.
+
+```python
+def quicksort(arr):  # quicksort 함수 정의: 입력된 리스트 arr을 정렬한 새 리스트 반환
+    if len(arr) <= 1:  # 길이가 0 또는 1이면 이미 정렬된 상태
+        return arr  # 정렬된 리스트를 그대로 반환
+    pivot = arr[len(arr) // 2]  # 가운데 원소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들 수집
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들 수집
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들 수집
+    return quicksort(left) + middle + quicksort(right)  # 재귀 호출 + 병합
+
+if __name__ == "__main__":  # 메인 실행 블록
+    arr = [5, 3, 8, 4, 2]  # 정렬할 예시 리스트
+    sorted_arr = quicksort(arr)  # quicksort 실행
+    print(sorted_arr)  # 결과 출력: [2, 3, 4, 5, 8]
+```
+
+> **설명**  
+> - `quicksort` 함수는 재귀적으로 작동하며, 피벗을 기준으로 `left`, `middle`, `right` 세 개의 리스트로 나누어 재귀 호출을 수행한다.  
+> - 가장 끝에서 `+` 연산을 통해 세 리스트를 합쳐서 최종 정렬된 리스트를 반환한다.  
+> - `if __name__ == "__main__":` 블럭은 스크립트가 직접 실행될 때만 테스트 코드를 실행하도록 한다.  
+
+필요에 따라 리스트가 아닌 배열이나 다른 자료구조에 맞게 조정하면 됩니다.

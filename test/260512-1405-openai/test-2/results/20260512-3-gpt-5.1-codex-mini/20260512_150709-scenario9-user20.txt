@@ -1,0 +1,31 @@
+주어진 Workflow는 `start`에서 출발하여 `SoftwareEngineer` 노드를 중심으로 여러 가지 작업 흐름을 거쳐 최종 `end`에 도달하는 구조를 가지고 있습니다. 각 Node들과 흐름의 연결을 최대한 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   - Workflow는 `start` 지점에서 출발하여 바로 `SoftwareEngineer` 노드로 진입합니다. 여기서 소프트웨어 엔지니어의 역할이 본격적으로 시작됩니다.
+
+2. **SoftwareEngineer의 주요 분기 흐름**  
+   - `SoftwareEngineer` 노드는 세 가지 주요 방향으로 흐름을 분기하며 대부분의 상호작용이 이 노드에서 시작됩니다.
+
+   a. **CodeAnalyzer 흐름 (analyze_code)**  
+      - `SoftwareEngineer`는 `analyze_code`라는 흐름을 통해 `CodeAnalyzer` 노드로 이동합니다. 이 흐름은 코드 분석 작업을 수행하기 위한 진입로입니다.  
+      - `CodeAnalyzer`는 그 아래에 있는 `code_analysis_tool` 노드를 활용하여 실제 코드 분석 도구를 동작시킵니다.  
+      - 분석 작업이 완료된 후에는 `done`이라는 흐름을 통해 다시 `SoftwareEngineer`로 되돌아오거나 `continue` 흐름을 통해 `Editor`로 이동하는 경우도 있습니다.  
+      - `CodeAnalyzer`와 `Editor` 사이의 `continue` 흐름은 분석 결과에 따라 바로 편집 작업으로 이어질 수 있는 연결을 나타냅니다.
+
+   b. **Editor 흐름 (edit_file)**  
+      - `SoftwareEngineer`의 `edit_file` 흐름은 `Editor` 노드로 향합니다. 여기서는 코드 편집, 수정 작업을 수행하는 단계입니다.  
+      - `Editor` 하위에는 `code_edit_tool`과 `test_tool`이 위치해서 각각 편집 도구 및 테스트 도구를 활용하게 됩니다.  
+      - 편집 작업 이후 `Editor`는 `done` 흐름을 통해 다시 `SoftwareEngineer`로 재진입할 수 있으며, `continue` 흐름이 존재하여 필요한 경우 추가적인 단계를 위해 `SoftwareEngineer`나 다른 노드로 넘어갈 수 있습니다.  
+      - 또한 `CodeAnalyzer`에서 `Editor`로 바로 이어지는 `continue` 경로도 있어 분석 후 편집으로 자연스럽게 이어질 수 있습니다.
+
+   c. **swe_tool 흐름**  
+      - `SoftwareEngineer`는 또한 `swe_tool` 노드로 연결되는 `continue` 흐름을 가지고 있습니다. 이 노드는 특정 소프트웨어 엔지니어링 도구를 활용하는 에이전트를 의미하며, 필요한 경우 `SoftwareEngineer`의 작업을 보조합니다.  
+      - 이후 `swe_tool` 노드에서 `end`로 이어지는 `continue` 흐름을 통해 Workflow를 종료할 수도 있습니다. 이 흐름은 직접 `SoftwareEngineer`로 되돌아가지 않고 바로 마무리되는 경우를 나타내며, 모든 작업이 끝난 시점에 최종 `end`로 이동합니다.
+
+3. **SoftwareEngineer → end (직접 연결)**  
+   - `SoftwareEngineer`에서 `end`로 바로 이어지는 `continue` 흐름도 존재하여, 특정 조건에서는 도구를 더 이상 호출하지 않고 바로 Workflow를 종료할 수 있습니다. 이는 빠른 종료를 의미하며, 작업이 완료된 상태를 나타냅니다.
+
+4. **요약 흐름 구조**  
+   - 전체적인 흐름을 요약하면, `start` → `SoftwareEngineer`로 진입한 후, 분석(`CodeAnalyzer`) → 편집(`Editor`) → (필요시) 엔지니어링 도구(`swe_tool`)의 순서를 거치며 각각의 도구(`code_analysis_tool`, `code_edit_tool`, `test_tool`)를 활용하고, 그 이후 다시 `SoftwareEngineer`로 돌아와 상태를 확인하거나 바로 `end`로 나가며 종료합니다.
+
+각 Node의 방향과 라벨은 Workflow 내에서의 단계별 상태를 명확히 파악할 수 있도록 표현되어 있으며, `continue`, `done`, `analyze_code`, `edit_file`과 같은 라벨은 분기 조건이나 작업 완료 상태를 지시합니다.

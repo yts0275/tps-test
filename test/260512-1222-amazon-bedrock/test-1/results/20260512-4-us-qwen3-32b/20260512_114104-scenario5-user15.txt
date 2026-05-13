@@ -1,0 +1,48 @@
+물론입니다! 아래는 Python을 사용한 **퀵소트(Quick Sort)** 알고리즘의 구현이며, 각 줄에 대한 설명을 주석으로 상세하게 달아두었습니다.
+
+```python
+def quicksort(arr):
+    """
+    퀵소트 재귀 함수: 주어진 배열을 오름차순으로 정렬합니다.
+    """
+    # 재귀 종료 조건: 배열의 길이가 1 이하이면 이미 정렬된 것으로 간주
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot) 선택: 여기서는 배열의 첫 번째 요소를 피벗으로 선택
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소를 모을 리스트
+    less = []
+
+    # 피벗과 같은 요소를 모을 리스트
+    equal = []
+
+    # 피벗보다 큰 요소를 모을 리스트
+    greater = []
+
+    # 배열의 모든 요소를 순회하면서 less, equal, greater 리스트에 분류합니다
+    for num in arr:
+        if num < pivot:
+            less.append(num)              # 피벗보다 작다면 less에 추가
+        elif num == pivot:
+            equal.append(num)             # 피벗과 같다면 equal에 추가
+        else:                             # 피벗보다 크다면
+            greater.append(num)           # greater에 추가
+
+    # 재귀 호출을 통해 less와 greater 정렬 후, [less] + [equal] + [greater]를 반환
+    return quicksort(less) + equal + quicksort(greater)
+```
+
+### ✅ 실행 예시:
+
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+print(quicksort(arr))  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+이 퀵소트는 **분할 정복**(Divide and Conquer) 방식이 적용된 알고리즘으로, 평균 시간 복잡도는 **O(N log N)**입니다. 최악의 구조에서는 **O(N^2)**까지 악화할 수 있으나, 피벗 선택 방식을 바꿔 최악의 경우를 피할 수 있습니다 (예: 랜덤 피벗 선택).
+
+더 질문이 있으면 언제든지 물어보세요! 😊

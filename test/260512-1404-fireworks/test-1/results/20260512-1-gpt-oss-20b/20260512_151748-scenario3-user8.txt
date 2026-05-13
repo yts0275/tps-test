@@ -1,0 +1,30 @@
+```python
+def quicksort(arr, low, high):                                         # 함수를 정의: arr은 배열, low와 high는 정렬 범위
+    if low >= high:                                                     # 정렬 범위가 1개 이하이면 종료
+        return                                                            # 재귀 호출 종료
+
+    pivot = arr[(low + high) // 2]                                      # 중간 값을 피벗으로 선택
+    i = low                                                              # 왼쪽 포인터 초기화
+    j = high                                                             # 오른쪽 포인터 초기화
+
+    while i <= j:                                                       # i가 j보다 작거나 같을 때 반복
+        while arr[i] < pivot:                                            # arr[i]가 피벗보다 작으면 i를 오른쪽으로 이동
+            i += 1                                                        # i 증가
+        while arr[j] > pivot:                                            # arr[j]가 피벗보다 크면 j를 왼쪽으로 이동
+            j -= 1                                                        # j 감소
+        if i <= j:                                                       # i가 j보다 작거나 같으면 swap 수행
+            arr[i], arr[j] = arr[j], arr[i]                                 # i와 j의 원소를 교체
+            i += 1                                                        # i를 하나 오른쪽으로 이동
+            j -= 1                                                        # j를 하나 왼쪽으로 이동
+
+    if low < j:                                                          # 왼쪽 부분 배열 정렬
+        quicksort(arr, low, j)                                            # 재귀 호출을 통해 왼쪽 정렬
+    if i < high:                                                         # 오른쪽 부분 배열 정렬
+        quicksort(arr, i, high)                                           # 재귀 호출을 통해 오른쪽 정렬
+
+# 사용 예시
+if __name__ == "__main__":                                              # 스크립트가 직접 실행될 때
+    lst = [3, 6, 8, 10, 1, 2, 1]                                      # 정렬할 리스트 정의
+    quicksort(lst, 0, len(lst) - 1)                                   # 정렬 호출
+    print(lst)                                                        # 정렬 결과 출력
+```

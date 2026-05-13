@@ -1,0 +1,17 @@
+이 워크플로우는 시작점(start)에서 “SoftwareEngineer” 노드로 진입하는 것으로 시작합니다. SoftwareEngineer 노드는 다양한 행동을 수행할 수 있는 중심 노드로, 여러 가지 하위 도구 및 프로세스가 비정형(점선)으로 연결되어 있습니다.
+
+1. **SoftwareEngineer → CodeAnalyzer**: “analyze_code” 이벤트를 통해 SoftwareEngineer는 CodeAnalyzer로 이동하여 코드 분석 작업을 수행합니다. CodeAnalyzer는 다시 “continue” 경로를 통해 SoftwareEngineer로 혹은 “done” 경로를 통해 후속 작업으로 연결될 수 있습니다.
+
+2. **CodeAnalyzer → code_analysis_tool**: CodeAnalyzer는 별도의 “code_analysis_tool” 노드를 호출하여 실제 분석 도구를 활성화하는 흐름을 가지고 있으며, 이 도구를 통해 분석을 수행하고 결과를 얻은 뒤 CodeAnalyzer로 다시 돌아옵니다.
+
+3. **SoftwareEngineer → Editor**: “edit_file” 이벤트를 통해 SoftwareEngineer는 Editor 노드로 이동하여 파일 편집 작업을 수행합니다. 여기서 다시 “continue”를 통해 작업을 연속하거나 “done” 상태로 하위 도구와 상호작용합니다.
+
+4. **Editor → code_edit_tool**: Editor는 “code_edit_tool”과 연결되어 실제 코드 편집을 지원하는 도구를 사용하며 작업을 진행한 뒤 Editor로 복귀합니다.
+
+5. **Editor → test_tool**: 또한 Editor는 “test_tool”과 연결되어 테스트를 실행하거나 관련 검사 기능을 활용한 후 다시 Editor로 돌아옵니다.
+
+6. **SoftwareEngineer → swe_tool**: SoftwareEngineer는 “continue” 경로에서 “swe_tool”로 연결되어 추가적인 소프트웨어 엔지니어링 관련 도구를 사용할 수 있으며, 해당 작업 이후에는 최종적으로 “end” 노드로 이어집니다.
+
+7. **종합적인 흐름**: 전체적으로 SoftwareEngineer는 주된 작업자이며, CodeAnalyzer, Editor, swe_tool 등의 도구를 호출하여 각각의 작업(분석, 수정, 도구 활용)을 수행한 후 필요에 따라 다시 SoftwareEngineer로 돌아와 다음 단계로 넘어가거나 종료(end)합니다.
+
+이러한 노드와 흐름들은 서로 비정형으로 연결되어 있으며, 각 도구는 다시 중앙 노드로 되돌아가는 경로를 통해 반복적인 개발 사이클을 구성합니다.

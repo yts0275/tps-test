@@ -1,0 +1,77 @@
+아래는 첨부된 워크플로우 다이어그램에 있는 노드들과 이들 간의 흐름을 가능한 한 상세하게 서술한 내용입니다. 다이어그램의 화살표 레이블(예: analyze_code, edit_file, done, continue)과 선 종류(점선/실선)를 기준으로 의미를 해석해 단계별로 풀어 설명합니다.
+
+1) 전체 구조 개요
+- 시작(start) → SoftwareEngineer(주체 노드)
+- SoftwareEngineer는 세부 작업을 트리거하는 역할을 하며, CodeAnalyzer, Editor, swe_tool 같은 하위 노드로 흐름을 분기시킵니다.
+- CodeAnalyzer와 Editor는 각각 외부 도구(code_analysis_tool, code_edit_tool, test_tool)를 호출/사용하는 하위 작업 노드를 갖습니다.
+- 흐름에는 반복(↔)과 반환(…→ SoftwareEngineer) 패턴이 존재하고, 최종적으로 end로 귀결될 수 있습니다.
+
+2) 주요 노드별 설명 및 입력/출력 관계
+- SoftwareEngineer
+  - 시작점에서 최초로 활성화되는 주체 노드.
+  - 주요 출력(점선 화살표): CodeAnalyzer(레이블: analyze_code), Editor(레이블: edit_file), swe_tool(레이블: continue), 그리고 직접 end(레이블: continue)로 향하는 흐름이 보임.
+  - 입력(점선 화살표): CodeAnalyzer나 Editor로부터의 반환(레이블: done 또는 continue)을 받아 다시 의사결정(다음 작업 선택)하는 형태.
+
+- CodeAnalyzer
+  - SoftwareEngineer로부터 "analyze_code" 요청을 받아 활성화되는 분석 노드.
+  - 내부적으로 code_analysis_tool(아래쪽의 실선/하위 노드)를 호출하여 실제 코드 분석 작업을 수행.
+  - 분석 완료 후 가능한 전개:
+    - SoftwareEngineer로 되돌아감(레이블: done) → 엔지니어가 다음 행동 결정.
+    - Editor로 흐름(레이블: continue) → 분석 결과를 바탕으로 즉시 편집 단계로 전환.
+    - (다이어그램상 또 다른 점선으로 다른 노드와 연결된 부분이 있음) 반복적으로 분석/편집을 오갈 수 있는 루프를 형성.
+
+- Editor
+  - SoftwareEngineer로부터 "edit_file" 요청을 받아 활성화되는 편집 노드.
+  - 내부적으로 code_edit_tool(코드 편집 도구)과 test_tool(테스트 도구)을 호출/사용 가능.
+  - 편집/테스트 완료 후 가능한 전개:
+    - SoftwareEngineer로 되돌아감(레이블: done) → 엔지니어가 최종 판단 또는 다른 작업 호출.
+    - CodeAnalyzer로 흐름(레이블: continue) → 편집한 내용을 다시 분석하도록 돌려 반복 검사.
+    - 추가로 swe_tool 또는 바로 end로 갈 수 있는 경로를 통해 워크플로우를 종료하거나 도구 단계로 넘어갈 수 있음.
+
+- code_analysis_tool, code_edit_tool, test_tool (하위 도구 노드)
+  - 각각 CodeAnalyzer 또는 Editor가 실제 작업을 수행하기 위해 호출하는 실행 단위(도구).
+  - 이들 노드로의 화살표는 상대적으로 실무적 작업(도구 호출/실행)을 나타내며, 완료되면 상위 노드(CodeAnalyzer/Editor)로 제어가 복귀함.
+
+- swe_tool
+  - SoftwareEngineer가 직접 호출할 수 있는 별도 도구 노드(레이블: continue로 연결).
+  - swe_tool 실행 후 다시 SoftwareEngineer로 제어를 반환하거나, 바로 end로 이어질 수 있음.
+
+- end
+  - 워크플로우의 종료 상태.
+  - SoftwareEngineer(또는 일부 도구 호출 흐름)에서 "continue" 같은 결정으로 직접 도달 가능.
+
+3) 흐름의 성격(조건/반복/선택)
+- 선택(분기): SoftwareEngineer에서 어떤 작업을 먼저/다음에 할지 선택 가능(분기된 점선들). 예: analyze_code vs edit_file vs swe_tool vs 종료.
+- 반복/루프: Editor ↔ CodeAnalyzer 간의 "continue" 점선들로 반복 편집-분석 사이클을 형성. 즉, 편집 후 분석을 다시 하고, 분석 결과에 따라 다시 편집으로 돌아갈 수 있다.
+- 반환(완료): 각 하위 노드(CodeAnalyzer, Editor)는 작업 종료 후 "done"으로 SoftwareEngineer에게 제어를 반환. 엔지니어는 반환 시점에 다음 행동(종료, 다른 도구 호출, 반복)을 결정.
+- 도구 호출(실행): code_analysis_tool, code_edit_tool, test_tool 같은 노드는 상위 노드가 실제 일을 맡기는 실행 단위이며, 그 실행은 상위 노드의 내부 작업으로 취급되어 완료 시 상위로 복귀한다.
+
+4) 가능한 실행 시나리오(예시 트레이스)
+- 시나리오 A(분석 우선)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer → CodeAnalyzer (analyze_code)
+  3. CodeAnalyzer → code_analysis_tool (실행)
+  4. code_analysis_tool 완료 → CodeAnalyzer → SoftwareEngineer (done)
+  5. SoftwareEngineer가 Editor로 이동(또는 end)
+
+- 시나리오 B(편집-테스트-재분석 루프)
+  1. SoftwareEngineer → Editor (edit_file)
+  2. Editor → code_edit_tool (편집), 필요시 → test_tool (테스트)
+  3. Editor 완료 → CodeAnalyzer (continue)로 이동하여 변경 사항 분석
+  4. CodeAnalyzer → code_analysis_tool 실행 → 완료 → Editor(continue) 또는 SoftwareEngineer(done)
+  5. 필요 시 이 루프 반복
+
+- 시나리오 C(도구 직접 호출 후 종료)
+  1. SoftwareEngineer → swe_tool (continue)
+  2. swe_tool 실행 완료 → SoftwareEngineer로 복귀 → 결정 후 end(continue)로 종료
+
+5) 도식적 의미 해석(선의 종류에 대한 해석)
+- 점선(흐름선): 제어 흐름/이벤트 트리거(개발자/워크플로우 레벨의 단계 전환)를 나타냄(선에 적힌 레이블이 어떤 액션/이벤트인지 표기).
+- 실선(하위 도구로 향하는 선): 하위 도구/서비스 호출(실제 작업을 수행하는 구현 단위)을 나타내는 것으로 보임(실행-응답의 관계).
+
+6) 요약(핵심 포인트)
+- SoftwareEngineer가 중심에서 작업을 선택(analyze_code, edit_file, continue)하고, 각 선택은 해당 노드를 활성화해 도구를 호출한 뒤 완료(또는 이어서 다른 단계)로 돌아온다.
+- Editor와 CodeAnalyzer는 서로 "continue"로 연결되어 반복적인 편집-분석 사이클을 지원한다.
+- 각 작업이 끝나면 "done"으로 SoftwareEngineer에게 제어가 돌아가며, 최종적으로는 여러 경로를 통해 end에 도달할 수 있다.
+
+필요하면 각 화살표의 문자 레이블(정확한 위치와 의미)을 이미지에 따라 하나씩 표로 정리하거나, 상태머신(State diagram) 형태로 전환 가능한 정확한 전이 목록(상태, 이벤트, 행동)을 만들어 드릴 수 있습니다. 어떤 형태로 더 정리해 드릴까요?

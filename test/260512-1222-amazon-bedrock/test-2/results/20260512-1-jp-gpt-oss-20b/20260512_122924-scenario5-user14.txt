@@ -1,0 +1,39 @@
+```python
+def quicksort(arr, low, high):
+    # 배열을 인덱스 low와 high 사이에서 정렬한다
+    if low < high:
+        # 윈도우가 하나 이상의 요소를 포함하고 있을 때만 분할한다
+        pivot_index = partition(arr, low, high)
+        # 피벗을 기준으로 왼쪽 부분과 오른쪽 부분을 재귀적으로 정렬한다
+        quicksort(arr, low, pivot_index - 1)
+        quicksort(arr, pivot_index + 1, high)
+
+
+def partition(arr, low, high):
+    # 고전적인 Lomuto 분할 방식을 사용해 위치를 교환한다
+    pivot = arr[high]   # 마지막 요소를 피벗으로 정한다
+    i = low - 1         # i는 작은 값들을 모은 영역의 끝 인덱스
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작거나 같으면 i를 증가시키고 교환한다
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # 피벗을 마지막 "작은" 요소 다음에 위치시킨다
+    arr[i+1], arr[high] = arr[high], arr[i+1]
+    return i + 1      # 피벗이 정렬된 위치를 반환한다
+
+
+# 사용 예시
+if __name__ == "__main__":
+    arr = [3, 6, 8, 10, 1, 2, 1]
+    # 정렬 전
+    print("정렬 전:", arr)
+    quicksort(arr, 0, len(arr)-1)
+    # 정렬 후
+    print("정렬 후:", arr)
+```
+**설명**  
+- `quicksort` 함수는 재귀적으로 배열을 정렬한다.  
+- `partition` 함수는 마지막 요소를 피벗으로 선택하고, 피벗보다 작은 값들을 왼쪽에 배치한다.  
+- 최종적으로 피벗은 정렬된 위치에 놓이게 되고, 왼쪽과 오른쪽 부분이 재귀적으로 정렬된다.  
+- 예시에서는 `[3, 6, 8, 10, 1, 2, 1]` 배열을 빠르게 정렬한다.

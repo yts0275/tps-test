@@ -1,0 +1,86 @@
+아래는 그림에 보이는 Workflow의 모든 노드와 화살표(전이)를 가능한 한 상세히 풀이한 설명입니다. 그림의 라벨(예: analyze_code, edit_file, done, continue)과 화살표 방향을 기준으로 흐름과 반복(루프), 종료 조건을 정리했습니다.
+
+요약된 전체 구조
+- 시작(start) → SoftwareEngineer(주체)
+- SoftwareEngineer는 세 가지 주요 활동으로 분기: CodeAnalyzer 호출(analyze_code), Editor 호출(edit_file), 또는 바로 swe_tool 사용 후 종료(continue → end)
+- CodeAnalyzer와 Editor는 각각 내부 툴(하위 노드: code_analysis_tool, code_edit_tool, test_tool)을 호출하고 서로 다시 전이(continue)를 주고받으면서 반복(분석-수정-테스트 사이클)을 형성
+- 각 작업이 완료되면(done) SoftwareEngineer로 돌아오고, SoftwareEngineer가 최종적으로 end로 이어짐
+
+노드별, 화살표별 상세 흐름
+1) 시작 → SoftwareEngineer
+- 흐름이 시작되면 SoftwareEngineer 노드가 활성화된다(개발자/엔지니어 역할).
+
+2) SoftwareEngineer에서의 분기(주요 전이 라벨)
+- analyze_code → CodeAnalyzer
+  - 엔지니어가 "코드 분석"을 수행해야 한다고 판단하면 CodeAnalyzer 노드로 전이된다.
+- edit_file → Editor
+  - 코드 편집(수정)이 필요하면 Editor로 전이된다.
+- continue → swe_tool
+  - 소프트웨어 엔지니어링 관련 도구(swe_tool)를 직접 사용하도록 전이될 수 있다.
+- continue(또는 다른 continue/done) → end
+  - SoftwareEngineer에서 바로 end로 이어질 수 있는 경로(그 즉시 종료하는 경우)가 표현되어 있다.
+
+3) CodeAnalyzer 노드 내부 동작 및 전이
+- CodeAnalyzer → code_analysis_tool(하위 도구 호출)
+  - CodeAnalyzer는 실제 분석을 위해 code_analysis_tool을 호출/사용한다(직접적인 아래 연결).
+- CodeAnalyzer에서의 결과 전이
+  - done → SoftwareEngineer
+    - 분석 작업을 마치면 "done" 라벨로 SoftwareEngineer에게 결과/완료 신호를 보내며 돌아온다.
+  - continue → Editor
+    - 분석 결과에 따라 계속 작업(수정)이 필요하면 "continue"로 Editor로 전이한다.
+  - (도식상 Editor와 양방향 continue가 있어 Editor로부터도 다시 CodeAnalyzer로 넘어올 수 있음)
+
+4) Editor 노드 내부 동작 및 전이
+- Editor → code_edit_tool, test_tool(하위 도구 호출)
+  - 편집은 code_edit_tool을 사용해 수행되고, 편집 후 테스트를 위해 test_tool을 호출할 수 있다. (두 하위 도구가 Editor에 연결)
+- Editor에서의 결과 전이
+  - done → SoftwareEngineer
+    - 편집/테스트가 완료되면 "done"으로 SoftwareEngineer로 돌아간다.
+  - continue → CodeAnalyzer
+    - 편집 후 다시 분석이 필요하면 "continue"로 CodeAnalyzer로 전이한다.
+  - (다시 Editor ↔ CodeAnalyzer 간의 반복이 가능)
+
+5) CodeAnalyzer ↔ Editor 간의 루프(분석-수정-테스트 사이클)
+- CodeAnalyzer에서 continue → Editor, Editor에서 continue → CodeAnalyzer 경로들이 표현되어 있다.
+- 의미: 코드 분석 → 수정 → 테스트 → 필요하면 다시 분석… 의 반복 사이클을 구성한다.
+- 이 루프은 "완료(done)" 신호가 발생할 때까지 계속될 수 있으며, 완료되면 각각 done → SoftwareEngineer로 복귀한다.
+
+6) SoftwareEngineer → swe_tool → end
+- SoftwareEngineer가 swe_tool을 호출(continue)하면 swe_tool을 사용하고, 이후 workflow는 end로 종료될 수 있다.
+- 이 경로는 분석/편집 루프를 거치지 않고 도구만 사용하고 종료하는 경우를 나타낸다.
+
+7) 종료(end)
+- 최종적으로 SoftwareEngineer의 결정(또는 도구 사용 이후)에 의해 end로 도달하면 워크플로우가 종료된다.
+
+대표적인 실행 시나리오(예시 트레이스)
+- 시나리오 A (분석-수정 반복 후 종료)
+  1. start → SoftwareEngineer
+  2. analyze_code → CodeAnalyzer → code_analysis_tool 실행
+  3. 분석 결과 → continue → Editor → code_edit_tool 실행 → test_tool 실행
+  4. 테스트 결과 → continue → CodeAnalyzer (다시 분석)
+  5. 반복(2~4) … 최종적으로 분석/편집이 모두 끝나면 CodeAnalyzer 또는 Editor에서 done → SoftwareEngineer
+  6. SoftwareEngineer → swe_tool(선택적) → end
+
+- 시나리오 B (간단히 도구 사용 후 종료)
+  1. start → SoftwareEngineer
+  2. continue → swe_tool
+  3. swe_tool 사용 후 → end
+
+- 시나리오 C (편집만 하고 바로 돌아오기)
+  1. start → SoftwareEngineer
+  2. edit_file → Editor → code_edit_tool 실행
+  3. 편집 완료 → done → SoftwareEngineer → end
+
+화살표/라벨의 의미 정리
+- analyze_code: SoftwareEngineer가 코드 분석을 지시하여 CodeAnalyzer로 전이
+- edit_file: 파일 편집 지시 → Editor로 전이
+- continue: 작업을 계속 진행(다음 단계로 이동). 보통 분석→편집→분석 같은 반복 전이에 붙음
+- done: 해당 노드의 작업이 끝났음을 알리고 SoftwareEngineer로 복귀하는 완료 신호
+
+추가 관찰 사항
+- 모든 흐름은 점선(또는 파선)으로 표시되어 있으며, 이는 상태 전이/작업 호출을 나타낸다(정적 호출/비동기적 신호일 수도 있음).
+- code_analysis_tool, code_edit_tool, test_tool은 각각 CodeAnalyzer와 Editor의 하위 실행단위(툴, 서비스)로 모델링되어 있음.
+- SoftwareEngineer는 중앙 제어(결정) 노드이며, 작업의 시작·종료·도구 선택을 담당.
+
+결론
+- 이 워크플로우는 SoftwareEngineer가 중심이 되어 코드 분석(CodeAnalyzer)과 편집(Editor)을 반복하면서 내부 툴들을 호출하고, 필요에 따라 swe_tool을 사용한 뒤 종료(end)하는 형태로 설계되어 있다. CodeAnalyzer와 Editor 사이의 continue 전이가 핵심 루프(분석 ↔ 수정 ↔ 테스트 사이클)를 구성하며, 각 노드의 done 전이가 완료 시점에 SoftwareEngineer로 복귀시킨다.

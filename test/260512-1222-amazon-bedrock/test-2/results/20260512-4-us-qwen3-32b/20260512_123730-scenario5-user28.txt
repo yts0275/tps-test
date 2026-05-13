@@ -1,0 +1,44 @@
+물론입니다. 아래는 파이썬으로 퀵소트(Quick Sort)를 구현한 코드입니다. 각 줄에는 코드의 동작을 설명하는 주석을 달아두었으니 참고해 주세요.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 배열 길이가 1 이하이면 정렬할 것이 없으므로 배열 자체를 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택: 여기서는 중간 값을 선택
+    pivot = arr[len(arr) // 2]
+
+    # 피벗보다 작거나 같은 수들을 모은 왼쪽 리스트
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗과 같은 수들을 모은 리스트 (중복 제거 필요 없음)
+    middle = [x for x in arr if x == pivot]
+    
+    # 피벗보다 큰 수들을 모은 오른쪽 리스트
+    right = [x for x in arr if x > pivot]
+
+    # 왼쪽, middle(피벗), 오른쪽을 각각 정렬하고, 연결하여 반환
+    return quick_sort(left) + middle + quick_sort(right)
+
+# 예시: 퀵소트 사용
+if __name__ == "__main__":
+    sample_list = [3, 6, 8, 10, 1, 2, 1]
+    print("정렬 전:", sample_list)
+    sorted_list = quick_sort(sample_list)
+    print("정렬 후:", sorted_list)
+```
+
+---
+
+📌 **퀵소트 설명 요약**
+
+- **분할 정복(Divide and Conquer)** 방식의 정렬 알고리즘
+- **피벗(Pivot)**을 선택하여 피벗보다 작고 큰 요소들을 나눔
+- 재귀적으로 왼쪽, 오른쪽 리스트를 정렬하여 전체를 정렬
+- 평균 시간 복잡도는 **O(n log n)**
+
+---
+
+필요하다면 리스트의 인덱스를 직접 바꾸며 **인플레이스(내부 정렬, In-place)** 방식으로 구현한 퀵소트도 도와드릴 수 있습니다. 말씀해 주세요!

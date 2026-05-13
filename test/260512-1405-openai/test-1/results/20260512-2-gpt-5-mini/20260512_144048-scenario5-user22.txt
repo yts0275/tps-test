@@ -1,0 +1,26 @@
+다음은 Python으로 구현한 퀵소트이며, 코드의 각 줄에 한국어 주석을 달아두었습니다.
+
+```python
+def quicksort(arr, low, high): # 퀵소트 함수를 정의한다 (배열과 정렬할 구간의 시작/끝 인덱스)
+    if low < high: # 시작 인덱스가 끝 인덱스보다 작을 때만 정렬을 수행한다
+        p = partition(arr, low, high) # 분할 함수로 피벗의 최종 위치를 구한다
+        quicksort(arr, low, p - 1) # 피벗 왼쪽 부분 배열을 재귀적으로 정렬한다
+        quicksort(arr, p + 1, high) # 피벗 오른쪽 부분 배열을 재귀적으로 정렬한다
+
+def partition(arr, low, high): # 분할 함수를 정의한다 (Lomuto 분할을 사용)
+    pivot = arr[high] # 피벗으로 구간의 마지막 원소를 선택한다
+    i = low - 1 # 작은 요소들의 경계 인덱스를 초기화한다
+    for j in range(low, high): # low부터 high-1까지의 모든 요소를 검사한다
+        if arr[j] <= pivot: # 현재 요소가 피벗 이하이면
+            i += 1 # 작은 요소들의 경계 인덱스를 하나 이동한다
+            arr[i], arr[j] = arr[j], arr[i] # 현재 요소를 경계 바로 뒤로 교환한다
+    arr[i + 1], arr[high] = arr[high], arr[i + 1] # 피벗을 경계 다음 위치로 교환하여 제자리에 놓는다
+    return i + 1 # 피벗의 최종 인덱스를 반환한다
+
+# 사용 예시
+arr = [3, 6, 8, 10, 1, 2, 1] # 정렬할 배열을 정의한다
+quicksort(arr, 0, len(arr) - 1) # 배열 전체를 정렬하도록 퀵소트를 호출한다
+print(arr) # 정렬된 배열을 출력한다
+```
+
+원하면 inplace가 아닌 새로운 리스트를 반환하는 버전이나, 다른 피벗 선택 방식(예: 중간값, 무작위)으로의 변경도 보여드리겠습니다.

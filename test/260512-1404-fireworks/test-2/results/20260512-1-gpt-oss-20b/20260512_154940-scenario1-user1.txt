@@ -1,0 +1,33 @@
+아래는 **Python**으로 구현한 퀵소트(Quicksort) 알고리즘입니다.  
+모든 코드 줄마다 한 줄 단위로 주석을 달아 이해를 돕도록 했습니다.
+
+```python
+def quicksort(arr):                               # 재귀적으로 차례대로 호출되는 허용된 함수
+    if len(arr) <= 1:                             # 리스트가 0개 혹은 1개일 때
+        return arr                               # 이미 정렬된 상태이므로 그대로 반환
+
+    pivot = arr[len(arr) // 2]                    # 중앙(혹은 임의) 요소를 피벗으로 선택
+
+    left = [x for x in arr if x < pivot]          # 피벗보다 작은 값들로 구성된 서브리스트
+    middle = [x for x in arr if x == pivot]       # 피벗과 같은 값들(중복 처리용)
+    right = [x for x in arr if x > pivot]         # 피벗보다 큰 값들로 구성된 서브리스트
+
+    # 재귀를 이용해 서브리스트를 정렬 후, 순서대로 합쳐서 반환
+    return quicksort(left) + middle + quicksort(right)
+```
+
+### 사용 예시
+
+```python
+example = [34, 7, 23, 32, 5, 62]        # 정렬할 원본 리스트
+sorted_list = quicksort(example)        # quicksort 함수 호출
+print(sorted_list)                      # 출력: [5, 7, 23, 32, 34, 62]
+```
+
+> **동작 방식**  
+> 1. 리스트가 2개 이상이면 중앙 요소를 `pivot`으로 선택합니다.  
+> 2. `pivot` 보다 작은, 같은, 큰 요소들을 각각 `left`, `middle`, `right` 리스트에 담습니다.  
+> 3. `left`와 `right` 리스트를 재귀적으로 다시 정렬하고, 이를 `middle`과 함께 이어 붙여 완전한 정렬 결과를 반환합니다.  
+> 4. 최종적으로 배열이 오름차순으로 정렬된 새 리스트를 반환합니다.  
+
+이 구현은 **재귀**와 **리스트 전개**(list comprehension)을 활용하여 간결함을 추구했으며, 모든 줄을 주석으로 설명했습니다. 필요에 따라 **in‑place** 버전(리스트 자체를 바로 정렬)으로 바꾸거나, 다른 언어(예: Java, C++ 등)로 옮겨서 사용할 수도 있습니다.

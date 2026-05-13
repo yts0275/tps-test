@@ -1,0 +1,27 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-server
+    runtime: nvidia
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command:
+      - "Qwen/Qwen3-14B-AWQ"
+      - "--max-model-len"
+      - "4096"
+      - "--gpu-memory-utilization"
+      - "0.95"
+      - "--trust-remote-code"
+      - "--max-num-seqs"
+      - "30"
+

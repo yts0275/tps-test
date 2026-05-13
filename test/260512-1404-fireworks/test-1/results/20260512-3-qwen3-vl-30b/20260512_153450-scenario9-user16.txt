@@ -1,0 +1,116 @@
+물론입니다. 아래는 주어진 워크플로우 다이어그램의 노드들 간의 흐름을 최대한 상세히 설명한 것입니다.
+
+---
+
+### **1. 시작점: `start`**
+- 워크플로우의 시작을 나타내는 노드입니다.
+- 이 노드에서 실행이 시작되며, 다음으로 `SoftwareEngineer` 노드로 흐름이 전달됩니다.
+- `start` 노드는 단순히 프로세스의 시작을 알리는 역할을 하며, 어떤 작업도 수행하지 않습니다.
+
+---
+
+### **2. 핵심 역할: `SoftwareEngineer`**
+- 워크플로우의 중심이 되는 노드로, **소프트웨어 엔지니어** 역할을 수행합니다.
+- `start`에서 시작된 후, 이 노드가 주도적으로 작업을 조정하고, 다른 도구나 도구 그룹(예: `CodeAnalyzer`, `Editor`)을 호출하거나 제어합니다.
+- 이 노드는 여러 가지 작업을 수행할 수 있으며, 그 결과에 따라 다른 노드로 흐름을 전달합니다.
+
+#### **`SoftwareEngineer`의 출력 흐름:**
+1. **`analyze_code`** (점선 화살표, `CodeAnalyzer`로 이동):
+   - `SoftwareEngineer`가 코드 분석 작업을 요청합니다.
+   - 이는 `CodeAnalyzer` 노드를 활성화하며, `code_analysis_tool`을 사용하여 코드를 분석합니다.
+   - 분석이 완료되면 `CodeAnalyzer`에서 `done` 이벤트를 보내고, `SoftwareEngineer`로 제어가 돌아옵니다.
+
+2. **`edit_file`** (점선 화살표, `Editor`로 이동):
+   - `SoftwareEngineer`가 파일 편집 작업을 요청합니다.
+   - `Editor` 노드가 활성화되며, `code_edit_tool`과 `test_tool`과 상호작용합니다.
+   - 편집이 완료되면 `Editor`에서 `done` 이벤트를 보내고, `SoftwareEngineer`로 제어가 돌아옵니다.
+
+3. **`continue`** (점선 화살표, `SoftwareEngineer`로 되돌아감):
+   - `SoftwareEngineer`가 자신의 작업을 **계속 진행**하기 위해 자신에게 다시 제어를 넘깁니다.
+   - 이는 반복 작업을 나타내며, 예를 들어 코드 분석 후 수정이 필요하거나, 테스트 후 다시 분석하는 등의 반복적인 프로세스를 의미합니다.
+   - 이 `continue`는 `SoftwareEngineer` 노드의 상태를 유지하면서 다음 단계로 넘어가는 **루프**를 형성합니다.
+
+4. **`swc_tool`** (실선 화살표, `swc_tool`로 이동):
+   - `SoftwareEngineer`가 `swc_tool`이라는 외부 도구를 호출합니다.
+   - 이 도구는 특정 기능(예: 소프트웨어 도구, 커맨드라인 툴 등)을 수행할 수 있습니다.
+   - `swc_tool`이 완료되면, `end` 노드로 흐름이 전달됩니다.
+
+5. **`end`** (실선 화살표, `end`로 이동):
+   - `SoftwareEngineer`가 작업을 종료하고, 워크플로우를 종료합니다.
+   - 이는 `swc_tool`을 호출한 후 또는 `continue` 루프를 빠져나온 후 최종적으로 종료되는 경로입니다.
+
+---
+
+### **3. 코드 분석: `CodeAnalyzer`**
+- `SoftwareEngineer`로부터 `analyze_code` 요청을 받은 후 활성화됩니다.
+- 내부적으로 `code_analysis_tool`을 사용하여 코드를 분석합니다.
+- 분석이 완료되면, `done` 이벤트를 발행하여 `SoftwareEngineer`로 제어를 반환합니다.
+
+#### **`CodeAnalyzer`의 출력 흐름:**
+- **`done`** (점선 화살표, `SoftwareEngineer`로 이동):
+  - 분석 작업이 완료되었음을 알리며, `SoftwareEngineer`로 제어를 넘깁니다.
+- **`continue`** (점선 화살표, `CodeAnalyzer`로 되돌아감):
+  - 분석 후 추가 작업이 필요할 수 있으며, `CodeAnalyzer`가 다시 자신을 호출하여 반복 분석을 수행할 수 있습니다.
+  - 예: 분석 결과에 따라 다시 분석을 수행하거나, 오류를 수정한 후 재분석하는 경우.
+
+---
+
+### **4. 파일 편집: `Editor`**
+- `SoftwareEngineer`로부터 `edit_file` 요청을 받은 후 활성화됩니다.
+- `code_edit_tool`과 `test_tool`을 사용하여 파일을 편집하고, 테스트를 수행할 수 있습니다.
+- 편집 및 테스트가 완료되면 `done` 이벤트를 보내고, `SoftwareEngineer`로 제어를 반환합니다.
+
+#### **`Editor`의 출력 흐름:**
+- **`done`** (점선 화살표, `SoftwareEngineer`로 이동):
+  - 편집 및 테스트 작업이 완료되었음을 알리며, `SoftwareEngineer`로 제어를 넘깁니다.
+- **`continue`** (점선 화살표, `Editor`로 되돌아감):
+  - 편집 후 추가 작업이 필요할 수 있으며, `Editor`가 다시 자신을 호출하여 반복 편집을 수행할 수 있습니다.
+  - 예: 테스트 실패 후 수정 후 다시 테스트하는 경우.
+
+---
+
+### **5. 도구 사용: `code_analysis_tool`, `code_edit_tool`, `test_tool`**
+- 이들은 `CodeAnalyzer`와 `Editor`가 사용하는 **보조 도구**입니다.
+- 각각의 도구는 특정 기능을 수행합니다:
+  - `code_analysis_tool`: 코드 분석을 수행.
+  - `code_edit_tool`: 파일 편집을 수행.
+  - `test_tool`: 테스트를 수행.
+- 이 도구들은 **직접적으로 워크플로우의 흐름을 제어하지 않으며**, `CodeAnalyzer`와 `Editor`의 하위 작업으로 동작합니다.
+- 이 도구들은 `CodeAnalyzer` 또는 `Editor`에서 호출되며, 작업이 완료되면 해당 노드로 제어가 돌아옵니다.
+
+---
+
+### **6. 외부 도구: `swc_tool`**
+- `SoftwareEngineer`가 직접 호출하는 외부 도구입니다.
+- `swc_tool`은 특정 기능(예: 소프트웨어 빌드, 테스트, 분석 등)을 수행할 수 있습니다.
+- 이 도구가 완료되면, `end` 노드로 흐름이 전달됩니다.
+
+---
+
+### **7. 종료점: `end`**
+- 워크플로우의 최종 상태입니다.
+- `swc_tool`이 완료된 후 또는 `SoftwareEngineer`가 작업을 종료한 후, 이 노드로 흐름이 전달됩니다.
+- 이 노드는 워크플로우의 종료를 나타내며, 더 이상의 작업이 수행되지 않습니다.
+
+---
+
+### **전체 흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **작업 요청**:
+   - `SoftwareEngineer`가 `analyze_code`를 요청 → `CodeAnalyzer` 실행 → `done` → `SoftwareEngineer`
+   - `SoftwareEngineer`가 `edit_file`를 요청 → `Editor` 실행 → `done` → `SoftwareEngineer`
+3. **반복 작업**:
+   - `SoftwareEngineer`는 `continue`를 통해 자신을 다시 호출하여 작업을 반복할 수 있음.
+   - `CodeAnalyzer`와 `Editor`도 `continue`를 통해 각각의 작업을 반복할 수 있음.
+4. **외부 도구 호출**:
+   - `SoftwareEngineer`가 `swc_tool`을 호출 → `swc_tool` 실행 → `end`
+5. **종료**: `end`
+
+---
+
+### **핵심 특징**
+- **반복성**: `continue` 화살표는 워크플로우의 반복적인 특성을 나타냅니다. 예를 들어, 코드 분석 후 수정, 다시 분석하는 과정을 반복할 수 있습니다.
+- **모듈성**: 각 노드는 특정 기능을 수행하며, 독립적으로 작동합니다. 예: `CodeAnalyzer`는 코드 분석만, `Editor`는 편집과 테스트만 수행.
+- **상호작용**: `SoftwareEngineer`가 중심이 되어 다른 노드를 조정하며, 각 노드는 결과를 반환합니다.
+- **직관적 흐름**: 실선은 주요 흐름

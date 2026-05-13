@@ -1,0 +1,10 @@
+```python
+def quicksort(arr):  # 배열을 정렬하기 위한 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 1 이하이면 정렬할 필요 없음
+        return arr  # 그대로 반환하여 재귀 종료
+    pivot = arr[len(arr) // 2]  # 배열 가운데 값을 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들을 왼쪽 리스트에 모음
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들을 가운데 리스트에 모음
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들을 오른쪽 리스트에 모음
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽 정렬 + 가운데 + 오른쪽 정렬을 합쳐 반환
+```

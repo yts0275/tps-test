@@ -1,0 +1,23 @@
+이 흐름도는 하나의 일련의 작업을 수행하는 SoftwareEngineer를 중심으로, 코드 분석, 편집 및 테스트 도구를 사용하는 과정을 단계적으로 보여줍니다. 각 노드와 연결된 흐름을 최대한 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   워크플로우의 시작점인 `start` 노드는 `SoftwareEngineer` 노드로 흐릅니다. 즉, 전체 프로세스는 소프트웨어 엔지니어가 작업을 시작하는 것으로 출발합니다.
+
+2. **SoftwareEngineer의 주요 활동 흐름**  
+   `SoftwareEngineer` 노드는 다양한 흐름을 갖고 있으며, 크게 세 가지 방향으로 갈 수 있습니다.
+   - **analyze_code → CodeAnalyzer**: `SoftwareEngineer`는 `analyze_code` 작업을 통해 `CodeAnalyzer` 노드로 이동합니다. 이 흐름은 소프트웨어 엔지니어가 코드 분석을 수행하기 위한 단계입니다.
+   - **edit_file → Editor**: `SoftwareEngineer`는 `edit_file` 작업을 통해 코드를 수정하기 위해 `Editor` 노드로 전환합니다.
+   - **continue → swe_tool → end**: 일정 조건에서는 `SoftwareEngineer`가 `continue` 흐름을 따라 `swe_tool`을 사용하고, 이후 `end`로 종료될 수 있습니다. 이는 분석/편집 작업을 마치고 최종 도구를 사용하는 종료 루트입니다.
+
+3. **CodeAnalyzer 흐름**  
+   - `CodeAnalyzer`는 `code_analysis_tool`과 연결되어 있으며, 이 도구를 사용해 실제 코드 분석 작업을 수행합니다.
+   - 분석이 완료되면, `done` 흐름을 통해 다시 `SoftwareEngineer`로 되돌아오거나(다시 판단/다음 작업), 또는 `continue` 흐름으로 다른 단계로 이동할 수 있습니다. 그림에서는 `CodeAnalyzer`에서 `continue`로 이어지는 흐름이 있어 엔지니어에게 다시 조치를 요청할 수 있음을 나타냅니다.
+
+4. **Editor 흐름**  
+   - `Editor`는 `code_edit_tool`과 `test_tool` 두 하위 도구와 연결되어 있습니다. 즉, 에디터 내에서 코드를 편집하고, 수정된 내용을 테스트하는 흐름을 따르게 됩니다.
+   - `SoftwareEngineer`가 에디터에서 작업한 후, `done` 흐름으로 다시 `SoftwareEngineer`로 돌아옵니다. 또한 `continue` 흐름을 통해 추가 편집/테스트가 필요할 경우 반복적인 작업을 계속할 수 있습니다.
+
+5. **swe_tool → end 흐름**  
+   - `SoftwareEngineer`에서 `continue` 흐름을 따라 `swe_tool` 노드에 도달하면 해당 도구를 사용하여 최종 작업을 마무리하고, 이후 `end` 노드로 연결되어 전체 워크플로우를 종료합니다.
+
+종합적으로, 이 워크플로우는 `SoftwareEngineer`가 코드 분석(`CodeAnalyzer`)과 편집/테스트(`Editor`)를 순환하며 수행하다가, 필요한 도구(`code_analysis_tool`, `code_edit_tool`, `test_tool`)를 사용하고, 최종적으로 `swe_tool`을 통해 작업을 마친 후 종료(`end`)하는 형태입니다. 각 노드 사이에는 작업 결과(`done`)나 반복 가능성(`continue`)을 나타내는 흐름이 있어, 실제 개발 과정에서 여러 번의 분석 및 편집 사이클이 유기적으로 연결되어 있음을 보여줍니다.

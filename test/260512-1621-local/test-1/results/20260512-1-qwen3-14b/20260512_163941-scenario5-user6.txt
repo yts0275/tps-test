@@ -1,0 +1,100 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the subarrays.
+
+First, I need to write the main function. The function should take an array and its low and high indices. The base case is when low is greater than high, so we return. Then, we need to choose a pivot. Common methods are picking the first element, last, or middle. I'll go with the middle element for better average performance.
+
+Wait, the user might not know about pivot selection, so I should explain that in the comments. Next, partition the array. The partition function will rearrange elements so that elements less than the pivot come before, and those greater come after. The pivot's final position is the partition index.
+
+In the partition function, I'll use two pointers: one starting at low, and another at high. We move the left pointer until we find an element greater than the pivot, and the right pointer until we find an element less than the pivot. Then swap them. Repeat until pointers cross.
+
+Wait, the comments need to be on each line. So each step in the code must have a comment explaining what it does. Also, the user might be a beginner, so the comments should be clear.
+
+Let me structure the code. The quicksort function calls itself recursively on the left and right partitions. The partition function is crucial. Let me make sure the indices are handled correctly. Also, after partitioning, the pivot is in its correct place, so the next steps are to sort the left and right subarrays.
+
+Testing the code with an example array would help, but the user didn't ask for that. Just the implementation with comments. I should also mention the time complexity in the comments, maybe O(n log n) average case, but O(n²) worst case. That's important for the user to know.
+
+Wait, the user might not know about the worst-case scenario. Including that in the comments would be helpful. Also, note that the pivot selection affects performance. Using the middle element can help avoid worst-case scenarios for already sorted arrays.
+
+Let me write the code step by step, adding comments to each line. Make sure variables are named clearly. For example, using 'arr' as the array, 'low' and 'high' as indices, 'pivot' as the selected element, and 'i', 'j' for the pointers in the partition function.
+
+Double-check the logic in the partition function. When the pointers cross, the loop stops. Then the pivot is placed at the correct position. Then the recursive calls are made. Also, make sure the array is modified in place.
+
+Yes, that should cover it. Now, putting it all together with detailed comments for each line. The user can see each step and understand how the algorithm progresses.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 예제입니다. 각 줄에 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):
+    """
+    퀵소트 알고리즘의 메인 함수.
+    arr: 정렬할 배열
+    low: 배열의 시작 인덱스
+    high: 배열의 끝 인덱스
+    """
+    # 기저 조건: low가 high보다 크면 재귀 종료
+    if low < high:
+        # 파티션을 수행하여 피봇의 위치를 찾고, 그 위치를 pivot_index에 저장
+        pivot_index = partition(arr, low, high)
+        # 피봇 왼쪽 배열 재귀적으로 퀵소트 수행
+        quicksort(arr, low, pivot_index - 1)
+        # 피봇 오른쪽 배열 재귀적으로 퀵소트 수행
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    """
+    배열을 피봇 기준으로 분할하는 함수.
+    arr: 분할할 배열
+    low: 분할 범위의 시작 인덱스
+    high: 분할 범위의 끝 인덱스
+    """
+    # 피봇을 중앙의 원소로 선택 (중심값을 피봇으로 사용)
+    pivot = arr[high]
+    # 왼쪽 포인터 (i)는 low에서 시작
+    i = low - 1
+    # 오른쪽 포인터 (j)는 high에서 시작
+    j = high
+
+    # 포인터가 교차할 때까지 반복
+    while i < j:
+        # 왼쪽 포인터(i)를 오른쪽으로 이동하여 pivot보다 큰 값을 찾음
+        while arr[i] < pivot:
+            i += 1
+        # 오른쪽 포인터(j)를 왼쪽으로 이동하여 pivot보다 작은 값을 찾음
+        while arr[j] > pivot:
+            j -= 1
+        # 두 포인터가 교차하지 않았다면, 값을 교환
+        if i < j:
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 교차 시 피봇을 교차 지점으로 이동
+    arr[high], arr[i] = arr[i], arr[high]
+    # 피봇의 최종 위치 반환
+    return i
+
+# 예제 사용
+if __name__ == "__main__":
+    sample = [10, 7, 8, 9, 1, 5]
+    print("정렬 전 배열:", sample)
+    quicksort(sample, 0, len(sample) - 1)
+    print("정렬 후 배열:", sample)
+```
+
+### 주요 설명
+1. **퀵소트 메커니즘**:
+   - 배열을 피봇 기준으로 두 부분으로 나눔.
+   - 피봇은 배열의 중앙값으로 선택 (이 예제는 항상 `high` 인덱스 값을 피봇으로 사용).
+
+2. **파티션 함수**:
+   - `i` 포인터는 왼쪽에서 오른쪽으로 이동하며 피봇보다 큰 값을 찾음.
+   - `j` 포인터는 오른쪽에서 왼쪽으로 이동하며 피봇보다 작은 값을 찾음.
+   - 두 포인터가 교차하면 피봇을 교차 지점으로 이동.
+
+3. **시간 복잡도**:
+   - 평균: **O(n log n)**
+   - 최악: **O(n²)** (이 예제는 항상 `high` 값을 피봇으로 사용하므로 이미 정렬된 배열에 대해 최악의 경우 발생)
+
+4. **추가 설명**:
+   - 피봇 선택 방식은 성능에 영향을 줍니다. 이 예제는 `high` 값을 피봇으로 사용했지만, 일반적으로 중앙값을 선택하는 것이 더 안정적입니다.
+
+이 구현은 배열을 **인-플레이스**(in-place)로 정렬하며, 재귀적 방식으로 구현했습니다.

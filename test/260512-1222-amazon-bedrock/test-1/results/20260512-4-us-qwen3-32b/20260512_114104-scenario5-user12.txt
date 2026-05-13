@@ -1,0 +1,47 @@
+물론입니다! 아래는 Python으로 퀵소트(Quick Sort)를 구현한 코드로, 각 줄마다 자세한 주석을 달아 설명했습니다.
+
+---
+
+### ✅ 퀵소트 (Quick Sort) – Python 구현 with 주석
+
+```python
+def quick_sort(arr):
+    # 배열이 비어 있거나 하나의 요소만 있다면, 그대로 반환 (종료 조건)
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택
+    # 여기서는 마지막 요소를 pivot으로 선택
+    pivot = arr[-1]
+
+    # 피벗보다 작은 요소를 모을 배열
+    less_than_pivot = []
+
+    # 피벗보다 큰 요소를 모을 배열
+    greater_than_pivot = []
+
+    # 피벗이 아닌 요소들을 less_than_pivot과 greater_than_pivot에 분류
+    for item in arr[:-1]:  # 마지막 요소(피벗)은 제외
+        if item < pivot:
+            less_than_pivot.append(item)  # 피벗보다 작으면 less 배열에 추가
+        else:
+            greater_than_pivot.append(item)  # 피벗보다 크거나 같으면 greater 배열에 추가
+
+    # 재귀적으로 less와 greater 배열을 정렬하고
+    # 그 결과를 pivot과 합쳐서 반환
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+```
+
+---
+
+### 🧠 예시 실행
+
+```python
+arr = [5, 1, 4, 3, 6, 2]
+print(quick_sort(arr))  # 출력: [1, 2, 3, 4, 5, 6]
+```
+
+---
+
+이 코드는 재귀를 사용한 단순한 퀵소트 구현이며, 실제 사용 시에는 더 효율적인 피벗 선택 방법(예: 무작위)이나 in-place 방식을 사용하는 것이 일반적입니다.  
+그것도 필요하시다면 알려드리겠습니다! 😊

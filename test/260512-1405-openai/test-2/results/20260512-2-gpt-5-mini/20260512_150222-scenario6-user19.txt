@@ -1,0 +1,3 @@
+간단한 재고·주문 관리 시스템으로 Product, Order, InventoryManager 클래스와 run_system 함수로 초기 상품 등록·주문 처리·리포트 기능을 시연합니다.  
+Product.update_stock은 음수 재고 방지를 하고, Order.add_item은 재고 차감·주문 항목 추가·총액 계산을 하며 print_invoice로 영수증을 출력합니다.  
+run_system은 샘플 상품과 두 건의 주문(하나는 정상, 하나는 재고 부족으로 실패)을 처리하고 최종 재고와 창고 자산 가치를 출력합니다.

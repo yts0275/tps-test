@@ -1,0 +1,69 @@
+<think>
+Okay, the user wants me to implement quicksort in Python with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that selects a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the main function. The function should take a list and return the sorted list. The base case is when the list has zero or one element, which is already sorted. So I'll check for that.
+
+Next, the pivot selection. I'll choose the last element as the pivot. That's a common choice, though there are other strategies like median-of-three. But for simplicity, using the last element is straightforward.
+
+Then, the partitioning step. I need two lists: one for elements less than the pivot and another for elements greater than or equal to the pivot. I'll loop through each element in the list (excluding the pivot), and append them to the respective list based on the comparison.
+
+After partitioning, I'll recursively apply quicksort to the left and right sublists, then combine them with the pivot in the middle.
+
+Now, adding comments to each line. The user wants each line commented, so I need to make sure every line of code has a comment explaining what it does. Let me go through each line step by step.
+
+Wait, in Python, the function definition line should have a comment. Then the base case. Then selecting the pivot. Then the partitioning loops. Then the recursive calls. And the return statement.
+
+I should also mention that the pivot selection can be modified, but this is a basic implementation. Also, note that this is an in-place implementation? No, wait, in this code, the list is being split into new lists, so it's not in-place. That's okay for the purpose of the example.
+
+Testing the code with an example list would be good, but the user didn't ask for that. Just the implementation with comments. Let me make sure each line is properly commented and the comments are clear. Alright, that should cover it.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 예시입니다. 각 줄에 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr):
+    # 기저 조건: 리스트가 0개 또는 1개 요소일 경우, 이미 정렬되어 있음
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot) 선택: 여기서는 마지막 요소를 피벗으로 사용
+    pivot = arr[-1]
+    
+    # 피벗보다 작은 요소를 담을 리스트
+    left = []
+    # 피벗보다 큰 요소를 담을 리스트
+    right = []
+    
+    # 피벗을 제외한 요소를 순회하면서 분할
+    for i in range(len(arr) - 1):
+        if arr[i] < pivot:
+            # 현재 요소가 피벗보다 작으면 left 리스트에 추가
+            left.append(arr[i])
+        else:
+            # 현재 요소가 피벗보다 크거나 같으면 right 리스트에 추가
+            right.append(arr[i])
+    
+    # 재귀적으로 left와 right 리스트에 퀵소트 적용
+    # left 리스트에 퀵소트 실행 -> 정렬된 왼쪽 부분
+    sorted_left = quicksort(left)
+    # right 리스트에 퀵소트 실행 -> 정렬된 오른쪽 부분
+    sorted_right = quicksort(right)
+    
+    # 정렬된 왼쪽 + 피벗 + 정렬된 오른쪽을 합쳐 최종 결과 반환
+    return sorted_left + [pivot] + sorted_right
+
+# 테스트용 예시
+example = [3, 6, 8, 10, 1, 2, 1]
+print(quicksort(example))  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+### 🔍 주석 설명 요약
+1. **기저 조건**: 재귀 호출의 종료 조건으로, 요소가 0개 또는 1개일 때는 정렬할 필요 없음.
+2. **피벗 선택**: 여기서는 항상 마지막 요소를 피벗으로 사용. 다른 선택 방법도 가능.
+3. **분할**: 피벗을 기준으로 작은 요소와 큰 요소를 두 개의 리스트로 분리.
+4. **재귀 호출**: 분할된 왼쪽과 오른쪽 리스트에 퀵소트를 재귀적으로 적용.
+5. **결합**: 정렬된 왼쪽, 피벗, 정렬된 오른쪽을 순서대로 결합하여 최종 결과 반환.
+
+이 구현은 **원본 배열을 수정하지 않고 새로운 리스트를 생성**하며, **재귀적 분할**을 통해 정렬을 수행합니다.

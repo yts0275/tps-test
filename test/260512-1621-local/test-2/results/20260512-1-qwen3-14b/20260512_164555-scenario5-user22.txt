@@ -1,0 +1,64 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the main function. The function will take an array and the start and end indices. The base case is when the start is greater than or equal to the end, so we return. Then, we need to select a pivot. For simplicity, I'll choose the last element as the pivot, which is common in many implementations.
+
+Next, I need to partition the array. I'll use two pointers: one starting at the beginning (i) and another moving through the array (j). The idea is to move all elements less than the pivot to the left. So, for each element, if it's less than the pivot, we swap it with the element at index i and increment i. After processing all elements, we swap the pivot with the element at i, so that everything to the left is less than the pivot and everything to the right is greater.
+
+Then, the function will recursively call itself on the left and right sub-arrays. 
+
+Now, I need to add comments to each line. Let me go through each part step by step. The main function should have a comment explaining its purpose. The base case, the pivot selection, the partitioning loop, the pivot swap, and the recursive calls all need clear comments. 
+
+Wait, in the partitioning step, I should make sure that the loop correctly handles the indices. Also, when swapping, the pivot is placed at the correct position. The comments should clarify that i is the index where elements less than the pivot are placed. 
+
+I should test this code mentally. For example, with an array like [3,6,8,10,1,2,1], the pivot is 1. The loop would compare each element with 1. All elements less than 1 would be moved to the left, but since there are none, i remains at 0. Then, the pivot is swapped with the element at i, which is 3. Wait, that would put 1 at the beginning. Then the left subarray is [1], and the right is [3,6,8,10,2]. That seems correct.
+
+Another test case: [5,3,7,6,2,1,4]. Let's say the pivot is 4. The loop would move elements less than 4 to the left. So 3,2,1 are moved. Then, the pivot is placed between them and the rest. The partition would be [3,2,1,4,5,7,6]. Then recursively sort left and right. 
+
+I think that's correct. Now, adding the comments line by line. Each step should be clear. Maybe mention that the pivot is the last element, the partitioning process, and the recursive calls. Also, note that the time complexity is O(n log n) on average, but O(n²) in the worst case. But the user didn't ask for that, just the code with comments. So I'll focus on the code comments.
+</think>
+
+다음은 퀵소트(QuickSort) 알고리즘을 Python으로 구현한 코드입니다. 각 줄에 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, start, end):
+    # 베이스 케이스: 배열의 시작 인덱스가 끝 인덱스보다 작거나 같으면 종료
+    if start >= end:
+        return
+
+    # 피봇 선택: 배열의 마지막 요소를 피봇으로 사용
+    pivot = arr[end]
+    
+    # i는 배열에서 피봇보다 작은 값을 저장할 위치를 나타내는 포인터
+    i = start
+
+    # 배열을 순회하며 피봇보다 작은 값을 찾는 과정
+    for j in range(start, end):
+        if arr[j] < pivot:
+            # 피봇보다 작은 값을 찾으면 i와 j의 위치를 교환
+            arr[i], arr[j] = arr[j], arr[i]
+            i += 1  # i를 한 칸 이동
+
+    # 피봇을 적절한 위치로 이동
+    arr[i], arr[end] = arr[end], arr[i]
+
+    # 재귀적으로 좌측과 우측 배열을 정렬
+    quicksort(arr, start, i - 1)  # 피봇의 왼쪽 배열 정렬
+    quicksort(arr, i + 1, end)   # 피봇의 오른쪽 배열 정렬
+```
+
+### 설명
+- **베이스 케이스**: 배열의 시작 인덱스(`start`)가 끝 인덱스(`end`)보다 작거나 같으면 정렬이 필요 없으므로 종료합니다.
+- **피봇 선택**: 배열의 마지막 요소를 피봇으로 선택합니다. 이는 간단한 구현을 위해 선택한 방법입니다.
+- **배열 분할**: `i` 포인터는 피봇보다 작은 값을 저장할 위치를 나타냅니다. 배열을 순회하면서 `j` 포인터가 가리키는 값이 피봇보다 작으면 `i`와 `j`의 값을 교환하고 `i`를 증가시킵니다.
+- **피봇 이동**: `i`와 `end`의 값을 교환하여 피봇을 적절한 위치로 이동합니다.
+- **재귀적 정렬**: 피봇의 왼쪽과 오른쪽 배열을 각각 다시 `quicksort` 함수로 재귀적으로 호출하여 정렬합니다.
+
+### 예시
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+quicksort(arr, 0, len(arr)-1)
+print(arr)  # [1, 1, 2, 3, 6, 8, 10]
+```
+
+이 코드는 평균적으로 O(n log n)의 시간 복잡도를 가지며, 최악의 경우 O(n²)의 시간 복잡도를 가질 수 있습니다.

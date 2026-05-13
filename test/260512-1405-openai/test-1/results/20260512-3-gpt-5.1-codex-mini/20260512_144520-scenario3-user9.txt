@@ -1,0 +1,14 @@
+```python
+def quicksort(arr):  # 퀵소트를 수행하기 위한 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 0 또는 1이면 더 이상 정렬할 필요 없음
+        return arr  # 그대로 배열 반환
+    pivot = arr[len(arr) // 2]  # 배열 중앙 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값을 모음
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값을 모음
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값을 모음
+    return quicksort(left) + middle + quicksort(right)  # 좌우 재귀 정렬 후 결합
+
+sample_list = [3, 6, 1, 8, 4, 5]  # 테스트할 샘플 리스트 생성
+sorted_list = quicksort(sample_list)  # 퀵소트를 호출하여 정렬 결과 저장
+print(sorted_list)  # 정렬된 리스트 출력
+```

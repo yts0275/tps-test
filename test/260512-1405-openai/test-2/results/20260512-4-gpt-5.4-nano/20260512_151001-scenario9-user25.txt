@@ -1,0 +1,129 @@
+아래 이미지는 “Workflow”가 여러 Node(단계)로 이루어져 있고, 각 Node가 서로 **화살표(흐름)** 로 연결된 구조입니다. 이미지에서 보이는 노드들과 라벨(예: `done`, `continue`, `analyze_code`, `edit_file`)을 기준으로 흐름을 최대한 상세히 풀어 서술하면 다음과 같습니다.
+
+---
+
+## 1) 시작 노드: `start`
+1. 워크플로우는 상단의 **`start`** 원형 노드에서 출발합니다.
+2. 이후 흐름은 바로 아래의 **`SoftwareEngineer`** 노드로 들어갑니다.
+
+---
+
+## 2) 중심 역할 노드: `SoftwareEngineer`
+`SoftwareEngineer`는 이 워크플로우에서 **중앙 제어/조정 역할**을 하는 상위 노드처럼 보입니다.  
+이미지에서 이 노드는 아래 여러 기능 노드(`CodeAnalyzer`, `Editor`, `swe_tool`)와 강하게 연결되어 있으며,
+
+- 특정 작업을 하위 도구/도메인 노드로 **분기시키고**
+- 그 결과가 `done`으로 돌아오면 다시 다음 단계로 **진행**하며
+- 특정 조건에서는 `continue`를 통해 루프성으로 반복될 수 있는 구조입니다.
+
+즉, “엔지니어”가 작업을 나누고, 각 도구가 수행한 결과를 받아 다음 단계로 이어주는 형태입니다.
+
+---
+
+## 3) 하위 노드 A: `CodeAnalyzer`로의 흐름
+`SoftwareEngineer`에서 좌측 방향의 흐름이 **`CodeAnalyzer`**로 향합니다.
+
+### (1) 진입 이벤트: `analyze_code`
+- `CodeAnalyzer`로 가는 경로에 **`analyze_code`** 라벨이 보입니다.
+- 이는 `SoftwareEngineer`가 `CodeAnalyzer`에게 “코드를 분석하라”는 요청(입력/명령)을 보내는 의미로 해석됩니다.
+
+### (2) `CodeAnalyzer` 내부에서 호출되는 도구: `code_analysis_tool`
+- `CodeAnalyzer` 아래에는 **`code_analysis_tool`** 박스가 연결되어 있습니다.
+- 흐름상:
+  1. `CodeAnalyzer`가 실행되며,
+  2. 그 안에서 **`code_analysis_tool`**이 실제 분석을 수행하고,
+  3. 결과가 다시 `CodeAnalyzer`로 돌아옵니다.
+
+### (3) 분석 완료 처리: `done`
+- `CodeAnalyzer`에서 화살표 라벨 **`done`** 이 보입니다.
+- 이는 코드 분석 단계가 완료되어 결과를 가지고 상위(또는 다음 단계)로 넘어갈 준비가 되었음을 나타냅니다.
+
+### (4) 다음으로 이어짐: `SoftwareEngineer` 또는 `Editor` 쪽으로 연결
+- `done` 신호가 `SoftwareEngineer` 쪽으로 돌아가거나,
+- 이미지상 다른 경로로 **`Editor`** 또는 추가 처리로 연결되는 형태가 같이 존재합니다.
+
+정리하면, 좌측 흐름은:
+> `SoftwareEngineer` → (analyze_code 요청) → `CodeAnalyzer` → `code_analysis_tool` 실행 → (done) → 다시 상위로 복귀/다음 단계로 진행
+
+---
+
+## 4) 하위 노드 B: `Editor`로의 흐름
+`SoftwareEngineer`는 분석 결과를 바탕으로 수정 작업을 수행하기 위해 **`Editor`**로도 흐름을 분기합니다.
+
+### (1) 진입 이벤트: `edit_file`
+- `Editor`로 가는 경로에 **`edit_file`** 라벨이 보입니다.
+- 이는 `SoftwareEngineer`가 `Editor`에게 “파일을 편집하라/수정하라”는 지시를 내리는 단계로 해석됩니다.
+
+### (2) `Editor` 내부에서 호출되는 도구: (1) `code_edit_tool`, (2) `test_tool`
+이미지에 `Editor` 아래로 두 가지 도구가 연결되어 있습니다.
+
+#### 4-2-1) 코드 수정 도구: `code_edit_tool`
+- `Editor`는 실제 “수정”을 담당하는 **`code_edit_tool`**을 활용합니다.
+- 흐름상:
+  1. `Editor`가 실행되고,
+  2. 변경 사항을 만들거나 필요한 부분을 패치하는 과정에서
+  3. **`code_edit_tool`**이 적용 작업을 수행합니다.
+
+#### 4-2-2) 테스트 도구: `test_tool`
+- 이어서 `Editor` 아래에 **`test_tool`**이 연결되어 있어,
+- 코드 수정 후 결과가 올바른지 확인하기 위한 **테스트 단계**가 포함됩니다.
+- 즉,
+  1. 수정 완료 → 
+  2. `test_tool`로 동작/테스트를 수행 →
+  3. 결과를 바탕으로 다음 진행 여부를 결정합니다.
+
+### (3) 완료 처리 및 루프 성격: `done` / `continue`
+- `Editor`에서 **`done`** 및 **`continue`** 라벨이 확인됩니다.
+- 해석하면:
+  - `done`은 수정+테스트(또는 해당 단계의 작업) 완료 신호
+  - `continue`는 다음 단계로 계속 진행하거나, 테스트/수정이 만족스럽지 않으면 다시 수정으로 되돌아가는 “반복 가능성(루프)”을 의미할 수 있습니다.
+
+### (4) 상위로 복귀 또는 다른 작업으로 분기
+- `Editor`의 완료 신호는 다시 `SoftwareEngineer` 쪽으로 반환되는 구조로 보입니다.
+- 즉, 엔지니어가 수정 결과를 보고 다음 결정을 내리는 형태입니다.
+
+정리하면 우측(가운데) 흐름은:
+> `SoftwareEngineer` → (edit_file 요청) → `Editor` → `code_edit_tool`로 수정 → `test_tool`로 검증 → (done/continue) → 상위로 복귀/다음 단계
+
+---
+
+## 5) 하위 노드 C: `swe_tool`로의 흐름
+이미지의 우측에는 **`swe_tool`** 노드가 존재합니다.  
+또한 이 노드는 **`SoftwareEngineer`**와 직접적으로 연결되어 있고, 그 주변에 `continue` 및 `end`로 향하는 흐름이 함께 그려져 있습니다.
+
+### (1) 역할 해석
+- `swe_tool`은 “소프트웨어 엔지니어링을 위한 도구”로서,
+  - 코드 분석/편집/테스트 외에
+  - 특정 자동화 작업(예: 문제 해결을 위한 추가 실행, 다른 도구 호출, 통합 처리 등)
+  를 담당할 가능성이 있습니다.
+- 이미지에서는 `Editor`나 `CodeAnalyzer`처럼 구체 도구 박스(예: `code_edit_tool`)가 명시적으로 붙어있진 않지만, **상위 제어 흐름에서 최종 처리에 관여**하는 노드로 보입니다.
+
+### (2) `continue`와 `end`로의 연결
+- `swe_tool`에서 **`continue`** 관련 곡선 화살표가 보이고,
+- 결국 **`end`**로 이어지는 경로가 있습니다.
+
+---
+
+## 6) 종료 노드: `end`
+마지막으로 상단 우측의 **`end`** 노드가 표시되어 있으며, 이는 워크플로우가 성공적으로 마무리되었음을 의미합니다.
+
+이미지에서 보이는 흐름은 대략:
+- `SoftwareEngineer`가 필요한 작업(분석/수정/검증/추가 처리)을 충분히 수행한 후
+- `swe_tool` 등 최종 처리 경로를 거치거나
+- 완료 조건에 따라 곧바로 `end`로 연결됩니다.
+
+---
+
+# 전체를 한 줄 요약(순서 구조)
+이미지 기준 전체 흐름은 다음 “거대한 작업 루프/분기” 형태로 정리됩니다.
+
+1. `start`
+2. `SoftwareEngineer` 시작(중앙 제어)
+3. (분기) `analyze_code` → `CodeAnalyzer` → `code_analysis_tool` 실행 → `done` 복귀/다음 단계 연결
+4. (분기) `edit_file` → `Editor` → `code_edit_tool`로 수정 → `test_tool`로 테스트/검증 → `done/continue` 복귀/반복 가능
+5. 필요 시 `swe_tool`을 통한 최종 처리/통합
+6. `end`
+
+---
+
+원하시면, 제가 **(1) 어느 화살표가 “루프”를 뜻하는지(continue가 의미하는 반복 조건 추정)**, **(2) 각 노드 입력/출력 데이터가 무엇일지**까지 이미지에 근거해서 더 구체적으로도 정리해드릴게요.

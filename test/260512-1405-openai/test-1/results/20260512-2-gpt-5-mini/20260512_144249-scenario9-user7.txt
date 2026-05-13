@@ -1,0 +1,100 @@
+아래는 그림에 표시된 워크플로우의 노드(node)와 노드들 간 흐름(flow)을 가능한 한 상세하게 해석한 설명입니다. 그림의 화살표와 라벨(예: analyze_code, edit_file, done, continue)은 각각 작업 트리거, 완료 신호, 또는 다음 단계로의 선택적 전환을 나타냅니다. (이미지의 점선/대시선은 호출/비동기/선택적 흐름을 암시하는 것으로 해석했습니다.)
+
+1) 노드 개요 (역할)
+- start (원형)  
+  - 워크플로우의 시작점. 최초로 SoftwareEngineer 노드로 흐름을 보낸다.
+
+- SoftwareEngineer (사각) — 중심 오케스트레이터  
+  - 사람(또는 주체) 역할로, 코드 분석, 파일 편집, 툴 사용, 종료 등 여러 행동으로 갈라지는 분기점이다.
+  - 그림에서는 여러 개의 점선/대시선이 SoftwareEngineer에서 다른 노드로 뻗어 나간다(선택적으로 다른 작업을 시작).
+
+- CodeAnalyzer (사각) — 코드 분석 담당 서브프로세스  
+  - "analyze_code" 같은 트리거로 호출된다.
+  - 내부(아래)에 code_analysis_tool 이라는 하위 툴/프로세스가 있어 실제 분석 작업은 그 툴에서 수행된다.
+  - 분석 완료 후 SoftwareEngineer로 되돌아오는 경로(라벨: done)가 있음.
+  - 또한 Editor와 상호작용(continue 등 라벨)하여 이후 편집 또는 재분석으로 이어질 수 있다.
+
+- Editor (사각) — 편집(수정) 및 테스트 담당 서브프로세스  
+  - "edit_file" 같은 트리거로 호출된다.
+  - 내부에 code_edit_tool(편집용)과 test_tool(테스트용) 같은 하위 툴들을 호출한다.
+  - 편집/테스트 완료 후 SoftwareEngineer로 되돌아오는 경로(라벨: done)가 있음.
+  - 또한 CodeAnalyzer와 상호작용해(continue) 편집 결과를 다시 분석하거나 분석 결과를 받아 편집으로 이어질 수 있다.
+
+- swe_tool (사각, 오른쪽) — 추가/보조 툴(Software Engineering 툴)  
+  - SoftwareEngineer가 직접 호출할 수 있는 외부 보조 툴로 보인다.
+  - 호출 후 다시 SoftwareEngineer로 돌아올 수 있거나(continue), 또는 최종 종료로 연결될 수 있다.
+
+- end (원형, 오른쪽 끝) — 워크플로우 종료 지점  
+  - SoftwareEngineer나 다른 노드에서 'continue' 같은 조건에 따라 도달한다(종료 신호).
+
+2) 노드 간 흐름(라벨과 의미)
+- start -> SoftwareEngineer  
+  - 워크플로우 시작.
+
+- SoftwareEngineer -> CodeAnalyzer (라벨: analyze_code)  
+  - 엔지니어가 코드 분석을 요청(또는 분석 단계로 진입).
+
+- CodeAnalyzer -> code_analysis_tool  
+  - 실제 분석 툴(구현체)을 호출하여 정적 분석/리포트 생성 등 수행.
+
+- code_analysis_tool -> CodeAnalyzer -> SoftwareEngineer (라벨: done)  
+  - 분석 완료. 결과(경고·버그 리스트 등)를 들고 분석 프로세스가 엔지니어로 복귀.
+
+- SoftwareEngineer -> Editor (라벨: edit_file)  
+  - 코드 편집(수정)을 시작한다는 트리거.
+
+- Editor -> code_edit_tool  
+  - 편집용 툴을 호출하여 코드 변경 수행.
+
+- Editor -> test_tool  
+  - 변경 후 테스트를 실행(유닛/통합 테스트 등).
+
+- test_tool/code_edit_tool -> Editor -> SoftwareEngineer (라벨: done)  
+  - 편집 및 테스트 완료 후 엔지니어로 복귀.
+
+- SoftwareEngineer -> swe_tool (라벨: continue)  
+  - 엔지니어가 외부 툴을 사용(예: CI, 린터 대체 툴, 배포도구 등). 완료 후 되돌아오거나 종료로 이어질 수 있다.
+
+- SoftwareEngineer -> end (라벨: continue)  
+  - 엔지니어가 더 이상 반복할 작업이 없을 때 워크플로우 종료.
+
+- CodeAnalyzer <-> Editor (라벨: continue 또는 양방향 점선)  
+  - 분석 → 편집 → 다시 분석의 반복 루프를 나타낸다.  
+  - 예: 분석에서 발견된 문제를 Editor로 넘겨 수정하고, 수정 후 다시 CodeAnalyzer로 재분석 요청 가능.
+  - 이 흐름은 반복(iteration)적이며, 'continue' 라벨은 “다음 단계로 진행” 또는 “반복 계속”의 의미로 쓰인다.
+
+3) 흐름의 전형적 시나리오(단계별 예)
+- 시나리오 A: 단일 분석 후 종료
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer 트리거 analyze_code → CodeAnalyzer
+  3. CodeAnalyzer 호출 → code_analysis_tool 실행
+  4. 분석 완료(done) → 결과를 SoftwareEngineer에게 반환
+  5. SoftwareEngineer가 추가 수정/검사 없이 종료(continue → end)
+
+- 시나리오 B: 분석 → 편집 → 테스트의 반복(정상적인 개발 사이클)
+  1. start → SoftwareEngineer
+  2. analyze_code → CodeAnalyzer → code_analysis_tool 실행
+  3. 분석 결과(버그/경고) 수신(done)
+  4. SoftwareEngineer가 edit_file 트리거 → Editor 호출
+  5. Editor → code_edit_tool로 수정 수행, 이어서 test_tool로 테스트 실행
+  6. 테스트 결과를 받고(Editor 완료 done) SoftwareEngineer로 복귀
+  7. 필요 시 SoftwareEngineer가 다시 analyze_code로 CodeAnalyzer 호출하여 재검사(루프 반복)
+  8. 모든 체크를 통과하면 continue → end
+
+- 시나리오 C: 보조 툴(swe_tool) 사용
+  1. SoftwareEngineer가 필요에 따라 swe_tool 호출(continue 경로)
+  2. swe_tool에서 일부 자동화 작업 수행(예: 자동 포맷, 빌드, 배포 준비)
+  3. 완료 후 SoftwareEngineer로 복귀하거나, 특정 조건에서 end로 직행
+
+4) 흐름의 특성 및 제어 논리
+- 다중 선택(분기)형 구조: SoftwareEngineer는 여러 방향(분석, 편집, 툴 사용, 종료) 중 하나를 선택할 수 있다.
+- 반복/루프: CodeAnalyzer ↔ Editor 사이의 계속(continue) 경로가 반복적인 개발 사이클(분석→수정→재분석)을 표현.
+- 하위 툴 호출: CodeAnalyzer와 Editor는 실제 작업을 수행할 하위 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출하며, 이들 호출은 해당 노드의 내부 수행 단계로 간주된다.
+- 완료/동기화: 각 서브프로세스는 'done' 신호로 SoftwareEngineer에게 완료를 알리고 다음 행동을 결정하게 한다.
+- 점선/대시선: 그림의 점선 형태는 ‘선택적’, ‘비동기적’ 혹은 ‘외부툴 호출’의 의미로 해석 가능. (정확한 의미는 원 설계자의 주석에 따름)
+
+5) 요약
+- 워크플로우는 SoftwareEngineer가 중심이 되어 CodeAnalyzer와 Editor를 필요에 따라 호출하고, 각 노드는 자체 하위 툴을 통해 실제 작업을 수행한 뒤 완료 신호(done)로 엔지니어에게 되돌린다.
+- CodeAnalyzer와 Editor는 서로 연쇄적으로 또는 반복적으로 상호작용하며(continue), 반복 후 엔지니어가 더 이상 작업을 진행하지 않기로 하면 swe_tool 호출 또는 end로 워크플로우가 종료된다.
+
+원하시면 이 흐름을 상태 다이어그램(state machine) 형태로 정리하거나, 각 전이(transition)에 대한 조건(예: 분석 실패 시 편집으로 전환, 테스트 실패 시 다시 편집으로 전환 등)을 구체적인 의사결정 규칙으로 풀어 기술해 드리겠습니다. 어느 수준의 세부 규칙을 원하시는지 알려 주세요.

@@ -1,0 +1,41 @@
+이 워크플로우는 시작 노드부터 엔드 노드까지 소프트웨어 엔지니어링 작업의 흐름을 단계별로 보여줍니다. 각 노드와 연결 관계를 따라가며 가능한 흐름을 최대한 상세히 정리해 드리겠습니다.
+
+1. **시작 (start)**  
+   - 워크플로우는 `start` 노드에서 출발하며, 단일 흐름 화살표가 `SoftwareEngineer` 노드로 향합니다. 즉, 모든 프로세스는 소프트웨어 엔지니어가 중심이 되어 진행된다는 것을 의미합니다.
+
+2. **SoftwareEngineer 노드**  
+   - `SoftwareEngineer`는 핵심 작업자인 “소프트웨어 엔지니어”를 나타내며, 여러 작업을 수행하기 위해 다양한 도구 및 다음 단계로 연결됩니다.
+   - 여기서는 크게 세 가지 선택적인 행동 경로가 있습니다:
+     1. **`analyze_code`**: 엔지니어가 코드를 분석하고자 할 때 `CodeAnalyzer`로 이동합니다.
+     2. **`edit_file`**: 코드 수정이 필요할 때 `Editor` 노드로 이동합니다.
+     3. **`continue` (끝보기)**: 작업을 곧바로 종료하거나 다른 도구(`swe_tool`)로 연결되는 경로를 타고 끝내는 흐름이 존재합니다.
+
+3. **CodeAnalyzer 노드**  
+   - `SoftwareEngineer`의 `analyze_code` 액션을 통해 도달하게 되며, 이름 그대로 코드를 분석하는 도구를 나타냅니다.
+   - 이 노드는 내부적으로 또 두 가지 흐름을 가집니다:
+     - **`code_analysis_tool`**: 구체적인 분석 도구에 연결된 하위 노드로, 실제 코드 분석을 수행하는 경로입니다. 이는 `CodeAnalyzer`에서 `code_analysis_tool` 노드로 향하는 점선 흐름을 통해 하위 도구로 진입함을 보여줍니다.
+     - **`continue`**: 분석 결과를 바탕으로 다시 `SoftwareEngineer` 혹은 다른 노드로 돌아가는 흐름이 존재하며, 점선으로 `SoftwareEngineer`로 되돌아가는 연결도 표시됩니다. 이는 분석 완료 후 다음 작업을 계획하기 위한 루프입니다.
+     - **`done`**: 분석 작업 완료 시 `SoftwareEngineer`로 다시 돌아가서 다음 단계(예: 수정, 테스트 등)를 결정하는 흐름이 있습니다.
+
+4. **Editor 노드**  
+   - `SoftwareEngineer`가 `edit_file` 액션을 선택하면 `Editor` 노드로 이동합니다. 이는 실제 코드 편집 작업을 나타냅니다.
+   - 마찬가지로 여러 하위 흐름이 있습니다:
+     - **`code_edit_tool`**: 코드 편집 작업을 도와주는 도구로 연결됩니다. 이 노드는 `Editor`에서 특정 도구(`code_edit_tool`)로 내려가는 흐름을 보여 줍니다.
+     - **`test_tool`** (점선): 편집 후 테스트가 필요할 경우 `test_tool`과 연결될 수 있습니다. 이는 `Editor`에서 편집된 결과물을 테스트하는 단계로 이어지는 흐름입니다.
+     - **`continue` 및 `done`**: 수정 작업이 완료되면 `SoftwareEngineer`로 돌아가는 흐름이 존재하며, 다시금 후속 조치를 결정할 수 있게 합니다. `continue`는 반복적인 수정 과정에서 계속 이어지는 경로이며, `done`은 해당 편집 작업 자체가 마무리되었음을 의미합니다.
+
+5. **swe_tool 노드**  
+   - `SoftwareEngineer`에서 `continue` 경로를 따라가는 또 다른 방향으로 `swe_tool`이라는 도구가 있습니다. 점선 화살표로 이어져 있으며, 이 노드는 엔지니어가 특정 도구를 통해 작업을 계속하거나 자동화된 기능을 수행할 때를 의미하는 것으로 보입니다.
+   - `swe_tool`은 최종적으로 `end` 노드로 이어지는 흐름을 가지고 있어, 해당 도구를 이용하여 모든 작업을 종료할 수 있습니다.
+
+6. **끝 (end)**  
+   - `swe_tool`을 통해 진입하거나 `SoftwareEngineer`에서 직접 `continue` 흐름을 타고 종료할 수 있는 엔드 노드입니다. 작업 전체가 완료되어 워크플로우가 종료되는 지점을 나타냅니다.
+
+**종합 흐름 요약**  
+- 시작 → `SoftwareEngineer`  
+  - `analyze_code` → `CodeAnalyzer` → `code_analysis_tool` / `continue` → 다시 `SoftwareEngineer` 또는 마무리  
+  - `edit_file` → `Editor` → `code_edit_tool` / `test_tool` / 다시 `SoftwareEngineer`  
+  - `continue` → `swe_tool` → `end`  
+- 각 서브노드에서 완료(`done`) 및 계속(`continue`) 흐름을 통해 `SoftwareEngineer`로 복귀하거나 다음 단계를 연결하며, 결국 `swe_tool`를 통한 종료까지 이어지는 구조입니다.
+
+이와 같은 다중 흐름은 소프트웨어 엔지니어의 작업 사이클—분석, 편집, 테스트, 도구 활용—을 순환하면서 필요한 경우 반복하거나 종료할 수 있는 체계를 잘 나타냅니다.

@@ -1,0 +1,48 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort)를 구현한 코드이며, 각 라인에 친절하게 설명하는 주석을 추가했습니다.
+
+---
+
+```python
+def quick_sort(arr):
+    # 리스트가 비어 있거나 요소가 1개만 있다면 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)은 리스트의 첫 번째 요소로 선택
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 담을 리스트
+    less_than_pivot = []
+
+    # 피벗보다 큰 요소들을 담을 리스트
+    greater_than_pivot = []
+
+    # 피벗을 제외한 나머지 요소들을 돌며 less_than_pivot 또는 greater_than_pivot에 추가
+    for num in arr[1:]:
+        if num < pivot:
+            less_than_pivot.append(num)
+        else:
+            greater_than_pivot.append(num)
+
+    # 재귀적으로 left와 right 부분을 퀵소트하고, 피벗과 합쳐서 반환
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+```
+
+---
+
+### 📌 실행 예시:
+
+```python
+unsorted_list = [3, 6, 8, 10, 1, 2, 1]
+sorted_list = quick_sort(unsorted_list)
+print("퀵소트 후:", sorted_list)
+```
+
+출력:
+```
+퀵소트 후: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+필요하시면 다른 언어(예: Java, C++)로 바꿔서 설명해 드릴 수도 있고, 복잡도나 작동 원리 설명도 해 드릴 수 있습니다! 😊

@@ -1,0 +1,26 @@
+다음은 파이썬으로 구현한 퀵소트 예시이며, 각 줄마다 주석을 달았습니다.
+
+def quicksort(arr, low=0, high=None):  # quicksort 함수: 배열을 제자리에서 정렬합니다
+    if high is None:  # 정렬할 구간의 끝 인덱스를 초기화합니다
+        high = len(arr) - 1  # 배열의 마지막 인덱스로 설정합니다
+    if low < high:  # 구간에 하나 이상 원소가 남아 있으면 정렬합니다
+        p = partition(arr, low, high)  # 피벗의 최종 위치를 구합니다
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분 배열을 재귀적으로 정렬합니다
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분 배열을 재귀적으로 정렬합니다
+    return arr  # 정렬된 배열을 반환합니다
+
+def partition(arr, low, high):  # 분할 함수: 피벗을 기준으로 배열을 재배치합니다
+    pivot = arr[high]  # 마지막 원소를 피벗으로 선택합니다
+    i = low - 1  # i는 피벗보다 작아야 하는 영역의 끝 인덱스입니다
+    for j in range(low, high):  # low에서 high-1까지 순회합니다
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 영역을 한 칸 확장합니다
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소를 서로 교환합니다
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치로 이동합니다
+    return i + 1  # 피벗의 최종 위치를 반환합니다
+
+if __name__ == "__main__":  # 스크립트로 실행될 때에만 아래를 실행합니다
+    data = [3, 6, 8, 10, 1, 2, 1]  # 테스트용 배열을 선언합니다
+    print("정렬 전:", data)  # 정렬 전 배열을 출력합니다
+    quicksort(data)  # 배열을 제자리에서 정렬합니다
+    print("정렬 후:", data)  # 정렬 후 배열을 출력합니다

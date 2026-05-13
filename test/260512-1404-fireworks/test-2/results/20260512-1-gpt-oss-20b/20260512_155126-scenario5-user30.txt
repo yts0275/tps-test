@@ -1,0 +1,24 @@
+```python
+def quicksort(arr):
+    # If the list is empty or has just one element, it's already sorted.
+    if len(arr) <= 1:
+        # Return the list unchanged.
+        return arr
+    # Pick the middle element as the pivot (avoids worst‐case on already sorted data).
+    pivot = arr[len(arr) // 2]
+    # Build a list of elements less than the pivot.
+    less = [x for x in arr if x < pivot]
+    # Build a list of elements equal to the pivot (handles duplicates).
+    equal = [x for x in arr if x == pivot]
+    # Build a list of elements greater than the pivot.
+    greater = [x for x in arr if x > pivot]
+    # Recursively sort the "less" and "greater" parts, then concatenate.
+    return quicksort(less) + equal + quicksort(greater)
+
+# Example usage: sort an unsorted list.
+if __name__ == "__main__":
+    # Unsorted input list.
+    data = [3, 6, 8, 10, 1, 2, 1]
+    # Call quicksort and print the sorted result.
+    print(quicksort(data))
+```

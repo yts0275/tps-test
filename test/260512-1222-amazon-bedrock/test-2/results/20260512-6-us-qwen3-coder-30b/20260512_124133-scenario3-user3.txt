@@ -1,0 +1,67 @@
+물론입니다! 아래는 퀵소트(Quick Sort)의 Python 구현 코드이며, 각 줄에 주석을 달아 설명하겠습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 재귀적으로 수행되는 퀵소트 함수.
+    # arr: 정렬할 배열, low: 시작 인덱스, high: 끝 인덱스.
+    if low < high:
+        # 기준 요소(pivot)를 기준으로 배열을 분할하고,
+        # partition 함수의 반환값은 기준 요소의 최종 위치(index).
+        pi = partition(arr, low, high)
+
+        # 기준 요소의 왼쪽 부분 배열을 재귀적으로 정렬.
+        quicksort(arr, low, pi - 1)
+
+        # 기준 요소의 오른쪽 부분 배열을 재귀적으로 정렬.
+        quicksort(arr, pi + 1, high)
+
+
+def partition(arr, low, high):
+    # 배열을 두 부분으로 나누는 함수.
+    # 마지막 요소를 기준으로 삼음.
+    pivot = arr[high]
+
+    # i는 작은 요소들의 인덱스를 나타냄. 초기에는 low - 1로 설정.
+    i = low - 1
+
+    # low부터 high-1까지의 요소들을 순회하며 비교함.
+    for j in range(low, high):
+        # 만약 현재 요소가 기준 요소보다 작거나 같으면,
+        if arr[j] <= pivot:
+            # i를 증가시키고, 현재 요소와 i 위치의 요소를 교환.
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 기준 요소를 올바른 위치로 이동시킴.
+    # i+1 위치에 기준 요소를 놓음.
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+
+    # 기준 요소의 최종 위치를 반환.
+    return i + 1
+
+
+# 예제로 사용할 배열.
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+
+# 퀵소트 실행.
+quicksort(arr, 0, n - 1)
+
+# 정렬된 배열 출력.
+print("정렬된 배열:", arr)
+```
+
+### 📌 예제 출력:
+```
+정렬된 배열: [1, 5, 7, 8, 9, 10]
+```
+
+---
+
+### ✅ 설명 요약:
+
+- `quicksort()` 함수는 재귀적으로 배열을 정렬합니다.
+- `partition()` 함수는 기준 요소(pivot)를 이용해 배열을 두 부분으로 나눕니다.
+- 시간 복잡도는 평균적으로 O(n log n), 최악의 경우 O(n²)입니다.
+
+필요하다면 C++ 버전도 구현해드릴 수 있습니다!

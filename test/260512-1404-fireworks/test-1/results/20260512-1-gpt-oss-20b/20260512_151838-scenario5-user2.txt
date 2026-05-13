@@ -1,0 +1,16 @@
+```python
+# 함수 정의: 퀵소트 구현 (재귀적 방법)
+def quick_sort(arr):
+    # 리스트가 0개 또는 1개면 정렬이 끝난 상태 -> 그대로 반환
+    if len(arr) <= 1:
+        # 반환: 입력받은 리스트 (이미 정렬된 상태)
+        return arr
+    # 피벗 값은 리스트의 마지막 원소를 선택
+    pivot = arr.pop()
+    # 피벗 이하 값들을 모은 리스트
+    less = [x for x in arr if x <= pivot]
+    # 피벗 초과 값들을 모은 리스트
+    greater = [x for x in arr if x > pivot]
+    # 작은 부분 배열과 큰 부분 배열을 재귀적으로 정렬한 뒤 연결
+    return quick_sort(less) + [pivot] + quick_sort(greater)
+```

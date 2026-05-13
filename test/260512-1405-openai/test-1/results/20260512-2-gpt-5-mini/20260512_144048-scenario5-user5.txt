@@ -1,0 +1,28 @@
+다음은 파이썬으로 구현한 퀵소트이며, 각 코드 줄마다 한국어 주석을 달아두었습니다.
+
+```python
+def quick_sort(arr):  # 리스트 arr를 제자리(in-place)로 정렬하는 래퍼 함수 정의
+    def partition(a, lo, hi):  # 배열 a의 부분 [lo..hi]에 대해 파티션을 수행하는 함수 정의
+        pivot = a[hi]  # 피벗(pivot)으로 오른쪽 끝 원소를 선택
+        i = lo - 1  # 작은 요소들의 경계 인덱스 i를 lo-1로 초기화
+        for j in range(lo, hi):  # lo부터 hi-1까지 각 요소를 순회
+            if a[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+                i += 1  # 경계 인덱스를 하나 증가시켜 자리를 마련
+                a[i], a[j] = a[j], a[i]  # 현재 요소를 왼쪽 파티션으로 교환
+        a[i+1], a[hi] = a[hi], a[i+1]  # 피벗을 경계 바로 다음 위치로 옮겨 중앙에 놓음
+        return i+1  # 피벗의 최종 위치 인덱스를 반환
+
+    def quicksort_helper(a, lo, hi):  # 재귀적으로 정렬을 수행하는 내부 헬퍼 함수 정의
+        if lo < hi:  # 부분 배열에 두 개 이상의 요소가 있을 때에만 정렬을 진행
+            p = partition(a, lo, hi)  # 파티션을 수행하여 피벗의 인덱스를 얻음
+            quicksort_helper(a, lo, p-1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+            quicksort_helper(a, p+1, hi)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+    quicksort_helper(arr, 0, len(arr)-1)  # 전체 배열(인덱스 0부터 len(arr)-1까지)을 정렬 시작
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시를 실행
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트를 정의
+    print("정렬 전:", data)  # 정렬 전 리스트 출력
+    quick_sort(data)  # quick_sort 함수 호출로 리스트를 정렬
+    print("정렬 후:", data)  # 정렬 후 리스트 출력
+```

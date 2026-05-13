@@ -1,0 +1,44 @@
+```python
+# 퀵정렬(QuikeSort) 알고리즘을 구현한 함수
+def quicksort(arr):
+    # 배열의 길이가 1 이하이면 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 배열의 중간값으로 선택 (인덱스를 통해 접근)
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗보다 작은 값들을 담을 리스트 (왼쪽 부분 배열)
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗과 같은 값을 담을 리스트 (중간 부분 배열)
+    middle = [x for x in arr if x == pivot]
+    
+    # 피벗보다 큰 값들을 담을 리스트 (오른쪽 부분 배열)
+    right = [x for x in arr if x > pivot]
+    
+    # 재귀적으로 왼쪽과 오른쪽 배열을 정렬하고, 중간 배열과 합쳐서 반환
+    return quicksort(left) + middle + quicksort(right)
+
+# 예제: 정렬할 배열
+arr = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵정렬 함수 호출 및 결과 출력
+sorted_arr = quicksort(arr)
+print(sorted_arr)
+```
+
+### 설명:
+- `quicksort` 함수는 재귀적으로 구현되었습니다.
+- 피벗은 배열의 중간 요소로 선택되며, 각 요소를 피벗과 비교해 세 가지 경우로 분류합니다.
+- 이후 재귀적으로 왼쪽, 중간, 오른쪽 배열에 대해 동일한 과정을 반복하여 전체 배열을 정렬합니다.
+
+#### 입력 예시:
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+```
+
+#### 출력 예시:
+```python
+[1, 1, 2, 3, 6, 8, 10]
+```

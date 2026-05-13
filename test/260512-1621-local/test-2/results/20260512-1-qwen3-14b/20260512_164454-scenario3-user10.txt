@@ -1,0 +1,78 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the subarrays.
+
+First, I need to write the partition function. The function should take the array, low and high indices. Then, select a pivot, maybe the last element. Initialize a pointer for the greater element. Iterate through the array, and if an element is less than the pivot, swap it with the element at the pointer. Increment the pointer. After the loop, swap the pivot with the element at the pointer. Return the pointer's position as the pivot index.
+
+Next, the quicksort function. It should check if low is less than high. Then, partition the array and recursively sort the left and right subarrays. 
+
+Now, adding comments. Each line needs a comment explaining what it does. For example, in the partition function, explain selecting the pivot, initializing the pointer, the loop, swapping, etc. In the quicksort function, explain the base case, partitioning, and the recursive calls.
+
+Wait, the user said each line should have a comment. So even the function definitions and variable declarations need comments. Let me make sure each line is properly commented. Also, the user might be a beginner, so the comments should be clear and not too technical. Maybe mention that the pivot is chosen as the last element, and the partitioning process.
+
+I should test the code in my mind. For example, if the array is [3,6,8,10,1,2,1], the partition function should correctly split it. Then the recursive calls should sort the subarrays. Also, note that the pivot selection can affect performance, but for the purpose of the example, using the last element is standard.
+
+Make sure the comments are concise but informative. Avoid redundancy. Maybe mention that the partition function returns the index of the pivot, which is used to divide the array for recursion. Also, in the quicksort function, the base case is when low is greater than or equal to high, so the recursion stops.
+
+I think that's it. Now, structure the code with proper indentation and comments for each line. Check for any possible errors, like incorrect indices or missing swaps. Also, ensure that the comments are in Korean as per the user's request.
+</think>
+
+```python
+# 퀵소트 알고리즘 구현 (Python)
+# 배열을 정렬하는 퀵소트 함수
+def quicksort(arr, low, high):
+    # 종료 조건: low가 high보다 크거나 같을 때 재귀 종료
+    if low < high:
+        # 파티션을 수행하여 피봇의 위치를 반환
+        pi = partition(arr, low, high)
+        # 피봇 왼쪽의 배열을 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)
+        # 피봇 오른쪽의 배열을 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)
+
+# 배열을 파티션하는 함수 (피봇 기준으로 분할)
+def partition(arr, low, high):
+    # 피봇을 배열의 마지막 요소로 선택
+    pivot = arr[high]
+    # 피봇보다 작은 요소들의 마지막 위치를 저장할 포인터
+    i = low - 1
+    # low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면
+        if arr[j] < pivot:
+            # i를 증가시키고 해당 요소와 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # 마지막으로 피봇을 적절한 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피봇의 최종 위치 반환
+    return i + 1
+
+# 테스트 코드
+if __name__ == "__main__":
+    # 예제 배열
+    arr = [10, 7, 8, 9, 1, 5]
+    # 배열 복사 (원본 보호)
+    arr_copy = arr[:]
+    # 퀵소트 실행
+    quicksort(arr_copy, 0, len(arr_copy) - 1)
+    # 결과 출력
+    print("정렬된 배열:", arr_copy)
+```
+
+### 주요 설명:
+1. **quicksort 함수**:
+   - `low`: 정렬할 배열의 시작 인덱스
+   - `high`: 정렬할 배열의 끝 인덱스
+   - `pi`: 파티션을 통해 결정된 피봇의 위치
+
+2. **partition 함수**:
+   - `pivot`: 배열의 마지막 요소로 선택 (기준이 되는 값)
+   - `i`: 피봇보다 작은 요소들의 마지막 위치를 저장
+   - `j`: 배열을 순회하는 포인터
+   - `i+1`: 피봇의 최종 위치
+
+3. **작동 원리**:
+   - 피봇을 기준으로 배열을 두 부분으로 나눔
+   - 재귀적으로 각 부분을 동일한 방식으로 정렬
+   - 평균 시간 복잡도: O(n log n)
+   - 최악 시간 복잡도: O(n²) (정렬된 배열일 경우)

@@ -1,0 +1,60 @@
+물론입니다! 아래는 **퀵정렬**(Quick Sort)의 구현 코드이며, 각 줄에 **주석**을 달아 설명해드리겠습니다.
+
+```python
+# 피벗을 기준으로 배열을 분할하는 함수
+def partition(arr, low, high):
+    # 가장 오른쪽 요소를 피벗으로 설정
+    pivot = arr[high]
+    # i는 작은 요소들을 배치할 위치를 가리킴
+    i = low - 1
+
+    # 반복하면서 배열을 순회
+    for j in range(low, high):
+        # 만약 현재 요소가 피벗보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i를 증가시킨 후, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피벗을 올바른 위치로 이동 (i+1 위치에 배치)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗이 있는 인덱스를 반환
+    return i + 1
+
+# 퀵정렬 메인 함수
+def quickSort(arr, low, high):
+    # 재귀 종료 조건: low가 high보다 크거나 같으면 종료
+    if low < high:
+        # partition 함수를 호출하여 피벗의 올바른 위치를 찾음
+        pi = partition(arr, low, high)
+
+        # 피벗의 왼쪽 부분 배열에 대해 퀵정렬 재귀 호출
+        quickSort(arr, low, pi - 1)
+
+        # 피벗의 오른쪽 부분 배열에 대해 퀵정렬 재귀 호출
+        quickSort(arr, pi + 1, high)
+
+# 사용 예제
+if __name__ == "__main__":
+    # 정렬할 배열
+    arr = [10, 7, 8, 9, 1, 5]
+    n = len(arr)
+    
+    # 퀵정렬 실행
+    quickSort(arr, 0, n - 1)
+    
+    # 결과 출력
+    print("정렬된 배열:", arr)
+```
+
+---
+
+### 🔍 주석 요약:
+
+- `partition`: 피벗을 기준으로 배열을 나누고, 피벗의 최종 위치를 반환함.
+- `quickSort`: 재귀적으로 배열을 정렬함.
+- `if low < high`: 정렬할 요소가 2개 이상일 때만 재귀 호출함.
+- `pi`: 피벗이 들어갈 위치를 나타냄.
+- `arr[i + 1], arr[high]`: 피벗을 올바른 위치로 이동시킴.
+
+필요하시면 시각화나 실행 과정도 설명해드릴 수 있어요!

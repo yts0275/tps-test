@@ -1,0 +1,119 @@
+아래 이미지는 “SoftwareEngineer”를 중심으로 여러 서브 노드(도구 포함)들이 **반복/루프** 형태로 동작하는 Workflow 흐름을 보여줍니다. 화살표(점선 포함)와 “done/continue” 표기를 기준으로, 전체적인 실행 흐름을 최대한 자세히 풀어쓰면 다음과 같습니다.
+
+---
+
+## 1) 전체 상위 흐름(시작~종료)
+1. **start**
+2. 곧바로 **SoftwareEngineer** 노드로 진입합니다.
+3. 이후 Workflow는 **SoftwareEngineer가 중심이 되어** 아래 작업들을 순환적으로 수행합니다.
+   - 코드를 분석(CodeAnalysis)
+   - 파일/코드 편집(Editor)
+   - 테스트(Test)
+   - 필요 시 분석/편집/테스트를 다시 수행(루프)
+4. 조건이 충족되면 **end**로 종료합니다.
+   - 이미지 오른쪽의 **end**로 가는 경로가 “SoftwareEngineer → end” 형태로 존재하며, 그 앞에 “continue” 표기가 있어 “조건에 따라 끝내거나 계속”하는 제어 흐름이 있음을 보여줍니다.
+
+---
+
+## 2) SoftwareEngineer 노드의 역할(중심 제어기)
+**SoftwareEngineer**는 단일 작업이라기보다, 다음 서브 프로세스를 **조합/반복**시키는 “오케스트레이터(지휘자)” 역할을 합니다.
+
+- SoftwareEngineer에서 나가는 경로들이 여러 노드를 트리거하고,
+- 각 작업 노드가 끝나면 “done” 또는 “continue” 상태로 다시 SoftwareEngineer로 돌아오거나,
+- 또는 곧바로 다음 단계로 이어지게 구성되어 있습니다.
+- 또한 같은 세트(분석-편집-테스트)가 조건에 따라 반복될 수 있도록 점선(루프/회귀)이 다수 연결되어 있습니다.
+
+---
+
+## 3) CodeAnalysis(좌측 흐름): CodeAnalyzer → code_analysis_tool
+### 3-1. SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer에서 좌측으로 **CodeAnalyzer**가 호출됩니다(점선 화살표가 “업무 요청” 또는 “제어 분기”를 의미하는 구조로 보임).
+
+### 3-2. CodeAnalyzer 내부 동작: code_analysis_tool
+- **CodeAnalyzer** 노드에서 실제 도구 실행 단계로 연결된 것이 **code_analysis_tool** 입니다.
+- 즉, CodeAnalyzer는 “분석 작업을 수행한다”는 논리 단계이고,
+- **code_analysis_tool**은 “그 분석을 실제로 수행하는 실행 도구/컴포넌트”에 해당합니다.
+
+### 3-3. 분석 완료 후 되돌아감: done/continue
+- **code_analysis_tool**이 끝나면 **CodeAnalyzer**로 돌아가며, 이미지에는 **done** 및 **continue** 표기가 확인됩니다.
+- 이때 의미는 보통 다음 둘 중 하나입니다.
+  1) 분석이 완료되어 다음 단계(편집)로 진행
+  2) 분석 결과에 따라 추가 분석이 필요하면 다시 분석 루프를 계속
+
+### 3-4. 분석 결과 반영을 위한 회귀/전환
+- 분석이 끝나면 흐름은 다시 SoftwareEngineer 쪽으로 합류하거나,
+- 편집 단계(Editor)로 넘어가 “수정 지점”을 찾는 데 사용됩니다.
+
+---
+
+## 4) Editor(중앙 흐름): Editor → code_edit_tool → 테스트(test_tool)
+가운데에는 **Editor** 노드가 있고, 여기서 “코드 편집” 및 “테스트”가 이어지는 구조가 보입니다.
+
+### 4-1. SoftwareEngineer → Editor
+- SoftwareEngineer는 분석 결과를 바탕으로 다음 수정을 수행하기 위해 **Editor** 노드를 실행합니다.
+- 이미지에서 Editor로 들어오는 화살표가 있으며, 이는 “분석 단계 후 수정 단계로 이동”하거나 “조건에 따라 편집을 병행”하는 제어 흐름을 뜻합니다.
+
+### 4-2. Editor 내부 동작 1: code_edit_tool
+- **Editor** 노드 아래로 **code_edit_tool**이 연결되어 있습니다.
+- 즉 Editor는 “수정 로직(편집 결정/적용)”을 담당하고,
+- **code_edit_tool**이 “실제 코드 변경(파일 편집/패치 적용)”을 수행합니다.
+
+### 4-3. 편집 완료 후 done 처리 및 다음 단계 전환: test_tool
+- 편집이 끝나면 Editor로 **done** 표기가 반영되며,
+- 이어서 **test_tool**로 연결됩니다.
+- 즉, 편집 단계가 실제로 변경을 적용하고 나면, 그 변경이 정상인지 검증하기 위해 테스트 단계로 이동합니다.
+
+### 4-4. Editor 내부 동작 2: test_tool
+- **test_tool**은 편집 후 코드의 유효성을 확인하는 실행 도구입니다.
+- 테스트 결과는 다시 Editor 혹은 SoftwareEngineer로 되돌아가며,
+  - 테스트가 성공하면 다음 단계(종료 또는 추가 작업)로,
+  - 실패하면 다시 수정 루프로 돌아가는 구조가 점선으로 표현되어 있습니다.
+
+### 4-5. Editor 종료 시 continue/done로 제어
+- 이미지 상에서 Editor로 **done**과 **continue**가 표시되어 있어,
+- 테스트 결과나 편집 결과에 따라
+  - “계속 진행(continue)” 또는
+  - “다음 단계로 넘어감(done/전환)”
+  같은 분기/반복이 가능함을 시사합니다.
+
+---
+
+## 5) swe_tool(우측 흐름): Editor/분석 후 보조 수행 또는 마무리 검증
+### 5-1. SoftwareEngineer → swe_tool
+- 오른쪽에는 **swe_tool** 노드가 따로 있고, SoftwareEngineer에서 우측으로 직접 연결된 화살표가 보입니다.
+- 따라서 swe_tool은 “Editor/CodeAnalyzer와는 별개로” 혹은 “그 결과를 바탕으로” 수행되는 보조/핵심 도구로 해석됩니다.
+
+### 5-2. swe_tool 완료 후 end로 가는 경로 또는 회귀 가능성
+- swe_tool에서 **end**로 바로 연결되는 흐름이 보이기도 하고,
+- 동시에 SoftwareEngineer로 다시 돌아가는 루프성 점선 연결도 존재합니다.
+- 이는 일반적으로 다음 상황 중 하나를 의미합니다.
+  1) swe_tool이 최종적으로 작업을 마무리하며 종료 조건을 충족
+  2) swe_tool의 결과를 보고 계속 수정이 필요한 경우 다시 Editor/CodeAnalyzer로 회귀
+
+---
+
+## 6) 루프(반복) 구조를 만드는 연결 방식 해석
+이미지에서 점선 화살표와 “done/continue” 문구가 반복적으로 등장합니다. 이를 Workflow 관점에서 정리하면:
+
+- **분석(CodeAnalysis)** → **편집(Editor)** → **테스트(test_tool)**  
+  이 3단계는 고정 파이프라인처럼 보이지만,
+- 테스트가 실패하거나 코드 분석 결과가 “추가 개선 필요”로 판단되면  
+  다시 **Editor로 복귀**하거나, 혹은 **CodeAnalyzer로 다시 돌아가 원인 재분석**을 수행할 수 있게 설계된 형태입니다.
+- 최종적으로 SoftwareEngineer가 “더 이상 수정/검증이 필요 없다”는 판단을 하면
+  **end**로 이동합니다.
+
+---
+
+## 7) 노드별 “실행 단위” 요약(이미지에 나온 이름 기준)
+- **SoftwareEngineer**: 전체 작업을 조율(상위 제어 노드)
+- **CodeAnalyzer**: 코드 분석 단계(결과를 다음 단계에 전달)
+- **code_analysis_tool**: 코드 분석을 실제로 수행하는 도구
+- **Editor**: 코드 편집/수정 단계(수정 적용 로직)
+- **code_edit_tool**: 실제 파일/코드 편집 도구
+- **test_tool**: 편집 후 테스트 실행 도구
+- **swe_tool**: 추가 도구(보조 검증/마무리 수행 성격)
+- **end**: 종료
+
+---
+
+원하시면, 제가 위 흐름을 **“조건 분기(테스트 성공/실패, 분석 필요/불필요)에 따른 루프 시나리오”** 형태로 더 엄밀한 의사코드(pseudocode)로도 정리해 드릴까요? (예: `while continue: analyze->edit->test... if pass: swe_tool->end`)

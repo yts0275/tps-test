@@ -1,0 +1,28 @@
+아래는 **Python** 으로 구현한 퀵소트(QuickSort)이며, **모든 줄에 주석**이 달려 있습니다.  
+(주석은 한 줄 뒤에 `#` 뒤에 적어 두었으며, 한 줄에 하나의 주석만 들어가도록 했습니다.)
+
+```python
+def quick_sort(arr):                 # 1. quick_sort 함수 정의, 입력은 리스트 arr
+    if len(arr) <= 1:                # 2. 리스트 길이가 0 또는 1이면 이미 정렬된 상태
+        return arr                    # 3. 그대로 반환
+    pivot = arr[-1]                   # 4. 피벗(pivot)을 리스트의 마지막 원소로 선택
+    lower = []                        # 5. 피벗 이하(작거나 같은) 원소를 담을 리스트
+    higher = []                       # 6. 피벗 초과 원소를 담을 리스트
+    for x in arr[:-1]:                # 7. 피벗을 제외한 모든 원소를 순회
+        if x <= pivot:                # 8. 현재 원소가 피벗 이하인 경우
+            lower.append(x)           # 9. lower 리스트에 추가
+        else:                         # 10. 현재 원소가 피벗 초과인 경우
+            higher.append(x)          # 11. higher 리스트에 추가
+    return quick_sort(lower) + [pivot] + quick_sort(higher)  # 12. 재귀 호출 결과와 피벗을 합쳐 반환
+```
+
+#### 사용 예시
+
+```python
+numbers = [3, 6, 8, 10, 1, 2, 1]
+sorted_numbers = quick_sort(numbers)   # quick_sort 호출
+print(sorted_numbers)                  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+> *실행 시점에 따라 오름차순으로 정렬된 리스트가 출력됩니다.*  
+> *필요에 따라 피벗 선택 방식을 바꾸면 다른 성능 특성을 얻을 수 있습니다.*

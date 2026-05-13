@@ -1,0 +1,103 @@
+다음 Workflow의 노드 흐름을 최대한 자세히 해설합니다. 그림의 화살표와 라벨을 바탕으로 각 노드의 역할과 흐름 방향을 설명합니다. 단, 화살표의 점선(dashed) 표기는 보통 선택적/반복적 흐름이나 상호작용적 전환을 뜻하는 경우가 많으므로 이를 반영해 해석합니다.
+
+1) overall 구조 요약
+- 시작점(start)에서 흐름이 SoftwareEngineer 노드로 들어옵니다.
+- SoftwareEngineer는 전체 워크플로의 컨트롤러 역할을 하며, 코드를 분석(CodeAnalyzer), 파일 편집(Editor) 및 SWE 도구(swe_tool) 실행 등 주요 작업으로 흐름을 분기합니다.
+- 좌측에는 CodeAnalyzer와 그 하위 도구들이 있고, 중앙에는 Editor와 그 하위 도구들(code_edit_tool, test_tool)이 있습니다.
+- 우측에는 swe_tool이 위치하며, 최종적으로 end로 종료됩니다.
+- dashed(점선) 에지로 표시된 경로는 보통 선택적/반복적 흐름 혹은 다음 단계로의 재진입 가능성을 시사합니다.
+
+2) 노드별 역할과 흐름 상세
+- start
+  - 흐름의 시작점. 아래의 SoftwareEngineer 노드로 단일 방향으로 진입합니다.
+
+- SoftwareEngineer
+  - 역할: 워크플로의 중앙 조정자. 사용자의 의도에 따라 분석, 편집, 도구 실행 등의 하위 작업으로 흐름을 분기시키고, 필요하면 재진입 및 반복도 관리합니다.
+  - 주요 진입/진출 포인트
+    - analyze_code 입력(왼쪽에서 들어오는 점선 라인): CodeAnalyzer로 흐름.
+    - edit_file 입력(상단/중앙에서 들어오는 점선 라인): Editor로 흐름.
+    - continue/다음 흐름으로 swe_tool로 넘어가는 점선 경로: swe_tool 실행으로 흐름 확장.
+    - 끝(end)으로의 종료 경로도 존재하는 것으로 보임(다이어그램의 end와 연결된 경로).
+  - 해석적 요점: SoftwareEngineer가 실제로 어떤 작업을 시작할지 결정하고, CodeAnalyzer와 Editor를 차례로 호출하거나, 필요 시 swe_tool로 확장합니다.
+
+- CodeAnalyzer
+  - 역할: 코드 분석을 트리거하고 실행하는 노드.
+  - 인입: SoftwareEngineer의 analyze_code 트리거(왼쪽의 analyze_code 에지).
+  - 주된 아웃풋/연결
+    - code_analysis_tool로 직접 실행(실행 도구를 호출하는 실선 에지).
+    - Editor로의 진행(다시 편집으로 넘어오는 경로가 점선으로 표시되어 있을 수 있음; 라벨은 보통 'continue'로 표기되는 경우가 많음).
+  - 해석적 요점: 코드 분석 단계의 시작점이며, 분석 결과를 바탕으로 code_analysis_tool을 사용하거나 Editor로 넘어가며 후속 편집 가능성을 열어둡니다.
+
+- code_analysis_tool
+  - 역할: CodeAnalyzer가 실제로 수행하는 코드 분석 도구.
+  - 인입: CodeAnalyzer로부터의 실행 트리거(직접적인 실행 노드).
+  - 아웃풋: 다이어그램상에서 CodeAnalyzer와의 연결로만 보이며, 보통 다음 단계로의 경로(예: Editor의 편집 단계)로 연결되거나 다시 CodeAnalyzer로 반복될 수 있습니다.
+  - 해석적 요점: 분석의 실제 구현 단계. 완료 후 다음 단계로의 흐름은 다이어그램의 연결에 따릅니다.
+
+- Editor
+  - 역할: 코드 편집의 중앙 허브.
+  - 인입:
+    - SoftwareEngineer의 edit_file 트리거(상단의 입구).
+    - CodeAnalyzer의 done/continue 신호(간접적으로 Editor로의 진행 가능).
+  - 주된 아웃풋/연결
+    - code_edit_tool로의 실행(실선/직접적인 편집 수행).
+    - test_tool로의 흐름(편집 후 테스트 수행).
+  - 해석적 요점: 편집 작업의 중심 노드. 편집 도구를 호출하고, 편집이 끝나면 테스트 도구를 수행하거나 다시 외부로 보낼 수 있습니다.
+
+- code_edit_tool
+  - 역할: Editor가 사용하는 실제 코드 편집 도구.
+  - 인입: Editor의 편집 명령에 의해 트리거됩니다.
+  - 아웃풋: Editor로의 반환 또는 후속 도구인 test_tool로의 진행 등으로 연결될 수 있습니다.
+  - 해석적 요점: 편집 작업의 구체적 실행을 담당합니다.
+
+- test_tool
+  - 역할: 편집 이후의 테스트 수행 도구.
+  - 인입: Editor로부터 편집 완료 후 트리거될 수 있습니다.
+  - 아웃풋: 테스트 결과에 따라 Editor로 다시 돌아가거나, 흐름상 종료(end)로 연결될 수 있습니다.
+  - 해석적 요점: 품질 검증 단계. 편집 결과의 유효성을 확인합니다.
+
+- swe_tool
+  - 역할: Software Engineer가 수행할 수 있는 추가 도구(예: 빌드, 성능 분석, 시나리오 실행 등)를 위한 독립 도구.
+  - 인입: SoftwareEngineer의 continue 라인으로 들어오는 점선 에지.
+  - 아웃풋: end로의 종료 경로를 포함해 워크플로를 종료하거나 다른 경로로 확장될 수 있습니다(다이어그램의 end로 연결되는 경로가 보임).
+  - 해석적 요점: 필요 시 워크플로의 보완/확장을 담당하는 도구로, 주 흐름에서 독립적으로 실행될 수 있습니다.
+
+- end
+  - 역할: 프로세스의 종료 지점.
+  - 인입: SoftwareEngineer의 종료 경로나 swe_tool의 완료 경로 등으로 도달합니다.
+  - 해석적 요점: 워크플로의 한 사이클이 끝났음을 나타냅니다.
+
+3) 흐름의 예시 시나리오
+- 시나리오 A: 분석 후 편집 → 테스트
+  - start -> SoftwareEngineer
+  - SoftwareEngineer → CodeAnalyzer (analyze_code)
+  - CodeAnalyzer → code_analysis_tool (실행)
+  - code_analysis_tool 완료 후 CodeAnalyzer에서 Editor로 continue/done 신호
+  - SoftwareEngineer → Editor (edit_file)
+  - Editor → code_edit_tool (실행)
+  - code_edit_tool 완료 → Editor로 돌아옴
+  - Editor → test_tool (실행)
+  - test_tool 완료 → Editor로 돌아옴 (또는 end로 종료)
+  - 최종적으로 end로 흐름 종료
+
+- 시나리오 B: 즉시 편집만 수행한 뒤 종료
+  - start -> SoftwareEngineer
+  - SoftwareEngineer -> Editor (edit_file)
+  - Editor -> code_edit_tool (실행)
+  - code_edit_tool 완료 → end 또는 필요 시 테스트로 넘어가고 종료
+
+- 시나리오 C: 외부 도구(swe_tool) 활용
+  - start -> SoftwareEngineer
+  - SoftwareEngineer -> swe_tool (continue)
+  - swe_tool 완료 -> end
+
+4) 에지(화살표) 해석 포인트
+- 실선 에지: 주로 실제 실행/전환이 일어나는 흐름(도구 호출, 작업 완료 후 다음 노드로의 직접 전달).
+- 점선 에지(continue, done 등의 라벨): 선택적이거나 반복 가능한 흐름, 다음 단계로의 재진입 가능성, 루프나 보조 경로를 나타내는 경우가 많습니다.
+
+5) 요약
+- 이 워크플로는 SoftwareEngineer가 주된 컨트롤러로서, 코드 분석(CodeAnalyzer + code_analysis_tool)과 편집(Editor + code_edit_tool + test_tool) 그리고 보조 도구(swe_tool)를 통해 작업의 흐름을 구성합니다.
+- 분석-편집-테스트의 일반적인 좌측-중앙-우측 흐름이 있으며, 필요에 따라 swe_tool로 확장 가능하고 최종적으로 end로 종료됩니다.
+- 다이어그램의 점선 경로는 반복적/선택적 흐름이나 재진입 가능성을 나타내는 경우가 많으므로, 실제 실행 시 상황에 따라 경로가 달라질 수 있습니다.
+
+필요하다면 위의 흐름을 바탕으로 각 노드 간의 가능한 실제 시퀀스를 2~3가지 구체적인 실행 예제로 더 구체화해 드리겠습니다.

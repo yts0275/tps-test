@@ -1,0 +1,93 @@
+아래는 그림에 보이는 Workflow의 노드들과 그들 사이 흐름을 가능한 한 상세하게 분석한 설명입니다. 그림의 화살표와 라벨(예: analyze_code, edit_file, done, continue)을 바탕으로 각 노드의 역할, 호출 관계, 반환(복귀) 경로 및 반복(루프) 시나리오를 정리했습니다.
+
+요약된 노드 목록과 역할
+- start: 워크플로우의 시작 지점. 단방향으로 SoftwareEngineer 노드로 연결됨.
+- SoftwareEngineer: 중앙 제어자(사용자 또는 역할) 노드. 여러 작업(분석, 편집, 도구 실행 등)을 선택해 다음 단계로 이동시킨다.
+- CodeAnalyzer: 코드 분석 책임을 지는 노드. 내부적으로 code_analysis_tool을 호출(사용)한다.
+- Editor: 코드 편집 및 테스트 관련 활동을 담당하는 노드. 내부적으로 code_edit_tool과 test_tool을 호출한다.
+- swe_tool: SoftwareEngineer가 직접 호출할 수 있는 별도의 도구(예: SWE(Software Engineering) 관련 도구 또는 배포/검증 도구).
+- code_analysis_tool / code_edit_tool / test_tool: CodeAnalyzer와 Editor가 각각 호출하는 하부 툴(실제 분석, 편집, 테스트 실행기 등).
+- end: 워크플로우의 종료 지점.
+
+상세한 흐름(노드별 입출력 경로)
+1) start -> SoftwareEngineer
+- 워크플로우는 start에서 시작하여 바로 SoftwareEngineer로 진입한다.
+
+2) SoftwareEngineer의 가능한 분기(출발점)
+- analyze_code (레이블) -> CodeAnalyzer
+  - 엔지니어가 '코드 분석' 작업을 선택하면 CodeAnalyzer로 이동한다.
+- edit_file (레이블) -> Editor
+  - 엔지니어가 '파일/코드 편집' 작업을 선택하면 Editor로 이동한다.
+- continue (레이블) -> swe_tool
+  - 엔지니어가 계속 진행하여 swe_tool을 호출할 수 있다.
+- continue (레이블) -> end
+  - 엔지니어가 워크플로우를 종료하도록 직접 end로 갈 수 있는 경로도 있다.
+
+3) CodeAnalyzer의 내부 흐름과 반환
+- CodeAnalyzer -> code_analysis_tool (하위 툴 호출)
+  - CodeAnalyzer는 code_analysis_tool을 호출해 실제 코드 분석을 실행한다.
+- code_analysis_tool -> CodeAnalyzer
+  - 툴 실행이 끝나면 결과를 CodeAnalyzer로 반환(콜백/리턴)한다.
+- CodeAnalyzer -> (다음)
+  - done 라벨의 화살표를 통해 SoftwareEngineer로 복귀(분석 완료 알림)
+  - 또한 continue 라벨의 화살표로 Editor로 이동할 수 있음(예: 분석 결과에 따라 수정을 이어갈 때)
+  - CodeAnalyzer와 Editor 사이에도 continue(또는 양방향) 경로가 있어, 분석-편집 사이를 오가며 반복할 수 있음을 나타냄.
+
+4) Editor의 내부 흐름과 반환
+- Editor -> code_edit_tool (편집 툴 호출)
+  - 편집 작업 시 code_edit_tool을 호출한다.
+- Editor -> test_tool (테스트 툴 호출)
+  - 편집 후 테스트가 필요하면 test_tool을 호출한다.
+- 하부 툴들 -> Editor
+  - 각 툴이 작업을 마치면 Editor로 결과를 반환한다.
+- Editor -> (다음)
+  - done 라벨의 화살표를 통해 SoftwareEngineer로 복귀(편집/테스트 완료 알림)
+  - continue 라벨을 통해 다시 CodeAnalyzer로 넘어가거나(편집 후 재분석) 다른 흐름으로 진행 가능
+  - Editor와 CodeAnalyzer 사이의 continue 관계로 반복(분석→편집→재분석) 루프 형성 가능
+
+5) swe_tool
+- SoftwareEngineer가 직접 호출할 수 있는 도구. 호출 후에는 (도식 상) 다시 SoftwareEngineer로 복귀하거나 end로 이어질 수 있음(그림상엔 SoftwareEngineer에서 swe_tool로 가는 점선과 end로 향하는 점선이 연결되어 있음).
+- swe_tool은 워크플로우의 특정 최종 단계(예: 빌드/배포/검토 도구) 역할을 할 가능성이 높음.
+
+6) end
+- 워크플로우 종료 지점. SoftwareEngineer가 continue로 직접 end에 도달하거나 swe_tool 사용 후 종료될 수 있다.
+
+대표적인 실행 시퀀스(예시)
+- 시퀀스 A (분석 → 편집 → 테스트 → 종료)
+  1. start -> SoftwareEngineer
+  2. SoftwareEngineer (analyze_code) -> CodeAnalyzer
+  3. CodeAnalyzer -> code_analysis_tool (분석 수행)
+  4. code_analysis_tool -> CodeAnalyzer (분석 완료)
+  5. CodeAnalyzer (continue) -> Editor (수정 필요 판단)
+  6. Editor -> code_edit_tool (수정 수행)
+  7. code_edit_tool -> Editor
+  8. Editor -> test_tool (테스트 실행)
+  9. test_tool -> Editor (테스트 결과)
+ 10. Editor (done) -> SoftwareEngineer
+ 11. SoftwareEngineer (continue) -> swe_tool (필요 시)
+ 12. swe_tool -> SoftwareEngineer 또는 바로 end
+ 13. SoftwareEngineer -> end
+
+- 시퀀스 B (단순 편집 후 종료)
+  1. start -> SoftwareEngineer
+  2. SoftwareEngineer (edit_file) -> Editor
+  3. Editor -> code_edit_tool -> Editor
+  4. Editor (done) -> SoftwareEngineer
+  5. SoftwareEngineer -> end
+
+반복(루프) 및 분기 특징
+- 분석↔편집 루프: CodeAnalyzer와 Editor 사이의 continue 경로를 통해, 분석 결과에 따라 편집으로 가고 편집 후 다시 재분석하는 순환이 가능하다. 이는 개발 사이클(분석 → 수정 → 재분석)을 반영한다.
+- 툴 호출은 부모 노드(분석기/편집기)가 담당하며, 툴은 실행 후 부모로 결과를 반환함(하위 툴은 독립 노드이지만 주로 호출-응답 관계).
+- SoftwareEngineer는 중앙 제어자로서 작업을 시작하고 각 단계에서 다음 행동(분석, 편집, 특정 도구 실행, 종료)을 선택할 수 있다.
+- 다중 종료 경로: 직접 end로 종료하거나 swe_tool을 거쳐 종료하는 등 복수의 종료 경로가 존재한다.
+
+도식적 표시(화살표 스타일/라벨의 의미)
+- 화살표 라벨들: analyze_code, edit_file는 주된 액션을 지정. done은 해당 작업의 완료를 알리고 컨트롤을 상위(SoftwareEngineer)로 돌려주며, continue는 다음 처리(다음 노드로 흐름을 이어감)를 의미.
+- 점선 화살표는 도식적으로 비동기 호출이나 선택적 흐름(사용자 선택에 따른 분기)을 나타낼 수 있으나, 그림 전체가 점선으로 그려져 있으므로 실제로는 "가능한 전이"를 의미한다고 볼 수 있다.
+
+결론(운영 관점)
+- 이 워크플로우는 SoftwareEngineer가 중심이 되어 코드 분석(CodeAnalyzer)과 편집(Editor)을 반복하며(필요시 하부 툴 호출), 적절한 시점에 swe_tool을 사용하거나 워크플로우를 종료하는 구조다.
+- 핵심 루프는 CodeAnalyzer ↔ Editor 사이의 continue 경로로, 개발-검토-수정 사이클을 모델링한다.
+- 각 하부 툴(code_analysis_tool, code_edit_tool, test_tool)은 부모 노드의 실행을 보조하고, 실행 완료 후 부모로 복귀하여 다음 결정을 진행하게 한다.
+
+원하시면 이 흐름을 상태도(state machine) 형태로 표기하거나, 각각의 전이(transition)에 대해 조건식(예: 분석 결과에 따른 분기 조건)을 추가해 더 구체적인 동작 시나리오를 만들어 드리겠습니다.

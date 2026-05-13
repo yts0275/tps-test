@@ -1,0 +1,21 @@
+아래는 **퀵소트(Quick Sort) 구현** 예시이며, **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr):  # 퀵소트 함수를 정의(입력: 리스트 arr)
+    if len(arr) <= 1:  # 원소가 0개 또는 1개면 이미 정렬된 상태이므로
+        return arr  # 그대로 반환
+
+    pivot = arr[0]  # 첫 번째 원소를 피벗(pivot)으로 선택
+    left = []  # 피벗보다 작은 값들을 담을 리스트 생성
+    right = []  # 피벗보다 크거나 같은 값들을 담을 리스트 생성
+
+    for x in arr[1:]:  # 피벗을 제외한 나머지 원소들을 순회
+        if x < pivot:  # 현재 값 x가 피벗보다 작으면
+            left.append(x)  # left 리스트에 추가
+        else:  # 그렇지 않으면(>= 피벗)
+            right.append(x)  # right 리스트에 추가
+
+    return quicksort(left) + [pivot] + quicksort(right)  # 정렬된 left + 피벗 + 정렬된 right를 합쳐 반환
+```
+
+원하시면 **C / Java / JavaScript 버전**으로도 바꿔드릴까요? 그리고 “각 줄마다 주석”을 **진짜로 문장 단위로 더 촘촘하게** 달아달라는 스타일도 가능해요.

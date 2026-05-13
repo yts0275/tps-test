@@ -1,0 +1,118 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the main function. The function should take an array and its low and high indices. The base case is when low is greater than or equal to high, so we return. Then, I need to choose a pivot. Common choices are the first element, last, middle, or a random one. For simplicity, I'll use the last element as the pivot.
+
+Next, the partitioning step. I'll need two pointers: one starting at low (i) and another at high (j). The idea is to move elements smaller than the pivot to the left and larger ones to the right. Wait, I think the standard approach is to have i track the last element less than the pivot, and j scans the array. When an element less than the pivot is found, we swap it with the element at i and increment i. Then, after the loop, we swap the pivot with the element at i, which is the correct position for the pivot.
+
+Wait, maybe I should outline the steps again. The partition function will return the index of the pivot after placing it in the correct position. So the main quicksort function calls the partition function and then recurses on the left and right subarrays.
+
+Let me structure the code step by step. First, the partition function. Initialize i to low - 1. Then, loop j from low to high - 1. If the current element is less than the pivot, increment i and swap elements at i and j. After the loop, swap the pivot (at high) with the element at i + 1. Return i + 1 as the pivot index.
+
+Then, in the quicksort function, check if low < high. If yes, find the pivot index using the partition function. Then, recursively sort the left and right subarrays.
+
+Now, adding comments. Each line should have a comment explaining what it does. For example, in the partition function, explain the purpose of each variable and the loop steps. Also, in the quicksort function, mention the base case and the recursive calls.
+
+Wait, the user said to add comments to each line. So every line of code needs a comment. That might be a bit detailed, but I can manage. For example, the function definition line will have a comment about its purpose. Then, the base case comment. Then, the pivot selection. Then, the loop steps, etc.
+
+I should also make sure the code is in Python. Let me check the syntax. The partition function is inside the quicksort function or separate? Probably separate, but in Python, functions can be nested. However, for simplicity, maybe the quicksort function calls a helper partition function.
+
+Wait, in the code, the quicksort function will call the partition function. Let me structure that. The code would look like:
+
+def quicksort(arr, low, high):
+    if low < high:
+        pi = partition(arr, low, high)
+        quicksort(arr, low, pi - 1)
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # code here
+
+But in Python, functions need to be defined before they're used. So the partition function should be defined before the quicksort function. Or maybe the user doesn't mind that. But for clarity, the code should have the partition function first.
+
+Also, the user might want the code to be able to run. So I should test it with an example. Maybe include a test case at the end with comments.
+
+Wait, the user didn't ask for a test case, just the implementation with line comments. So I'll focus on that.
+
+Let me write the code step by step with comments. For each line in the partition function, explain what's happening. For example:
+
+def partition(arr, low, high):
+    pivot = arr[high]  # Pivot element
+    i = low - 1  # Index of smaller element
+    for j in range(low, high):
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]  # Swap
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # Swap pivot to correct position
+    return i + 1
+
+Then, in the quicksort function:
+
+def quicksort(arr, low, high):
+    if low < high:
+        pi = partition(arr, low, high)
+        quicksort(arr, low, pi - 1)
+        quicksort(arr, pi + 1, high)
+
+Each line in the quicksort function should have a comment. Also, the base case explanation.
+
+I think that's it. Now, I need to make sure all lines have comments. Maybe the loop in the partition function can have a comment explaining its purpose. Also, the initial pivot selection.
+
+Yes, that should cover it. Now, putting it all together with proper Python syntax and comments.
+</think>
+
+다음은 퀵소트 알고리즘을 Python에서 구현한 코드입니다. 각 줄마다 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 기저 조건: low >= high이면 재귀 종료
+    if low < high:
+        # 파티션 함수를 호출하여 피봇의 위치를 구함
+        pi = partition(arr, low, high)
+        # 피봇 왼쪽 부분 배열 정렬
+        quicksort(arr, low, pi - 1)
+        # 피봇 오른쪽 부분 배열 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피봇은 배열의 가장 오른쪽 요소로 선택
+    pivot = arr[high]
+    # 작은 요소의 마지막 인덱스를 나타내는 포인터
+    i = low - 1
+
+    # 배열의 low부터 high-1까지 순회
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면
+        if arr[j] < pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피봇을 올바른 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피봇의 최종 인덱스 반환
+    return i + 1
+
+# 예시 실행
+if __name__ == "__main__":
+    arr = [10, 7, 8, 9, 1, 5]
+    print("정렬 전 배열:", arr)
+    quicksort(arr, 0, len(arr) - 1)
+    print("정렬 후 배열:", arr)
+```
+
+### 주석 설명:
+1. **`quicksort` 함수**: 퀵소트의 메인 로직
+   - `low`와 `high`는 배열의 시작과 끝 인덱스
+   - `pi`는 `partition` 함수에서 반환된 피봇의 인덱스
+   - 피봇을 기준으로 좌우 배열을 재귀적으로 정렬
+
+2. **`partition` 함수**: 피봇을 기준으로 배열을 분할
+   - `pivot`은 배열의 가장 오른쪽 요소로 선택
+   - `i`는 배열에서 피봇보다 작은 요소들의 마지막 인덱스
+   - `for` 루프: 배열을 순회하며 피봇보다 작은 요소를 왼쪽으로 이동
+   - 마지막으로 피봇을 올바른 위치로 이동
+
+3. **예시 실행**: 배열 `[10, 7, 8, 9, 1, 5]`를 정렬하여 결과를 출력
+
+이 코드는 퀵소트 알고리즘을 구현하며, 각 단계별 주석으로 작동 원리를 설명합니다.

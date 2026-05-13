@@ -1,0 +1,57 @@
+물론입니다! 아래는 퀵정렬(Quick Sort) 알고리즘의 구현 코드입니다. 각 줄에 주석을 달아 설명해 드렸습니다.
+
+```python
+# 퀵정렬 함수 정의: 배열 arr을 정렬하고, 시작 인덱스 start와 끝 인덱스 end를 받음
+def quicksort(arr, start, end):
+    # 시작 인덱스가 끝 인덱스보다 작거나 같을 때만 재귀적으로 정렬 진행
+    if start < end:
+        # 파티션 함수를 호출하여 피벗 위치를 반환받음
+        pivot_index = partition(arr, start, end)
+        
+        # 피벗 왼쪽 부분 배열에 대해 재귀적으로 퀵정렬 적용
+        quicksort(arr, start, pivot_index - 1)
+        
+        # 피벗 오른쪽 부분 배열에 대해 재귀적으로 퀵정렬 적용
+        quicksort(arr, pivot_index + 1, end)
+
+# 파티션 함수 정의: 피벗을 기준으로 배열을 분할하는 함수
+def partition(arr, start, end):
+    # 마지막 요소를 피벗으로 설정
+    pivot = arr[end]
+    
+    # i는 작은 요소들을 나열할 위치를 가리킴 (초기값은 시작 인덱스 - 1)
+    i = start - 1
+    
+    # j는 현재 검사 중인 요소의 인덱스
+    for j in range(start, end):
+        # 만약 현재 요소가 피벗보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i를 증가시킨 후, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 옮기기 위해, 피벗과 arr[i+1]을 교환
+    arr[i + 1], arr[end] = arr[end], arr[i + 1]
+    
+    # 피벗이 위치한 인덱스를 반환
+    return i + 1
+
+# 예제 사용법
+if __name__ == "__main__":
+    # 정렬할 배열을 생성
+    arr = [64, 34, 25, 12, 22, 11, 90]
+    
+    # 퀵정렬 실행 (시작 인덱스 0, 끝 인덱스는 배열 길이 - 1)
+    quicksort(arr, 0, len(arr) - 1)
+    
+    # 정렬된 결과 출력
+    print("정렬된 배열:", arr)
+```
+
+### 📌 설명 요약:
+
+- `quicksort` 함수는 재귀적으로 배열을 분할하며 퀵정렬을 수행합니다.
+- `partition` 함수는 피벗을 기준으로 배열을 두 부분으로 나누고, 피벗의 최종 위치를 반환합니다.
+- 시간 복잡도는 평균적으로 O(n log n), 최악의 경우 O(n²)입니다.
+
+필요하다면 시각화 또는 다른 언어로도 구현해드릴 수 있어요!

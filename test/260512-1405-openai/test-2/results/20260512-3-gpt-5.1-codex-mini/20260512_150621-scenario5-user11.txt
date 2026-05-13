@@ -1,0 +1,14 @@
+다음은 파이썬으로 구현한 퀵소트 예시입니다. 각 줄마다 한국어 주석을 달아 이해하기 쉽게 설명했습니다.
+
+```python
+def quicksort(arr):  # 리스트를 받아 퀵소트 정렬을 수행하는 함수 정의
+    if len(arr) <= 1:  # 리스트 길이가 1 이하이면 이미 정렬되어 있으므로
+        return arr  # 그 상태 그대로 반환
+    pivot = arr[len(arr) // 2]  # 중간 위치에 있는 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들로 구성된 리스트 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들만 모은 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들로 구성된 리스트 생성
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬한 후 연결하여 반환
+```
+
+필요하다면 리스트 예시와 함께 실행 결과도 보여드릴 수 있어요.

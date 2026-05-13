@@ -1,0 +1,25 @@
+아래는 파이썬으로 구현한 퀵소트입니다. 코드의 모든 줄에 한국어 주석을 달아두었습니다.
+
+```python
+def quicksort(arr):  # 배열을 입력받아 퀵소트로 정렬한 뒤 반환하는 최상위 함수
+    def partition(lo, hi):  # 배열의 부분구간 [lo, hi]를 분할하는 함수 (Lomuto 파티션)
+        pivot = arr[hi]  # 구간의 마지막 요소를 피벗으로 선택
+        i = lo  # 작은 요소들의 경계 인덱스를 lo로 초기화
+        for j in range(lo, hi):  # lo부터 hi-1까지 각 요소를 검사
+            if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면
+                arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 경계 왼쪽으로 스왑
+                i += 1  # 경계 인덱스를 한 칸 오른쪽으로 이동
+        arr[i], arr[hi] = arr[hi], arr[i]  # 피벗을 경계 위치로 옮겨서 분할 완료
+        return i  # 피벗의 최종 위치 인덱스를 반환
+    def _quicksort(lo, hi):  # 재귀적으로 부분구간을 정렬하는 내부 함수
+        if lo < hi:  # 구간에 두 개 이상의 요소가 있을 때만 정렬 수행
+            p = partition(lo, hi)  # 구간을 분할하고 피벗 위치를 얻음
+            _quicksort(lo, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+            _quicksort(p + 1, hi)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+    _quicksort(0, len(arr) - 1)  # 전체 배열을 대상으로 재귀 정렬 시작
+    return arr  # 정렬된 배열을 반환
+
+# 사용 예시
+data = [3, 6, 8, 10, 1, 2, 1]  # 예시로 정렬할 리스트를 정의
+print(quicksort(data))  # 정렬 결과를 출력
+```

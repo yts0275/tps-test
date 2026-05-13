@@ -1,0 +1,29 @@
+다음은 파이썬으로 작성한 퀵소트(로무토 파티션 방식) 구현입니다. 각 줄마다 한국어 주석을 달아 설명해 두었습니다.
+
+```python
+# 파이썬 in-place 퀵소트 구현 (Lomuto partition) - 각 줄마다 주석 추가
+def quicksort(arr):  # 배열을 받아 제자리 정렬하고 동일 배열을 반환하는 퀵소트 함수
+    def partition(lo, hi):  # lo부터 hi까지의 구간을 파티션하는 내부함수
+        pivot = arr[hi]  # 피벗으로 오른쪽 끝 요소를 선택
+        i = lo  # 작은 요소들을 채워넣을 위치 인덱스 i 초기화
+        for j in range(lo, hi):  # lo부터 hi-1까지 순회하면서
+            if arr[j] < pivot:  # 현재 요소가 피벗보다 작다면
+                arr[i], arr[j] = arr[j], arr[i]  # arr[i]와 arr[j]를 교환하여 작은 요소를 왼쪽으로 이동
+                i += 1  # 다음 작은 요소 위치로 인덱스 i 증가
+        arr[i], arr[hi] = arr[hi], arr[i]  # 피벗을 중간 위치 i로 옮겨 두 부분으로 분할
+        return i  # 피벗의 최종 위치 i를 반환
+    def _quicksort(lo, hi):  # 재귀적으로 구간을 정렬하는 내부함수
+        if lo < hi:  # 구간에 2개 이상의 요소가 있을 때만 정렬 수행
+            p = partition(lo, hi)  # 구간을 파티셔닝하고 피벗 인덱스 p를 얻음
+            _quicksort(lo, p - 1)  # 피벗 왼쪽 구간을 재귀적으로 정렬
+            _quicksort(p + 1, hi)  # 피벗 오른쪽 구간을 재귀적으로 정렬
+    _quicksort(0, len(arr) - 1)  # 전체 배열 범위에 대해 퀵소트 시작
+    return arr  # 정렬된 배열을 반환
+
+# 사용 예시
+if __name__ == "__main__":  # 모듈이 직접 실행될 때만 아래 코드 실행
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 배열 정의
+    print("정렬 전:", data)  # 정렬 전 배열 출력
+    sorted_data = quicksort(data)  # 퀵소트 호출하여 배열 정렬
+    print("정렬 후:", sorted_data)  # 정렬된 배열 출력
+```

@@ -1,0 +1,28 @@
+아래는 파이썬으로 구현한 **퀵소트(quick sort)** 의 예시입니다.  
+코드의 **각 줄**마다 간단히 무슨 일을 하는지 설명하는 주석(`#`)을 달았습니다.
+
+```python
+def quicksort(arr):          # 재귀적으로 정렬을 수행하는 quicksort 함수 정의
+    if len(arr) <= 1:        # 리스트의 길이가 1 이하이면 이미 정렬된 상태, 그대로 반환
+        return arr           # 정렬 결과를 반환
+    pivot = arr[-1]          # 가장 마지막 원소를 pivot(피벗)으로 선택
+    left = [x for x in arr[:-1] if x <= pivot]  # pivot보다 작거나 같은 원소들 모음
+    right = [x for x in arr[:-1] if x > pivot]   # pivot보다 큰 원소들 모음
+    return quicksort(left) + [pivot] + quicksort(right)  
+    # 왼쪽 부분과 오른쪽 부분을 각각 재귀적으로 정렬하고,  
+    # 정렬된 왼쪽 + pivot + 정렬된 오른쪽 순으로 합쳐서 최종 정렬 결과를 반환
+```
+
+#### 사용 예시
+
+```python
+if __name__ == "__main__":   # 스크립트가 직접 실행될 때만 아래 코드가 동작
+    data = [34, 7, 23, 32, 5, 62]  # 정렬할 원본 리스트
+    sorted_data = quicksort(data)  # quicksort 함수 호출
+    print(sorted_data)  # [5, 7, 23, 32, 34, 62] 가 출력됩니다.
+```
+
+> **주의**  
+> - 이 구현은 리스트를 그대로 바꾸지 않고, 새 리스트를 만들어 반환합니다.  
+> - 공간 복잡도는 최악의 경우 `O(n^2)` 가 될 수 있지만, 일반적인 경우 `O(n log n)` 정도의 성능을 보입니다.  
+> - 복사/합치기 과정 때문에 메모리 사용량이 많아질 수 있으므로, 큰 데이터에 대해선 다른 파이프라인(예: in‑place quicksort) 사용을 고려하세요.

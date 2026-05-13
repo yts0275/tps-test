@@ -1,0 +1,39 @@
+```python
+def quicksort(arr):  # 퀵소트 함수 정의 (외부 인터페이스)
+    """퀵소트를 재귀적으로 수행하는 함수"""
+
+    def _quick_sort(items, low, high):  # 내부 재귀 함수 정의
+        # 재귀 종료 조건: 엘리먼트가 0개 또는 1개인 경우
+        if low < high:  
+            # 파티션 함수를 호출해 피벗 인덱스를 얻음
+            pivot_index = partition(items, low, high)  
+            # 파티션 인덱스의 왼쪽 부분(피벗보다 작은) 정렬
+            _quick_sort(items, low, pivot_index - 1)  
+            # 파티션 인덱스의 오른쪽 부분(피벗보다 큰) 정렬
+            _quick_sort(items, pivot_index + 1, high)  
+
+    def partition(items, low, high):  # 파티션 함수 정의
+        # 피벗을 가장 오른쪽 요소로 설정
+        pivot = items[high]  
+        # i는 작은 값이 저장될 위치를 가리킴 (초기값은 low-1)
+        i = low - 1  
+        # low부터 high-1까지 순회하면서 피벗보다 작거나 같은 값 찾기
+        for j in range(low, high):  
+            # 현재 요소가 피벗보다 작거나 같은 경우
+            if items[j] <= pivot:  
+                # 작은 값의 위치를 옆으로 한 칸 이동
+                i += 1  
+                # items[i]와 items[j] 교환
+                items[i], items[j] = items[j], items[i]  
+        # 피벗을 작은 값들의 오른쪽에 배치
+        items[i + 1], items[high] = items[high], items[i + 1]  
+        # 피벗이 놓인 최종 인덱스 반환
+        return i + 1  
+
+    # 원본 리스트를 복사해 부작용 방지
+    arr_copy = arr[:]  
+    # 재귀 정렬 수행
+    _quick_sort(arr_copy, 0, len(arr_copy) - 1)  
+    # 정렬된 결과 반환
+    return arr_copy
+```

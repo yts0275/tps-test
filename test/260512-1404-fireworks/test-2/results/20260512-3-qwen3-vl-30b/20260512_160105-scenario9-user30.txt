@@ -1,0 +1,134 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 노드들 간의 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+
+이 워크플로우는 소프트웨어 엔지니어가 코드를 분석하고 편집하며 테스트하는 작업을 자동화하는 시스템을 나타냅니다. 주요 구성 요소는 **SoftwareEngineer**라는 중심 엔티티이며, 이 엔티티가 다양한 도구와 상호작용하며 작업을 수행합니다. 워크플로우는 `start`에서 시작하여 `end`로 끝나며, 중간에 여러 반복적인 작업 흐름이 존재합니다.
+
+---
+
+### **1. 시작 (start)**
+
+- 워크플로우의 첫 번째 단계로, **`start`** 노드에서 시작됩니다.
+- 이 노드는 단순히 프로세스의 시작을 나타내며, 다음으로 **`SoftwareEngineer`** 노드로 흐름이 전달됩니다.
+- 화살표는 `start`에서 `SoftwareEngineer`로 연결되어 있으며, 이는 `SoftwareEngineer`가 워크플로우의 주체로 활성화된다는 것을 의미합니다.
+
+---
+
+### **2. SoftwareEngineer (중심 노드)**
+
+- 이 노드는 워크플로우의 핵심 역할을 수행하며, **소프트웨어 엔지니어**를 대표합니다.
+- `SoftwareEngineer`는 여러 작업을 수행할 수 있으며, 각 작업은 특정 도구를 사용하여 진행됩니다.
+- 이 노드는 다음과 같은 역할을 합니다:
+  - **작업 요청**: `CodeAnalyzer`, `Editor`, `swe_tool` 등으로 작업을 위임합니다.
+  - **작업 상태 확인**: 각 작업이 완료되었는지 확인하고, `done` 또는 `continue` 신호를 받습니다.
+  - **반복 제어**: `continue` 신호를 통해 작업을 반복하거나, `done` 신호를 통해 다음 단계로 전환합니다.
+- `SoftwareEngineer`는 여러 경로를 통해 연결되어 있으며, **다중 경로 선택**과 **반복 작업**을 지원합니다.
+
+---
+
+### **3. CodeAnalyzer (코드 분석 도구)**
+
+- `SoftwareEngineer`가 **`analyze_code`** 이벤트를 보내면, 이 노드로 흐름이 전달됩니다.
+- 이 노드는 코드 분석 작업을 수행하며, 다음을 수행합니다:
+  - `code_analysis_tool`이라는 도구를 사용하여 코드를 분석합니다.
+  - 분석 결과를 처리하고, `done` 신호를 `SoftwareEngineer`로 반환합니다.
+- **흐름 경로**:
+  - `SoftwareEngineer` → `CodeAnalyzer` (분석 요청)
+  - `CodeAnalyzer` → `code_analysis_tool` (분석 실행)
+  - `code_analysis_tool` → `CodeAnalyzer` (분석 결과)
+  - `CodeAnalyzer` → `SoftwareEngineer` (완료 신호)
+- `continue` 경로가 존재하지 않으므로, 이 작업은 **단일 실행 후 완료**됩니다. 즉, 분석이 끝나면 `done` 신호를 보내고, `SoftwareEngineer`는 다음 작업으로 이동합니다.
+
+---
+
+### **4. Editor (코드 편집 도구)**
+
+- `SoftwareEngineer`가 **`edit_file`** 이벤트를 보내면, 이 노드로 흐름이 전달됩니다.
+- 이 노드는 코드 편집 작업을 수행하며, 다음을 수행합니다:
+  - `code_edit_tool`과 `test_tool`이라는 도구를 사용하여 코드를 편집하고 테스트합니다.
+  - 편집 후 테스트 결과를 처리하고, `done` 신호를 `SoftwareEngineer`로 반환합니다.
+- **흐름 경로**:
+  - `SoftwareEngineer` → `Editor` (편집 요청)
+  - `Editor` → `code_edit_tool` (편집 실행)
+  - `Editor` → `test_tool` (테스트 실행)
+  - `code_edit_tool` → `Editor` (편집 결과)
+  - `test_tool` → `Editor` (테스트 결과)
+  - `Editor` → `SoftwareEngineer` (완료 신호)
+- `Editor` 노드는 `continue` 경로를 가지고 있어, **반복적인 편집 및 테스트**가 가능합니다. 즉, `Editor`에서 `continue` 신호를 보내면 다시 `SoftwareEngineer`로 돌아가, 다시 `edit_file` 요청을 할 수 있습니다.
+
+---
+
+### **5. code_analysis_tool (코드 분석 도구)**
+
+- `CodeAnalyzer` 노드가 사용하는 **실제 코드 분석 도구**입니다.
+- `CodeAnalyzer`가 `analyze_code` 요청을 보내면, 이 도구가 코드를 분석합니다.
+- 분석 결과는 `CodeAnalyzer`로 반환됩니다.
+- 이 노드는 **하위 도구**로, 워크플로우의 중간 단계에서만 작동하며, 직접적으로 `SoftwareEngineer`와 연결되지 않습니다.
+
+---
+
+### **6. code_edit_tool (코드 편집 도구)**
+
+- `Editor` 노드가 사용하는 **실제 코드 편집 도구**입니다.
+- `Editor`가 `edit_file` 요청을 보내면, 이 도구가 코드를 편집합니다.
+- 편집 결과는 `Editor`로 반환됩니다.
+- 이 노드도 **하위 도구**로, `SoftwareEngineer`와 직접 연결되지 않습니다.
+
+---
+
+### **7. test_tool (테스트 도구)**
+
+- `Editor` 노드가 사용하는 **테스트 도구**입니다.
+- `Editor`가 `edit_file` 요청을 보내면, 이 도구가 테스트를 실행합니다.
+- 테스트 결과는 `Editor`로 반환됩니다.
+- 이 노드도 **하위 도구**로, `SoftwareEngineer`와 직접 연결되지 않습니다.
+
+---
+
+### **8. swe_tool (소프트웨어 엔지니어 도구)**
+
+- `SoftwareEngineer`가 **`swe_tool`** 이벤트를 보내면, 이 노드로 흐름이 전달됩니다.
+- 이 노드는 `SoftwareEngineer`가 수행할 수 있는 **추가적인 도구**를 나타냅니다.
+- 이 도구는 `SoftwareEngineer`가 작업을 마친 후, 최종적으로 사용할 수 있는 **보조 기능**일 수 있습니다.
+- `swe_tool` → `end`로 연결되어 있으며, 이는 `swe_tool` 작업이 완료되면 워크플로우가 종료된다는 의미입니다.
+
+---
+
+### **9. end (종료)**
+
+- 워크플로우의 마지막 단계로, **`end`** 노드에서 종료됩니다.
+- `swe_tool`에서 `end`로 흐름이 전달되며, 이는 전체 작업이 완료되었음을 의미합니다.
+
+---
+
+### **흐름 요약 및 반복 구조**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **코드 분석**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (analyze_code)
+   - `CodeAnalyzer` → `code_analysis_tool` (분석)
+   - `code_analysis_tool` → `CodeAnalyzer` (결과)
+   - `CodeAnalyzer` → `SoftwareEngineer` (done)
+   - → **반복 없음** (단일 실행)
+3. **코드 편집 및 테스트**:
+   - `SoftwareEngineer` → `Editor` (edit_file)
+   - `Editor` → `code_edit_tool` (편집)
+   - `Editor` → `test_tool` (테스트)
+   - `code_edit_tool` → `Editor` (결과)
+   - `test_tool` → `Editor` (결과)
+   - `Editor` → `SoftwareEngineer` (done 또는 continue)
+   - **반복 가능**: `Editor`에서 `continue` 신호를 보내면, 다시 `SoftwareEngineer`로 돌아가 `edit_file` 요청을 할 수 있습니다.
+4. **최종 도구 사용**:
+   - `SoftwareEngineer` → `swe_tool` (swe_tool)
+   - `swe_tool` → `end` (종료)
+
+---
+
+### **핵심 특징**
+
+- **중심 엔티티**: `SoftwareEngineer`는 모든 작업의 중심이며, 작업을 위임하고 상태를 확인합니다.
+- **반복 구조**: `Editor` 노드에서 `continue` 경로를 통해 작업을 반복할 수 있습니다. 이는 코드 편집과 테스트를 반복적으로 수행하는 상황을 반영합니다.
+- **도구 분리**: 각 작업은 특정 도구를 사용하며, `SoftwareEngineer`는 도구를 조정하는 역할을 합니다.
+- **단일 실행 vs 반복

@@ -1,0 +1,23 @@
+이 워크플로우는 “start” 노드에서 출발해, 소프트웨어 엔지니어(SoftwareEngineer)에게 활동 흐름이 위임되는 구조입니다. 이후 각 노드 간 연결 관계와 조건들을 최대한 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**: 워크플로우는 시작 지점에서 SoftwareEngineer 노드로 바로 이동합니다. 이 지점에서 실제 작업을 수행할 사람 혹은 주체가 결정됩니다.
+
+2. **SoftwareEngineer에서의 갈래**:
+   - **CodeAnalyzer로 진입**: “analyze_code” 속성을 가진 화살표를 따라 SoftwareEngineer는 CodeAnalyzer 노드로 이동하여 코드 분석 작업을 수행합니다.
+   - **Editor로 진입**: “edit_file” 조건이 주어진 화살표를 통해 SoftwareEngineer는 Editor 노드로 이동하여 코드 편집을 수행합니다.
+   - **swe_tool로 진입**: “continue” 속성의 화살표를 통해 SoftwareEngineer는 swe_tool 노드로 진입할 수 있으며, 이후 이 흐름을 “end” 노드로 연결합니다.
+   - **종료 가능**: SoftwareEngineer에서 직접 “continue”를 거쳐 end로 갈 수도 있습니다 (화살표가 그려져 있음).
+
+3. **CodeAnalyzer 내부 흐름**:
+   - **code_analysis_tool로 작업 위임**: CodeAnalyzer 노드는 내부적으로 code_analysis_tool과 연결되어 해당 도구를 활용하여 분석을 수행합니다.
+   - **Editor 또는 SoftwareEngineer로 반환**: 분석이 끝나면 “done” 화살표를 통해 SoftwareEngineer로 돌아오거나, “continue” 화살표를 따라 Editor로 전달될 수 있습니다. 즉, 분석 후 바로 수정으로 넘어가거나 다시 엔지니어에게 결과를 보고하는 두 갈래가 존재합니다.
+
+4. **Editor 내부 흐름**:
+   - **code_edit_tool 및 test_tool 연결**: Editor 노드는 code_edit_tool과 test_tool을 각각 호출하여 실제 코드 편집과 테스트를 시행합니다.
+   - **SoftwareEngineer로 돌아감**: 편집이 완료되면 “done” 경로로 SoftwareEngineer에게 돌아가 후속 처리를 받습니다.
+   - **다음 절차로 계속**: “continue” 경로를 통해 swe_tool 혹은 다른 노드로 흐름을 이을 수도 있습니다.
+
+5. **SoftwareEngineer에서 swe_tool → end 흐름**:
+   - 여러 작업을 거친 후 SoftwareEngineer가 “continue”를 통해 swe_tool 노드로 진입하고, 그 작업이 끝나면 결국 “end” 노드로 도달하여 전체 워크플로우가 종료됩니다.
+
+요약하면, Workflow는 SoftwareEngineer를 중심으로 CodeAnalyzer와 Editor 사이를 오가며 분석 및 편집 작업을 수행하고, 필요한 도구들(code_analysis_tool, code_edit_tool, test_tool)과 상호작용한 뒤 최종적으로 swe_tool을 거쳐 종료되는 구조로 설계되어 있습니다.

@@ -1,0 +1,117 @@
+아래 이미지는 “SoftwareEngineer”를 중심으로 여러 서브 태스크(코드 분석/수정/테스트/도구 실행)가 **병렬로 반복될 수 있는 형태**의 워크플로우를 보여줍니다. 전체 흐름을 노드(상자) 단위로 최대한 상세히 풀어쓰면 다음과 같습니다.
+
+---
+
+## 1) 시작 ~ 중앙 제어 노드(SoftwareEngineer)
+1. **start**
+   - 워크플로우가 최초로 실행됩니다.
+2. **SoftwareEngineer**
+   - start에서 내려온 화살표가 **SoftwareEngineer** 노드로 연결됩니다.
+   - 이 노드는 단순히 한 번 처리하고 끝나는 노드라기보다, 이후 단계들(분석/편집/테스트/도구 실행)을 **지시하고 상태(donе/continue)를 받아 반복 또는 종료**하는 **중앙 제어자(오케스트레이터)** 역할을 합니다.
+
+---
+
+## 2) SoftwareEngineer가 분기시키는 주요 작업 축
+이미지에서 SoftwareEngineer는 여러 경로로 이어집니다. 핵심은 다음 3가지 도구/작업 축이 서로 연결되어 있다는 점입니다.
+
+- **CodeAnalyzer(코드 분석) 축**
+- **Editor(코드 편집) 축**
+- **swe_tool(외부/통합 SWE 도구 실행) 축**
+
+그리고 각 축은 다시 SoftwareEngineer로 “done” 혹은 “continue” 신호를 주며, 조건에 따라 반복됩니다.
+
+---
+
+## 3) CodeAnalyzer 축의 흐름(분석 → 도구 실행 → 결과 반영)
+### (1) SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer에서 왼쪽 방향으로 이어지는 라인에서 **CodeAnalyzer** 노드로 이동합니다.
+- 의미상 “이제 코드를 분석해보자”는 단계에 해당합니다.
+
+### (2) CodeAnalyzer에서 code_analysis 도구 실행
+- **CodeAnalyzer**의 아래쪽으로 **code_analysis_tool** 노드가 연결되어 있습니다.
+- 즉, CodeAnalyzer는 “코드 분석을 수행하기 위해 실제 분석 도구를 호출/실행”하는 역할을 합니다.
+
+### (3) code_analysis_tool → CodeAnalyzer (done/continue 형태)
+- code_analysis_tool에서 다시 **CodeAnalyzer**로 되돌아가는 루프(점선 라인)가 보이며,
+- 그 사이에 **done** 또는 **continue** 표기가 있습니다.
+  - **done**: 분석이 충분히 되었거나 다음 단계로 넘어갈 준비가 되었음을 뜻합니다.
+  - **continue**: 분석 결과가 아직 목표를 충족하지 못했거나, 추가 분석이 필요해 같은 경로를 반복하라는 의미입니다.
+
+### (4) CodeAnalyzer 완료 후 SoftwareEngineer로 복귀
+- CodeAnalyzer에서 처리 완료 시 **SoftwareEngineer로 “done” 신호**가 올라가는 구조가 나타납니다.
+- 즉 최종적으로:
+  - 분석이 완료되면 SoftwareEngineer가 다음 편집/테스트/다른 시도로 진행,
+  - 분석이 계속 필요하면 continue 경로로 다시 도구를 돌리게 됩니다.
+
+---
+
+## 4) Editor 축의 흐름(편집 → code_edit 도구 실행 → 결과 반영)
+### (1) SoftwareEngineer → Editor
+- SoftwareEngineer에서 아래쪽 중앙으로 이어지는 라인으로 **Editor** 노드가 실행됩니다.
+- 의미상 “분석 결과를 바탕으로 코드를 수정하자”는 단계입니다.
+
+### (2) Editor에서 code_edit 도구 실행
+- Editor의 하위에 **code_edit_tool** 노드가 존재합니다.
+- 이는 “실제 코드 수정(편집/패치 생성/적용)”을 도구로 수행한다는 뜻입니다.
+
+### (3) code_edit_tool → Editor (done/continue 형태)
+- code_edit_tool에서 Editor로 되돌아오는 점선 루프가 있으며,
+- 중간에 **done / continue**가 표시되어 있습니다.
+  - **continue**: 편집 결과가 요구사항을 만족하지 못해 추가 수정이 필요할 수 있음.
+  - **done**: 편집이 목표 수준에 도달하여 다음 단계(테스트 등)로 넘어가도 됨.
+
+### (4) Editor 완료 후 SoftwareEngineer로 복귀
+- Editor 완료 후 **SoftwareEngineer로 “done” 신호**가 전달되는 흐름이 보입니다.
+- 즉 SoftwareEngineer는 편집이 되었는지 여부를 받아 다음으로 진행합니다.
+
+---
+
+## 5) Editor 아래의 test 축(테스트 수행 → 반복 또는 확정)
+### (1) Editor → test tool
+- Editor에서 우측 아래 방향으로 **test_tool** 노드가 연결됩니다.
+- 구조상 Editor가 “수정한 코드를 검증하자”로 이어지는 형태입니다.
+
+### (2) test_tool → Editor로 복귀(continue 가능)
+- test_tool에서 Editor로 되돌아가는 점선 루프가 있고, **continue**가 표시됩니다.
+- 의미:
+  - 테스트가 통과하지 못하면(혹은 추가 확인 필요) Editor로 돌아가 **추가 편집**을 계속할 수 있습니다.
+  - 테스트가 충분하면 **Editor에서 done 상태로 SoftwareEngineer에 반영**되는 쪽으로 진행합니다.
+
+> 정리하면 “편집 → 테스트 → 테스트 결과에 따라 편집을 반복”하는 전형적인 루프가 존재합니다.
+
+---
+
+## 6) swe_tool 축(통합 도구/추가 조치 후 종료 또는 계속)
+### (1) SoftwareEngineer → swe_tool
+- SoftwareEngineer에서 오른쪽 하단 방향으로 **swe_tool** 노드로 분기됩니다.
+- 이 노드는 “SWE(Software Engineering) 목적에 맞는 통합 도구를 실행”하는 단계로 해석됩니다.
+  - 예: 전체 작업 수행, 추가 분석, 패치 적용 자동화, 외부 시스템 호출 등
+
+### (2) swe_tool 결과에 따른 끝(end) 또는 재진행
+- 이미지 오른쪽에 **end** 노드가 있고, swe_tool에서 점선으로 end로 직접 가는 흐름이 보입니다.
+- 또한 동시에 SoftwareEngineer로 돌아가 계속될 수 있는 구조(점선 “continue” 루프)도 함께 존재합니다.
+- 즉, swe_tool이 목적을 충족하면 **end로 종료**, 아니면 **continue** 신호를 통해 계속 작업하는 형태입니다.
+
+---
+
+## 7) SoftwareEngineer의 “continue/end” 제어 의미(전체 루프)
+이미지 상단과 오른쪽에 다음 요소가 함께 표시됩니다.
+
+- **SoftwareEngineer → continue → 다시 작업 반복**
+  - 점선으로 돌아가는 루프가 존재하므로,
+  - 분석/편집/테스트/도구실행 중 어떤 단계에서라도 “계속해야 한다(continue)”고 판단되면 다시 전체 루프가 재가동됩니다.
+- **SoftwareEngineer 또는 swe_tool → end**
+  - 작업이 요구조건을 만족했다고 판단되면 최종 종료로 수렴합니다.
+
+---
+
+## 8) 전체를 한 문장 흐름으로 요약
+1) start → 2) SoftwareEngineer가 목표를 기준으로  
+3) CodeAnalyzer로 분석(필요 시 continue 루프) → done 시 반영,  
+4) Editor로 코드 수정(필요 시 code_edit_tool 반복) → test_tool로 검증(통과/불통과에 따라 continue로 추가 수정) → done 시 반영,  
+5) 필요/조건에 따라 swe_tool로 추가 SWE 조치를 수행하여  
+6) 성공적으로 해결되면 end로 종료, 아니면 continue로 다시 반복합니다.
+
+---
+
+원하시면, 위 구조를 **“상태 머신(state machine) 형태”**로 (예: ANALYZE/EDIT/TEST/DONE/CONTINUE)처럼 상태와 전이(transition)를 표로 재구성해서 더 명확하게 정리해드릴 수도 있어요.

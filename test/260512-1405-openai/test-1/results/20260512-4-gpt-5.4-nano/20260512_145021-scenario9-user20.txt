@@ -1,0 +1,124 @@
+이미지에 있는 워크플로우(Workflow)는 전체적으로 **소프트웨어 엔지니어(SoftwareEngineer)** 역할을 중심에 두고, 그 주변에 **코드 분석(CodeAnalysis)** → **수정(Editor)** → **도구 실행(test, code_edit, code_analysis 등)**이 반복/분기되는 구조로 보입니다. 아래는 그림에 나타난 **Node들의 흐름**을 가능한 한 자세히, “화살표(전이)” 기준으로 서술한 내용입니다.
+
+---
+
+## 1) 시작(Start) → SoftwareEngineer 진입
+1. **start** 노드에서 시작합니다.
+2. 곧바로 중앙의 **SoftwareEngineer** 노드로 이동합니다.
+   - 즉, “전체 작업은 SoftwareEngineer가 주도/조정”하는 흐름입니다.
+
+---
+
+## 2) SoftwareEngineer에서 뻗어 나가는 주요 처리 루트(병렬/순차 가능)
+그림에서 **SoftwareEngineer** 노드는 여러 방향으로 화살표가 연결되어 있어, 실제 실행 엔진에서는 보통 아래 중 하나 형태로 동작할 가능성이 큽니다.
+
+- (a) 특정 조건에 따라 순차적으로 각 단계를 호출하거나  
+- (b) 여러 하위 도구를 호출하여 결과를 취합한 뒤 다시 SoftwareEngineer로 돌아오거나  
+- (c) “done/continue” 상태에 따라 반복 루프가 형성됩니다.
+
+이제 각 연결을 그림 기준으로 정리합니다.
+
+---
+
+## 3) CodeAnalyzer 루트(코드 분석)
+### 3-1. SoftwareEngineer → CodeAnalyzer 호출
+- **SoftwareEngineer**에서 왼쪽 아래 방향으로 흐름이 연결되어 있고,
+- 그 대상이 **CodeAnalyzer** 노드입니다.
+
+### 3-2. CodeAnalyzer → code_analysis_tool 실행
+- **CodeAnalyzer** 내부에서 실제 분석 수행을 위해 **code_analysis_tool** 노드(하위 도구)가 호출됩니다.
+- 즉, “분석 도구 실행 → 분석 결과 반환”의 구조입니다.
+
+### 3-3. code_analysis_tool → CodeAnalyzer로 반환 후 done/continue 분기
+- **code_analysis_tool** 실행이 끝나면 **CodeAnalyzer**로 돌아오는 흐름이 있으며,
+- 그림에는 **done** 및 **continue** 같은 루프/분기 라벨이 보입니다.
+  - **done**: 분석 단계가 충분히 완료되어 다음 단계로 넘어갈 조건
+  - **continue**: 추가 분석이 필요하거나 반복 수행이 필요한 조건
+
+### 3-4. CodeAnalyzer 결과가 다시 SoftwareEngineer로 전달
+- 분석이 완료되면(또는 중간 상태에서 계속되면) **CodeAnalyzer**는 다시 **SoftwareEngineer**로 되돌아가며,
+- SoftwareEngineer는 다음 작업(수정/테스트/추가 분석)을 결정합니다.
+
+---
+
+## 4) Editor 루트(코드 수정)
+### 4-1. SoftwareEngineer → Editor 호출
+- **SoftwareEngineer**에서 아래 중앙으로 흐름이 이어지고,
+- 그 다음 노드가 **Editor**입니다.
+
+### 4-2. Editor → code_edit_tool 실행(그림의 “edit_file” 흐름 포함)
+- **Editor** 노드 아래에 **code_edit_tool**이 연결되어 있습니다.
+- 또한 그림에는 **edit_file**이라는 라벨이 있어,
+  - Editor가 “파일/코드 수정 작업”을 지시하고,
+  - 실제로는 **code_edit_tool**이 변경을 수행하는 형태로 해석됩니다.
+- 즉, Editor는 “무엇을 어떻게 고칠지”를 결정하고, code_edit_tool이 “실제 코드 수정”을 수행합니다.
+
+### 4-3. code_edit_tool → Editor로 반환 후 done/continue 분기
+- **code_edit_tool**이 수정 작업을 수행한 뒤,
+- **Editor**로 되돌아오는 흐름이 있습니다.
+- 이때도 그림에 **done** / **continue**(점선 루프)가 보이므로,
+  - done이면 수정이 충분하고 다음(테스트 등)으로 진행
+  - continue이면 추가 수정이 필요하여 Editor 단계(혹은 수정 도구)를 반복
+
+### 4-4. Editor 결과가 SoftwareEngineer로 복귀
+- 수정이 완료되면(Editor done) 결과를 **SoftwareEngineer**가 취합합니다.
+- 그러면 SoftwareEngineer가 테스트 실행 여부를 결정합니다.
+
+---
+
+## 5) test 루트(테스트 수행 및 피드백)
+### 5-1. Editor → test_tool 연결
+- 그림에서 **Editor** 아래쪽에 **test_tool**이 연결되어 있습니다.
+- 즉, Editor가 코드를 수정한 뒤에는 곧바로 테스트를 돌릴 수 있습니다.
+
+### 5-2. test_tool 실행 → Editor로 반환 (done/continue)
+- **test_tool** 실행 후 결과가 다시 **Editor**로 돌아오고,
+- 마찬가지로 **continue** 라벨이 보이는 점선 흐름이 있어,
+  - 테스트가 성공이면 다음 단계로(혹은 종료 준비)
+  - 실패/불충분이면 다시 수정 단계로 회귀(continue 루프)할 가능성이 큽니다.
+
+### 5-3. Editor(또는 테스트 결과)가 SoftwareEngineer로 반영
+- 테스트 결과는 결국 **SoftwareEngineer**가 전체 의사결정을 내리는 구조라,
+- Editor를 통해 또는 직접적으로 SoftwareEngineer로 피드백이 전달됩니다(그림에서 Editor↔SoftwareEngineer 사이의 흐름/복귀 화살표가 존재).
+
+---
+
+## 6) swe_tool 루트(추가 도구/엔지니어링 보조)
+### 6-1. SoftwareEngineer → swe_tool
+- 오른쪽 아래에 **swe_tool** 노드가 있고,
+- **SoftwareEngineer**에서 swe_tool로 향하는 화살표가 있습니다.
+
+### 6-2. swe_tool → end로 연결(또는 SoftwareEngineer 확인 후 종료)
+- 그림 오른쪽 끝에는 **end** 노드가 있으며,
+- swe_tool에서 end로 직접 가는 듯한 연결이 표시됩니다.
+- 또한 “continue”가 함께 표시된 점선/화살표가 있어,
+  - swe_tool 결과가 목표를 충족하면 종료로 직행
+  - 또는 추가 확인(continue) 후 다른 루프로 들어갈 수 있습니다.
+
+---
+
+## 7) done/continue에 의해 형성되는 “반복 루프”의 의미(그림에서 읽히는 방식)
+그림 전반에 점선 화살표와 **done / continue** 라벨이 반복적으로 등장합니다. 따라서 전체 구조는 보통 다음과 같은 반복 패턴을 가집니다.
+
+1. **코드 분석(CodeAnalyzer)** 수행  
+2. 분석 결과를 바탕으로 **코드 수정(Editor)**  
+3. 수정 결과를 바탕으로 **테스트(test_tool)**  
+4. 테스트가 만족되면 종료(end) 방향으로 이동  
+5. 만족되지 않으면 **continue** 경로로 돌아가 추가 분석/추가 수정 반복
+
+즉 “분석→수정→테스트→피드백→다시 수정/분석” 사이클이 중심이며, **SoftwareEngineer**가 이를 조정하는 오케스트레이터 역할을 합니다.
+
+---
+
+## 8) 종료(End)
+- 최종적으로 조건이 충족되면 **end** 노드로 이동하며 워크플로우가 종료됩니다.
+- 종료로 향하는 흐름은 특히 **swe_tool** 경유 또는 SoftwareEngineer의 최종 판단(done) 이후 발생하는 형태로 보입니다.
+
+---
+
+# 한 줄 요약(흐름 요약)
+**start → SoftwareEngineer(오케스트레이션) → CodeAnalyzer(→ code_analysis_tool) → Editor(→ code_edit_tool) → Editor/test_tool(테스트) → 결과에 따라 continue/done으로 반복 또는 swe_tool 경유 → end**
+
+---
+
+원하시면, 제가 **(1) “화살표를 기준으로 한 정확한 전이 순서 리스트”** 형태(예: A→B, B→C, 분기 조건 포함)로 다시 재구성하거나, **(2) continue 루프가 실제로 어디로 되돌아가는지**(그림상 점선이 가리키는 루프 지점)까지 더 엄밀하게 단계별로 짚어서 작성해드릴게요.

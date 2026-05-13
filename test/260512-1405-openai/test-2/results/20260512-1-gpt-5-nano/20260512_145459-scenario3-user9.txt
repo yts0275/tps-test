@@ -1,0 +1,31 @@
+다음은 각 줄마다 주석이 달린 파이썬 퀵소트 구현입니다. 이 코드는 배열을 제자리에 정렬합니다.
+
+# 파이썬으로 구현한 퀵소트: 배열을 제자리에서 정렬합니다.
+
+def partition(arr, low, high):  # 배열의 일부분에서 피봇을 기준으로 분리
+    pivot = arr[high]  # 피봇으로 배열의 마지막 요소를 선택
+    i = low - 1  # 작은 원소들의 구분점 초기화
+    for j in range(low, high):  # 구간 [low, high-1]의 각 원소를 검사
+        if arr[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같으면
+            i += 1  # 작은 원소의 영역 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 원소 교환으로 정렬 위치 조정
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 올바른 위치로 이동
+    return i + 1  # 피봇의 최종 인덱스 반환
+
+def quicksort(arr, low=0, high=None):  # 재귀적으로 배열을 정렬하는 함수
+    if high is None:  # 초기 호출 시 전체 배열을 대상으로 설정
+        high = len(arr) - 1
+    if low < high:  # 정렬할 구간에 두 개 이상의 원소가 있는지 확인
+        pi = partition(arr, low, high)  # 피봇 위치를 얻음
+        quicksort(arr, low, pi - 1)  # 피봇 왼쪽 부분 배열 재귀적 정렬
+        quicksort(arr, pi + 1, high)  # 피봇 오른쪽 부분 배열 재귀적 정렬
+
+if __name__ == "__main__":  # 테스트 코드 실행 여부 확인
+    data = [33, 10, 27, 14, 3, 18, 5, 1]  # 정렬할 데이터
+    quicksort(data)  # 데이터를 제자리에서 퀵소트 실행
+    print(data)  # 정렬 결과 출력
+
+사용 예
+- data = [33, 10, 27, 14, 3, 18, 5, 1]
+- quicksort(data)
+- 결과: [1, 3, 5, 10, 14, 18, 27, 33]

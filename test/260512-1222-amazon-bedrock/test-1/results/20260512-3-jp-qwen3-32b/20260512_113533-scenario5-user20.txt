@@ -1,0 +1,48 @@
+물론입니다! 아래는 Python에서 **퀵소트(Quick Sort)** 알고리즘을 구현한 예제입니다. 각 줄에 주석을 달아 원리와 목적을 풀어 설명했습니다.
+
+---
+
+```python
+# 퀵소트의 핵심 함수: pivot(기준)을 기준으로 데이터를 나누고 재귀적으로 정렬합니다.
+def quick_sort(arr):
+    # 배열이 비어 있거나 하나의 요소만 있다면(더 이상 정렬할 필요 없음), 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # pivot(기준) 설정: 이 예제에서는 첫 번째 요소를 pivot으로 사용
+    pivot = arr[0]
+
+    # left: pivot보다 작은 요소들을 모으는 리스트
+    left = [x for x in arr[1:] if x <= pivot]
+    
+    # right: pivot보다 큰 요소들을 모으는 리스트
+    right = [x for x in arr[1:] if x > pivot]
+
+    # 재귀적으로 left와 right를 정렬한 뒤, 왼쪽 + pivot + 오른쪽을 반환
+    return quick_sort(left) + [pivot] + quick_sort(right)
+```
+
+---
+
+### 📌 예제 사용:
+
+```python
+# 테스트용 배열
+data = [5, 2, 9, 3, 10, 1, 7]
+
+# 퀵소트 실행
+sorted_data = quick_sort(data)
+
+# 결과 출력
+print(sorted_data)  # [1, 2, 3, 5, 7, 9, 10]
+```
+
+---
+
+### ✅ 알고리즘 설명 요약:
+
+- **시간 복잡도**: 평균적으로 O(n log n), 최악의 경우 O(n²) (pivot 선택에 따라 다름)
+- **위치 기반 정렬 아님**(In-place 아님): 새 리스트를 생성해서 정렬합니다.
+- **재귀 알고리즘**입니다.
+
+필요하시면, 배열을 in-place로 정렬하는 버전이나 다른 언어(C++, Java 등)로도 구현해드릴 수 있어요!

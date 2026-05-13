@@ -1,0 +1,56 @@
+<think>
+Okay, the user wants me to implement quicksort in Python with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I need to define the quicksort function. The base case is when the list has zero or one element, which is already sorted. Then, I need to choose a pivot. Common choices are the first element, last element, or a random one. For simplicity, maybe use the middle element as the pivot here.
+
+Next, the partitioning step. I'll need two lists: one for elements less than the pivot and another for elements greater than or equal to the pivot. Then, recursively apply quicksort to both sublists and combine them.
+
+Wait, the user wants comments on each line. So I need to make sure each line has a comment explaining what it does. Let me structure the code step by step.
+
+Start with the function definition. Then the base case. Then selecting the pivot. Then partitioning. Then the recursive calls. Also, need to handle the combining part.
+
+Wait, in Python, list comprehensions are efficient. So for the less than and greater than parts, using list comprehensions would be concise. Also, the pivot selection here is using the middle element, which is [mid] = arr[len(arr)//2]. Then, the left and right parts are created by excluding the pivot.
+
+Then, the recursive calls: quicksort(left) and quicksort(right), and then combine them with the pivot in between.
+
+Let me write the code with comments for each line. Make sure the comments are clear. For example, the base case comment, pivot selection, partitioning steps, and the recursive calls.
+
+Testing the code with a sample list like [3,6,8,10,1,2,1] to see if it sorts correctly. Also, check for edge cases like empty list or single element.
+
+I think that's all. Let me put it all together with proper comments.
+</think>
+
+```python
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우 이미 정렬된 상태
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 선택: 배열의 중간 요소를 피봇으로 선택 (중간 요소를 선택하는 방법)
+    mid = len(arr) // 2
+    pivot = arr[mid]
+    
+    # 피벗보다 작은 요소를 담는 리스트
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗보다 큰 또는 같은 요소를 담는 리스트
+    right = [x for x in arr if x >= pivot]
+    
+    # 재귀적으로 왼쪽과 오른쪽 리스트를 정렬하고, 피벗을 중간에 삽입하여 합친다
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 예제 사용
+example_list = [3, 6, 8, 10, 1, 2, 1]
+sorted_list = quicksort(example_list)
+print("정렬된 배열:", sorted_list)
+```
+
+### 설명
+1. `quicksort(arr)` 함수는 입력 배열을 정렬하는 함수입니다.
+2. `if len(arr) <= 1`은 기저 조건으로, 배열이 0 또는 1개 요소일 경우 정렬이 필요 없습니다.
+3. `mid = len(arr) // 2`는 배열의 중간 인덱스를 계산합니다.
+4. `pivot = arr[mid]`는 배열의 중간 요소를 피벗으로 선택합니다.
+5. `left` 리스트는 피벗보다 작은 요소들을 담습니다.
+6. `right` 리스트는 피벗보다 크거나 같은 요소들을 담습니다.
+7. `return quicksort(left) + [pivot] + quicksort(right)`는 피벗을 중심으로 왼쪽과 오른쪽 리스트를 재귀적으로 정렬하고, 결과를 결합합니다.
+8. 예제로 `[3, 6, 8, 10, 1, 2, 1]` 배열을 정렬하여 출력합니다.

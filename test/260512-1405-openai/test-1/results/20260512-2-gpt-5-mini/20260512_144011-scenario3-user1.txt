@@ -1,0 +1,27 @@
+다음은 Python으로 구현한 퀵소트 예시입니다. 각 줄마다 한국어 주석을 달아 설명을 붙였습니다.
+
+```python
+# 퀵소트 구현 예시 (Python) - 각 줄에 주석 포함
+def quicksort(arr, low, high):  # 함수 정의: 배열과 정렬할 범위를 받음
+    if low < high:  # 범위가 적어도 두 요소 이상인지 확인
+        p = partition(arr, low, high)  # partition 함수로 피벗의 최종 위치를 얻음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+# 함수 정의 끝  # 주석 줄
+
+def partition(arr, low, high):  # partition 함수 정의: 마지막 요소를 피벗으로 사용
+    pivot = arr[high]  # 피벗을 설정 (마지막 요소)
+    i = low - 1  # 작은 요소의 끝 인덱스를 i로 초기화
+    for j in range(low, high):  # low부터 high-1까지 반복
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면
+            i += 1  # 작은 요소 구간을 하나 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 구간의 끝으로 스왑
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 중앙으로 옮겨 분할 완료
+    return i + 1  # 피벗의 최종 인덱스 반환
+# partition 함수 끝  # 주석 줄
+
+if __name__ == "__main__":  # 이 모듈이 직접 실행되는 경우에만 아래 코드 실행
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 배열 정의
+    quicksort(data, 0, len(data) - 1)  # 퀵소트 호출로 배열 전체를 정렬
+    print(data)  # 정렬된 배열을 출력
+```

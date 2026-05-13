@@ -1,0 +1,36 @@
+주어진 Workflow에서 Node들의 흐름을 차례대로 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**: 모든 흐름은 `start`에서 시작하여 `SoftwareEngineer` 노드로 들어갑니다. 이 노드는 해당 Workflow의 중심 역할을 담당하며, 이후 여러 작업 노드로 분기합니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (분기: analyze_code)**:
+   - `SoftwareEngineer`는 코드 분석을 위해 `CodeAnalyzer`로 이동합니다. 이 경로는 `analyze_code`라는 조건/액션 이름이 붙어 있으며, `SoftwareEngineer`가 코드 분석을 수행하려는 의도를 나타냅니다.
+   - `CodeAnalyzer` 노드는 실제 분석을 수행하는 주체로, 다시 세부 도구로 이어지는 연결이 있습니다.
+
+3. **CodeAnalyzer → code_analysis_tool**:
+   - `CodeAnalyzer`는 내부적으로 `code_analysis_tool`을 호출하여 실제 코드 분석이 이루어지도록 합니다. 이것은 `CodeAnalyzer`의 하위 도구 역할을 하며, 분석 작업에 필요한 세부 기능을 제공합니다.
+
+4. **CodeAnalyzer → SoftwareEngineer (분기: done)**:
+   - 분석이 완료되면 `CodeAnalyzer`는 `done`이라는 라벨을 통해 다시 `SoftwareEngineer`로 돌아갑니다. 이렇게 해서 분석 후 결과를 바탕으로 다음 행동을 결정할 수 있도록 합니다.
+
+5. **CodeAnalyzer → Editor (분기: continue)**:
+   - 필요할 경우 `CodeAnalyzer`는 `continue`라는 연결을 통해 `Editor`로 이동할 수 있습니다. 이는 분석한 내용을 바탕으로 코드 수정을 이어가는 흐름을 나타냅니다.
+
+6. **SoftwareEngineer → Editor (분기: edit_file)**:
+   - `SoftwareEngineer`는 코드 편집을 위해 직접 `Editor`로 이동합니다. 이 경로는 `edit_file`이라는 라벨이 붙어 있으며, 수정하거나 새로운 코드를 작성하기 위한 단계입니다.
+
+7. **Editor → code_edit_tool**, **Editor → test_tool**:
+   - `Editor`는 내부적으로 `code_edit_tool`과 `test_tool` 같은 도구들을 활용합니다. 각각 편집과 관련된 도구, 테스트 수행 도구를 의미하며, Editor가 더 상세한 작업을 수행할 때 연결됩니다.
+
+8. **Editor → SoftwareEngineer (분기: done)**:
+   - 편집 및 관련 작업이 끝나면 `Editor`에서 다시 `SoftwareEngineer`로 돌아오는 경로가 있습니다. 이 경우 `done`이라는 라벨이 붙어 있어 한 사이클 작업 종료를 의미합니다.
+
+9. **Editor → CodeAnalyzer (분기: continue)**:
+   - 편집 후 다시 분석을 수행해야 하는 경우가 있어 `Editor`에서 `CodeAnalyzer`로 이어지는 `continue` 경로도 존재합니다. 이는 리팩토링 후 재분석 등 반복적인 품질 확인 흐름을 보여줍니다.
+
+10. **SoftwareEngineer → swe_tool (분기: continue)**:
+    - `SoftwareEngineer`는 추가로 `swe_tool`이라는 외부 도구로도 접근할 수 있으며, 이 경로 역시 `continue`라는 이름이 붙어 있습니다. 아마 CI/CD, 자동화 도구 등 개발 지원 도구 활용을 나타냅니다.
+
+11. **SoftwareEngineer → end (분기: continue)**:
+    - 모든 작업이 완료되면 `SoftwareEngineer`에서 직접 `end` 노드로 이어지는 `continue` 경로가 있습니다. 이는 개발자의 활동이 종료되어 Workflow가 마무리됨을 의미합니다.
+
+요약하면, `SoftwareEngineer`는 코드 분석(`CodeAnalyzer`), 편집(`Editor`), 도구 활용(`swe_tool`) 등 여러 작업을 순환하면서 반복적으로 수행하고, 각 도구들은 다시 `SoftwareEngineer`로 돌아가거나 다른 도구로 연결되어 개발 과정을 하나의 루프처럼 묘사합니다. Workflow는 결국 `SoftwareEngineer`가 작업을 완료하면 `end`로 도달하면서 종료됩니다.

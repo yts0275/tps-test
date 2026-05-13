@@ -1,0 +1,25 @@
+다음은 Python으로 구현한 퀵소트이며, 요청하신 대로 코드의 각 줄마다 주석을 달았습니다.
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 함수 (in-place) 정의, arr은 리스트, low/high는 정렬할 구간의 인덱스
+    if low < high:  # 구간에 2개 이상의 요소가 있을 때만 정렬을 수행 (재귀 종료 조건)
+        pivot_index = partition(arr, low, high)  # 분할 함수를 호출하여 피벗의 최종 위치를 얻음
+        quicksort(arr, low, pivot_index - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 방법을 사용하여 구간을 분할하는 함수 정의
+    pivot = arr[high]  # 구간의 마지막 요소를 피벗으로 선택
+    i = low - 1  # 작은(<=피벗) 요소들의 끝 인덱스를 나타내는 변수 초기화
+    for j in range(low, high):  # low부터 high-1까지 요소들을 순회하며 피벗과 비교
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면 작은 그룹으로 넣음
+            i += 1  # 작은 그룹의 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 그룹의 끝으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 그룹 바로 다음 위치로 옮김
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+# 사용 예시
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시 코드가 동작함
+    arr = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 샘플 리스트
+    quicksort(arr, 0, len(arr) - 1)  # 리스트 전체를 퀵소트로 정렬
+    print(arr)  # 정렬된 결과를 출력
+```

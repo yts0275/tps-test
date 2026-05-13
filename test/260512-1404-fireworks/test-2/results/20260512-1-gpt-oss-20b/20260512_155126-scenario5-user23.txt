@@ -1,0 +1,23 @@
+아래는 **Python**으로 구현한 퀵소트(`quicksort`) 함수입니다.  
+함수 내부 각 줄마다 **한 줄 주석**을 달아 주석이 어느 부분을 설명하는지 바로 알 수 있도록 했습니다.  
+필요에 따라 `__main__` 부분은 예시이며, 실제 사용 시 이 부분을 삭제해도 됩니다.
+
+```python
+def quicksort(arr):                              # 재귀적 퀵소트 함수, 배열 arr를 입력받음
+    if len(arr) <= 1:                            # 배열이 0개나 1개일 때 정렬 필요 없음
+        return arr                               # 그대로 반환
+    pivot = arr[len(arr) // 2]                   # 중간 값을 피벗으로 선택
+    left = [x for x in arr if x < pivot]          # 피벗보다 작은 값들
+    middle = [x for x in arr if x == pivot]       # 피벗과 같은 값들
+    right = [x for x in arr if x > pivot]         # 피벗보다 큰 값들
+    return quicksort(left) + middle + quicksort(right)  # 재귀 정렬 후 연결
+
+# ---------------------------------------------
+# 아래 예시 영역은 테스트용이며 필요 시 제거 가능
+# ---------------------------------------------
+import random                                      # random 모듈 임포트
+arr = [random.randint(1, 100) for _ in range(10)]  # 10개의 랜덤 정수 리스트 생성
+print("정렬 전:", arr)                             # 정렬 전 리스트 출력
+sorted_arr = quicksort(arr)                        # 퀵소트 실행
+print("정렬 후:", sorted_arr)                     # 정렬된 리스트 출력
+```

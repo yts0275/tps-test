@@ -1,0 +1,52 @@
+물론입니다! 아래는 Python으로 작성된 퀵소트(Quick Sort) 알고리즘 코드이며, 각 줄 마다 주석을 달아 설명했습니다. 퀵소트는 분할 정복(Divide and Conquer) 방식의 정렬 알고리즘으로, 기준 값(pivot)을 기준으로 데이터를 두 그룹으로 나누고 각각을 재귀적으로 정렬합니다.
+
+---
+
+### 🟢 퀵소트 Python 구현 + 주석
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 리스트가 비어 있거나 하나의 요소만 있는 경우, 그대로 반환 (재귀 종료 조건)
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(Pivot) 선택: 여기서는 리스트의 첫 번째 요소를 선택
+    pivot = arr[0]
+
+    # 피벗보다 작은 수를 담을 리스트
+    left = [x for x in arr[1:] if x < pivot]
+
+    # 피벗보다 큰 수를 담을 리스트
+    right = [x for x in arr[1:] if x >= pivot]
+
+    # 재귀적으로 왼쪽 리스트를 정렬하고, 피벗, 그리고 오른쪽 리스트를 합친 결과를 리턴
+    return quick_sort(left) + [pivot] + quick_sort(right)
+```
+
+---
+
+### 🔶 예제 사용
+
+```python
+# 예시 데이터
+data = [6, 2, 9, 1, 5, 3]
+
+# 퀵소트 실행
+sorted_data = quick_sort(data)
+
+# 정렬된 데이터 출력
+print("정렬 후:", sorted_data)
+```
+
+---
+
+### ✅ 출력 예시
+
+```
+정렬 후: [1, 2, 3, 5, 6, 9]
+```
+
+---
+
+필요하시면 이 퀵소트를 **파일로 저장하거나**, **파이썬 스크립트 파일**로 만드는 방법도 도와드릴 수 있어요! 😊

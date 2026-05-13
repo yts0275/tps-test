@@ -1,0 +1,62 @@
+물론입니다! 아래는 퀵소트(Quick Sort) 알고리즘의 Python 구현입니다. 각 줄마다 친절하게 주석을 다 놓았어요. 😊
+
+```python
+# 퀵소트를 실행할 파티션 함수
+def partition(arr, low, high):
+    # pivot은 마지막 원소로 선택
+    pivot = arr[high]
+    # i는 작거나 같은 원소의 위치를 나타내는 인덱스
+    i = low - 1
+
+    # low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 원소가 pivot보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i 증가 (작은 값들의 집합의 끝 위치를 가리킴)
+            i += 1
+            # arr[i]와 arr[j]를 교환
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 마지막으로 pivot 값을 올바른 위치로 이동 (i + 1 위치)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # pivot의 최종 위치 반환
+    return i + 1
+
+# 퀵소트 재귀 함수
+def quick_sort(arr, low, high):
+    # low가 high보다 작을 동안 (정렬 대상이 있을 때)
+    if low < high:
+        # 파티션을 수행하고, pivot의 인덱스를 얻음
+        pi = partition(arr, low, high)
+
+        # pivot을 기준으로 왼쪽 부분을 재귀 정렬
+        quick_sort(arr, low, pi - 1)
+        
+        # pivot을 기준으로 오른쪽 부분을 재귀 정렬
+        quick_sort(arr, pi + 1, high)
+
+# -------------------------------
+# 실제 실행 예시
+# -------------------------------
+# 정렬할 리스트
+arr = [10, 7, 8, 9, 1, 5]
+
+# quick_sort를 호출
+quick_sort(arr, 0, len(arr) - 1)
+
+# 정렬된 리스트 출력
+print("정렬된 배열:", arr)
+```
+
+### 결과 예시:
+```
+정렬된 배열: [1, 5, 7, 8, 9, 10]
+```
+
+### 간단한 설명:
+- 퀵소트는 **분할 정복**(Divide and Conquer) 알고리즘입니다.
+- `partition` 함수는 배열을 피벗(pivot) 기준으로 왼쪽은 낮은 값, 오른쪽은 높은 값으로 분할합니다.
+- 시간 복잡도는 평균적으로 `O(n log n)`이지만, 최악의 경우 `O(n²)`일 수 있습니다 (배열이 이미 정렬되어 있을 때 등).
+
+혹시 이해가 어려운 부분이 있으면 설명해 드릴게요! 😄

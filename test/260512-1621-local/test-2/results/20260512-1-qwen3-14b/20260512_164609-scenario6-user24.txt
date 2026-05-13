@@ -1,0 +1,17 @@
+<think>
+Okay, let's take a look at this code. First, I need to understand what each part does. The code starts by importing the datetime module, which is probably used for handling dates and times.
+
+Then there's a Product class. It has attributes like product_id, name, price, and stock. The update_stock method adjusts the stock quantity and returns a boolean indicating success or failure. The __str__ method formats the product details for display. So this class is for managing product information and stock levels.
+
+Next is the Order class. It has order details like order_id, customer name, items, total amount, and order date. The add_item method tries to reduce the product's stock and adds the item to the order if successful. The print_invoice method formats and prints the invoice with itemized list and total. This class handles creating orders and managing the order details.
+
+Then there's an InventoryManager class that manages a collection of products. It has methods to add products and display the inventory. The show_inventory method prints all products with their details.
+
+The run_system function initializes the inventory with some products, displays the initial stock, creates two orders (one successful, one that fails due to insufficient stock), and then shows the updated inventory and a total asset report. The main function runs this system when the script is executed.
+
+So putting it all together, this code is a simple inventory management system that handles product data, order processing with stock checks, and generates reports. The key features are tracking products, processing orders while checking stock availability, and generating invoices and reports.
+</think>
+
+1. **제품 관리 시스템**: `Product` 클래스는 제품 ID, 이름, 가격, 재고를 관리하며 재고 업데이트 기능을 포함합니다.  
+2. **주문 처리 기능**: `Order` 클래스는 주문 생성, 재고 감소 확인, 계산서 출력을 통해 주문 처리 및 재고 관리를 수행합니다.  
+3. **재고 및 자산 리포트**: `InventoryManager`와 `run_system`은 제품 재고를 관리하고, 주문 시나리오를 실행한 후 최종 재고와 자산 가치를 보고합니다.

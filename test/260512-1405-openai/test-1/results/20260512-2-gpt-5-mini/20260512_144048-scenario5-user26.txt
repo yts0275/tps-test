@@ -1,0 +1,30 @@
+아래는 파이썬으로 구현한 퀵소트이며, 각 코드 줄마다 한국어 주석을 달아두었습니다.
+
+```python
+def quicksort(arr, low=0, high=None):  # 배열을 제자리 정렬하는 퀵소트 함수 정의
+    if high is None:  # high가 주어지지 않으면 (최초 호출 시) 설정해 줌
+        high = len(arr) - 1  # 배열의 마지막 인덱스를 high로 설정
+    if low < high:  # 정렬할 구간에 원소가 2개 이상 있는지 확인
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗 위치를 반환
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 구간을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 구간을 재귀적으로 정렬
+    return arr  # 정렬된 배열(같은 객체)을 반환
+
+
+def partition(arr, low, high):  # 로무토(Lomuto) 분할 방식의 파티션 함수 정의
+    pivot = arr[high]  # 마지막 요소를 피벗으로 선택
+    i = low - 1  # 작은 요소들의 경계 인덱스를 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회하며 피벗과 비교
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 작은 요소들의 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 영역의 끝으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 영역의 바로 다음 위치로 이동
+    return i + 1  # 피벗의 최종 위치를 반환
+
+
+if __name__ == "__main__":  # 모듈을 직접 실행할 때 아래 코드가 동작하도록 함
+    data = [3, 6, 8, 10, 1, 2, 1]  # 예제용 정렬할 리스트 정의
+    print("정렬 전:", data)  # 정렬 전 상태 출력
+    quicksort(data)  # 퀵소트로 리스트를 제자리 정렬
+    print("정렬 후:", data)  # 정렬 후 상태 출력
+```

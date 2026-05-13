@@ -1,0 +1,23 @@
+아래는 퀵소트(Quick Sort)를 파이썬으로 구현한 예시이며, 각 줄마다 주석을 달아 설명을 추가했습니다.
+
+```python
+def quick_sort(arr):
+    # 배열의 길이가 1 이하이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    # 배열의 첫 번째 값을 pivot으로 선택
+    pivot = arr[0]
+    # pivot보다 작은 값들만 모아둔 리스트
+    less = [x for x in arr[1:] if x <= pivot]
+    # pivot보다 큰 값들만 모아둔 리스트
+    greater = [x for x in arr[1:] if x > pivot]
+    # 작은 값들 정렬 + pivot + 큰 값들 정렬을 결합하여 반환
+    return quick_sort(less) + [pivot] + quick_sort(greater)
+
+# 예시 사용
+numbers = [33, 10, 55, 71, 29, 5, 89]
+# 퀵소트 함수 호출 및 결과 출력
+print(quick_sort(numbers))
+```
+
+필요하시면 다른 언어 버전이나 다른 방식의 퀵소트도 보여드릴 수 있어요!

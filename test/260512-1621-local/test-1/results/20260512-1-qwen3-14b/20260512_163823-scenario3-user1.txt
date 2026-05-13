@@ -1,0 +1,76 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the main function. The function should take an array and its start and end indices. Wait, in Python, lists are passed by reference, but for the sake of the algorithm, I'll use indices to avoid modifying the original array. Oh, but in Python, the standard approach is to have the function return the sorted list. Hmm, maybe I should have a helper function that sorts a sublist in place, and then the main function calls that.
+
+Wait, the user didn't specify the programming language. Oh, the initial message was in Korean, but the code examples are usually in Python. Let me confirm that. The user might be expecting Python code. Let's proceed with Python.
+
+So, the quicksort function. The base case: if the array has zero or one element, return it. Then choose a pivot. Common choices are the first element, last, or middle. Let's pick the middle element for better performance on sorted arrays. Wait, but for simplicity, maybe the last element is easier. Let me think. The standard example uses the last element as pivot. Let's go with that for simplicity.
+
+Partitioning: create left and right lists. Iterate through the elements except the pivot, and put elements less than the pivot into left, others into right. Then recursively sort left and right, and concatenate.
+
+Wait, but in the standard in-place quicksort, it's done by swapping elements. However, the user might expect a more straightforward approach. Let's see. If the user wants a simple implementation without in-place modification, using list comprehensions is easier.
+
+So the steps would be:
+
+1. Check if the list is empty or has one element. Return it as is.
+2. Choose the pivot (e.g., last element).
+3. Partition into left (elements < pivot) and right (elements >= pivot).
+4. Recursively sort left and right.
+5. Combine them with the pivot in the middle.
+
+Now, adding comments to each line. Each line of the code should have a comment explaining what it does. Let me draft the code with comments.
+
+Wait, the user said "각 줄마다 주석을 달라" which means "put comments on each line." So each line of code should have a comment. That might be a bit verbose, but okay.
+
+Let me write the code step by step with comments. For example:
+
+def quicksort(arr):
+    # Base case: if the array has 0 or 1 elements, return it
+    if len(arr) <= 1:
+        return arr
+    # Choose the pivot (last element)
+    pivot = arr[-1]
+    # Partition the array into elements less than pivot and greater than or equal to pivot
+    left = [x for x in arr[:-1] if x < pivot]
+    right = [x for x in arr[:-1] if x >= pivot]
+    # Recursively sort the left and right partitions
+    return quicksort(left) + [pivot] + quicksort(right)
+
+But wait, the user might want the in-place version. Hmm, but the code above is a non-in-place version. However, the user didn't specify. The in-place version is more efficient but requires more complex code with indices. Let me check the user's request again: "퀵소트 구현을 하고, 각 줄마다 주석을 달라." So just implement quicksort with line comments. The non-in-place version is simpler and easier to comment line by line. Let's go with that.
+
+Now, adding comments to each line. For example, in the code above, each line has a comment. But the user might want even more detailed comments. Let me make sure each line has a comment, even if it's just stating what the line does.
+
+Another thing: the code uses list comprehensions for partitioning. That's concise but might be less efficient for large datasets, but for the purpose of explanation, it's acceptable.
+
+Testing the code with an example. Suppose the input is [3, 6, 8, 10, 1, 2, 1]. The code should sort it correctly.
+
+I think that's a solid approach. Now, I'll write the code with detailed line comments in Korean, as per the user's request.
+</think>
+
+```python
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우, 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피봇 선택: 배열의 마지막 요소를 피봇으로 선택
+    pivot = arr[-1]
+    
+    # 피봇보다 작은 요소를 담는 왼쪽 배열 생성
+    left = [x for x in arr[:-1] if x < pivot]
+    
+    # 피봇보다 큰 또는 같은 요소를 담는 오른쪽 배열 생성
+    right = [x for x in arr[:-1] if x >= pivot]
+    
+    # 왼쪽 배열을 재귀적으로 정렬하고, 피봇을 추가한 후 오른쪽 배열을 정렬하여 결합
+    return quicksort(left) + [pivot] + quicksort(right)
+```
+
+### 설명:
+- **기저 조건**: 배열의 요소가 0개 또는 1개일 때, 이미 정렬되어 있으므로 그대로 반환합니다.
+- **피봇 선택**: 배열의 마지막 요소를 피봇으로 선택합니다. 이 선택은 간단하지만, 다른 방법(예: 중앙 요소)도 가능합니다.
+- **배열 분할**: 피봇보다 작은 요소들은 `left` 배열에, 피봇보다 큰/같은 요소들은 `right` 배열에 분리합니다.
+- **재귀 정렬**: `left`와 `right` 배열을 각각 `quicksort` 함수로 재귀적으로 정렬한 후, 피봇을 중간에 배치하여 최종 배열을 구성합니다.
+
+이 구현은 원소를 복사하여 분할하는 방식을 사용하므로, 메모리 사용량이 다소 높지만, 이해하기 쉬운 방식입니다.

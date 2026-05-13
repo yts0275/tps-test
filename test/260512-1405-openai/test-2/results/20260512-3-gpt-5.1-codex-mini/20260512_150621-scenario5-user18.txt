@@ -1,0 +1,15 @@
+아래는 각 줄마다 주석을 단 퀵소트 구현 예시입니다.
+
+```python
+def quick_sort(arr):  # 리스트를 입력 받아 정렬된 리스트를 반환하는 함수를 정의합니다.
+    if len(arr) <= 1:  # 리스트의 길이가 1 이하이면 더 이상 분할할 필요가 없으므로 그대로 반환합니다.
+        return arr  # 조건에 맞으면 현재 리스트를 그대로 반환합니다.
+    pivot = arr[len(arr) // 2]  # 리스트의 가운데 값을 피벗으로 설정합니다.
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들을 모아서 왼쪽 리스트를 만듭니다.
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들을 모아서 가운데 리스트를 만듭니다.
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들을 모아서 오른쪽 리스트를 만듭니다.
+    return quick_sort(left) + middle + quick_sort(right)  # 좌우 리스트를 재귀적으로 정렬한 뒤 연결하여 반환합니다.
+
+sample = [3, 6, 8, 10, 1, 2, 1]  # 테스트할 샘플 리스트를 정의합니다.
+print(quick_sort(sample))  # 정렬된 결과를 출력합니다.
+```

@@ -1,0 +1,83 @@
+다음 워크플로우는 소프트웨어 엔지니어링 작업 흐름을 모델링한 것으로 보이며, 주로 코드 분석(CodeAnalyzer)과 코드 편집(Editor) 두 핵심 단계를 루프 형태로 반복하고 필요 시 보조 도구(swe_tool, code_analysis_tool, code_edit_tool, test_tool)를 호출하는 구조입니다. 각 노드의 흐름을 최대한 자세히 정리하면 아래와 같습니다.
+
+1) 노드 목록 및 기본 역할
+- start: 워크플로우의 시작점.
+- SoftwareEngineer: 워크플로우의 중앙 제어자 역할. 분석, 편집, 도구 사용 등의 경로를 선택해 흐름을 이끕니다.
+- CodeAnalyzer: 코드 분석 작업을 수행하는 주 흐름의 시작점. analyze_code 신호를 받아 분석 도구를 작동시키고, 분석이 끝난 결과를 Editor로 전달합니다.
+- Editor: 코드 편집과 연계된 작업을 책임지는 노드. CodeAnalyzer의 분석 결과를 토대로 파일 편집을 수행하고, 필요 시 테스트를 수행하는 tool들을 호출합니다.
+- code_analysis_tool: 실제 코드 분석을 수행하는 도구.
+- code_edit_tool: 실제 코드 편집을 수행하는 도구.
+- test_tool: 편집 후의 테스트를 수행하는 도구.
+- swe_tool: 소프트웨어 엔지니어링 관련 보조 도구(일종의 보조 작업). SoftwareEngineer가 선택적으로 사용할 수 있습니다.
+- end: 워크플로우의 종료점.
+
+2) 노드 간 흐름의 상세 설명
+- start → SoftwareEngineer
+  - 워크플로우의 진입점으로, SoftwareEngineer 노드로 제어가 넘어갑니다.
+
+- SoftwareEngineer의 진입 경로들
+  - analyze_code 경로: SoftwareEngineer에서 CodeAnalyzer로 진입합니다.
+    - 경로 표기 예: SoftwareEngineer --(analyze_code)--> CodeAnalyzer
+  - edit_file 경로: SoftwareEngineer에서 Editor로 진입합니다.
+    - 경로 표기 예: SoftwareEngineer --(edit_file)--> Editor
+  - continue 경로: SoftwareEngineer에서 swe_tool로 진입합니다.
+    - 경로 표기 예: SoftwareEngineer --(continue/continue-to-swe)--> swe_tool
+  - end로 바로 가는 경로도 다소 보이나 그림상 주 흐름은 위의 세 가지 중 하나를 선택하는 방식으로 보입니다.
+
+- CodeAnalyzer의 흐름
+  - 입력: analyze_code 신호를 받아 분석 작업을 시작합니다.
+  - code_analysis_tool 호출: CodeAnalyzer는 내부적으로 code_analysis_tool을 호출해 실제 코드 분석을 수행합니다.
+    - 경로 예: CodeAnalyzer --(invoke)--> code_analysis_tool
+  - 분석 결과 반영/루프: 분석이 완료되면 CodeAnalyzer로 돌아가게 하며, 보통은 Editor 쪽으로 진행 신호를 보냅니다.
+    - 주로 "done" 또는 "continue" 라벨이 붙은 경로로 Editor 쪽으로 흐름이 넘어갑니다.
+  - CodeAnalyzer ↔ Editor 간의 피드백 루프가 형성되어, 필요 시 Editor가 다시 편집/수정을 트리거할 수 있게 합니다.
+
+- code_analysis_tool의 흐름
+  - CodeAnalyzer로부터 입력을 받아 실제 분석 작업을 수행합니다.
+  - 완료 후 CodeAnalyzer로 제어가 돌아가거나, CodeAnalyzer에서 다음 단계로 넘어가게 됩니다.
+  - 이 흐름은 일반적으로 CodeAnalyzer가 다시 Editor로 제어를 넘겨주는 계단 역할을 합니다.
+
+- Editor의 흐름
+  - 입력: SoftwareEngineer의 edit_file 경로 혹은 CodeAnalyzer의 done(Binding된 완료 신호)을 받습니다.
+  - code_edit_tool 호출
+    - Editor는 코드 편집이 필요하면 code_edit_tool을 호출합니다.
+    - 경로 예: Editor --(continue)--> code_edit_tool
+  - test_tool 호출
+    - 편집 후 혹은 필요한 경우 editor는 test_tool을 호출해 테스트를 수행합니다.
+    - 경로 예: Editor --(continue)--> test_tool
+  - 도구들로부터의 복귀
+    - code_edit_tool 또는 test_tool의 작업이 끝나면 Editor로 돌아오게 되어, Editor에서 다시 편집/테스트를 반복하거나 다른 흐름으로 넘어갑니다.
+  - Editor의 루프 특징
+    - Editor는 code_edit_tool과 test_tool 사이를 오가며 반복 작업을 수행하는 루프의 중심 축으로 동작합니다.
+    - 필요 시 CodeAnalyzer로 재 진입해 재분석하는 흐름도 가능하도록 구성된 것으로 보입니다.
+
+- code_edit_tool, test_tool의 흐름
+  - 입력: Editor로부터 트리거를 받아 각각 편집 및 테스트 작업을 수행합니다.
+  - 출력: 작업 완료 후 Editor로 제어를 반환합니다.
+  - 이들 도구는 Editor와의 피드백 루프를 형성해 편집-테스트-재편집 같은 반복을 가능하게 합니다.
+
+- swe_tool의 흐름
+  - SoftwareEngineer에서 swe_tool로 진입하는 경로가 있습니다.
+  - swe_tool 수행 후 end로 흐름이 이어져 전체 워크플로우의 종료를 나타냅니다.
+  - 이는 분석/편집 루프와 무관하게, 보조 도구로서 독립적 종료 경로를 제공합니다.
+
+- end
+  - 모든 흐름의 최종 목적지로, 작업이 완료되어 흐름이 종료됩니다.
+
+3) 흐름의 특징 및 해석 포인트
+- 반복 루프 구조
+  - CodeAnalyzer ↔ Editor 간의 피드백 루프: 분석 → 편집/수정 → 재분석의 순환이 가능하도록 구성되어 있습니다.
+  - Editor ↔ code_edit_tool, test_tool 간의 루프: 편집과 테스트를 반복하는 구조를 갖추고 있습니다.
+- 선택지(분기)
+  - SoftwareEngineer는 분석, 편집, 또는 swe_tool 사용이라는 세 가지 경로로 흐름을 나눕니다. 사용자의 의도나 상황에 따라 각각의 루프를 시작합니다.
+- 도구 간 의존성
+  - 코드 분석은 code_analysis_tool에 의존하고, 편집은 code_edit_tool, 테스트는 test_tool에 의존합니다. 각 도구의 실행은 상위 노드(CodeAnalyzer 또는 Editor)의 제어 하에 이루어지며, 도구 종료 시 상위 노드로 제어가 반환됩니다.
+- 엔드로의 연결
+  - swe_tool 경로를 택하면 end로 직접 연결될 수 있는 반면, 분석/편집 루프는 end로 가기 전 Editor의 루프 및 CodeAnalyzer의 재분석 루프를 거쳐 종결될 수 있습니다.
+
+4) 요약
+- 이 워크플로우는 소프트웨어 엔지니어링의 일반적인 사이클(분석 → 편집 → 테스트)을 도구들(code_analysis_tool, code_edit_tool, test_tool)을 통해 구현하고, 필요시 swe_tool을 통한 보조 작업으로 최종 종료(end)에 도달하도록 설계되어 있습니다.
+- 핵심 제어 흐름의 중심은 SoftwareEngineer이며, CodeAnalyzer와 Editor 사이의 반복 루프가 주요 실행 경로를 구성합니다.
+- 도구 간의 연결은 주로 상위 노드에서 하위 도구를 호출하고, 작업이 끝나면 다시 상위 노드로 제어를 돌려보내는 형태의 피드백 루프를 형성합니다.
+
+필요하면 이 흐름을 기반으로 Graphviz/mermaid 포맷으로 다이어그램 코드를 만들어 드리거나, 각 간선의 라벨과 진입/퇴출 조건을 더 엄밀하게 표기해 드릴 수 있습니다.

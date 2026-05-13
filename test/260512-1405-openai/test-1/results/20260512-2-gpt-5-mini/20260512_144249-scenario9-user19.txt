@@ -1,0 +1,91 @@
+아래는 그림에 표현된 Workflow의 Node들과 그들 사이 흐름을 가능한 한 상세히 해석·서술한 내용입니다. 그림에서는 중심이 되는 역할(SoftwareEngineer)을 기준으로 여러 행동(분석, 편집, 툴 사용)과 이들 사이의 반복/선택 흐름이 연결되어 있습니다. 화살표의 유형(실선/점선)과 라벨을 참고하여 동작 의미(동기/비동기, 이벤트명 등)를 함께 설명합니다.
+
+요약 — 주요 노드
+- start: 워크플로우 시작점.
+- SoftwareEngineer: 워크플로우의 중앙 의사결정자/오케스트레이터(개발자).
+- CodeAnalyzer: 코드 분석 담당 노드(분석 작업을 수행하고 분석 툴을 호출).
+- Editor: 코드 편집/수정 담당 노드(편집 및 테스트 툴 호출).
+- swe_tool: SWE(소프트웨어 엔지니어링) 관련 별도 툴 노드(직접 호출 가능한 도구).
+- code_analysis_tool, code_edit_tool, test_tool: 각각 CodeAnalyzer와 Editor가 내부에서 호출하는 실제 도구(하위 작업).
+- end: 워크플로우 종료 지점.
+
+각 노드별 흐름과 의미
+1) start → SoftwareEngineer
+- 워크플로우 시작 후 제어는 SoftwareEngineer로 전달됩니다(시작점 → 중앙 역할).
+
+2) SoftwareEngineer의 가능한 분기(출발점)
+- SoftwareEngineer → CodeAnalyzer (라벨: "analyze_code")
+  - 개발자가 코드 분석을 시작하기 위해 CodeAnalyzer에 작업을 요청하는 경로.
+  - 점선/대시가 섞여 있으므로 이 전환은 선택적이거나 비동기적 트리거일 수 있음(즉, 반드시 매번 실행되는 루트는 아님).
+- SoftwareEngineer → Editor (라벨: "edit_file")
+  - 파일/코드 편집이 필요할 때 Editor로 이동하는 경로.
+- SoftwareEngineer → swe_tool (라벨: "continue")
+  - 개발자가 별도 SWE 툴을 사용하도록 직접 이동하는 경로. "continue" 라벨은 이 툴 사용이 워크플로우의 다음 단계로 이어질 수 있음을 의미.
+- SoftwareEngineer → end (라벨: "continue")
+  - 작업을 종료하는 경로. 개발자가 더 이상 작업을 진행하지 않고 워크플로우를 끝낼 때 선택.
+
+3) CodeAnalyzer 내부 흐름
+- CodeAnalyzer → code_analysis_tool (실선)
+  - CodeAnalyzer가 실제 코드 분석 툴을 호출하여 분석 작업을 수행(동기적/실제 작업 수행).
+- 종료/복귀 경로
+  - CodeAnalyzer → SoftwareEngineer (라벨: "done")
+    - 분석이 끝나면 결과를 SoftwareEngineer에게 반환(완료 이벤트).
+  - CodeAnalyzer → Editor (라벨: "continue", 점선)
+    - 분석 결과에 따라 편집이 필요하면 Editor로 이어질 수 있음(연속 흐름, 선택적).
+  - CodeAnalyzer와 Editor 사이에 상호 전환이 있음(분석 → 편집 → 재분석 등의 반복 가능).
+
+4) Editor 내부 흐름
+- Editor → code_edit_tool (실선)
+  - 편집(수정)을 수행하기 위해 편집 툴을 호출.
+- Editor → test_tool (실선, 점선 연결도 보임)
+  - 편집 후 테스트를 위해 테스트 도구를 실행하는 경로(테스트는 Editor가 직접 트리거하거나 병행해서 수행).
+- 종료/복귀 경로
+  - Editor → SoftwareEngineer (라벨: "done")
+    - 편집/테스트가 완료되었음을 SoftwareEngineer에게 알리고 제어를 반환.
+  - Editor → CodeAnalyzer (라벨: "continue", 점선)
+    - 편집 결과를 다시 분석해야 하면 CodeAnalyzer로 이어짐(수정 후 재분석 루프).
+  - Editor와 CodeAnalyzer 사이의 점선 화살표들은 편집·분석의 반복(iteration)을 명시(에디트 후 분석 또는 분석 후 편집 반복).
+
+5) swe_tool 노드
+- SoftwareEngineer → swe_tool (라벨: "continue")
+  - 개발자가 직접 해당 도구를 사용. 툴 사용 후 별도 경로(화살표)가 SoftwareEngineer로 복귀하거나 바로 end로 이어질 수 있음(그림상은 점선으로 이어지는 흐름).
+- swe_tool는 독립적인 툴 단계로서 다른 노드(Analyzer/Editor)와 달리 단일 목적의 도구 호출을 의미.
+
+6) end
+- 여러 노드(주로 SoftwareEngineer에서)로부터 "continue" 라벨로 도달 가능.
+- 워크플로우의 정상 종료 지점.
+
+반복과 루프(흐름의 동작 예)
+- 전형적 반복 시나리오(분석 → 편집 → 재분석 → 완료)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer → CodeAnalyzer (analyze_code)
+  3. CodeAnalyzer → code_analysis_tool (분석 실행)
+  4. CodeAnalyzer → Editor (continue: 분석 결과로 수정이 필요)
+  5. Editor → code_edit_tool (편집 실행)
+  6. Editor → test_tool (편집 후 테스트)
+  7. Editor → CodeAnalyzer (continue: 수정본 재분석)
+  8. CodeAnalyzer → SoftwareEngineer (done: 분석 완료, 더 이상 수정 불필요)
+  9. SoftwareEngineer → end (continue: 작업 종료)
+- 단일 단계 시나리오(툴 사용 또는 즉시 종료)
+  - start → SoftwareEngineer → swe_tool → (돌아오거나) end
+  - start → SoftwareEngineer → end
+
+화살표 유형과 의미(그림 기반 해석)
+- 실선 화살표(예: CodeAnalyzer → code_analysis_tool, Editor → code_edit_tool/test_tool)
+  - 실제 작업 호출(동기적이거나 명시된 작업 수행).
+- 점선/대시 화살표(예: SoftwareEngineer → CodeAnalyzer/Editor/swe_tool, CodeAnalyzer ↔ Editor)
+  - 선택적·비동기적 전환 또는 이벤트 기반 흐름. 즉, 조건(분석 필요 여부, 수정 필요 여부)에 따라 실행되는 분기.
+- 라벨("analyze_code", "edit_file", "done", "continue")는 이벤트/액션 이름으로 동작의 의도를 설명:
+  - analyze_code: 분석 요청
+  - edit_file: 편집 요청
+  - done: 작업 완료 알림(결과 반환)
+  - continue: 다음 단계로의 선택적 진행(또는 종료로 이어질 수 있는 흐름)
+
+추가 관찰/설명
+- SoftwareEngineer는 중앙 오케스트레이터로서 분석, 편집, 툴 직접 사용, 종료를 결정.
+- CodeAnalyzer와 Editor는 서로 상호작용하며 반복(analysis ↔ edit ↔ test)을 통해 코드 품질을 개선하는 루프를 형성.
+- code_analysis_tool, code_edit_tool, test_tool은 각각의 노드가 실제 작업을 수행하기 위해 호출하는 외부/내부 도구(구성 요소).
+- 점선으로 표시된 연결이 많으므로 이 워크플로우는 실무에서 조건부, 이벤트 기반, 사용자 결정에 따라 달라지는 유연한 흐름임을 의미.
+
+결론 (작업 흐름을 한 문장으로)
+- 워크플로우는 SoftwareEngineer가 시작점으로 코드 분석(CodeAnalyzer→code_analysis_tool)과 편집(Editor→code_edit_tool/test_tool)을 필요에 따라 번갈아 호출하면서 반복적으로 개선하고(Analysis ↔ Edit 루프), 필요시 swe_tool을 사용하거나 작업을 종료(end)하는 형태로 구성되어 있다.

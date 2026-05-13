@@ -1,0 +1,29 @@
+아래는 **퀵소트(Quick Sort)** 구현 예시와, **각 줄마다 주석**을 단 버전입니다. (파이썬)
+
+```python
+def quicksort(arr, left, right):  # 퀵소트 함수 정의: arr 배열, left 시작 인덱스, right 끝 인덱스
+    if left >= right:  # 원소가 0개 또는 1개면 이미 정렬 완료(재귀 종료 조건)
+        return  # 재귀 종료
+
+    pivot = arr[right]  # 피벗(기준값)을 오른쪽 원소로 설정
+    i = left - 1  # i는 피벗보다 작은 영역의 끝을 가리키는 포인터(초기값은 left - 1)
+
+    for j in range(left, right):  # j를 left부터 right-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗 이하이면
+            i += 1  # 작은 값들이 모이는 영역을 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j 위치의 값을 교환(작은 값 영역으로 이동)
+
+    arr[i + 1], arr[right] = arr[right], arr[i + 1]  # 피벗을 올바른 위치(i+1)로 이동
+    pivot_index = i + 1  # 피벗이 최종 자리로 이동한 인덱스 저장
+
+    quicksort(arr, left, pivot_index - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+    quicksort(arr, pivot_index + 1, right)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+
+# 사용 예시
+data = [10, 7, 8, 9, 1, 5]  # 정렬할 배열 선언
+quicksort(data, 0, len(data) - 1)  # 퀵소트 실행(전체 범위: 0 ~ 마지막 인덱스)
+print(data)  # 정렬 결과 출력
+```
+
+원하시면 **자바/자바스크립트/C++/C** 버전으로도 “각 줄 주석” 맞춰서 작성해드릴게요. 어떤 언어로 할까요?

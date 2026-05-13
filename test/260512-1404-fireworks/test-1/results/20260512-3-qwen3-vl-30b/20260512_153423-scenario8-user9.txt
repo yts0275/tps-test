@@ -1,0 +1,113 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 모든 노드와 연결선을 기반으로 한, 최대한 상세한 흐름 설명입니다.
+
+---
+
+### **1. 전체적인 흐름 개요**
+이 워크플로우는 소프트웨어 엔지니어의 작업을 모델링한 시스템으로, **"SoftwareEngineer"** 라는 주요 역할을 중심으로 코드 분석, 편집, 테스트 등의 작업을 수행합니다. 이는 반복적이고 조건부로 진행되는 작업 흐름을 나타내며, 다양한 도구(Tool)를 사용하는 자동화된 개발 프로세스를 상상할 수 있습니다.
+
+---
+
+### **2. 노드별 상세 설명 및 흐름 분석**
+
+#### **2.1. `start` (시작 노드)**
+- **기능**: 워크플로우의 시작점을 나타냅니다.
+- **흐름**: `start` 노드는 단 하나의 연결선을 통해 `SoftwareEngineer` 노드로 흐릅니다.
+- **의미**: 시스템이 실행을 시작하고, 첫 번째 작업을 수행하는 주체인 **SoftwareEngineer**에게 제어권을 넘깁니다.
+
+---
+
+#### **2.2. `SoftwareEngineer` (핵심 역할 노드)**
+- **기능**: 워크플로우의 중심 역할로, 코드 분석, 편집, 테스트 등의 작업을 조정하고 실행하는 주체입니다.
+- **입력**: `start`에서 시작됨.
+- **출력**: `SoftwareEngineer`는 세 가지 주요 작업을 수행할 수 있으며, 각각의 작업은 별도의 노드로 분리되어 있습니다. 또한, 작업이 완료되면 다시 `SoftwareEngineer`로 제어가 돌아옵니다.
+
+##### **2.2.1. `SoftwareEngineer` → `CodeAnalyzer` (분석 시작)**
+- **조건**: `analyze_code` 이벤트 또는 명령이 발생하면, `SoftwareEngineer`는 `CodeAnalyzer` 노드로 제어를 넘깁니다.
+- **의미**: 코드 분석 작업을 시작합니다. `SoftwareEngineer`는 분석 도구를 호출하고, 결과를 기다립니다.
+
+##### **2.2.2. `SoftwareEngineer` → `Editor` (편집 시작)**
+- **조건**: `edit_file` 이벤트 또는 명령이 발생하면, `SoftwareEngineer`는 `Editor` 노드로 제어를 넘깁니다.
+- **의미**: 파일 편집 작업을 시작합니다. `SoftwareEngineer`는 편집 도구를 호출하고, 변경 사항을 처리합니다.
+
+##### **2.2.3. `SoftwareEngineer` → `swe_tool` (보조 도구 실행)**
+- **조건**: `swe_tool` 실행을 요청하면, `SoftwareEngineer`는 `swe_tool` 노드로 제어를 넘깁니다.
+- **의미**: 특정 도구(예: 소프트웨어 엔지니어링 도구)를 실행합니다. 이는 분석이나 편집과 별개의 보조 작업일 수 있습니다.
+
+##### **2.2.4. `SoftwareEngineer` ← `CodeAnalyzer` (분석 완료)**
+- **조건**: `CodeAnalyzer` 노드가 `done` 이벤트를 보냄.
+- **의미**: 코드 분석이 완료되었으며, 결과를 `SoftwareEngineer`가 수신합니다. 이후 `SoftwareEngineer`는 다음 작업(예: 편집)을 결정합니다.
+
+##### **2.2.5. `SoftwareEngineer` ← `Editor` (편집 완료)**
+- **조건**: `Editor` 노드가 `done` 이벤트를 보냄.
+- **의미**: 파일 편집이 완료되었으며, 결과를 `SoftwareEngineer`가 수신합니다. 이후 `SoftwareEngineer`는 다음 작업을 결정합니다.
+
+##### **2.2.6. `SoftwareEngineer` ← `swe_tool` (도구 실행 완료)**
+- **조건**: `swe_tool` 노드가 완료되면, `SoftwareEngineer`로 제어가 돌아옵니다.
+- **의미**: 보조 도구 실행이 완료되었으며, 결과를 `SoftwareEngineer`가 수신합니다.
+
+##### **2.2.7. `SoftwareEngineer` → `SoftwareEngineer` (반복 실행)**
+- **조건**: `continue` 이벤트가 발생하면, `SoftwareEngineer`는 자신에게 다시 제어를 넘깁니다.
+- **의미**: 작업이 완료된 후, **반복적으로 작업을 계속**할 수 있음을 나타냅니다. 예를 들어, 분석 후 수정 후 다시 분석하는 반복적인 루프를 의미할 수 있습니다.
+
+---
+
+#### **2.3. `CodeAnalyzer` (코드 분석 노드)**
+- **기능**: 코드를 분석하는 역할을 수행합니다.
+- **입력**: `SoftwareEngineer`로부터 `analyze_code` 명령을 받음.
+- **출력**:
+  - `code_analysis_tool`: 실제 분석 도구를 호출합니다. (예: static analyzer, linter 등)
+  - `done`: 분석이 완료되면 `SoftwareEngineer`로 `done` 이벤트를 보냄.
+  - `continue`: 분석 후 추가 작업이 필요하면 `SoftwareEngineer`로 `continue` 이벤트를 보냄.
+
+##### **2.3.1. `CodeAnalyzer` → `code_analysis_tool`**
+- **기능**: 실제 코드 분석 도구를 호출합니다.
+- **의미**: `CodeAnalyzer`는 내부적으로 `code_analysis_tool`을 실행하여 코드의 문제점을 탐지합니다.
+
+##### **2.3.2. `CodeAnalyzer` ← `code_analysis_tool`**
+- **의미**: 분석 도구의 결과를 수신하고, 이를 바탕으로 `done` 또는 `continue` 이벤트를 `SoftwareEngineer`로 보냅니다.
+
+---
+
+#### **2.4. `Editor` (편집 노드)**
+- **기능**: 파일을 편집하는 역할을 수행합니다.
+- **입력**: `SoftwareEngineer`로부터 `edit_file` 명령을 받음.
+- **출력**:
+  - `code_edit_tool`: 실제 편집 도구를 호출합니다. (예: IDE, text editor 등)
+  - `test_tool`: 편집 후 테스트를 실행합니다. (또는 테스트 도구를 호출)
+  - `done`: 편집이 완료되면 `SoftwareEngineer`로 `done` 이벤트를 보냄.
+  - `continue`: 편집 후 추가 작업이 필요하면 `SoftwareEngineer`로 `continue` 이벤트를 보냄.
+
+##### **2.4.1. `Editor` → `code_edit_tool`**
+- **기능**: 코드 편집 도구를 호출합니다.
+- **의미**: `Editor`는 `code_edit_tool`을 사용하여 파일을 수정합니다.
+
+##### **2.4.2. `Editor` → `test_tool`**
+- **기능**: 테스트 도구를 호출합니다.
+- **의미**: 편집 후 코드의 동작을 검증하기 위해 `test_tool`을 실행합니다.
+
+##### **2.4.3. `Editor` ← `code_edit_tool`**
+- **의미**: 편집 도구의 결과를 수신하고, 이를 바탕으로 `done` 또는 `continue` 이벤트를 `SoftwareEngineer`로 보냅니다.
+
+##### **2.4.4. `Editor` ← `test_tool`**
+- **의미**: 테스트 도구의 결과를 수신하고, 테스트가 통과했는지 여부를 판단하여 `done` 또는 `continue` 이벤트를 `SoftwareEngineer`로 보냅니다.
+
+---
+
+#### **2.5. `code_analysis_tool` (코드 분석 도구)**
+- **기능**: 실제 코드 분석을 수행하는 도구.
+- **입력**: `CodeAnalyzer`로부터 호출됨.
+- **출력**: 결과를 `CodeAnalyzer`로 반환 (직접적인 연결은 없음, `CodeAnalyzer`가 결과를 수신).
+- **의미**: 외부 도구로서, `CodeAnalyzer`의 요청을 받아 코드를 분석합니다.
+
+---
+
+#### **2.6. `code_edit_tool` (코드 편집 도구)**
+- **기능**: 실제 코드 편집을 수행하는 도구.
+- **입력**: `Editor`로부터 호출됨.
+- **출력**: 결과를 `Editor`로 반환 (직접적인 연결은 없음, `Editor`가 결과를 수신).
+- **의미**: 외부 도구로서, `Editor`의 요청을 받아 파일을 수정합니다.
+
+---
+
+#### **2.7. `test_tool` (테스트 도구)**
+- **기능**: 코드 테

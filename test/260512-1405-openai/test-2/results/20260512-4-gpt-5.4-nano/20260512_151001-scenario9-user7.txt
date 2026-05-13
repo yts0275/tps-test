@@ -1,0 +1,119 @@
+이미지에 나온 Workflow는 **start → SoftwareEngineer(중앙 제어/오케스트레이션) → 여러 보조 Node 실행(코드 분석/편집/테스트/도구 호출) → end**의 형태로 이어집니다. 아래는 각 Node와 화살표 흐름(조건/반복 포함)을 최대한 상세히 풀어쓴 설명입니다.
+
+---
+
+## 1) 시작: `start`
+- 워크플로우가 `start` 노드에서 출발합니다.
+- 곧바로 중앙 노드인 **`SoftwareEngineer`**로 이동합니다.
+
+---
+
+## 2) 중앙 제어 노드: `SoftwareEngineer`
+- `SoftwareEngineer`는 사실상 **전체 작업의 메인 오케스트레이터** 역할을 합니다.
+- 이 노드는 여러 하위 작업 노드로 “분기(요청)”를 내리고,
+- 하위 노드가 완료되면 다시 `SoftwareEngineer`로 “결과 복귀/다음 단계 판단”을 합니다.
+- 이미지에서 `SoftwareEngineer`는 다음 노드들과 연결되어 있습니다:
+  - `CodeAnalyzer`
+  - `Editor`
+  - `swe_tool`
+- 또한 `continue`, `done`, `edit_file`, `analyze_code` 같은 라벨이 반복/진행 조건을 암시합니다.
+  - 즉, 하위 노드가 수행된 뒤 `SoftwareEngineer`가 “계속할지(continue) / 끝낼지(done/end)”를 판단하는 구조입니다.
+
+---
+
+## 3) 코드 분석 루프: `CodeAnalyzer` 경로
+### 3-1. `SoftwareEngineer` → `CodeAnalyzer` 요청
+- `SoftwareEngineer`에서 좌측으로 이어지는 흐름이 **`CodeAnalyzer`**로 향합니다.
+- 이때 상단 좌측 방향 라벨이 **`analyze_code`**로 표시되어 있어,
+  - “코드를 분석하라”는 요청이 내려가는 단계로 해석됩니다.
+
+### 3-2. `CodeAnalyzer` → `code_analysis_tool`
+- `CodeAnalyzer` 노드 아래에는 **`code_analysis_tool`** 이라는 실행 도구가 연결되어 있습니다.
+- 의미상:
+  1) `CodeAnalyzer`가 분석 작업을 준비(분석 범위/입력 코드 지정)
+  2) 실제 분석은 `code_analysis_tool`이 수행
+
+### 3-3. `code_analysis_tool` 완료 → `CodeAnalyzer`
+- `code_analysis_tool` 실행이 끝나면, 그 결과가 `CodeAnalyzer`로 돌아옵니다.
+- 이미지에는 `CodeAnalyzer`에서 나오는 화살표에 **`done`** 라벨이 보입니다.
+- 해석:
+  - 코드 분석이 완료되었고,
+  - 결과를 `SoftwareEngineer`로 전달하거나(또는 다음 상태로 전환) 이후 처리로 넘어갑니다.
+
+### 3-4. `CodeAnalyzer` → `SoftwareEngineer` 복귀 후 `continue`
+- `CodeAnalyzer`에서 `done` 표시와 함께 `SoftwareEngineer`로 연결된 흐름이 있으며,
+- 그 옆에는 **`continue`** 라벨이 관찰됩니다.
+- 의미:
+  - 분석 결과를 바탕으로 “다음 단계(편집 또는 추가 분석/반복)가 필요하므로 계속한다”는 상태 전이가 일어납니다.
+  - 즉, 첫 분석 후 곧바로 끝나는 것이 아니라, `Editor`나 `swe_tool` 쪽으로 이어질 가능성을 시사합니다.
+
+---
+
+## 4) 코드 편집 루프: `Editor` 경로
+### 4-1. `SoftwareEngineer` → `Editor` 요청
+- `SoftwareEngineer`에서 중앙 아래/중앙으로 이어지는 흐름이 **`Editor`**로 이어집니다.
+- 위쪽 화살표 라벨이 **`edit_file`**로 표시되어 있어,
+  - “코드(파일)를 수정하라”는 요청 단계로 볼 수 있습니다.
+
+### 4-2. `Editor` → (내부) `code_edit_tool`
+- `Editor` 노드 아래에는 **`code_edit_tool`**이 연결되어 있습니다.
+- 의미상 흐름:
+  1) `Editor`가 어떤 파일/어떤 부분을 수정해야 하는지 결정
+  2) 실제 변경은 `code_edit_tool`이 수행
+  3) 수정 결과(변경된 코드/패치 내용)가 `Editor`로 돌아옴
+
+### 4-3. 편집 완료 후 `Editor` → `SoftwareEngineer` 또는 다음 도구로
+- 이미지에서 `Editor` 노드의 바깥쪽으로 **`done` / `continue`** 라벨들이 보입니다.
+- 이는 편집이 완료되면:
+  - `SoftwareEngineer`로 상태를 되돌려 “이제 테스트를 할지” 또는 “추가 분석/수정 반복이 필요한지”를 판단하거나,
+  - 바로 테스트 쪽으로 전환하는 구조일 가능성이 큽니다.
+
+---
+
+## 5) 테스트 단계: `test_tool` 경로 (Editor와의 연결)
+### 5-1. `Editor` → `test_tool` 요청
+- 가운데에는 `Editor`에서 하단으로 이어지는 화살표가 **`test_tool`**로 연결되어 있습니다.
+- 라벨로 보이진 않지만, 구조상 일반적으로:
+  - 수정된 코드를 검증하기 위해 테스트 수행
+
+### 5-2. 테스트 완료 → `Editor` 또는 `SoftwareEngineer`로 복귀
+- `test_tool`이 완료되면 결과가 다시 상위 노드(대개 `Editor` 또는 `SoftwareEngineer`)로 되돌아갑니다.
+- 이때 `continue` 라벨이 등장하는 패턴이 있어서,
+  - 테스트가 실패하면 다시 분석(`CodeAnalyzer`) → 편집(`Editor`) 같은 루프가 돌고,
+  - 테스트가 성공하면 다음 단계(`swe_tool` 또는 `end`)로 넘어갈 수 있습니다.
+
+---
+
+## 6) `swe_tool` 경로 (마무리/도움 도구)
+### 6-1. `SoftwareEngineer` → `swe_tool` 호출
+- 오른쪽에 있는 **`swe_tool`** 노드는 `SoftwareEngineer`와 연결되어 있으며,
+- 이미지에서 `SoftwareEngineer`에서 `swe_tool`로 향하는 흐름에 점선/루프 형태와 함께 **`continue`** 같은 흐름 표시가 보입니다.
+
+### 6-2. `swe_tool` 완료 → `end`
+- `swe_tool` 노드에서 오른쪽으로 **`end`** 노드로 연결되는 흐름이 존재합니다.
+- 의미:
+  - 최종적으로 문제 해결/작업 완료를 위해 `swe_tool`로 마무리 작업(예: 최종 패치 정리, 브랜치/PR 준비, 결과 생성 등)을 수행한 뒤 종료합니다.
+
+---
+
+## 7) 종료: `end`
+- `end` 노드는 워크플로우의 최종 종료 지점입니다.
+- 이미지에서는 여러 경로에서 `end`로 바로 또는 간접적으로 이어지는 점선이 관찰되어,
+  - 특정 조건(예: 테스트 통과, 또는 더 이상의 수정 불필요)이 만족되면 곧바로 `end`로 빠져나가는 구조임을 시사합니다.
+
+---
+
+## 8) 전체를 한 줄로 요약한 “반복 구조” 관점
+이 Workflow는 대략 아래와 같은 사이클을 가질 가능성이 큽니다.
+
+1. `start`  
+2. `SoftwareEngineer`가 작업 상태를 보고  
+3. 필요하면 `CodeAnalyzer`를 통해 `code_analysis_tool` 실행(→ done/continue)  
+4. 수정 필요하면 `Editor`가 `code_edit_tool` 실행(→ done/continue)  
+5. 수정 후 `test_tool`로 검증  
+6. 조건이 맞으면 `swe_tool`로 마무리 후 `end`  
+7. 조건이 안 맞으면 다시 분석/편집을 반복(continue)
+
+---
+
+원하시면, 제가 **각 화살표의 라벨(`continue`, `done`, `analyze_code`, `edit_file`)이 “성공/실패/다음 루프 진입” 중 무엇을 의미하는지**를, 이미지에 보이는 위치 기준으로 더 엄격하게(예: 어떤 done이 어떤 루프로 이어지는지) 단계별 매핑 형태로 재구성해 드릴까요?

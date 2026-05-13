@@ -1,0 +1,78 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the subarrays.
+
+First, I need to write the partition function. The partition function selects a pivot, usually the last element in this case. Then, it moves all elements smaller than the pivot to the left and larger ones to the right. The pivot is placed at its correct position.
+
+Wait, in the code example, the pivot is chosen as the last element. So in the partition function, I'll have to iterate through the array, compare each element with the pivot, and swap accordingly. The variable 'i' keeps track of the position where elements less than the pivot are placed.
+
+Then, the quicksort function itself. It checks if the array has more than one element. If so, it calls the partition function to get the pivot index. Then it recursively sorts the left and right subarrays.
+
+Now, adding comments to each line. For the partition function, explain each step: choosing the pivot, initializing the index, looping through the array, swapping elements, and finally placing the pivot in the correct position.
+
+In the quicksort function, comments should explain the base case, the partitioning step, and the recursive calls. Also, note that the pivot is chosen as the last element.
+
+Wait, should I mention that the time complexity is O(n log n) on average but O(n²) in the worst case? Maybe not in the comments, but the user might appreciate a note about that. However, the user specifically asked for comments on each line, so maybe just focus on the code structure.
+
+Also, make sure the code is in Python. The user didn't specify the language, but since it's a common request, Python is a safe choice. Using list comprehensions or other features might complicate things, so stick to basic Python syntax.
+
+Testing the code with an example array would be helpful, but the user didn't ask for that. Just the implementation with comments. Alright, putting it all together with line-by-line comments.
+</think>
+
+다음은 퀵소트(QuickSort) 알고리즘의 Python 구현입니다. 각 줄에 주석을 달아 설명을 제공합니다:
+
+```python
+def quicksort(arr):
+    # 배열의 길이가 1 이하인 경우 정렬이 필요 없으므로 배열 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택합니다. 여기서는 배열의 마지막 요소를 피벗으로 선택
+    pivot = arr[-1]
+
+    # 피벗보다 작은 요소들을 담을 왼쪽 배열
+    left = []
+    # 피벗보다 큰 요소들을 담을 오른쪽 배열
+    right = []
+
+    # 배열의 모든 요소를 순회하며 피벗과 비교
+    for i in range(len(arr) - 1):
+        if arr[i] < pivot:
+            # 요소가 피벗보다 작으면 왼쪽 배열에 추가
+            left.append(arr[i])
+        else:
+            # 요소가 피벗보다 크거나 같으면 오른쪽 배열에 추가
+            right.append(arr[i])
+
+    # 재귀적으로 왼쪽 배열과 오른쪽 배열을 정렬하고, 피벗을 중간에 넣어 합쳐 최종 배열을 반환
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 예시 사용
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quicksort(arr)
+print("정렬된 배열:", sorted_arr)
+```
+
+### 주석 설명:
+1. `quicksort(arr)` 함수:
+   - 배열의 길이가 1 이하일 경우, 정렬이 필요 없으므로 그대로 반환합니다.
+   - 피벗을 선택하고, 배열을 왼쪽(피벗보다 작은 요소)과 오른쪽(피벗보다 큰 요소)으로 분할합니다.
+   - 분할된 배열을 재귀적으로 정렬한 후, 피벗을 중앙에 넣어 전체 배열을 반환합니다.
+
+2. `pivot = arr[-1]`:
+   - 배열의 마지막 요소를 피벗으로 선택합니다. 이는 퀵소트의 일반적인 구현 방법 중 하나입니다.
+
+3. `for i in range(len(arr) - 1)`:
+   - 배열의 마지막 요소(피벗)를 제외한 나머지 요소를 순회합니다.
+
+4. `left.append(arr[i])` / `right.append(arr[i])`:
+   - 각 요소를 피벗과 비교하여 왼쪽 또는 오른쪽 배열에 넣습니다.
+
+5. `return quicksort(left) + [pivot] + quicksort(right)`:
+   - 재귀적으로 왼쪽과 오른쪽 배열을 정렬하고, 피벗을 중간에 삽입하여 최종 정렬된 배열을 반환합니다.
+
+### 시간 복잡도:
+- **평균 시간 복잡도**: $O(n \log n)$
+- **최악의 경우**: $O(n^2)$ (예: 이미 정렬된 배열에서 피벗을 항상 마지막 요소로 선택하는 경우)
+- **공간 복잡도**: $O(n)$ (재귀 호출 스택과 추가 배열을 사용)
+
+이 구현은 **재귀적 퀵소트**로, 파이썬의 리스트 조작 기능을 활용하여 간결하게 작성되었습니다.

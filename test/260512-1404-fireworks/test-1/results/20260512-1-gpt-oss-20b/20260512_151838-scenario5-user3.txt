@@ -1,0 +1,12 @@
+```python
+# QuickSort를 재귀적으로 구현한 예시
+# 각 라인마다 주석으로 그 기능을 설명했습니다.
+
+def quicksort(arr):  # 정수 리스트 arr를 입력받아 정렬된 리스트를 반환
+    if len(arr) <= 1:  # 리스트 길이가 0 혹은 1이면 이미 정렬이 끝났으므로 그대로 반환
+        return arr
+    pivot = arr[0]  # 가장 첫 번째 원소를 피벗으로 선택
+    less = [x for x in arr[1:] if x <= pivot]  # 피벗보다 작거나 같은 값들을 모은 리스트
+    greater = [x for x in arr[1:] if x > pivot]  # 피벗보다 큰 값들을 모은 리스트
+    return quicksort(less) + [pivot] + quicksort(greater)  # 재귀적으로 정렬된 좌우 리스트와 피벗을 합쳐 최종 정렬 결과를 반환
+```

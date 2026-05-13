@@ -1,0 +1,33 @@
+제시된 워크플로우는 전체적으로 SoftwareEngineer를 중심으로 여러 도구와의 상호작용을 모델링한 흐름입니다. 각 노드와 연결 관계를 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   워크플로우는 start 노드에서 출발하여 SoftwareEngineer 노드로 진입합니다. 이는 소프트웨어 엔지니어가 작업을 시작하는 지점을 나타냅니다.
+
+2. **SoftwareEngineer → CodeAnalyzer** (`analyze_code`)  
+   SoftwareEngineer는 `analyze_code`라는 흐름을 통해 CodeAnalyzer 노드로 이동합니다. 여기서 코드를 분석하기 위한 별도의 도구나 단계가 개입됩니다.  
+   - **CodeAnalyzer → code_analysis_tool**  
+     CodeAnalyzer는 내부적으로 `code_analysis_tool`을 호출하여 구성 요소 또는 실제 분석 도구와 상호작용합니다.
+
+3. **CodeAnalyzer → SoftwareEngineer** (`done`)  
+   분석이 완료되면 `done` 경로를 통해 다시 SoftwareEngineer에게 돌아옵니다. 이 단계에서는 분석 결과를 기반으로 다음 작업(수정 등)을 결정하게 됩니다.
+
+4. **SoftwareEngineer → Editor** (`edit_file`)  
+   SoftwareEngineer는 `edit_file` 경로를 통해 Editor 노드로 이동합니다. 이는 분석 결과를 바탕으로 실제 코드 수정을 하기 위한 단계입니다.  
+   - **Editor → code_edit_tool**  
+     수정을 위해 `code_edit_tool`을 호출하는 흐름이 존재하며, 코드를 편집하는 도구나 환경에 접근합니다.  
+   - **Editor → test_tool**  
+     추가로 `test_tool`과의 관계가 있어 편집 이후 테스트를 수행하는 단계도 포함됩니다.
+
+5. **Editor → SoftwareEngineer** (`done`)  
+   편집 작업이 끝나면 `done` 경로로 SoftwareEngineer에게 반환됩니다. 수정 결과를 다시 확인하거나 다음 작업으로 넘어갈 수 있습니다.
+
+6. **SoftwareEngineer → swe_tool** (`continue`)  
+   SoftwareEngineer는 `continue` 흐름을 통해 swe_tool(Software Engineer Tool)로 이동합니다. 이는 추가 작업이나 자동화된 도구를 활용하는 단계를 나타냅니다.
+
+7. **swe_tool → end**  
+   swe_tool에서 작업을 마무리하고 워크플로우를 종료하기 위해 end로 이동합니다. 이는 전체 작업이 종료되는 지점입니다.
+
+8. **SoftwareEngineer → end** (`continue`)  
+   또는 SoftwareEngineer가 바로 `continue` 경로로 end 노드로 연결되어 작업을 직접 종료할 수도 있습니다.
+
+요약하면, Workflow는 SoftwareEngineer가 시작점이며, 코드 분석을 위해 CodeAnalyzer로 이동한 뒤 Editor에서 편집 및 테스트를 수행한 뒤 다시 SoftwareEngineer로 돌아옵니다. 이후 swe_tool을 거쳐 종료하거나 바로 종료할 수 있습니다. 각 도구 노드는 특정 기능(분석, 편집, 테스트)을 수행하며, 이를 통해 전체 개발 사이클을 구성합니다.

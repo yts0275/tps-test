@@ -1,0 +1,24 @@
+다음은 파이썬으로 작성한 퀵소트(in-place) 구현입니다. 각 줄마다 주석을 달았습니다.
+
+def quicksort_inplace(arr):  # 인-플레이스 방식의 퀵소트 시작점
+    def _quicksort(a, low, high):  # 재귀적으로 정렬하는 내부 함수
+        if low < high:  # 현재 구간에 2개 이상 원소가 있는지 확인
+            p = partition(a, low, high)  # 분할 위치를 얻음
+            _quicksort(a, low, p - 1)  # 피벗 좌측 부분 재귀적으로 정렬
+            _quicksort(a, p + 1, high)  # 피벗 우측 부분 재귀적으로 정렬
+    def partition(a, low, high):  # 파티셔닝 함수: 피벗 기준으로 분할
+        pivot = a[high]  # 피벗으로 배열의 마지막 원소 선택
+        i = low - 1  # 작은 원소의 끝 인덱스 초기화
+        for j in range(low, high):  # low부터 high-1까지 순회
+            if a[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+                i += 1  # 작은 원소 영역 확장
+                a[i], a[j] = a[j], a[i]  # 원소 교환으로 정렬 구성
+        a[i + 1], a[high] = a[high], a[i + 1]  # 피벗을 올바른 위치로 이동
+        return i + 1  # 피벗의 최종 인덱스 반환
+    _quicksort(arr, 0, len(arr) - 1)  # 배열 전체 구간에 대해 재귀 시작
+    return arr  # 정렬된 배열 반환
+
+data = [3, 6, 8, 10, 1, 2, 1]  # 테스트 배열
+print("정렬 전:", data)  # 정렬 전 상태 출력
+quicksort_inplace(data)  # 배열을 제자리에서 정렬
+print("정렬 후:", data)  # 정렬 후 상태 출력

@@ -1,0 +1,144 @@
+<think>
+Okay, I need to help the user implement QuickSort in Python with comments on each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that selects a 'pivot' element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I'll outline the steps. The main function will be the quicksort function itself. Then, I'll need a helper function to partition the array. The partition function will take the array, low and high indices, and return the partitioning index.
+
+Wait, in Python, lists are mutable, so I need to make sure that the partition function modifies the list in place. Oh right, but in the quicksort function, I'll have to pass the list and the indices. Let me think about the parameters.
+
+The base case for the quicksort function is when low is greater than high, which means the subarray has one element or is empty. Then, I need to find the pivot. Common choices are the first element, last element, middle element, or a random one. The user didn't specify, so I'll go with the first element as the pivot for simplicity.
+
+Wait, but in some implementations, the pivot is chosen as the middle element to avoid worst-case scenarios. Hmm, but the user just asked for an implementation, so maybe the first element is easier to explain. Let's proceed with that.
+
+The partition function will take the array, low, and high. The pivot is arr[low], then we need two pointers: i starts at low, and j starts at high. Then, we move j down while elements are greater than the pivot, and move i up while elements are less than the pivot. When i >= j, we swap the pivot into its correct position.
+
+Wait, no. Let me think again. The standard Lomuto partition scheme uses a pivot, then initializes i as low-1. Then, for each element, if it's less than the pivot, increment i and swap. Then, finally, swap the pivot with i+1. But maybe the user wants the Hoare partition? Or maybe a simpler version.
+
+Alternatively, the partition function can be written with the pivot as the last element. Let me check the standard approach. Oh right, the Lomuto scheme is common. Let me adjust that.
+
+Wait, the user might not have specific preferences, so I'll use the standard Lomuto partition where the pivot is the last element. But maybe the user's example uses the first element. I need to be consistent.
+
+Let me draft the code. The quicksort function will call the partition function and then recursively sort the left and right parts. The partition function will return the index of the pivot after partitioning.
+
+Now, adding comments to each line. Each line in the code should have a comment explaining what it does. For example, the base case comment, selecting the pivot, initializing variables, moving pointers, swapping, etc.
+
+Wait, but in Python, functions can't modify variables outside their scope unless they are mutable. Since we are working with a list, which is mutable, changes to the list inside the functions will affect the original list.
+
+Let me structure the code step by step. First, define the partition function. Then, the quicksort function. Then, an example usage.
+
+Testing with a sample array. Let me make sure the comments are clear. For each line, explain the purpose, like initializing pointers, swapping elements, placing the pivot in the correct position, and the recursive calls.
+
+I should also mention that the time complexity is O(n log n) on average, and O(n²) in the worst case. But the user didn't ask for that, just the code with comments. So maybe include that in the explanation after the code.
+
+Wait, the user asked for each line to have a comment. So every line in the code should have a comment. That's important. So even the print statements or the function definitions need comments.
+
+Let me write the code with line-by-line comments. For example:
+
+def quicksort(arr, low, high):
+    # Base case: if the subarray has one element or is empty
+    if low < high:
+        # Partition the array and get the pivot index
+        pi = partition(arr, low, high)
+        # Recursively sort the left part
+        quicksort(arr, low, pi - 1)
+        # Recursively sort the right part
+        quicksort(arr, pi + 1, high)
+
+Then for the partition function:
+
+def partition(arr, low, high):
+    # Select the pivot element (here, the last element)
+    pivot = arr[high]
+    # Initialize the index of the smaller element
+    i = low - 1
+    # Traverse through the array
+    for j in range(low, high):
+        # If current element is smaller than or equal to pivot
+        if arr[j] <= pivot:
+            # Increment the index of the smaller element
+            i += 1
+            # Swap elements at i and j
+            arr[i], arr[j] = arr[j], arr[i]
+    # Swap the pivot element with the element at i+1
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # Return the partitioning index
+    return i + 1
+
+Then, an example usage with a test array and printing the sorted array.
+
+I need to make sure each line has a comment. Even the for loop's increment and the swaps. Also, explain why the pivot is chosen as the last element here.
+
+Yes, that should cover it. Now, putting it all together with comments on each line.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 예제입니다. 각 줄에 주석을 달아 설명했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 기저 조건: low가 high보다 크면 종료 (1개 요소 또는 빈 배열)
+    if low < high:
+        # 배열을 분할하고 피봇의 인덱스를 반환
+        pi = partition(arr, low, high)
+        
+        # 피봇 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # 피봇 오른쪽 부분을 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피봇으로 사용할 요소를 선택 (이 예제에서는 마지막 요소)
+    pivot = arr[high]
+    
+    # 작은 요소의 인덱스를 초기화 (low - 1)
+    i = low - 1
+    
+    # low부터 high-1까지의 요소를 순회
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작거나 같으면
+        if arr[j] <= pivot:
+            # 작은 요소의 인덱스를 증가
+            i += 1
+            
+            # 작은 요소와 현재 요소를 교환
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피봇 요소를 적절한 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 분할된 위치를 반환 (피봇의 인덱스)
+    return i + 1
+
+# 예제 실행
+if __name__ == "__main__":
+    # 테스트 배열
+    arr = [10, 7, 8, 9, 1, 5]
+    print("정렬 전 배열:", arr)
+    
+    # 퀵소트 실행
+    quicksort(arr, 0, len(arr) - 1)
+    
+    # 정렬된 배열 출력
+    print("정렬 후 배열:", arr)
+```
+
+### 설명:
+1. **`quicksort` 함수**:
+   - 배열을 재귀적으로 정렬합니다.
+   - `low`는 시작 인덱스, `high`는 끝 인덱스입니다.
+   - `partition` 함수를 호출해 배열을 분할하고, 분할된 피봇을 기준으로 좌우 부분을 재귀적으로 정렬합니다.
+
+2. **`partition` 함수**:
+   - 배열을 분할하는 역할을 합니다.
+   - `pivot`으로 마지막 요소를 선택합니다.
+   - `i`는 "작은 요소"의 인덱스를 추적합니다.
+   - `j`는 배열을 순회하며 `arr[j] <= pivot`인 요소를 찾아 `i`와 교환합니다.
+   - 마지막으로 피봇을 적절한 위치로 이동하고, 그 인덱스를 반환합니다.
+
+3. **시간 복잡도**:
+   - 평균: **O(n log n)** (n: 요소 수)
+   - 최악: **O(n²)** (예: 배열이 이미 정렬된 경우)
+
+4. **공간 복잡도**:
+   - **O(log n)** (재귀 호출 스택에 사용)
+
+이 코드는 배열을 직접 수정하므로, 원본 배열이 변경됩니다. 필요시 복사본을 사용해도 됩니다.

@@ -1,0 +1,37 @@
+주어진 Workflow 다이어그램에는 총 여섯 개의 주요 노드와 그 사이를 잇는 화살표(흐름)가 있으며, 그 흐름을 최대한 상세하게 설명하면 다음과 같습니다.
+
+1. **start(시작)** 노드:  
+   가장 상단에 위치한 `start` 노드는 워크플로우의 시작 지점입니다. 이 노드에서 바로 아래의 `SoftwareEngineer` 노드로 흐름이 시작됩니다. 즉, 사용자가 워크플로우를 시작하면 가장 먼저 소프트웨어 엔지니어와 관련된 업무가 진행되도록 설정되어 있습니다.
+
+2. **SoftwareEngineer(소프트웨어 엔지니어)** 노드:  
+   `start`에서 내려온 흐름이 이 노드에 도달하면, 엔지니어는 여러 작업 중 하나를 선택할 수 있습니다.  
+   - 우측 상단의 `continue` 레이블이 붙은 점선 화살표는 `SoftwareEngineer`에서 `end` 노드로 직접 연결됩니다. 이는 엔지니어가 작업을 마치고 워크플로우를 종료할 수 있음을 나타냅니다.  
+   - 왼쪽 상단의 `analyze_code` 레이블이 붙은 점선 화살표는 `CodeAnalyzer` 노드로 향합니다. 이 흐름은 엔지니어가 코드를 분석해야 하는 경우로, 다음 단계로 `CodeAnalyzer`를 호출하는 경로입니다.  
+   - 중앙의 `edit_file` 레이블 화살표는 `Editor` 노드로 향하며, 코드 수정이 필요한 경우 이 경로가 활성화됩니다.  
+   - 우측 하단에는 `swe_tool` 노드로 이어지는 점선 화살표가 존재합니다. (라벨이 없지만 `SoftwareEngineer`에서 특정 툴을 호출하여 추가 작업을 하는 흐름을 의미합니다.)  
+   - `done`이라는 레이블이 붙은 점선 화살표는 `SoftwareEngineer`에서 다시 `SoftwareEngineer`로 되돌아오는 듯한 루프 경로를 만들어 반복적인 작업 가능성을 암시합니다.
+
+3. **CodeAnalyzer(코드 분석기)** 노드:  
+   `SoftwareEngineer`로부터 `analyze_code` 흐름을 받으면 `CodeAnalyzer`가 실행됩니다.  
+   - `CodeAnalyzer`에서 아래쪽의 `code_analysis_tool` 노드로의 화살표는 실제 코드 분석을 수행하는 도구를 호출하는 흐름입니다.  
+   - `CodeAnalyzer`에서 `SoftwareEngineer`로 향하는 `done` 레이블이 붙은 점선 화살표는 분석이 완료되면 다시 엔지니어에게 돌아가 다음 결정을 하도록 합니다.  
+   - `continue`라는 레이블의 점선 화살표는 `Editor` 노드로 연결됩니다. 즉, 분석 과정에서 수정이 필요하면 자동으로 편집기로 흐름이 이어질 수 있음을 보여줍니다.  
+   - `CodeAnalyzer`에서 `Editor`가 아닌 `code_edit_tool`로 직접 연결되는 점선 화살표도 있어, 수정 작업 도구로 이어질 수 있는 옵션을 보여줍니다.
+
+4. **Editor(에디터)** 노드:  
+   `SoftwareEngineer`의 `edit_file` 또는 `CodeAnalyzer`의 `continue` 흐름을 통해 들어온 뒤, 에디터에서는 실제 코드 수정을 수행합니다.  
+   - `Editor`에서 아래쪽의 `test_tool` 노드로 화살표가 연결되어 있는데, 이는 수정 후 테스트 수행을 의미합니다.  
+   - `Editor`에서 `SoftwareEngineer`로 향하는 `done` 레이블이 붙은 점선 화살표는 작업 종료 후 엔지니어에게 결과를 반환합니다.  
+   - `Editor`에서 `continue` 레이블이 붙은 점선은 다시 자체 또는 코드 편집 도구(`code_edit_tool`)로 이어지는 흐름을 보여, 반복적인 편집 사이클이나 추가 작업도 가능한 구조임을 나타냅니다.  
+   - 또한 `Editor`가 `code_edit_tool`과 연결되어 있어 실제 에디터 기능이 외부 도구와도 연계됨을 시사합니다.
+
+5. **각종 도구 노드들:**  
+   - `code_analysis_tool`: `CodeAnalyzer`의 하위 노드로, 실제 코드 분석이 이루어지는 전용 도구입니다. 분석 과정의 세부 실행 흐름에 해당합니다.  
+   - `code_edit_tool`: `Editor` 또는 `CodeAnalyzer`에서 호출되는 도구로, 편집 및 수정을 실제로 수행하는 기능에 해당합니다. `Editor`에 이어지는 연계 흐름으로서, `Editor`에서 직접 외부 편집 도구를 실행하는 역할을 합니다.  
+   - `test_tool`: `Editor` 아래에 위치하여, 편집 결과를 테스트하는 단계로 흐름이 이어지며 테스트가 완료되면 다시 상위 노드(`Editor`거나 `SoftwareEngineer`)로 돌아가 후속 작업이 진행될 수 있습니다.  
+   - `swe_tool`: `SoftwareEngineer`에서 직접 연결되는 외부 툴 노드이며, 작업 중 필요한 서포트 툴(예: 배포, 문서화 등)을 호출하고 다시 `SoftwareEngineer`로 돌아오는 흐름이 점선으로 표현되어 있습니다.
+
+6. **end(종료)** 노드:  
+   `SoftwareEngineer`로부터 `continue` 흐름을 통해 도달 가능한 종점입니다. 즉, 필요한 모든 작업을 마친 후 `SoftwareEngineer` 단계에서 `continue`를 선택하여 워크플로우를 종료하는 최종 상태입니다.
+
+요약하자면, 워크플로우는 `start`에서 시작하여 `SoftwareEngineer` 노드를 중심으로 `CodeAnalyzer`, `Editor`, 다양한 도구들과 상호작용하면서 분석→수정→테스트→도구 호출의 사이클을 반복하다가, 모든 작업이 완료되면 `end` 노드로 흐름을 종료하는 구조입니다. 각 노드 사이의 점선 화살표와 라벨(`analyze_code`, `edit_file`, `done`, `continue`)은 다양한 의사결정 경로와 작업완료/계속여부를 나타내며, 도구 노드들은 각각의 전담 기능을 수행하는 하위 단계로 연결되어 있습니다.

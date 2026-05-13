@@ -1,0 +1,30 @@
+아래는 **파이썬**으로 작성한 퀵소트(Quick Sort) 구현 예시이며, **각 줄마다 주석**을 달았습니다.
+
+```python
+def quicksort(arr):                          # 퀵소트 함수 정의 (입력 배열 arr)
+    if len(arr) <= 1:                        # 배열 길이가 0 또는 1이면 이미 정렬됨
+        return arr                           # 정렬된 배열(원래 배열) 그대로 반환
+
+    pivot = arr[len(arr) // 2]              # 피벗을 배열의 가운데 값으로 선택
+    left = []                                # 피벗보다 작은 값들을 담을 리스트
+    middle = []                              # 피벗과 같은 값들을 담을 리스트
+    right = []                               # 피벗보다 큰 값들을 담을 리스트
+
+    for x in arr:                            # 배열의 각 원소 x에 대해 반복
+        if x < pivot:                        # x가 피벗보다 작으면
+            left.append(x)                   # left 리스트에 추가
+        elif x > pivot:                      # x가 피벗보다 크면
+            right.append(x)                  # right 리스트에 추가
+        else:                                # x가 피벗과 같으면
+            middle.append(x)                # middle 리스트에 추가
+
+    return quicksort(left) + middle + quicksort(right)  # 정렬된 left + middle + 정렬된 right 결합 후 반환
+                                                   # (재귀적으로 left와 right를 퀵소트)
+
+# 예시 실행
+data = [3, 6, 8, 10, 1, 2, 1]                # 테스트할 입력 배열
+result = quicksort(data)                    # 퀵소트를 수행해 정렬 결과를 result에 저장
+print(result)                               # 정렬된 결과 출력
+```
+
+원하시면 **C/C++/자바(Java)** 버전으로도 바꿔드릴까요? (원하는 언어를 말해주시면 그 언어로 다시 작성해 드릴게요.)

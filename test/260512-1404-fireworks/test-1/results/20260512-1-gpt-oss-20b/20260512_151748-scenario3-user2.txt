@@ -1,0 +1,52 @@
+```python
+#--- quicksort.py ---------------------------------------------------------
+# 퀵소트(Quick Sort) 알고리즘을 구현한 파이썬 코드
+# 각 줄에 한국어 주석을 달아 단계별로 이해하기 쉽게 작성했습니다.
+
+def quicksort(arr):
+    # 정렬할 리스트 `arr`을 매개변수로 받는다.  
+    # 파이썬에서는 리스트를 참조형으로 받기 때문에 바로 수정된다.
+
+    def _quick_sort(arr, low, high):
+        # 부분 배열을 재귀적으로 정렬하기 위한 내부 함수
+        if low < high:
+            # 파티션(분할) 과정을 수행하여 피벗의 최종 위치를 얻는다.
+            pivot_index = partition(arr, low, high)
+            # 피벗보다 작은 영역(왼쪽) 재귀적으로 정렬
+            _quick_sort(arr, low, pivot_index - 1)
+            # 피벗보다 큰 영역(오른쪽) 재귀적으로 정렬
+            _quick_sort(arr, pivot_index + 1, high)
+
+    def partition(arr, low, high):
+        # 마지막 요소를 피벗으로 사용한다.
+        pivot = arr[high]
+        # 배열에서 삽입 정렬처럼 작거나 같은 값들을 왼쪽으로 모을 인덱스
+        i = low - 1
+        # low ~ high-1 까지 루프를 돌면서 조건에 맞는 요소를 교환
+        for j in range(low, high):
+            if arr[j] <= pivot:
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+        # 피벗을 올바른 위치에 놓고 교환
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        # 피벗이 위치한 인덱스를 반환
+        return i + 1
+
+    # 전체 배열을 정렬하는 시작점: 인덱스 범위 [0, len(arr)-1]
+    _quick_sort(arr, 0, len(arr) - 1)
+    # 함수 종료 후 arr은 정렬된 상태가 된다.
+
+#--- 테스트 코드 -----------------------------------------------------------
+if __name__ == "__main__":
+    # 테스트용 데이터 배열
+    data = [3, 6, 8, 10, 1, 2, 1]
+    print("원본:", data)          # 정렬 전
+    quicksort(data)               # 퀵소트 실행
+    print("정렬:", data)          # 정렬 후 결과
+```
+
+위 코드는 **퀵소트**를 재귀적인 파티션 방식으로 구현했으며,  
+모든 실행 줄에 한 문장씩 주석이 달려 있어 이해하기 쉽습니다.  
+`partition` 함수가 피벗을 기준으로 배열을 두 부분으로 나누고,  
+`_quick_sort`가 재귀적으로 각각을 정렬합니다.  
+마지막에 간단한 테스트 예시를 포함시켜 동작을 확인할 수 있습니다.

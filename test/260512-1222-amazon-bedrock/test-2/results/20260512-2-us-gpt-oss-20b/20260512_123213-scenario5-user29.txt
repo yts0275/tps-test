@@ -1,0 +1,31 @@
+아래는 **파이썬**으로 구현한 퀵소트(Quick Sort)입니다.  
+*코드의 각 줄에 한 줄씩 주석을 달았습니다.*  
+
+```python
+def quicksort(arr):                                 # quicksort 함수 선언 (정렬할 리스트 arr 입력)
+    if len(arr) <= 1:                               # 리스트 길이가 0 또는 1이면 이미 정렬 완료
+        return arr                                 # 입력 그대로 반환
+    pivot = arr[len(arr) // 2]                      # 가운데 요소를 피벗으로 선택 (균형 잡힌 분할을 위해)
+    
+    less = [x for x in arr if x < pivot]             # 피벗보다 작은 값들만 모음
+    equal = [x for x in arr if x == pivot]           # 피벗과 같은 값들 (중복 처리)
+    greater = [x for x in arr if x > pivot]          # 피벗보다 큰 값들만 모음
+
+    # 재귀적으로 왼쪽(less)과 오른쪽(greater) 부를 정렬한 뒤, equal로 연결
+    return quicksort(less) + equal + quicksort(greater)
+
+# 아래는 테스트용 코드입니다.
+if __name__ == "__main__":                          # 파일이 메인으로 실행될 때만 아래 코드 수행
+    example = [3, 6, 8, 10, 1, 2, 1]                # 테스트할 임의 리스트
+    print("정렬 전:", example)                     # 정렬 전 리스트 출력
+    sorted_example = quicksort(example)             # quicksort 함수로 정렬
+    print("정렬 후:", sorted_example)              # 결과 출력
+```
+
+**설명(주석이 없는 부분에 대한 간단한 요약)**  
+- 퀵소트는 `pivot`을 기준으로 `[less]`, `[equal]`, `[greater]` 세 개의 리스트로 분할합니다.  
+- `less`와 `greater` 리스트는 각각 재귀적으로 다시 퀵소트가 적용됩니다.  
+- 재귀 종료 조건은 리스트가 한개 이하일 때(`len(arr) <= 1`)이며, 이때는 그대로 반환합니다.  
+- 최종적으로 `[less] + [equal] + [greater]` 를 연결하면 전체가 정렬된 리스트가 됩니다.  
+
+이 코드는 평균적으로 **O(n log n)**의 시간 복잡도를 갖습니다. (최악의 경우 O(n²)일 수 있으므로, 실제 사용 시엔 피벗 선택 방식을 고정 패턴이 아닌 무작위로 바꾸는 등 개선이 필요할 수 있습니다.)

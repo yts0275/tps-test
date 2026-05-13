@@ -1,0 +1,112 @@
+이미지의 워크플로우는 **start → SoftwareEngineer(중앙 오케스트레이터)**를 중심으로, 여러 하위 노드(도구/작업)가 반복적으로 실행되다가 **end**로 수렴하는 구조입니다. 화살표의 방향과 “done / continue / edit_file / analyze_code / test_tool / code_edit_tool / code_analysis_tool” 등의 라벨을 기준으로 흐름을 최대한 상세히 풀어쓰면 다음과 같습니다.
+
+---
+
+## 1) 전체 큰 흐름(중앙 허브 구조)
+1. **start**  
+2. **SoftwareEngineer** 노드로 이동  
+3. SoftwareEngineer가 상황(할 일)에 따라 다음 중 하나를 “요청”합니다.
+   - **CodeAnalyzer**(코드 분석 필요)
+   - **Editor**(코드 수정 필요)
+   - **swe_tool**(보조/전문 도구로 처리 필요)
+4. 각 작업 노드(또는 그 아래 도구)가 작업을 수행한 뒤 결과를 **done**으로 SoftwareEngineer에게 반환합니다.
+5. SoftwareEngineer는 반환된 결과를 바탕으로 다음 단계가 계속 필요한지 판단하여,
+   - 추가 작업이면 다시 **CodeAnalyzer / Editor / swe_tool** 중 하나로 회귀
+   - 작업이 충분하면 **end**로 종료
+
+즉, **SoftwareEngineer가 반복적으로 “무엇을 할지 결정 → 해당 노드를 실행 → done을 받고 다음 라운드를 진행/종료”**하는 형태입니다.
+
+---
+
+## 2) 각 노드(하위 작업)의 역할과 진행 방식
+
+### A. CodeAnalyzer 흐름(분석 파이프라인)
+이미지 좌측의 흐름은 대략 다음과 같습니다.
+
+1. **SoftwareEngineer → CodeAnalyzer**  
+   - 라벨로 **analyze_code**가 걸려 있으며, 이는 “코드를 분석하라”는 요청 성격입니다.
+2. **CodeAnalyzer → code_analysis_tool**  
+   - CodeAnalyzer 아래에 있는 실제 실행 도구가 **code_analysis_tool**입니다.
+   - 여기서 코드베이스를 정적 분석/검사하는 작업이 수행된다고 해석할 수 있습니다(예: 오류 탐지, 품질 지표, 취약점/버그 추정 등).
+3. **code_analysis_tool의 결과가 CodeAnalyzer로 반환**  
+4. **CodeAnalyzer → SoftwareEngineer**  
+   - CodeAnalyzer에서 SoftwareEngineer로 **done**이 돌아오는 화살표가 보입니다.
+   - 또한 **continue** 라벨이 연결된 형태도 있어, “분석 결과를 받고도 추가 분석이 필요하면 계속”되는 반복 가능성을 함께 시사합니다.
+5. 이후 SoftwareEngineer는 다음 액션을 결정합니다.
+   - 분석만으로 충분하면 종료 방향으로,
+   - 분석 결과에 따라 수정이 필요하면 **Editor**로 넘어감.
+
+정리하면, **CodeAnalyzer는 “분석 도구를 호출하고, done/continue 신호로 SoftwareEngineer의 다음 결정을 유도하는 단계”**입니다.
+
+---
+
+### B. Editor 흐름(수정 파이프라인)
+이미지 가운데의 수정 관련 흐름은 다음 단계로 읽힙니다.
+
+1. **SoftwareEngineer → Editor**  
+   - 라벨에 **edit_file**이 표시되어 있어 “파일을 수정하라”는 명령입니다.
+2. **Editor → code_edit_tool**  
+   - Editor 아래에 **code_edit_tool** 노드가 있습니다.
+   - 실제 수정/패치 생성/파일 변경이 이뤄지는 단계로 해석됩니다.
+3. **code_edit_tool → Editor**  
+   - 편집 결과(변경된 코드/패치 내용/수정 상태 등)가 Editor로 돌아옵니다.
+4. **Editor → test_tool**  
+   - 이미지에서 Editor에서 하단의 **test_tool**로 내려가는 화살표가 보입니다.
+   - 즉 “코드를 고쳤으면 테스트를 돌려본다”는 흐름입니다.
+5. **test_tool → Editor**  
+   - 테스트 결과가 Editor로 반환됩니다.
+6. **Editor → SoftwareEngineer**  
+   - Editor에서 SoftwareEngineer로 **done**이 반환됩니다.
+   - 추가로 **continue** 라벨이 보이므로, 테스트가 실패하거나 추가 수정이 필요하면 SoftwareEngineer가 다시 **Editor로 되돌리거나**, 또는 **CodeAnalyzer로 되돌려 원인을 재분석**할 수 있습니다.
+
+정리하면, **Editor는 “수정 도구로 변경 → 테스트 도구로 검증 → done을 통해 SoftwareEngineer가 다음 라운드를 결정”**하는 단계입니다.
+
+---
+
+### C. swe_tool 흐름(특수/통합 처리 단계)
+이미지 오른쪽 중간에 **swe_tool** 노드가 따로 존재하며, 이는 다음처럼 읽힙니다.
+
+1. **SoftwareEngineer → swe_tool**  
+   - 오른쪽 위쪽에 **continue**와 함께 “필요 시 swe_tool을 호출”하는 제어 패턴이 보입니다.
+   - 즉, SoftwareEngineer가 단순 분석/편집만으로 해결이 안 될 경우 swe_tool을 사용해 더 큰 작업(예: 통합 스텝, 추가 지원 도구, 외부 에이전트/도구 호출)을 수행하는 것으로 해석할 수 있습니다.
+2. **swe_tool → end**로 직접 연결되는 화살표가 존재  
+   - 이미지에서 swe_tool에서 **end**로 가는 흐름이 눈에 띄며, 이는 swe_tool 실행이 완료되면 곧바로 종료로 이어질 가능성이 큼을 의미합니다.
+   - 또는 swe_tool이 “마무리/최종 단계”에 해당할 수도 있습니다.
+
+정리하면, **swe_tool은 필요 시 SoftwareEngineer의 작업을 보조하거나 최종화를 담당하며, 끝으로 이어지는 분기점** 역할을 합니다.
+
+---
+
+## 3) done / continue / 종료(end) 제어 로직(반복 판단)
+이미지에서 반복을 가능하게 하는 단서는 다음입니다.
+
+- **done**  
+  - 각 작업(CodeAnalyzer, Editor 등)이 끝나면 SoftwareEngineer에게 결과를 전달하는 신호.
+  - “작업 완료 후 다음 판단 단계로 복귀”를 의미합니다.
+- **continue**  
+  - 단순히 종료가 아니라, “아직 더 할 일이 있다 → 계속 진행”을 뜻하는 흐름 라벨처럼 표시되어 있습니다.
+  - 특히 CodeAnalyzer 쪽과 Editor 및 SoftwareEngineer 주변에 **continue**가 보이므로, **분석 결과/테스트 결과에 따라 추가 반복 라운드가 발생**할 수 있습니다.
+- **end**  
+  - 최종 완료 상태.
+  - swe_tool 분기에서 end로 직접 연결되는 화살표가 있는 것으로 보아, 특정 조건에서는 swe_tool이 끝내는 경로가 존재합니다.
+  - 또는 SoftwareEngineer가 continue 없이 완료 판정을 내려 end로 가는 형태일 가능성도 있습니다(중앙에서 종료로 수렴).
+
+---
+
+## 4) 한 사이클(라운드) 예시로 재구성
+워크플로우를 “전형적인 반복” 관점에서 묶으면 다음과 같습니다.
+
+1. SoftwareEngineer가 문제/요구사항을 판단
+2. **analyze_code**가 필요 → CodeAnalyzer 실행  
+3. CodeAnalyzer의 done(그리고 필요하면 continue) 수신  
+4. 분석 결과에 따라 **edit_file** 필요 → Editor 실행  
+5. Editor가 **code_edit_tool**로 수정  
+6. Editor가 **test_tool**로 검증  
+7. Editor의 done 수신  
+8. 테스트/검증 결과가 충분하면 종료(end) 방향  
+   - 또는 추가 개선이 필요하면 continue로 인해 다시 Editor/CodeAnalyzer 반복  
+9. 특정 조건에서는 **swe_tool**을 호출하고 최종적으로 **end**로 진입
+
+---
+
+원하시면, 제가 **(1) 각 화살표의 “방향-라벨-전이 의미”를 노드별 표 형태**로 정리하거나, **(2) 반복이 발생하는 조건을 “테스트 실패 시 / 분석 필요 시”처럼 가정하여 의사결정 로직으로 더 구조화**해서 써드릴 수도 있어요. 어떤 형식이 더 좋을까요?

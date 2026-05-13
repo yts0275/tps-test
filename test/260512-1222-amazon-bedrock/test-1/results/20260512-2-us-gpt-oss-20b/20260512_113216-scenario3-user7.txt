@@ -1,0 +1,41 @@
+아래는 **Python**으로 구현한 퀵소트(QuickSort) 예제입니다.  
+모든 코드 라인에 한 줄씩 주석을 달아 이해를 돕도록 했습니다.
+
+```python
+# 재귀적으로 리스트를 정렬하는 퀵소트 함수 정의
+def quicksort(arr):
+    # 배열이 0개 또는 1개일 경우 이미 정렬되어 있으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    # 피벗(pivot)으로 배열의 마지막 원소를 선택
+    pivot = arr[-1]
+    # 피벗보다 작거나 같은 원소를 담는 리스트
+    less = []
+    # 피벗보다 큰 원소를 담는 리스트
+    greater = []
+    # 피벗을 제외한 각 원소를 검사
+    for x in arr[:-1]:
+        # 피벗 이하이면 less 리스트에 추가
+        if x <= pivot:
+            less.append(x)
+        # 그 외에는 greater 리스트에 추가
+        else:
+            greater.append(x)
+    # 재귀적으로 정렬한 결과를 이어 붙여 반환
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 프로그램이 직접 실행될 때 예시 코드 실행
+if __name__ == "__main__":
+    # 정렬 전 예시 배열
+    sample = [3, 6, 8, 10, 1, 2, 1]
+    # quicksort 함수 호출을 통해 배열을 정렬
+    sorted_list = quicksort(sample)
+    # 정렬된 배열을 출력
+    print(sorted_list)
+```
+
+- `quicksort` 함수는 **재귀** 방식으로 구현되었으며, 각 호출에서 피벗을 기준으로 리스트를 두 부분(`less`, `greater`)으로 분할합니다.  
+- 최종적으로 재귀 호출 결과를 연결(`+`)해 하나의 정렬된 리스트를 반환합니다.  
+- `if __name__ == "__main__":` 블록은 스크립트를 직접 실행할 때 테스트 예시를 보여 주는 부분입니다.  
+
+이 구현은 직관적이며, 파이썬 리스트에 가장 흔히 쓰이는 퀵소트 형태입니다. 데모용으로 충분히 동작하니 필요에 따라 활용해 주세요.

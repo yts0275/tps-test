@@ -1,0 +1,61 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I need to write the main function. The function should take an array and its start and end indices. The base case is when the start is greater than or equal to the end, so we return.
+
+Next, the partitioning step. I'll choose a pivot, probably the last element. Then, I need two pointers: one starting at the beginning (i) and another moving through the array (j). The idea is to move all elements less than the pivot to the left.
+
+Wait, in the partition function, I need to loop through the array. For each element, if it's less than the pivot, I increment i and swap the elements at i and j. At the end, I swap the pivot with the element at i+1 to place the pivot in the correct position.
+
+Then, recursively call quicksort on the left and right subarrays. The comments should explain each step clearly. Let me make sure each line has a comment, even if it's just stating the purpose. Also, check for any possible errors, like index out of bounds. Oh, and the pivot selection here is the last element, which is a common approach.
+
+Testing with an example array like [5, 3, 8, 4, 2] should sort it correctly. Let me walk through the steps in my mind. First, the array is partitioned around 2, then the left part is partitioned around 3, and so on. The comments should make it clear for someone reading the code.
+
+I think that's all. Now, write the code with detailed comments on each line.
+</think>
+
+```python
+def quicksort(arr, low, high):
+    # 기저 조건: 요소가 0개 또는 1개일 때 종료
+    if low >= high:
+        return
+
+    # 피벗 선택 (마지막 요소 선택)
+    pivot = arr[high]
+    
+    # i는 작은 요소의 위치를 가리킴
+    i = low - 1
+    
+    # 배열을 순회하며 피벗보다 작은 요소를 왼쪽으로 이동
+    for j in range(low, high):
+        if arr[j] < pivot:
+            i += 1
+            # 작은 요소와 i 위치의 요소 교환
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 재귀적으로 좌우 배열 정렬
+    quicksort(arr, low, i)
+    quicksort(arr, i + 2, high)
+
+# 예시 배열 정렬
+arr = [5, 3, 8, 4, 2]
+print("정렬 전:", arr)
+quicksort(arr, 0, len(arr) - 1)
+print("정렬 후:", arr)
+```
+
+### 주석 설명:
+1. `quicksort` 함수 정의: 배열, 시작 인덱스, 끝 인덱스를 인자로 받음
+2. 기저 조건: 배열이 0개 또는 1개 요소일 때 재귀 종료
+3. 피벗 선택: 배열의 마지막 요소를 피벗으로 선택
+4. `i` 변수: 작은 요소의 위치 추적 (초기값은 시작 인덱스 - 1)
+5. 배열 순회: `low`부터 `high`까지의 요소를 순회
+6. 작은 요소 발견 시 `i` 증가 및 요소 교환
+7. 피벗을 올바른 위치로 이동 (i+1 위치)
+8. 좌우 배열에 대한 재귀 호출
+9. 예시 배열 생성 및 정렬 전/후 출력
+
+이 코드는 O(n log n)의 평균 시간 복잡도를 가지며, 최악의 경우 O(n²)이지만 실제 사용 시 빠른 성능을 보입니다.

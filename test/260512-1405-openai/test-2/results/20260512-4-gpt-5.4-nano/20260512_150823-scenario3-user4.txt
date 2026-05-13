@@ -1,0 +1,33 @@
+아래는 **퀵소트(Quick Sort)** 예제 구현입니다. **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 함수 정의 (배열, 시작 인덱스, 끝 인덱스)
+    if low >= high:  # 부분 배열 크기가 0 또는 1이면 정렬할 필요가 없으므로 종료
+        return  # 반환(값이 필요 없으므로 그냥 종료)
+
+    pivot = arr[high]  # 피벗을 마지막 원소로 선택
+    i = low - 1  # 피벗보다 작은 구간의 끝을 가리키는 인덱스(초기값은 low-1)
+
+    for j in range(low, high):  # low부터 high-1까지 순회하며 비교
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 값 구간을 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 값은 왼쪽으로 보내기 위해 스왑
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치로 이동
+    pivot_index = i + 1  # 피벗이 최종적으로 놓인 인덱스 기록
+
+    quicksort(arr, low, pivot_index - 1)  # 피벗 왼쪽(작은 값들) 재귀 정렬
+    quicksort(arr, pivot_index + 1, high)  # 피벗 오른쪽(큰 값들) 재귀 정렬
+
+
+def quicksort_wrapper(arr):  # 외부에서 호출하기 위한 래퍼 함수 정의
+    quicksort(arr, 0, len(arr) - 1)  # 배열 전체에 대해 퀵소트 수행
+    return arr  # 정렬된 배열 반환
+
+
+# 테스트 코드 (필요 없으면 삭제 가능)
+data = [10, 7, 8, 9, 1, 5]  # 정렬할 예제 배열
+print(quicksort_wrapper(data))  # 정렬 결과 출력
+```
+
+원하시면 **다른 언어(예: C/C++/Java)** 버전으로도 바꿔드릴게요. 어떤 언어로 구현할까요?

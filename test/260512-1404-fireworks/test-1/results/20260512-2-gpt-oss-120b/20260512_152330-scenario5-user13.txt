@@ -1,0 +1,42 @@
+아래는 파이썬으로 구현한 **퀵소트(Quick Sort)** 알고리즘입니다.  
+각 코드 라인마다 무엇을 하는지 설명하는 주석을 한 줄씩 달아두었습니다.  
+
+```python
+# 퀵소트를 수행할 함수 정의
+def quick_sort(arr):
+    # 1. 배열이 비었거나 원소가 한 개이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    # 2. 피벗(pivot) 선택 – 여기서는 배열 중앙값을 피벗으로 사용
+    pivot = arr[len(arr) // 2]
+    # 3. 피벗보다 작은 원소들을 모아 left 리스트에 저장
+    left = [x for x in arr if x < pivot]
+    # 4. 피벗과 같은 원소들을 모아 middle 리스트에 저장 (중복 허용)
+    middle = [x for x in arr if x == pivot]
+    # 5. 피벗보다 큰 원소들을 모아 right 리스트에 저장
+    right = [x for x in arr if x > pivot]
+    # 6. left와 right 리스트에 대해 재귀적으로 퀵소트를 수행하고,
+    #    정렬된 left, middle, right를 순서대로 이어서 반환
+    return quick_sort(left) + middle + quick_sort(right)
+
+
+# ----------------------------------------------------------------------
+# 사용 예시
+if __name__ == "__main__":
+    # 7. 정렬하고자 하는 임의의 리스트 정의
+    unsorted_list = [33, 10, 55, 71, 29, 3, 18, 42]
+    # 8. 퀵소트 함수 호출하여 정렬된 리스트를 얻음
+    sorted_list = quick_sort(unsorted_list)
+    # 9. 결과 출력
+    print("정렬 전:", unsorted_list)
+    print("정렬 후:", sorted_list)
+```
+
+**핵심 포인트**  
+- 퀵소트는 **분할 정복(Divide‑and‑Conquer)** 전략을 사용합니다.  
+- 피벗을 기준으로 배열을 **좌/우/동일** 세 파트로 나눈 뒤,  
+  좌·우 파트를 재귀적으로 정렬하고, 중간 파트(`middle`)는 그대로 이어 붙이면 됩니다.  
+- 위 구현은 **새 리스트를 만들어 반환**하는 방식이므로 원본 리스트는 변하지 않으며,  
+  이해하기 쉽고 파이썬 리스트 컴프리헨션을 활용해 간결하게 작성했습니다.  
+
+필요에 따라 **제자리(in‑place) 퀵소트**로 변경하거나, 피벗 선택 전략을 바꾸어 성능을 조절할 수도 있습니다.

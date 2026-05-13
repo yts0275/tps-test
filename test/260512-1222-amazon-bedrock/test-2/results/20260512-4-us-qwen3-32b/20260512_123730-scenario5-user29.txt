@@ -1,0 +1,38 @@
+물론입니다! 아래는 **Python**을 사용한 퀵소트(Quick Sort)의 구현입니다. 각 줄에 쉽게 이해할 수 있도록 **주석**을 넣어 설명했습니다.
+
+```python
+def quicksort(arr):
+    # 리스트가 비었거나 하나의 요소만 포함되어 있으면, 이미 정렬되어 있으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택: 이 예제에서는 리스트의 중간 요소를 피벗으로 선택
+    pivot = arr[len(arr) // 2]
+
+    # 피벗을 기준으로 세 부분으로 나누기
+    # left: 피벗보다 작은 요소들을 모은 리스트
+    # equal: 피벗과 같은 요소들을 모은 리스트
+    # right: 피벗보다 큰 요소들을 모은 리스트
+    left = [x for x in arr if x < pivot]
+    equal = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+
+    # 재귀 호출: 왼쪽, 중간, 오른쪽을 각각 정렬한 후 결과를 합침
+    return quicksort(left) + equal + quicksort(right)
+
+
+# 예제 실행
+unsorted_list = [10, 7, 8, 9, 1, 5]
+sorted_list = quicksort(unsorted_list)
+
+print("정렬 결과:", sorted_list)
+```
+
+---
+
+### 🔍 설명:
+- **퀵소트(Quick Sort)**는 **분할 정복(divide and conquer)** 알고리즘입니다.
+- **피벗(pivot)**을 선택해 피벗보다 작고 큰 수로 나누고, 재귀적으로 정렬합니다.
+- 시간 복잡도: 평균적으로 **O(N log N)**, 최악은 **O(N^2)** (피벗 선택에 따라 다름).
+
+필요하시면 Python 말고 다른 언어로도 구현할 수 있어요.

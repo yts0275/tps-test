@@ -1,0 +1,97 @@
+<think>
+Okay, the user wants me to implement QuickSort in Python with comments on each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I need to write the main function. The function will take a list and its start and end indices. Wait, in Python, lists are mutable, so passing them around should be okay. But for the recursive calls, I need to handle the left and right partitions.
+
+The base case is when the start index is greater than or equal to the end index, meaning the sub-array has one element or is empty. Then, return.
+
+Next, I need to choose a pivot. Common choices are the first element, last, middle, or a random one. For simplicity, I'll pick the last element as the pivot. So, pivot = arr[end].
+
+Then, I need to initialize a variable to track the position where elements less than the pivot go. Let's call it 'i', starting at the start index. Wait, no, maybe 'i' should be initialized to start - 1. Let me think. Oh right, the standard approach is to have a pointer that moves as we find elements less than the pivot.
+
+So, for each element from start to end-1 (since the pivot is at end), if the element is less than or equal to the pivot, increment 'i' and swap the elements at positions i and j. Then, after processing all elements, swap the pivot with the element at position i+1. That places the pivot in its correct position.
+
+Wait, let me step through an example. Suppose the array is [3, 6, 8, 10, 1, 2, 1]. Choosing the last element (1) as pivot. Then, we iterate from start to end-1. Elements less than or equal to 1 would be 1, but in this case, maybe the first element is 3, which is greater. So 'i' starts at start -1 (index -1). Then, for each element, if it's <= pivot, increment i and swap. So when j reaches the element 1 (index 4), since 1 <= 1, i becomes 0, and swap arr[0] (3) with arr[4] (1). Now the array becomes [1, 6, 8, 10, 3, 2, 1]. Then continue. Next element is 6, which is greater than 1, so no swap. Then 8, same. Then 10, same. Then 3, same. Then 2, which is greater than 1. So after processing all elements, i is at 0. Then swap pivot (arr[end] =1) with arr[i+1] (arr[1] =6). Now the array becomes [1, 1, 8, 10, 3, 2, 6]. The pivot is now in position 1, with elements to the left less than or equal to it and to the right greater.
+
+Then, recursively call quicksort on the left and right subarrays. The left subarray is from start to i, and the right is from i+2 to end. Wait, because the pivot is now at i+1, so the left is start to i, and the right is i+2 to end.
+
+So the code structure would be:
+
+def quicksort(arr, start, end):
+    if start >= end:
+        return
+    pivot = arr[end]
+    i = start - 1
+    for j in range(start, end):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i+1], arr[end] = arr[end], arr[i+1]
+    quicksort(arr, start, i)
+    quicksort(arr, i+2, end)
+
+Wait, but in the example, after swapping the pivot, the pivot's position is i+1. So the left subarray is from start to i, and the right is from i+2 to end. That makes sense.
+
+Now, adding comments to each line. The user wants each line commented. So for each line in the code, I need to add a comment explaining what it does.
+
+Let me write the code step by step with comments.
+
+First, the function definition. Then the base case. Then selecting the pivot. Then initializing i. Then the loop. Then the swap. Then the final swap of the pivot. Then the recursive calls.
+
+I need to make sure the comments are clear. For example, in the loop, explain that we're iterating through the array and moving elements less than the pivot to the left. The final swap places the pivot in the correct position.
+
+Also, note that the parameters for the recursive calls are start to i and i+2 to end. That's because after placing the pivot, the left part is from start to i (since i is the last element less than the pivot), and the right part starts from i+2 (since the pivot is now at i+1).
+
+Testing the code with an example would be good. Like [3,6,8,10,1,2,1]. After the first call, the pivot is placed at index 1, and then the left subarray is [3,6,8,10] and the right is [2,1]. Wait, no. Wait in the example after the first swap, the array becomes [1,1,8,10,3,2,6]. The pivot is at index 1. So the left subarray is from start (0) to i (0), which is [1], and the right is from i+2 (2) to end (6), which is [8,10,3,2,6]. Then recursively sort those.
+
+I think that's correct. The comments should make this clear. Also, mention that the function is in-place, so the original list is modified.
+
+So the final code with comments would look like this, with each line explained.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘의 파이썬 구현입니다. 각 줄에 주석을 추가하여 설명을 제공했습니다.
+
+```python
+def quicksort(arr, start, end):
+    # 기저 조건: 시작 인덱스가 끝 인덱스보다 크거나 같으면 종료
+    if start >= end:
+        return
+
+    # 피벗을 선택 (현재 배열의 마지막 요소)
+    pivot = arr[end]
+
+    # i는 '피벗보다 작은 요소의 위치'를 추적하는 인덱스
+    i = start - 1
+
+    # 배열을 순회하며 피벗보다 작은 요소를 왼쪽으로 이동
+    for j in range(start, end):
+        if arr[j] <= pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피벗을 올바른 위치로 이동 (i+1)
+    arr[i + 1], arr[end] = arr[end], arr[i + 1]
+
+    # 왼쪽 부분 배열 재귀 호출 (start ~ i)
+    quicksort(arr, start, i)
+
+    # 오른쪽 부분 배열 재귀 호출 (i+2 ~ end)
+    quicksort(arr, i + 2, end)
+```
+
+### 예시 사용법:
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+quicksort(arr, 0, len(arr) - 1)
+print(arr)  # [1, 1, 2, 3, 6, 8, 10]
+```
+
+### 설명:
+1. **기저 조건**: 배열의 길이가 0 또는 1인 경우 종료.
+2. **피벗 선택**: 배열의 마지막 요소를 피벗으로 선택.
+3. **분할 과정**: `i`는 피벗보다 작은 요소의 위치를 추적. 배열을 순회하면서 `arr[j] <= pivot`인 요소를 `i` 위치로 이동.
+4. **피벗 이동**: `arr[i + 1]`에 피벗을 정렬.
+5. **재귀 호출**: 왼쪽(`start ~ i`)과 오른쪽(`i + 2 ~ end`) 부분 배열에 대해 다시 퀵소트 호출.
+
+이 알고리즘은 평균 시간 복잡도 O(n log n)을 가지며, 공간 복잡도는 O(log n)입니다.

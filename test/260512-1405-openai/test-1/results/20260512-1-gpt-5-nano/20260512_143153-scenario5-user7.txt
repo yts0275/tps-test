@@ -1,0 +1,25 @@
+다음은 각 줄에 주석을 단 파이썬으로 구현한 퀵소트(QS) 예제입니다. 배열 arr를 제자리에서 정렬합니다.
+
+def quicksort(arr, low, high):  # QuickSort on arr[low..high]
+    if low < high:  # If there are elements to sort
+        pi = partition(arr, low, high)  # Get partition index
+        quicksort(arr, low, pi - 1)  # Recursively sort left side
+        quicksort(arr, pi + 1, high)  # Recursively sort right side
+def partition(arr, low, high):  # Partition subroutine
+    pivot = arr[high]  # Take last element as pivot
+    i = low - 1  # Boundary for elements <= pivot
+    for j in range(low, high):  # Iterate over subarray
+        if arr[j] <= pivot:  # If current element <= pivot
+            i += 1  # Move boundary for smaller elements
+            arr[i], arr[j] = arr[j], arr[i]  # Swap to place smaller element at i
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # Place pivot after smaller elements
+    return i + 1  # Return index of pivot
+if __name__ == "__main__":  # Entry point of the script
+    arr = [33, 10, 55, 7, 2, 99, 1]  # Example array to sort
+    quicksort(arr, 0, len(arr) - 1)  # Sort the entire array in-place
+    print(arr)  # Print the sorted array
+
+추가 설명
+- 기본적으로 피벗은 배열의 마지막 원소를 사용합니다. 피벗을 기준으로 작거나 같은 값은 왼쪽으로, 큰 값은 오른쪽으로 배치합니다.
+- 평균 시간복잡도는 O(n log n), 최악의 경우 O(n^2)입니다. 피벗 선택을 바꿔 최악의 경우를 막을 수 있습니다(예: 무작위 피벗).
+- 필요하시면 다른 언어(C++, Java 등)로도 동일한 로직의 구현을 제공해 드리겠습니다.

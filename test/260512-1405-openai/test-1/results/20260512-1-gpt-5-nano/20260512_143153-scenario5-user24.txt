@@ -1,0 +1,12 @@
+def quicksort(arr):  # QuickSort 함수: 비파괴적 재귀 구현
+    if len(arr) <= 1:  # 배열의 길이가 0 또는 1이면 이미 정렬된 상태
+        return arr  # 배열 자체를 반환
+    pivot = arr[len(arr) // 2]  # 피벗으로 중간 요소를 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들로 왼쪽 부분 배열 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 동일한 값들로 가운데 부분 배열 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들로 오른쪽 부분 배열 생성
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽과 오른쪽 재귀 정렬 후 합치기
+
+if __name__ == "__main__":  # 스크립트로 실행될 때만 동작하도록 설정
+    sample = [3, 6, 8, 10, 1, 2, 1]  # 테스트 데이터
+    print(quicksort(sample))  # 정렬 결과 출력

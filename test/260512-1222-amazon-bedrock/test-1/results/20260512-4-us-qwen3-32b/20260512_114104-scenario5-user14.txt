@@ -1,0 +1,51 @@
+물론입니다! 아래는 **퀵소트**(Quicksort) 알고리즘을 **파이썬**으로 구현한 코드입니다. 각 줄마다 **한글 주석**을 달아 설명하겠습니다.
+
+```python
+# 퀵소트를 재귀적으로 구현하는 함수
+def quicksort(arr):
+    # 배열이 비어 있거나 요소가 하나라면, 그대로 반환(기저 조건)
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗을 선택합니다. 여기서는 배열의 첫 번째 요소를 피벗으로 사용합니다.
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 담을 리스트
+    less = []
+
+    # 피벗보다 큰 요소들을 담을 리스트
+    greater = []
+
+    # 피벗을 제외한 나머지 배열 요소들을 순회
+    for value in arr[1:]:
+        if value < pivot:
+            less.append(value)  # 피벗보다 작으면 less에 추가
+        else:
+            greater.append(value)  # 피벗보다 크거나 같으면 greater에 추가
+
+    # 재귀적으로 less와 greater를 정렬한 후, less + [pivot] + greater의 형태로 정렬된 배열을 반환
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 예시 실행
+if __name__ == "__main__":
+    my_list = [3, 6, 8, 10, 1, 2, 1]
+    print("정렬 전:", my_list)
+    sorted_list = quicksort(my_list)
+    print("정렬 후:", sorted_list)
+```
+
+---
+
+### 🤔 주석 요약:
+
+- `quicksort(arr)`: 재귀 함수로 퀵소트를 수행
+- `if len(arr) <= 1:`: 요소가 1개 이하이면 이미 정렬되어 있으므로 그대로 반환
+- `pivot = arr[0]`: 첫 번째 요소를 피벗으로 설정
+- `less`: 피벗보다 작은 수를 저장
+- `greater`: 피벗보다 같거나 큰 수를 저장
+- `less + [pivot] + greater`: 재귀로 정렬된 배열을 이어 붙여 최종 결과를 반환
+- `if __name__ == "__main__":`: 테스트 목적으로 직접 실행할 부분
+
+---
+
+이 코드는 퀵소트의 기본 구조를 이해하는 데 매우 유용합니다. 원하신다면 **인플레이스**(in-place) 방식, 시간 복잡도, 혹은 파이썬 외의 다른 언어(예: C++, Java 등)로 구현도 도와드릴 수 있습니다. 😊

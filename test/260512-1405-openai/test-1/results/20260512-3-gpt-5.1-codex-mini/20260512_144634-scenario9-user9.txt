@@ -1,0 +1,36 @@
+이 Workflow는 가장 상단의 `start` 노드에서 시작하여, 바로 `SoftwareEngineer` 노드로 진입하는 일종의 역할 중심 흐름입니다. 흐름을 단계별로, 연결된 노드와 흐름의 방향 및 조건을 중심으로 최대한 상세히 설명하겠습니다.
+
+1. **start → SoftwareEngineer**  
+   시작점인 `start` 노드에서 흐름이 아래로 내려가며 `SoftwareEngineer` 노드에 도달합니다. 이 시점에서 소프트웨어 엔지니어는 주어진 작업을 수행할 준비가 된 상태입니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (analyze_code)**  
+   `SoftwareEngineer`는 `analyze_code` 경로를 따라 `CodeAnalyzer`로 흐름을 보냅니다. 이 경로는 엔지니어가 코드를 분석하는 작업을 수행하고자 할 때 선택되는 흐름이며, `CodeAnalyzer`는 코드 분석을 위한 도구 역할을 합니다.
+
+3. **CodeAnalyzer와 하위 도구 연결**  
+   `CodeAnalyzer`는 내부적으로 `code_analysis_tool`로의 하위 작업을 가집니다. 즉, `CodeAnalyzer` 노드에서 다시 `code_analysis_tool`로 흐름이 이어집니다. 이는 분석 자체를 전문화된 도구에서 수행함을 나타냅니다. 이후 분석이 완료되면 `CodeAnalyzer`로 다시 흐름이 돌아옵니다.
+
+4. **CodeAnalyzer → SoftwareEngineer (done)**  
+   분석이 끝나면 `CodeAnalyzer`에서 `done` 경로를 통해 다시 `SoftwareEngineer`로 흐름이 반환됩니다. 엔지니어는 분석 결과를 바탕으로 다음 작업을 결정합니다.
+
+5. **SoftwareEngineer → Editor (edit_file)**  
+   `SoftwareEngineer`는 `edit_file` 경로를 따라 `Editor`로 이동합니다. 이는 분석 결과나 요구 사항에 따라 코드를 수정하거나 새로운 코드를 작성하는 단계입니다.
+
+6. **Editor와 하위 도구 연결**  
+   `Editor`는 세 가지 하위 도구로 흐름을 분기합니다:
+   - `code_edit_tool`: 실질적인 코드 편집 기능 수행합니다.
+   - `test_tool`: 편집된 코드에 대한 테스트를 수행합니다.
+   각 도구로 흐름이 이어졌다가, 각 도구가 작업을 마치면 다시 `Editor`로 되돌아오는 구조입니다.
+
+7. **Editor → SoftwareEngineer (done)**  
+   모든 편집/테스트 작업이 완료되면 `Editor`의 `done` 경로를 통해 다시 `SoftwareEngineer`로 되돌아옵니다. 이때 소프트웨어 엔지니어는 최종 결정을 위해 다음 단계를 고려합니다.
+
+8. **SoftwareEngineer → swe_tool (continue)**  
+   엔지니어는 `continue` 경로를 따라 `swe_tool`로 흐름을 연결할 수 있습니다. `swe_tool`은 소프트웨어 개발 전체 흐름을 지원하는 더 고차원의 도구로 보이며, 여기서 추가적인 작업(예: 배포, 문서화, CI/CD 등)을 수행할 수 있습니다.
+
+9. **swe_tool → end (continue)**  
+   `swe_tool`에서 `continue` 경로를 따라 흐름이 `end` 노드에 도달함으로써 전체 워크플로우가 종료됩니다. 이 `end` 노드는 모든 작업이 완료되어 프로세스가 종료되었음을 의미합니다.
+
+10. **SoftwareEngineer → end (continue)**  
+   한편, `SoftwareEngineer`는 조건에 따라 `continue` 흐름을 직접 `end` 노드로 연결할 수도 있습니다. 이는 분석/수정 없이도 바로 종료할 수 있는 시나리오(예: 작업이 불필요하거나 중단된 경우)를 나타냅니다.
+
+요약하면, 엔지니어는 `start`에서 출발하여, 코드 분석 단계(`CodeAnalyzer` → 도구), 편집 단계(`Editor` → 도구), 이후 고차원 도구(`swe_tool`)로 이어지거나 바로 종료(`end`)하는 목적 지향적인 흐름을 갖고 있습니다. 각각의 도구 노드는 실제 작업을 수행하고 흐름을 반환하여 엔지니어가 다시 다음 결정을 내릴 수 있도록 구성되어 있습니다.

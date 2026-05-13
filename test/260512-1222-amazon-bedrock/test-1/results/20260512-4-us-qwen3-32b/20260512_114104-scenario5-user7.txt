@@ -1,0 +1,49 @@
+물론입니다! 아래는 **파이썬**에서 **퀵소트**(Quick Sort)를 구현한 코드입니다. 각 줄마다 주석을 달아 어떻게 동작하는지 쉽게 이해할 수 있도록 했습니다.
+
+```python
+# 퀵소트 재귀 함수 정의
+def quick_sort(arr):
+    # 1. 가장 작은 입력인 경우, 즉 길이가 1 이하인 리스트는 그대로 반환 (기저조건)
+    if len(arr) <= 1:
+        return arr
+    
+    # 2. 피벗(pivot)을 배열의 첫 번째 요소로 선택
+    pivot = arr[0]
+
+    # 3. 피벗보다 작은 요소들을 모을 리스트
+    less_than_pivot = []
+    # 4. 피벗보다 큰 요소들을 모을 리스트
+    greater_than_pivot = []
+
+    # 5. 피벗을 제외한 배열을 반복
+    for i in range(1, len(arr)):
+        # 6. 현재 요소가 pivot보다 작으면 less_than_pivot에 추가
+        if arr[i] < pivot:
+            less_than_pivot.append(arr[i])
+        # 7. 현재 요소가 pivot보다 크거나 같으면 greater_than_pivot에 추가
+        else:
+            greater_than_pivot.append(arr[i])
+
+    # 8. 재귀적으로 left, right 부분을 정렬한 후, 전체를 합치기
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+
+
+# 예시 실행
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quick_sort(arr)
+print("정렬된 배열:", sorted_arr)
+```
+
+---
+
+### 🔍 설명 요약
+
+- **기저 조건**(Base Case): 리스트 길이가 1 이하면 더 이상 분할할 필요 없고, 그대로 반환.
+- **피벗선택**: 여기서는 항상 첫 번째 요소를 피벗으로 사용.
+- **분할**: 피벗보다 작고 큰 요소들을 분리.
+- **재귀**: 분리된 작은 배열들에 대해 다시 퀵소트를 수행.
+- **결합**: 정렬된 왼쪽 + 피벗 + 정렬된 오른쪽을 최종 결과로 반환.
+
+---
+
+필요하다면 다른 방식 (예: 랜덤 피벗 선택, 중간 값 선택 등)으로도 구현 가능하니, 알려주세요!

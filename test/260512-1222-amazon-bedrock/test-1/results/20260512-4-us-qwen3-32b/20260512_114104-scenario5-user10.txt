@@ -1,0 +1,51 @@
+물론입니다! 아래는 파이썬으로 구현한 **퀵소트(Quicksort)** 예제입니다. 각 줄마다 자세한 주석이 달려 있어서 쉽게 이해할 수 있도록 했습니다.
+
+---
+
+### ✅ 퀵소트(Quicksort) 구현 (파이썬)
+
+```python
+def quicksort(arr):
+    # 입력 배열이 비어있거나 단일 요소일 경우 재귀 중단 (기저조건)
+    if len(arr) <= 1:
+        return arr
+
+    # 기준 요소(pivot)를 선택합니다. 이 예제에서는 첫 번째 요소를 피벗으로 사용
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 모을 리스트
+    less = []
+
+    # 피벗보다 큰 요소들을 모을 리스트
+    greater = []
+
+    # 피벗을 제외한 나머지 요소들을 탐색
+    for i in range(1, len(arr)):
+        if arr[i] < pivot:       # 현재 요소가 피벗보다 작으면
+            less.append(arr[i])   # less 리스트에 추가
+        else:                     # 현재 요소가 피벗보다 크거나 같으면
+            greater.append(arr[i])# greater 리스트에 추가
+
+    # 재귀를 통해 less 리스트와 greater 리스트를 각각 정렬한 뒤, [pivot]을 사이에 배치
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 테스트 부분
+if __name__ == "__main__":
+    unsorted_list = [5, 2, 9, 1, 7, 3, 8, 4, 6]
+    print("정렬 전:", unsorted_list)  # 정렬 전 리스트 출력
+    sorted_list = quicksort(unsorted_list)  # quicksort 함수 호출
+    print("정렬 후:", sorted_list)   # 정렬 후 리스트 출력
+```
+
+---
+
+### 💡 설명
+
+- **기저 조건**은 재귀가 끝나는 조건이며, 배열이 빈 배열이거나 하나의 요소만 있을 때 그대로 반환합니다.
+- **기준 요소(pivot)** 는 여기서는 가장 앞에 있는 요소를 사용합니다.
+- **재귀적으로** 작은 요소들을 정렬하고, 큰 요소들을 정렬해서 다시 묶습니다.
+- `less + [pivot] + greater` 의 형태로 최종 배열을 정리합니다.
+
+---
+
+필요하다면, 파이썬 리스트 컴프리헨션을 사용한 더 간결한 구현도 알려드릴 수 있어요! 🤖

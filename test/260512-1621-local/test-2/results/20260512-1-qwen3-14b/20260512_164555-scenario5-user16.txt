@@ -1,0 +1,78 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the partition function. The partition function selects a pivot, usually the last element here, and moves all elements smaller than the pivot to the left and larger ones to the right. The pivot's final position is the partition index.
+
+Wait, in the code, I'll need to define the partition function. Let me outline the steps: initialize a pivot index, a variable to track the smaller element's position, loop through the array, swap elements as needed, and finally place the pivot in the correct position.
+
+Then, the quicksort function itself. It should check if the array has more than one element. If so, call the partition function to get the pivot index, then recursively sort the left and right subarrays.
+
+Now, adding comments. Each line of code needs a comment explaining what it does. For example, in the partition function, explain the purpose of each variable and the loop steps. Also, in the quicksort function, note the base case and the recursive calls.
+
+Wait, the user might be a beginner, so the comments should be clear and not too technical. Make sure to mention that the pivot is chosen as the last element, and explain the swapping process.
+
+Also, test the code with an example. Maybe include a sample input and output in the comments? Or just explain the process. Hmm, the user didn't ask for a test case, just the implementation with comments.
+
+I should make sure the code is properly formatted. Indentation for Python, correct syntax. Let me write the code step by step, adding comments line by line. Check for any possible errors, like off-by-one mistakes in the loop indices.
+
+Another thing: in the partition function, the loop runs from the start to the second-to-last element. The pivot is the last element. The 'i' variable tracks the position to swap with. When an element less than the pivot is found, swap it with the element at position 'i' and increment 'i'.
+
+After the loop, swap the pivot with the element at 'i' to place the pivot in the correct position. Return 'i' as the partition index.
+
+In the quicksort function, the base case is when the left index is greater than or equal to the right index. Then, partition the array, and recursively call quicksort on the left and right parts.
+
+I think that's all. Now, structure the code with comments for each line. Make sure the comments are concise but informative.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘의 Python 구현입니다. 각 줄에 주석을 달아서 설명을 제공합니다:
+
+```python
+def quicksort(arr, low, high):
+    # 배열이 하나의 요소를 포함하거나 없을 경우 종료 (기저 조건)
+    if low < high:
+        # 파티션을 나누고 피봇의 위치를 반환
+        pivot_index = partition(arr, low, high)
+        # 피봇 왼쪽 부분 배열을 재귀적으로 정렬
+        quicksort(arr, low, pivot_index - 1)
+        # 피봇 오른쪽 부분 배열을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    # 피봇을 배열의 마지막 요소로 설정
+    pivot = arr[high]
+    # 피봇보다 작은 요소의 위치를 추적하는 인덱스
+    i = low - 1  # 초기값은 low - 1로 설정
+    
+    # low에서 high - 1까지 반복하여 배열을 탐색
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면 i를 증가시키고 요소를 교환
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 마지막으로 피봇을 적절한 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피봇의 최종 인덱스 반환
+    return i + 1
+
+# 예시 배열
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+
+# 퀵소트 실행
+quicksort(arr, 0, n - 1)
+
+# 정렬된 배열 출력
+print("정렬된 배열:")
+for i in range(n):
+    print("%d" % arr[i], end=" ")
+```
+
+### 주석 설명 요약
+1. **`quicksort` 함수**: 재귀적으로 배열을 정렬합니다. `low`는 시작 인덱스, `high`는 끝 인덱스입니다.
+2. **`partition` 함수**: 배열을 피봇을 중심으로 두 부분으로 나눕니다.
+3. **피봇 선택**: 배열의 마지막 요소를 피봇으로 선택합니다.
+4. **배열 탐색**: `i`는 피봇보다 작은 요소의 위치를 추적합니다.
+5. **피봇 위치 이동**: 마지막으로 피봇을 배열의 적절한 위치로 이동합니다.
+
+이 코드는 퀵소트 알고리즘을 구현하여 배열을 오름차순으로 정렬합니다.

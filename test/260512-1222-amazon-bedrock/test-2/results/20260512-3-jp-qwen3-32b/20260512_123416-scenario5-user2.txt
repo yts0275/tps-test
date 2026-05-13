@@ -1,0 +1,45 @@
+물론입니다! 아래는 파이썬에서 퀵소트(Quick Sort)를 구현한 코드입니다. 각 줄에 대한 설명을 주석으로 함께 달았습니다.
+
+```python
+# 퀵소트를 수행할 함수 정의
+def quicksort(arr):
+    # 배열이 비어 있거나 요소가 하나뿐이면 그대로 반환 (종료 조건)
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot) 선택: 여기서는 배열의 첫 번째 요소를 선택
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 모을 리스트
+    less = []
+    # 피벗과 같은 요소들을 모을 리스트
+    equal = []
+    # 피벗보다 큰 요소들을 모을 리스트
+    greater = []
+
+    # 배열의 모든 요소를 돌며 less, equal, greater 리스트에 분류
+    for num in arr:
+        if num < pivot:
+            less.append(num)
+        elif num == pivot:
+            equal.append(num)
+        else:
+            greater.append(num)
+
+    # 재귀적으로 less, greater 부분을 정렬하고, 전체를 합침
+    return quicksort(less) + equal + quicksort(greater)
+
+
+# 예시 실행
+arr = [5, 2, 9, 1, 7, 3]
+sorted_arr = quicksort(arr)  # 퀵소트 함수 호출
+print("정렬된 배열:", sorted_arr)
+```
+
+### 설명:
+- **Pivot**: 정렬의 기준이 되는 값. 여기서는 항상 첫 번째 요소를 사용.
+- **분할**: 피벗보다 작으면 `less`에, 같으면 `equal`에, 크면 `greater`에 넣음.
+- **재귀**: `less`와 `greater`를 다시 각각 퀵소트로 정렬하여 합침.
+- **시간복잡도**: 평균적으로 `O(n log n)`, 최악 시 `O(n²)` (랜덤 피벗 선택을 사용하면 개선 가능).
+
+필요하다면 Python이 아닌 다른 언어에서의 퀵소트 또한 구현해드릴 수 있습니다!

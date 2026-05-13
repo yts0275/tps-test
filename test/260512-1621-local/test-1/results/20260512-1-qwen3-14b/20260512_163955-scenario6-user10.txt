@@ -1,0 +1,16 @@
+<think>
+Okay, let me try to figure out what this code does. First, I'll read through the code step by step.
+
+The code starts by importing the datetime module, which is probably used for handling dates and times. Then there's a Product class. The __init__ method initializes product details like ID, name, price, and stock. There's an update_stock method that adjusts the stock quantity and returns a boolean indicating success or failure. The __str__ method formats the product information for display.
+
+Next, the Order class. It has an order ID, customer name, items list, total amount, and order date. The add_item method tries to reduce the product's stock by the quantity. If that's successful, it adds the item to the order and updates the total. The print_invoice method prints a formatted invoice with order details and itemized charges.
+
+Then there's the InventoryManager class, which manages a collection of products. It has methods to add products and display the inventory. The run_system function sets up initial products, shows the inventory, creates two orders (one successful and one with insufficient stock), prints invoices, and then shows the updated inventory and a total asset report.
+
+So putting it all together, this code simulates a simple inventory and order management system. It tracks products with their stock, processes orders by updating stock and calculating totals, handles stock shortages, and generates reports. The main function runs through a scenario with sample data to demonstrate the system's functionality.
+</think>
+
+이 코드는 간단한 재고 관리 및 주문 처리 시스템을 구현합니다.  
+1. `Product` 클래스는 상품 정보(아이디, 이름, 가격, 재고)를 관리하고 재고 변경 시 유효성을 검사합니다.  
+2. `Order` 클래스는 주문 생성, 재고 차감, 영수증 출력 기능을 제공하며 재고 부족 시 주문 거부를 처리합니다.  
+3. `InventoryManager`는 상품 목록을 관리하고 재고 현황을 표시하며, 시나리오 기반으로 주문 처리와 재고 변화를 시뮬레이션합니다.

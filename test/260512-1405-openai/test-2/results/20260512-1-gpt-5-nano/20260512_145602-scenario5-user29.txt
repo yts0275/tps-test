@@ -1,0 +1,22 @@
+```python
+def quicksort(arr, low, high):  # QuickSort on arr[low..high]
+    if low < high:  # If there are at least two elements to sort
+        pi = partition(arr, low, high)  # Partition index
+        quicksort(arr, low, pi - 1)  # Recursively sort left side
+        quicksort(arr, pi + 1, high)  # Recursively sort right side
+def partition(arr, low, high):  # Partition using the last element as pivot
+    pivot = arr[high]  # Pivot value
+    i = low - 1  # Boundary index for elements <= pivot
+    for j in range(low, high):  # Iterate from low to high-1
+        if arr[j] <= pivot:  # If current element <= pivot
+            i += 1  # Move boundary forward
+            arr[i], arr[j] = arr[j], arr[i]  # Swap to place small element
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # Place pivot after the smaller elements
+    return i + 1  # Return final pivot position
+def quicksort_main(lst):  # Helper to sort entire list in place
+    quicksort(lst, 0, len(lst) - 1)  # Sort all elements
+    return lst  # Return the sorted list
+if __name__ == "__main__":  # Run when executed as a script
+    data = [3, 6, 8, 10, 1, 2, 1]  # Example data
+    print(quicksort_main(data))  # Output the sorted list
+```

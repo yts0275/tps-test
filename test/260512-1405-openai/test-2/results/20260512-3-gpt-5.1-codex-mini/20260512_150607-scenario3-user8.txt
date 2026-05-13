@@ -1,0 +1,10 @@
+```python
+def 퀵소트(arr):  # 리스트를 받아 퀵소트를 수행하는 함수 정의
+    if len(arr) <= 1:  # 리스트 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr  # 그대로 반환하여 종료
+    pivot = arr[len(arr) // 2]  # 피벗으로 리스트 중간 요소를 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값을 모은 리스트 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값을 모은 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값을 모은 리스트 생성
+    return 퀵소트(left) + middle + 퀵소트(right)  # 분할한 리스트들을 재귀적으로 정렬하고 합쳐서 반환
+```

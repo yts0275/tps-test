@@ -1,0 +1,66 @@
+<think>
+Okay, the user wants me to implement quicksort in Python with comments on each line. Let me start by recalling how quicksort works. The basic idea is to pick a pivot element and partition the array into elements less than the pivot and greater than the pivot, then recursively sort the sub-arrays.
+
+First, I need to write a function that takes a list. The base case is when the list has zero or one element, which is already sorted. Then, I'll choose a pivot. Common choices are the first element, last, or middle. For simplicity, I'll pick the last element as the pivot.
+
+Next, I need to partition the list into elements less than the pivot and greater than the pivot. I'll loop through each element except the pivot, comparing them to the pivot. If an element is less than the pivot, it goes to the left list; otherwise, to the right.
+
+After partitioning, I'll recursively apply quicksort to the left and right lists, then combine them with the pivot in the middle. Wait, but in the code, the pivot is the last element, so after partitioning, the left and right lists are the ones that need to be sorted.
+
+Wait, in the code example I remember, the pivot is usually the last element, and the partitioning is done by moving elements around it. Let me structure the code step by step.
+
+The function will be called quicksort, taking a list. The base case checks if the length is less than or equal to 1. Then, the pivot is selected as the last element. The left and right lists are created by iterating through the elements except the pivot. For each element, if it's less than the pivot, add to left; else, add to right.
+
+Then, the function returns the concatenation of quicksort(left), [pivot], and quicksort(right). That makes sense because the left list is all elements less than the pivot, then the pivot, then elements greater. Recursively sorting those gives the sorted array.
+
+Now, adding comments to each line. The first line defines the function. Then the base case. Selecting the pivot. Partitioning into left and right. Then the recursive calls and combining.
+
+Wait, in the code, the loop is for i in range(len(arr) - 1), because the pivot is the last element. So the loop goes from 0 to len(arr)-2, which is correct. Each element is compared to the pivot.
+
+I need to make sure the comments explain each step clearly. For example, in the base case, the list is already sorted. Then selecting the pivot, then partitioning. Then combining the sorted left, pivot, and sorted right.
+
+I think that's all. Let me write the code with comments now.
+</think>
+
+```python
+# 퀵소트 함수 정의
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우 이미 정렬된 상태
+    if len(arr) <= 1:
+        return arr
+
+    # 피봇 선택: 배열의 마지막 요소를 피봇으로 사용
+    pivot = arr[-1]
+
+    # 피봇보다 작은 요소를 담을 왼쪽 배열
+    left = []
+    # 피봇보다 큰 요소를 담을 오른쪽 배열
+    right = []
+
+    # 배열의 요소를 탐색하여 왼쪽/오른쪽 배열에 분류
+    for i in range(len(arr) - 1):
+        if arr[i] < pivot:
+            left.append(arr[i])  # 피봇보다 작은 요소를 왼쪽 배열에 추가
+        else:
+            right.append(arr[i])  # 피봇보다 큰 요소를 오른쪽 배열에 추가
+
+    # 재귀 호출: 왼쪽 배열과 오른쪽 배열을 각각 퀵소트 수행
+    # 피봇을 기준으로 분할된 왼쪽, 오른쪽 배열을 재귀적으로 정렬
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 예시 실행
+example = [5, 3, 8, 4, 2]
+sorted_example = quicksort(example)
+print("정렬된 배열:", sorted_example)
+```
+
+### 코드 설명:
+1. **기저 조건**: 배열의 길이가 0 또는 1일 경우 정렬할 필요가 없으므로 그대로 반환.
+2. **피봇 선택**: 배열의 마지막 요소를 피봇으로 선택 (다른 선택도 가능).
+3. **분할**: 배열을 피봇 기준으로 두 그룹으로 나눔.
+   - 왼쪽 배열: 피봇보다 작은 요소
+   - 오른쪽 배열: 피봇보다 큰 요소
+4. **재귀**: 왼쪽/오른쪽 배열을 각각 퀵소트로 정렬.
+5. **결합**: 정렬된 왼쪽 배열 + 피봇 + 정렬된 오른쪽 배열을 결합하여 최종 결과 반환.
+
+이 알고리즘의 평균 시간 복잡도는 $O(n \log n)$, 최악의 경우 $O(n^2)$입니다.

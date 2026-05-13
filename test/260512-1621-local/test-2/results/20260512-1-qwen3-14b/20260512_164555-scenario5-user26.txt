@@ -1,0 +1,76 @@
+<think>
+Okay, the user wants me to implement quicksort in Python with comments on each line. Let me start by recalling how quicksort works. The algorithm picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the quicksort function. The base case is when the array has zero or one element, which is already sorted. Then, I'll choose a pivot. Common choices are the first element, last, or middle. Maybe I'll pick the middle to avoid worst-case scenarios with already sorted arrays.
+
+Next, I need to partition the array. I'll create two lists: left for elements less than the pivot, and right for elements greater. Then combine them with the pivot in the middle. Wait, but the original array is being split, so maybe I should use list comprehensions here.
+
+Wait, the user wants comments on each line. So each line of the code should have a comment explaining what it does. Let me structure the code step by step.
+
+Start with the function definition. Then check if the array length is less than or equal to 1. Then select the pivot. Then split the array into left and right parts. Then recursively call quicksort on left and right. Then return the concatenated result.
+
+Wait, but in Python, list comprehensions can be used to split the array. For example, [x for x in arr[1:] if x < pivot] and [x for x in arr[1:] if x >= pivot]. Oh right, but the pivot is arr[0] in this case. Wait, if I choose the middle element as pivot, I need to adjust the indices. Wait, maybe I should use the last element as pivot for simplicity, but the user didn't specify. Maybe the standard approach is to pick the first element as pivot. Hmm, but in the example code I saw earlier, sometimes people use the middle element. Let me think.
+
+Alternatively, to avoid modifying the original array, maybe I should use a helper function. But the user just wants a simple implementation. Let me proceed with the first element as pivot. Then, the left list is all elements less than pivot, right is elements greater. Then combine left, pivot, right.
+
+Wait, but the original array is being passed as a parameter. So in the code, the function will take an array and return the sorted array. So the base case is if len(arr) <= 1: return arr. Then, pivot = arr[0], then left = [x for x in arr[1:] if x < pivot], right = [x for x in arr[1:] if x >= pivot]. Then return quicksort(left) + [pivot] + quicksort(right). That seems right.
+
+Now, adding comments to each line. Let me write the code with comments. For example:
+
+def quicksort(arr):
+    # Base case: if the array has 0 or 1 element, it's already sorted
+    if len(arr) <= 1:
+        return arr
+    # Select the pivot element (first element in this case)
+    pivot = arr[0]
+    # Partition the array into elements less than pivot and greater than or equal to pivot
+    left = [x for x in arr[1:] if x < pivot]
+    right = [x for x in arr[1:] if x >= pivot]
+    # Recursively sort the left and right partitions and combine them with the pivot
+    return quicksort(left) + [pivot] + quicksort(right)
+
+Wait, but the user asked for comments on each line. So each line of code should have a comment. Let me check each line:
+
+The function definition line: explain what the function does.
+
+The if statement: base case.
+
+Selecting the pivot.
+
+Partitioning into left and right.
+
+Recursive calls and combining.
+
+Yes, that should cover each line with a comment. I think that's a good implementation with clear comments. Let me make sure there are no syntax errors. The list comprehensions are correct. The return statement combines the sorted left, pivot, and sorted right. That should work.
+</think>
+
+다음은 퀵소트 알고리즘을 Python으로 구현한 예시입니다. 각 줄마다 주석을 추가하여 코드의 흐름을 설명합니다.
+
+```python
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1이면 이미 정렬되어 있음
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 선택: 배열의 첫 번째 요소를 피벗으로 사용
+    pivot = arr[0]
+    
+    # 배열을 피벗보다 작은 요소와 큰/같은 요소로 분할
+    # 왼쪽 배열: 피벗보다 작은 요소들
+    left = [x for x in arr[1:] if x < pivot]
+    # 오른쪽 배열: 피벗보다 크거나 같은 요소들
+    right = [x for x in arr[1:] if x >= pivot]
+    
+    # 재귀적으로 왼쪽과 오른쪽 배열을 정렬하고, 피벗을 중간에 삽입
+    return quicksort(left) + [pivot] + quicksort(right)
+```
+
+### 설명:
+- **기저 조건**: 배열의 길이가 0 또는 1일 경우, 이미 정렬되어 있으므로 그대로 반환합니다.
+- **피벗 선택**: 배열의 첫 번째 요소를 피벗으로 선택합니다. 다른 선택 방식(예: 중앙값, 랜덤)도 가능합니다.
+- **분할**: 피벗을 기준으로 배열을 두 부분으로 나눕니다.
+  - `left` 배열: 피벗보다 작은 요소들
+  - `right` 배열: 피벗보다 크거나 같은 요소들
+- **재귀 정렬**: `left`와 `right` 배열을 각각 퀵소트로 재귀적으로 정렬한 후, 피벗을 중간에 삽입합니다.
+
+이 구현은 간단한 형태로, 실제 사용 시 메모리 효율을 위해 인-플레이스 정렬(배열을 직접 수정) 방식을 사용하는 경우가 많습니다.

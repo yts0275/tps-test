@@ -1,0 +1,28 @@
+이 Workflow는 “start” 노드에서 시작해 “SoftwareEngineer” 노드를 거쳐 다양한 도구들과 상호작용하고 “end” 노드로 종료되는 흐름을 갖습니다. 각 노드의 흐름을 최대한 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**: 모든 작업은 “start” 노드에서 “SoftwareEngineer” 노드로 연결되면서 시작됩니다. 이 연결은 단일 흐름이며, Software Engineer가 전체 프로세스를 주도하게 됩니다.
+
+2. **SoftwareEngineer에서의 분기와 외부 도구 호출**:
+   - **CodeAnalyzer 호출**: Software Engineer는 “analyze_code”라는 액션을 통해 “CodeAnalyzer” 노드로 흐름을 전달합니다. 이 흐름은 점선 화살표로 표시되어 있으며, 분석 작업이 필요함을 나타냅니다.
+   - **Editor 호출**: Software Engineer는 “edit_file” 액션을 통해 “Editor” 노드로 흐름을 이동시킵니다. 이는 코드 수정을 수행하기 위한 단계입니다.
+   - **swe_tool 호출**: Software Engineer는 “continue” 액션을 통해 “swe_tool”로 연결되며, 이 도구를 사용하여 계속 작업하거나 추가적인 도구 기반 활동을 수행합니다.
+   - **종료 조건**: Software Engineer는 “continue” 경로를 통해 직접 “end” 노드로 흐름을 연결할 수 있습니다. 이는 개발자의 판단에 따라 프로세스를 마무리할 수 있음을 나타냅니다.
+
+3. **CodeAnalyzer 하위 흐름**:
+   - “CodeAnalyzer” 노드는 “code_analysis_tool”을 통해 실질적인 분석 작업을 실행합니다. 노드 간 연결이 실선으로 되어 있어 분석 도구로의 직접 의존을 나타냅니다.
+   - 분석이 완료되면 “CodeAnalyzer”는 “done”이라는 상태를 통해 다시 “SoftwareEngineer”로 되돌아오며, 이후의 결정(편집 또는 추가 분석)을 할 수 있습니다.
+   - “CodeAnalyzer” 노드는 “continue” 경로로 “Editor” 노드와 연결되어, 필요한 경우 분석 후 곧바로 편집 단계로 넘어갈 수 있음도 보여줍니다.
+
+4. **Editor 하위 흐름**:
+   - “Editor”는 “code_edit_tool”과 “test_tool” 두 가지 하위 도구와 연결됩니다. “code_edit_tool”은 편집 작업을, “test_tool”은 편집된 코드의 테스트를 각각 수행하며 두 도구 모두 실선으로 이어져 있습니다.
+   - 편집 작업이 끝난 후 “Editor”는 “done” 상태로 다시 “SoftwareEngineer”로 돌아가 프로세스를 관리하는 역할을 이어갑니다.
+   - 또한 “Editor”는 “continue” 경로를 통해 “CodeAnalyzer”로 돌아갈 수도 있어, 편집 후 재분석이 필요한 상황을 반영합니다.
+
+5. **swe_tool에서의 흐름**:
+   - “swe_tool”은 Software Engineer의 “continue” 액션에 의해 호출되며, 추가적인 작업 또는 자동화된 도구 활용을 의미합니다.
+   - “swe_tool”이 수행을 마치면 다시 “SoftwareEngineer”로 돌아오는 흐름이 있으며, 이 단계에서 결과를 확인하거나 최종 결정을 내릴 수 있습니다.
+
+6. **전체 종료 흐름**:
+   - Software Engineer는 위의 도구들을 거치거나 거치지 않고, “continue” 흐름을 사용하여 “end” 노드로 직접 이어질 수 있습니다. 이는 모든 작업이 완료되어 프로세스가 종료되는 시점을 의미합니다.
+
+정리하면, “SoftwareEngineer”가 중심에 위치하고 “CodeAnalyzer”, “Editor”, “swe_tool” 등 여러 도구로부터 얻은 피드백을 바탕으로 반복적으로 코드 분석, 수정, 검증을 수행하며, 각 단계가 끝날 때마다 다시 Software Engineer로 돌아와 다음 행동을 결정하는 구조입니다. 모든 과정은 마지막에 “end” 노드로 수렴하여 종료됩니다.

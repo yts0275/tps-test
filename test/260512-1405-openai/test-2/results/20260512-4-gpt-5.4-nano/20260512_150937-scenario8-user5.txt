@@ -1,0 +1,126 @@
+이미지에 나온 Workflow의 노드(박스) 흐름을 기준으로, **전체 흐름(좌→우, 위→아래)과 각 분기/합류 지점을 최대한 상세히** 서술하겠습니다.  
+(그림은 “start → SoftwareEngineer 중심으로 여러 보조 도구/노드가 연결되고, 중간에 done/continue 흐름이 반복되며, 최종적으로 end로 수렴”하는 형태입니다.)
+
+---
+
+## 1) 시작 단계: `start`
+- 가장 위에 있는 **`start`** 노드에서 Workflow가 시작합니다.
+- 이 시작 신호는 곧바로 중앙의 **`SoftwareEngineer`** 노드로 내려갑니다.
+
+---
+
+## 2) 중앙 컨트롤러: `SoftwareEngineer`
+- **`SoftwareEngineer`**는 전체 Workflow를 “관리/지휘”하는 중심 노드입니다.
+- 그림에서 `SoftwareEngineer`는 아래로 내려가는 단방향만 있는 게 아니라,
+  - 여러 노드와 연결된 **되돌림(루프) 형태의 화살표**
+  - 그리고 상단/측면으로 분기되는 **다중 작업 흐름**
+  을 동시에 갖고 있습니다.
+
+이제 `SoftwareEngineer`는 다음 작업들(코드 분석, 편집, 테스트, 그리고 도구 실행)을 하도록 흐름을 분배합니다.
+
+---
+
+## 3) 코드 분석 분기: `CodeAnalyzer`와 `code_analysis_tool`
+### (1) SoftwareEngineer → CodeAnalyzer
+- `SoftwareEngineer`에서 좌측으로 뻗는 화살표가 **`CodeAnalyzer`**로 이어집니다.
+- 즉, “현재 코드(혹은 작업 대상)를 분석한다”는 요청이 `CodeAnalyzer`에 전달됩니다.
+
+### (2) CodeAnalyzer → code_analysis_tool
+- **`CodeAnalyzer`** 내부에서는 실제 분석을 수행하는 도구로 연결됩니다.
+- 그림에서 `CodeAnalyzer` 아래쪽으로 연결된 라벨이 **`code_analysis_tool`** 입니다.
+- 즉, `CodeAnalyzer`가 “분석을 돌리기 위한 실행 도구”를 호출합니다.
+
+### (3) 분석 결과 반환(continue / done)
+- 분석 도구가 끝나면 다시 **`CodeAnalyzer`** 또는 그 상위 흐름으로 제어가 돌아갑니다.
+- 그림에는 `CodeAnalyzer` 쪽에
+  - **`done`**
+  - **`continue`**
+  라벨이 반복적으로 나타납니다.
+- 이를 해석하면 보통 다음 중 하나입니다(그림상 전형적인 패턴):
+  1. **done**: 분석이 완료되어 다음 단계로 넘어갈 준비가 됨  
+  2. **continue**: 추가 분석이 필요하거나, 분석 루프를 계속 반복
+
+### (4) CodeAnalyzer → SoftwareEngineer 또는 이후 노드로 합류
+- `CodeAnalyzer` 결과가 처리된 뒤,
+- 다시 **`SoftwareEngineer`**로 제어가 복귀하는 화살표가 존재합니다(또는 다른 중앙 합류 지점으로 이어짐).
+- 즉, 코드 분석은 “완결”되거나 “추가 작업 필요”에 따라 루프/분기 중 하나로 이어집니다.
+
+---
+
+## 4) 편집 분기: `Editor`와 `code_edit_tool`
+### (1) SoftwareEngineer → Editor
+- 중앙 `SoftwareEngineer`에서 가운데 아래로 내려가듯이 연결된 흐름이 **`Editor`**로 이어집니다.
+- 이는 “분석 결과에 기반해 코드(파일)를 수정한다”는 단계입니다.
+
+### (2) Editor → code_edit_tool
+- **`Editor`** 아래에는 실제 수정을 수행하는 도구가 연결되어 있는데,
+  - 라벨이 **`code_edit_tool`** 입니다.
+- 즉, `Editor`는 “편집 작업의 오케스트레이션(지시/조건 확인)” 역할을 하고,
+  - 실제로는 `code_edit_tool`이 파일 변경/수정 커맨드를 수행합니다.
+
+### (3) 파일 편집 관련 라벨: `edit_file`
+- 이미지에는 중간 경로에 **`edit_file`** 라벨이 보입니다.
+- 이는 편집 도구 실행 전/후 또는 편집 작업 단계의 세부 동작으로 해석할 수 있습니다.
+  - 예: “특정 파일을 열고 수정한다” 또는 “분석에서 지시된 파일을 편집한다”
+- 즉, `Editor` 흐름에서 **어떤 파일을 대상으로 할지**(혹은 실제 편집 실행 단위)가 `edit_file`로 표현된 셈입니다.
+
+### (4) 편집 완료 후 제어: continue / done
+- 그림에서 `Editor` 주변에도 **`continue`** / **`done`** 라벨이 나타납니다.
+- 전형적으로:
+  - **done**: 편집이 충분히 완료되어 다음 단계(테스트)로 넘어가도 됨
+  - **continue**: 더 많은 수정 라운드가 필요함(예: 분석 결과를 다시 반영해야 함)
+- 그리고 이 제어는 다시 `SoftwareEngineer` 쪽으로 귀환하거나(합류),
+  다른 하위 작업으로 연결됩니다.
+
+---
+
+## 5) 테스트 분기: `test_tool`
+### (1) Editor → test_tool
+- `Editor`는 단순히 코드를 고치는 것에서 끝나지 않고,
+- 수정된 결과를 검증하기 위해 **테스트 단계로 내려갑니다.**
+- 그림에서 `Editor` 아래쪽/오른쪽으로 **`test_tool`**이 연결되어 있습니다.
+
+### (2) 테스트 수행 후 결과 반영
+- 테스트 도구가 실행되면 그림의 `continue` / `done` 흐름에 따라 다음 중 하나로 이동합니다.
+  1. **성공(dne/done)**: 다음 단계 또는 종료로 이동 가능한 상태
+  2. **실패/문제 발견(continue)**: 다시 분석 또는 편집으로 되돌아가는 루프 발생
+
+그림에는 `SoftwareEngineer` 쪽에서 여러 하위 루프가 형성되어 있으므로,
+테스트 결과가 만족되지 않으면 다시 **CodeAnalyzer ↔ Editor** 형태로 반복될 가능성이 큽니다.
+
+---
+
+## 6) `swe_tool` 단계와 최종 처리
+### (1) SoftwareEngineer → swe_tool
+- 오른쪽 아래 영역의 **`swe_tool`** 노드가 있습니다.
+- 중앙 `SoftwareEngineer`에서 **`swe_tool`로 향하는** 큰 흐름(복수 경로)이 보입니다.
+- 즉, `swe_tool`은 이 워크플로우에서 “종합 실행/마무리 작업/추가 처리”의 역할을 합니다.
+  - 예: 스케줄링된 실행, 상태 반영, 패치 적용 후 요약/정리, 추가 도구 호출 등
+
+### (2) done/continue 후 end로 수렴
+- `swe_tool`에서 흐름이 다시 위/옆으로 이어진 뒤,
+- 최종적으로 **`end`** 노드로 가는 화살표가 존재합니다.
+
+---
+
+## 7) 최종: `end`
+- **`end`**는 Workflow의 종료 지점입니다.
+- 그림에서 `end`로 가는 경로가 있고, 그 경로들 앞에 `continue`/루프 합류가 표현되어 있으므로,
+  - 모든 필수 검증(분석→편집→테스트)이 충분히 완료되거나,
+  - 더 이상 수정/추가 루프가 필요 없으면
+- `swe_tool` 또는 `SoftwareEngineer`의 최종 분기에서 `end`로 수렴합니다.
+
+---
+
+# 전체를 한 문장으로 요약(흐름 순서)
+1. **start → SoftwareEngineer**
+2. SoftwareEngineer가 **CodeAnalyzer(code_analysis_tool)**로 코드 분석 수행
+3. 필요 시 **Editor(code_edit_tool, edit_file)**로 코드 수정 수행
+4. 수정 결과를 **test_tool**로 테스트/검증
+5. 결과가 충분하면 **swe_tool**로 최종 처리
+6. **end**로 종료  
+(중간에 `continue/done`에 따라 분석-편집-테스트 사이의 루프가 반복될 수 있는 구조)
+
+---
+
+원하시면, 제가 **각 화살표를 “조건(continue/done)” 기준으로 루프가 어떻게 재진입하는지**를 더 명확하게(예: “테스트 실패 시 CodeAnalyzer로 돌아간다” 같은 식으로) 그림의 연결 관계를 기준으로 단계별 시나리오 2~3개로도 정리해드릴게요.

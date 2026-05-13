@@ -1,0 +1,132 @@
+아래 그림은 하나의 Workflow(흐름) 안에서 `start`부터 `end`까지 여러 Node(작업 단계)가 **조건/루프 형태로 상호 연결**되어 있는 구조로 보입니다. 노드 이름과 화살표(대부분의 굵기/점선 흐름이 “다음으로 이어지거나 반복되는 제어”를 의미) 기준으로, 전체 흐름을 최대한 상세히 풀어 서술하면 다음과 같습니다.
+
+---
+
+## 1) 전체 시작/진입: `start` → `SoftwareEngineer`
+1. **start 노드**에서 Workflow가 시작됩니다.
+2. 이후 화살표가 위쪽의 핵심 노드인 **`SoftwareEngineer`**로 연결됩니다.
+   - 즉, `SoftwareEngineer`가 전체 작업을 “총괄/오케스트레이션”하는 중앙 허브 역할을 합니다.
+
+---
+
+## 2) `SoftwareEngineer`의 핵심 역할(분기/재수렴/루프 가능 구조)
+`SoftwareEngineer` 노드에서부터 여러 갈래로 분기된 뒤, 다시 `SoftwareEngineer`로 돌아오거나(또는 루프를 통해 반복하거나), 특정 단계를 거쳐 `end`로 빠지는 형태가 보입니다.
+
+그림에서 관찰되는 주요 연결 패턴은 다음과 같습니다.
+
+- `SoftwareEngineer` → (여러 도구 노드로 연결)
+- 각 도구 노드가 일을 마치면 “done/continue” 등의 상태로 다시 `SoftwareEngineer` 또는 다음 단계로 반환
+- 또한 특정 조건에서는 `SoftwareEngineer`가 최종적으로 `end`로 가는 경로가 존재
+
+---
+
+## 3) 첫 번째 큰 흐름: 코드 분석 루프( `CodeAnalyzer` 중심 )
+그림 왼쪽 영역에서 **코드 분석**을 담당하는 블록이 나타납니다.
+
+### 3-1. 분기: `SoftwareEngineer` → `CodeAnalyzer`
+- `SoftwareEngineer`에서 **왼쪽 아래로** 점선 화살표가 나가며 **`CodeAnalyzer`**로 이어집니다.
+- (그림상 점선은 “제어 흐름이 상태값에 따라 이어지거나, 반복될 수 있음”을 시사합니다.)
+
+### 3-2. `CodeAnalyzer` → `code_analysis_tool`
+- `CodeAnalyzer` 내부(혹은 하위 도구 단계)로 **`code_analysis_tool`**이 연결되어 있습니다.
+- 즉, `CodeAnalyzer`는 “분석을 수행하기 위해 실제 분석 도구를 호출/실행”하는 역할입니다.
+
+### 3-3. 분석 결과 반영: `code_analysis_tool` → `CodeAnalyzer` (done/continue)
+- `code_analysis_tool` 작업이 끝나면 **`done` 또는 `continue`** 형태로 제어가 되돌아옵니다.
+- 그림에서 `CodeAnalyzer` 쪽에 `continue`가 표시되어 있어,
+  - 분석이 끝났지만 Workflow가 즉시 종료되는 것이 아니라
+  - 다음 단계로 넘어가거나(또는 수정 단계로 넘어가거나)
+  - 혹은 다시 분석을 반복할 수 있는 상태임을 알 수 있습니다.
+
+### 3-4. 재수렴: `CodeAnalyzer` → `SoftwareEngineer` (done)
+- `CodeAnalyzer`에서 **`done` 라벨이 붙은 화살표**가 **`SoftwareEngineer`로 되돌아가는 구조**가 보입니다.
+- 즉,
+  1) 분석 수행  
+  2) 분석 완료(“done”)  
+  3) 다시 `SoftwareEngineer`가 다음 결정을 내리는 구조입니다.
+
+---
+
+## 4) 두 번째 큰 흐름: 코드 편집 루프( `Editor` 중심 )
+가운데 영역에서 **코드 수정/편집**이 담당됩니다.
+
+### 4-1. 분기: `SoftwareEngineer` → `Editor`
+- `SoftwareEngineer`에서 아래쪽 중앙으로 점선 흐름이 뻗어 **`Editor`**로 이어집니다.
+- `Editor`는 분석 결과를 바탕으로 “코드를 실제로 수정”하는 담당 노드입니다.
+
+### 4-2. `Editor` → (실제 편집 도구) `code_edit_tool`
+- `Editor`에는 **`code_edit_tool`**이 연결되어 있습니다.
+- 이 의미는:
+  - `Editor`는 “편집 로직/절차를 관리”
+  - 실제 파일/코드 변경은 `code_edit_tool`이 담당
+  라는 분리로 해석됩니다.
+
+### 4-3. 편집 완료 후 상태 전파: `code_edit_tool` → `Editor`
+- `code_edit_tool`에서 다시 `Editor`로 이어지며,
+- 그림에 `continue`가 표시되어 있어 편집 결과를 반영한 뒤 바로 종료하지 않고
+  - 다음 작업(예: 테스트)
+  - 또는 다시 분석으로 되돌아가는 루프
+  가 가능함을 보여줍니다.
+
+### 4-4. `Editor` → `SoftwareEngineer` (done)
+- `Editor`에서 **`done` 라벨**이 붙은 화살표가 `SoftwareEngineer`로 재수렴합니다.
+- 즉, 편집이 끝나면 `SoftwareEngineer`가 “다음은 테스트를 할지 / 다시 분석을 할지 / 최종 종료할지”를 판단합니다.
+
+---
+
+## 5) 세 번째 큰 흐름: 테스트 루프( `test_tool` 중심 )
+가운데 아래쪽에 **테스트** 단계가 존재합니다.
+
+### 5-1. `SoftwareEngineer` → `Editor` 안에서 테스트 단계 연계
+- 그림에서 `Editor` 노드 아래에 **`test_tool`**이 연결되어 있습니다.
+- 이는 편집 후 곧바로 테스트를 수행하거나,
+- 혹은 편집과 테스트가 같은 사이클 안에서 순차/병렬처럼 묶여 있음을 시사합니다.
+
+### 5-2. `test_tool` 실행 → `Editor` 또는 다음 상태
+- `test_tool`이 수행되면 `continue`가 표시된 흐름이 존재합니다.
+- 즉 테스트 결과가 단순히 “통과하면 끝”처럼 단순화된 형태가 아니라,
+  - 테스트 결과에 따라 다음 동작이 달라질 수 있고
+  - 실패하면 다시 Editor(수정) 또는 CodeAnalyzer(원인 분석)로 되돌아가는 구조일 가능성이 큽니다.
+
+### 5-3. 테스트 완료 후 `SoftwareEngineer`로 재수렴 (done)
+- `Editor`에서 `done`이 `SoftwareEngineer`로 연결되는 형태가 보이므로,
+- 테스트까지 포함한 편집 사이클이 끝나면 다시 `SoftwareEngineer`가 전체 제어권을 갖고 다음 결정을 합니다.
+
+---
+
+## 6) `continue` 및 최종 종료 경로: `SoftwareEngineer` → `end`
+오른쪽 영역에 `end` 노드가 있으며, `SoftwareEngineer`에서 **직접 `end`로 가는** 흐름(점선)과, `continue` 라벨이 보입니다.
+
+이를 논리적으로 해석하면:
+
+1. `SoftwareEngineer`가 현재 상태를 확인합니다.  
+2. 코드가 의도대로 동작한다고 판단되면(혹은 더 이상 반복할 필요가 없다고 판단되면)
+3. **`end`로 진행**하여 Workflow를 종료합니다.
+
+즉 `continue`는 보통
+- “아직 더 작업이 필요하면 계속”
+- “작업 조건이 충족되면 종료로 이동”
+같은 식의 조건 분기/상태 전이를 의미할 수 있습니다.
+
+그림에는 `end`로 직결되는 곡선 화살표가 보이므로, “반복 후 최종적으로 종료”가 가능하도록 설계된 것으로 보입니다.
+
+---
+
+## 7) 정리: 이 Workflow의 ‘사이클’ 의미
+그림을 한 문장으로 요약하면:
+
+> **SoftwareEngineer가 중심 오케스트레이터로서, CodeAnalyzer(분석) → Editor(편집) → test_tool(검증)을 반복(continue/done)하며, 조건이 충족되면 end로 종료하는 루프형 워크플로우**입니다.
+
+좀 더 구체적으로 사이클을 단계 순서로 풀면:
+
+1. **start**
+2. **SoftwareEngineer**(결정/통제 시작)
+3. **CodeAnalyzer** 실행 → **code_analysis_tool** 수행 → 결과를 **done/continue**로 반영 → 다시 **SoftwareEngineer**
+4. **Editor** 실행 → **code_edit_tool**로 수정 → (필요 시) **continue**
+5. **test_tool**로 테스트/검증
+6. 테스트/편집 사이클이 끝나면 **done**으로 **SoftwareEngineer**로 재수렴
+7. 더 이상 수정/분석이 필요 없다고 판단되면 **end**로 이동
+
+---
+
+원하시면, 제가 이 그래프를 바탕으로 **“가능한 조건(예: 테스트 실패 시 다시 Editor로, 분석 결과 부족 시 CodeAnalyzer로)”**을 가정한 **의사코드(pseudocode)** 형태로도 재구성해 드릴게요. (그림에 조건명이 명확히 없어서, 해석은 “일반적인 형태”로 추정이 들어갑니다.)

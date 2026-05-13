@@ -1,0 +1,28 @@
+다음은 파이썬으로 구현한 퀵소트입니다. 각 줄마다 한국어 주석을 달아 설명했습니다.
+
+```python
+def partition(arr, low, high):  # Lomuto 파티션을 사용하여 arr[low..high]를 분할하는 함수
+    pivot = arr[high]  # 피벗으로 범위의 마지막 원소를 선택함
+    i = low - 1  # 작은 요소들의 끝 인덱스를 low-1로 초기화함
+    for j in range(low, high):  # low부터 high-1까지 순회함
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 작은 요소들의 끝을 하나 옮김
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 요소들 뒤로 교환함
+    arr[i+1], arr[high] = arr[high], arr[i+1]  # 피벗을 올바른 위치인 i+1로 옮겨 분할을 완성함
+    return i+1  # 피벗의 최종 인덱스를 반환함
+
+def quicksort(arr, low, high):  # arr의 부분 구간 low..high를 재귀적으로 정렬하는 함수
+    if low < high:  # 정렬할 구간에 2개 이상의 요소가 있을 때만 수행함
+        p = partition(arr, low, high)  # 구간을 분할하고 피벗의 위치를 받음
+        quicksort(arr, low, p-1)  # 피벗 왼쪽 부분을 재귀적으로 정렬함
+        quicksort(arr, p+1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬함
+
+def quicksort_inplace(arr):  # 외부에서 호출하기 편한 래퍼 함수 정의
+    quicksort(arr, 0, len(arr)-1)  # 전체 배열을 대상으로 내부 퀵소트 호출
+
+if __name__ == "__main__":  # 이 스크립트를 직접 실행할 때만 아래 예시를 실행함
+    a = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 배열을 정의함
+    print("정렬 전:", a)  # 정렬 전 배열을 출력함
+    quicksort_inplace(a)  # 배열을 제자리(in-place)에서 정렬함
+    print("정렬 후:", a)  # 정렬 후 배열을 출력함
+```

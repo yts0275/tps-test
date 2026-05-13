@@ -1,0 +1,26 @@
+```python
+# 퀵소트 (Python) 구현 – 각 줄마다 주석을 달았습니다.
+
+def quicksort(arr):                       # 함수 정의: arr을 정렬된 리스트로 반환
+    if len(arr) <= 1:                     # 리스트가 0개 또는 1개일 때는 그대로 반환
+        return arr                        # 정렬된 상태를 반환
+
+    pivot = arr[-1]                       # 피벗으로 리스트의 마지막 원소 사용
+    less = []                             # 피벗보다 작은 값들을 저장할 리스트
+    greater = []                          # 피벗보다 크거나 같은 값들을 저장할 리스트
+
+    for element in arr[:-1]:              # 피벗을 제외한 모든 원소를 순회
+        if element < pivot:              # 피벗보다 작은 경우
+            less.append(element)         # less 리스트에 추가
+        else:                            # 피벗보다 크거나 같은 경우
+            greater.append(element)      # greater 리스트에 추가
+
+    return quicksort(less) + [pivot] + quicksort(greater)  # 재귀 정렬 후 합치기
+
+# 예시 사용
+if __name__ == "__main__":                # 스크립트가 직접 실행될 때 아래 코드 실행
+    unsorted_list = [3, 6, 8, 10, 1, 2, 1] # 예시 리스트
+    sorted_list = quicksort(unsorted_list) # 퀵소트 호출
+    print("정렬 전:", unsorted_list)       # 정렬 전 리스트 출력
+    print("정렬 후:", sorted_list)        # 정렬 후 리스트 출력
+```

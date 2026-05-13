@@ -1,0 +1,46 @@
+물론입니다! 아래는 **파이썬에서 퀵소트(Quick Sort)** 알고리즘을 구현한 코드이며, 각 줄에 친절한 주석을 달아 설명을 추가했습니다.
+
+```python
+# 퀵소트 함수 정의: 리스트를 정렬합니다.
+def quicksort(arr):
+    # 기저 조건: 리스트에 요소가 1개 이하일 경우 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피봇(pivot)을 리스트 중간의 요소로 선택 (가장 일반적인 방식)
+    pivot = arr[len(arr) // 2]
+
+    # 피봇보다 작거나 같은 요소들을 모은 왼쪽 리스트
+    left = [x for x in arr if x < pivot]
+
+    # 피봇과 같은 요소들을 모은 중간 리스트
+    middle = [x for x in arr if x == pivot]
+
+    # 피봇보다 큰 요소들을 모은 오른쪽 리스트
+    right = [x for x in arr if x > pivot]
+
+    # 왼쪽 리스트 정렬 + 중간 리스트 + 오른쪽 리스트 정렬한 결과를 리턴
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 사용법
+numbers = [3, 6, 8, 10, 1, 2, 1]
+sorted_numbers = quicksort(numbers)
+print("정렬된 리스트:", sorted_numbers)
+```
+
+### 주석 설명:
+
+- `if len(arr) <= 1: return arr`: 종료 조건. 리스트가 매우 작을 때는 정렬할 필요도 없습니다.
+- `pivot = arr[len(arr) // 2]`: 피봇 선택. 일반적으로 중간 요소를 선택합니다.
+- `left`: 피봇보다 작은 수를 모음
+- `middle`: 피봇과 같은 수를 모음
+- `right`: 피봇보다 큰 수를 모음
+- `return quicksort(left) + middle + quicksort(right)`: 재귀적으로 왼쪽/오른쪽 리스트를 다시 정렬하고 결과를 합칩니다.
+
+### 결과 예시:
+
+```
+정렬된 리스트: [1, 1, 2, 3, 6, 8, 10]
+```
+
+필요하다면 다른 방식(예: Lomuto 방식 등)으로도 구현해 드릴 수 있어요! 😊

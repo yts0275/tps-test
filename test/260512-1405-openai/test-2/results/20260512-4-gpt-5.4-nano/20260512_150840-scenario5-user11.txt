@@ -1,0 +1,30 @@
+아래는 **퀵소트(Quick Sort)**를 파이썬으로 구현한 예시입니다. **모든 줄마다 주석**을 달았습니다.  
+
+```python
+def quicksort(arr):  # 주어진 리스트 arr를 퀵소트로 정렬하는 함수 정의
+    if len(arr) <= 1:  # 원소가 0개 또는 1개면 이미 정렬되어 있다고 보고 그대로 반환
+        return arr  # 길이가 1 이하인 경우 정렬된 리스트 반환
+
+    pivot = arr[len(arr) // 2]  # 가운데 원소를 기준(pivot)으로 선택
+    left = []  # pivot보다 작은 값들을 담을 리스트 생성
+    middle = []  # pivot과 같은 값들을 담을 리스트 생성
+    right = []  # pivot보다 큰 값들을 담을 리스트 생성
+
+    for x in arr:  # 배열의 각 원소 x에 대해 반복
+        if x < pivot:  # x가 pivot보다 작으면
+            left.append(x)  # left 리스트에 x 추가
+        elif x > pivot:  # x가 pivot보다 크면
+            right.append(x)  # right 리스트에 x 추가
+        else:  # x가 pivot과 같으면
+            middle.append(x)  # middle 리스트에 x 추가
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽 정렬 결과 + pivot들 + 오른쪽 정렬 결과를 합쳐 반환
+
+
+# 테스트 코드 시작
+data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 데이터 리스트
+sorted_data = quicksort(data)  # 퀵소트로 정렬 수행
+print(sorted_data)  # 정렬된 결과 출력
+```
+
+원하시면 **C/C++/자바 버전**으로도, 또는 **제자리(in-place) 퀵소트(재귀 + 파티션)** 형태로도 “각 줄 주석” 달아서 만들어드릴까요? (언어를 알려주세요)

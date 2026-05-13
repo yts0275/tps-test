@@ -1,0 +1,119 @@
+다음 Workflow는 시작(start) 노드에서 출발하여 SoftwareEngineer가 중심적으로 흐름을 조정하는 구조다. 주요 노드는 SoftwareEngineer, CodeAnalyzer, Editor, swe_tool 이고, 각 노드 아래에 실제 도구로 실행되는 code_analysis_tool, code_edit_tool, test_tool이 있다. 화살표와 라벨은 흐름의 방향과 조건/상태를 나타낸다. 아래에 가능한 흐름을 최대한 상세히 풀어 설명한다.
+
+1) 전체 흐름의 개요
+- 시작 지점: start에서 바로 SoftwareEngineer로 진입한다.
+- SoftwareEngineer: 워크플로우의 조정자 역할로 보이며, 다음 세 가지 주 흐름 중 하나를 선택하거나 조합하는 방식으로 진행된다.
+  - 분석 흐름(analyze_code): CodeAnalyzer로 코드 분석을 수행
+  - 편집 흐름(edit_file): Editor를 통해 코드 편집을 수행
+  - SWE 도구 흐름(continue → swe_tool): swe_tool 이슈나 도구를 수행한 뒤 end로 마무리
+- CodeAnalyzer: 코드를 분석하는 모듈로, code_analysis_tool를 호출해 실제 분석을 수행한다. 분석이 끝나면 다시 CodeAnalyzer로 돌아오거나(루프/피드백), Editor로 넘어가 편집 단계로 진행될 수 있다(“continue” 신호를 받음).
+- code_analysis_tool: CodeAnalyzer가 실제 분석 작업을 수행하는 도구다. 분석이 완료되면 CodeAnalyzer로 결과를 반환한다(“done”로 표시되는 경로).
+- Editor: 코드 편집을 담당하는 모듈로, 편집 후에는 코드 편집 도구(code_edit_tool)와 테스트 도구(test_tool)를 통해 후속 검증을 수행하는 흐름으로 이어질 수 있다.
+- code_edit_tool: Editor의 실제 편집 작업을 수행하는 도구다. 편집이 완료되면 Editor로 돌아오며(“done”).
+- test_tool: Editor에서 편집된 코드에 대해 테스트를 수행하는 도구다. 테스트 완료 후에도 Editor로 제어가 돌아오거나, 다음 단계로 진행하기 위한 신호를 보낸다(“continue”).
+- swe_tool: Software Engineer 측의 추가 도구 및 작업을 수행하는 노드다. 이 도구를 수행한 후 end로 마무리한다.
+- end: 워크플로의 종료 지점.
+
+2) 노드별 상세 설명
+
+- start
+  - 기능: 워크플로우의 진입점. 곧바로 SoftwareEngineer로 제어를 넘긴다.
+
+- SoftwareEngineer
+  - 역할: 전체 프로세스의 조정자/오케스트레이터다. 흐름의 분기점 역할을 하며, 다음 경로 중 하나 또는 다수의 경로를 선택해 실행한다.
+  - 주요 출력/연결:
+    - analyze_code: CodeAnalyzer로 분석 흐름으로 진입.
+    - edit_file: Editor로 편집 흐름으로 진입.
+    - continue → swe_tool: swe_tool으로 추가 도구 작업 수행 흐름으로 진입.
+    - end에 도달하는 경로도 가능하나, 다수의 경로가 상호 연결되어 있어 end로 직접 가는 간선은 다소 간접적일 수 있다.
+  - 해석 포인트: 이 노드는 실제로는 어떤 조건(예: 코드 품질, 편집 필요성, 단위 테스트 요구)에 따라 다른 하위 노드를 트리거하는 포인트로 볼 수 있다.
+
+- CodeAnalyzer
+  - 역할: 코드의 분석 작업을 관리하는 노드다. 분석 필요 시 analyze_code 신호를 받아 CodeAnalyzer로 들어온다.
+  - 주요 입력/출력:
+    - 입력: analyze_code(SoftwareEngineer로부터)
+    - 출력:
+      - code_analysis_tool을 호출하여 실제 분석 수행
+      - continue(다음 단계로 Editor로의 수렴 신호) 또는 done(분석 종료)
+  - 흐름 특징: CodeAnalyzer 아래에는 code_analysis_tool이 직접 연결되어 있으며, 도구가 수행된다음 다시 CodeAnalyzer로 돌아오거나(루프/재분석 가능성) Editor로 이동하는 경로가 보인다.
+
+- code_analysis_tool
+  - 역할: CodeAnalyzer가 의존하는 실제 코드 분석 도구다. 정적 분석/코드 품질 체크 등 구체적인 분석을 수행한다.
+  - 입력/출력:
+    - 입력: CodeAnalyzer에서 시작
+    - 출력: 완료되면 CodeAnalyzer로 back(보통 “done” 상태로 표시되거나, CodeAnalyzer에 의해 다음 단계로 넘어가는 제어 흐름)
+  - 흐름 포인트: 이 도구의 수행이 끝나면 CodeAnalyzer로 돌아가거나(루프/재분석 옵션) Editor로 넘어가기 위한 신호를 보낸다.
+
+- Editor
+  - 역할: 편집 작업을 담당하는 노드다. 분석 결과에 따라 수정/수정을 수행하고, 편집 이후의 테스트를 주도한다.
+  - 주요 입력/출력:
+    - 입력: edit_file(SoftwareEngineer로부터)
+    - 출력:
+      - code_edit_tool 호출(편집 수행)
+      - test_tool 호출(수행된 변경에 대한 테스트)
+      - continue/done 신호를 통해 다음 단계로 흐름 제어
+  - 흐름 특징: Editor는 편집이 끝난 후 code_edit_tool과 test_tool을 순차적으로 사용하며, 각각의 수행이 끝날 때 Editor로 제어가 돌아오고, 필요한 경우 SoftwareEngineer로 돌아가게 되거나 다음 단계로 넘어간다.
+
+- code_edit_tool
+  - 역할: Editor의 실제 편집 작업을 수행하는 도구다.
+  - 입력/출력:
+    - 입력: Editor에서 호출
+    - 출력: 완료 시 Editor로 돌아간다(주로 “done” 상태)
+  - 흐름 포인트: 편집이 완료되면 Editor로 제어를 되돌려 후속 단계(테스트 등)로 진행한다.
+
+- test_tool
+  - 역할: Editor가 편집한 코드의 테스트를 수행하는 도구다.
+  - 입력/출력:
+    - 입력: Editor에서 호출
+    - 출력: 테스트 완료 시 Editor로 돌아간다(일반적으로 “done” 또는 테스트 성공 여부를 반영하는 상태)
+  - 흐름 포인트: 테스트가 끝난 뒤 Editor의 다음 단계(다음 루프의 시작, SoftwareEngineer로의 피드백, 또는 수동 종료 등)로 흐름이 이어진다.
+
+- swe_tool
+  - 역할: SWE(Software Engineer) 관점의 보조 도구를 수행하는 노드다. 특정 도구 실행이나 보조 작업일 가능성이 있다.
+  - 입력/출력:
+    - 입력: SoftwareEngineer에서 continue 신호를 받아 진입
+    - 출력: end로 직접 연결되거나 다른 경로를 통해 종료
+  - 흐름 포인트: 이 도구가 완료되면 최종적으로 end로 마무리하는 경로가 보인다.
+
+- end
+  - 역할: 워크플로의 종료 지점.
+  - 입력: swe_tool 또는 SoftwareEngineer의 최종 흐름이 종료될 때 도달.
+
+3) 흐름의 예시(실행 시나리오)
+- 시나리오 A: 분석-편집 루프
+  - start → SoftwareEngineer(analyze_code)
+  - SoftwareEngineer → CodeAnalyzer
+  - CodeAnalyzer → code_analysis_tool 실행
+  - code_analysis_tool → CodeAnalyzer(done)
+  - CodeAnalyzer → Editor(continue)
+  - Editor → code_edit_tool 실행
+  - code_edit_tool → Editor(done)
+  - Editor → test_tool 실행
+  - test_tool → Editor(done)
+  - Editor → SoftwareEngineer(다음 루프를 위한 대기 상태)
+  - SoftwareEngineer → swe_tool(continue)
+  - swe_tool → end
+- 시나리오 B: 편집만 먼저 수행하는 경우
+  - start → SoftwareEngineer(edit_file)
+  - Editor → code_edit_tool 실행
+  - code_edit_tool → Editor(done)
+  - Editor → test_tool 실행
+  - test_tool → Editor(done)
+  - Editor → SoftwareEngineer로 돌아가 추가 흐름 결정
+  - SoftwareEngineer → swe_tool → end
+- 시나리오 C: SWE 도구로 종료하는 경로
+  - start → SoftwareEngineer(continue)
+  - SoftwareEngineer → swe_tool 실행
+  - swe_tool → end
+
+4) 해석 시 유의점
+- 노드 간의 화살표는 흐름 방향을 나타낸다. dashed(점선) 화살표는 보조/루프 또는 선택적 흐름, solid(실선) 화살표는 기본 흐름으로 해석하는 것이 일반적이다.
+- 라벨은 해당 단계에서의 입력/출력 신호를 나타낸다. 예: analyze_code, edit_file, done, continue 등은 각 단계 간의 제어 신호를 의미한다.
+- code_analysis_tool, code_edit_tool, test_tool은 각 상위 노드의 실제 수행 도구를 의미하며, 도구 수행이 끝나면 상위 노드로 돌아가거나 다음 단계로 넘어가는 방식으로 연결된다.
+- end는 전체 프로세스의 종료 지점으로, 특정 경로를 통해 도달한다.
+
+5) 요약
+- 이 워크플로우는 SoftwareEngineer가 중심적으로 조정하며, 코드를 분석(CodeAnalyzer + code_analysis_tool)하고 필요하면 편집(Editor + code_edit_tool)하고 테스트(test_tool)를 거친 뒤, 필요 시 swe_tool로 보조 작업을 수행하고 최종 end로 마무리하는 구조다.
+- 분석과 편집은 루프 형태로 재시도/피드백이 가능하게 구성되어 있으며, 각 하위 도구의 완료 신호(done)와 다음 단계로의 진행 신호(continue)가 흐름 제어의 핵심이다.
+
+원하시면 이 흐름을 바탕으로 예시 실행 로그(순서 문자열)나 상태 다이어그램으로도 더 구체적으로 작성해 드리겠습니다.

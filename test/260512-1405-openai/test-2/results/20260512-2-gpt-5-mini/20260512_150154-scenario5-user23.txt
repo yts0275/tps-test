@@ -1,0 +1,27 @@
+아래는 파이썬으로 구현한 퀵소트 예제입니다. 각 코드 줄마다 한국어 주석을 달아 설명을 붙였습니다.
+
+```python
+def quicksort(arr, low=0, high=None):  # arr를 제자리(in-place)로 퀵소트하는 함수 정의, low와 high는 정렬할 부분 범위
+    if high is None:  # high 인자가 전달되지 않았는지 확인
+        high = len(arr) - 1  # high가 없으면 배열 전체 마지막 인덱스로 설정
+    if low < high:  # 정렬할 구간에 두 개 이상의 원소가 있는 경우에만 진행
+        p = partition(arr, low, high)  # 피벗을 정하고 피벗의 최종 위치 인덱스를 얻음
+        quicksort(arr, low, p - 1)  # 피벗의 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗의 오른쪽 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 방식을 사용하는 partition 함수 정의
+    pivot = arr[high]  # 피벗으로 구간의 마지막 원소를 선택
+    i = low - 1  # 작은 원소의 경계 인덱스 초기화 (i는 작은 원소 마지막 인덱스)
+    for j in range(low, high):  # low부터 high-1까지 순회하면서 피벗보다 작은 원소를 찾음
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 원소 경계를 하나 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소를 작은 원소 영역의 뒤로 스왑
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 원소 영역의 바로 다음 위치로 이동(최종 위치)
+    return i + 1  # 피벗의 최종 위치 인덱스 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 코드가 동작하도록 함
+    a = [3, 6, 8, 10, 1, 2, 1]  # 예시로 정렬할 리스트 정의
+    print("원본:", a)  # 정렬 전 리스트 출력
+    quicksort(a)  # 리스트를 제자리 퀵소트로 정렬
+    print("정렬:", a)  # 정렬 후 리스트 출력
+```

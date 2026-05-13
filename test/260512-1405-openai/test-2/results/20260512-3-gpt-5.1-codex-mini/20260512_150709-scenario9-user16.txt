@@ -1,0 +1,38 @@
+이 워크플로우는 최상단의 `start` 노드에서 출발하여 소프트웨어 엔지니어(`SoftwareEngineer`)를 중심으로 여러 하위 작업 노드들과 그 흐름을 정의하고 있습니다. 다음은 각 노드의 흐름과 연결 관계를 최대한 상세히 설명한 내용입니다.
+
+1. **start → SoftwareEngineer**  
+   - 워크플로우는 `start` 노드에서 시작하여 곧바로 `SoftwareEngineer` 노드로 이동합니다. 이 과정은 하나의 직선화된 흐름으로, 소프트웨어 엔지니어가 전체 작업의 중심임을 나타냅니다.
+
+2. **SoftwareEngineer ↔ CodeAnalyzer와 Editor, swe_tool, end**  
+   - `SoftwareEngineer` 노드는 워크플로우의 중심이며, 다양한 하위 도구 및 작업 흐름으로 분기하거나 결과를 받아옵니다.
+   - `SoftwareEngineer` 노드에서 `CodeAnalyzer`로 향하는 흐름은 “analyze_code”라는 동작 라벨로 표현되며, 이는 코드 분석 작업으로 진입하는 것을 나타냅니다.
+   - `CodeAnalyzer`의 작업이 완료되면 “done” 라벨이 붙은 흐름을 따라 다시 `SoftwareEngineer`로 돌아옵니다. 이 흐름은 `CodeAnalyzer`가 수행한 분석 결과를 수집하고 다음 단계로 이어지기 위한 복귀입니다.
+   - `SoftwareEngineer`는 `Editor` 노드로도 진입할 수 있으며, 이 흐름은 “edit_file” 라벨로 구체화되어 파일을 편집하고자 할 때의 흐름임을 보여줍니다. 편집 작업이 끝나면 “done” 라벨을 통해 `SoftwareEngineer`로 복귀합니다.
+   - `SoftwareEngineer`는 `swe_tool` 노드로 이어지는 흐름도 가지며, 이는 일반적으로 작업을 계속하거나 추가적인 툴 활용을 위한 과정입니다. 이 흐름은 “continue” 또는 비정형화된 중간 상태 라벨이 연결된 점선 형태로, 외부 도구와의 상호작용 혹은 다음 단계로 진행하는 선택적인 경로를 나타냅니다.
+   - `SoftwareEngineer`가 더 이상의 작업을 하지 않을 경우, 최종적으로 `end` 노드로 향하는 흐름이 있으며, 이 역시 “continue”와 같은 라벨로 표현되어 작업 종료를 암시합니다.
+
+3. **CodeAnalyzer 내/외부 도구 흐름**  
+   - `CodeAnalyzer`는 내부적으로 `code_analysis_tool`이라는 외부 도구와 연결되어 있습니다. 흐름은 `CodeAnalyzer`에서 `code_analysis_tool`로 향하는 형태로, 실제 분석을 수행하는 도구와의 상호작용을 나타냅니다. 이는 `CodeAnalyzer`의 작업이 단독으로 끝나는 것이 아니라 구체적인 도구를 통해 수행됨을 보여줍니다.
+   - `CodeAnalyzer`는 또한 `SoftwareEngineer`와 비직선적으로 평행하게 흐르며, 분석 작업을 진행(“continue”)할 수도 있고, 완료 후 되돌아오는 복수의 흐름이 존재합니다. 이 때 “continue” 라벨이 달린 점선은 분석 중에도 여전히 엔지니어와의 상호작용 가능성을 뜻합니다.
+
+4. **Editor 내/외부 도구 흐름**  
+   - `Editor` 노드 역시 `code_edit_tool`, `test_tool` 등 외부 도구와 연결됩니다.
+   - 첫 번째 흐름은 `Editor` → `code_edit_tool`로 이어지며 파일 편집을 위한 구체적인 툴을 사용함을 나타냅니다. 이 흐름은 직선형 화살표 형태로, `Editor`가 해당 도구를 호출하여 수정 작업을 수행함을 시사합니다.
+   - 또 다른 흐름은 `Editor` → `test_tool`로 이어지며, 편집 이후 테스트 도구를 사용하여 수정된 코드의 테스트를 진행할 수 있음을 보여줍니다.
+   - `Editor`는 완료 후 “done” 라벨이 붙은 흐름으로 다시 `SoftwareEngineer`로 되돌아옵니다. 이 되돌아오는 흐름 역시 점선이나 실선 강조 없이 단순하게 표현되어 있으며, 중간 결과를 `SoftwareEngineer`에게 다시 전달하는 형태입니다.
+   - `Editor`에서 반복적으로 “continue” 흐름이 생기는 것은, 편집작업이 완료된 이후에도 지속적으로 추가 수정이나 검토가 필요한 경우 `Editor` 작업이 계속된다는 것을 의미합니다. 이러한 점선형 연결은 연속적인 편집 사이클을 암시합니다.
+
+5. **SoftwareEngineer와 swe_tool, end로의 상호작용**  
+   - `SoftwareEngineer`는 `swe_tool`에 연결되어 있으며, 이 흐름은 중간 도구 사용 혹은 간헐적인 작업 전환을 시사합니다. 해당 흐름은 점선이며 “continue”라는 라벨을 포함할 수 있어 필수 다음 단계가 아닌 가능성 있는 단계임을 표현합니다.
+   - `swe_tool`의 위치는 `SoftwareEngineer`의 오른쪽 하단에 있으며, 이 도구는 작업 흐름 상에서 추가적인 도구이거나 보조 툴로 취급됩니다. 해당 도구에서 `SoftwareEngineer`로의 뚜렷한 반환 흐름은 도식에 명확히 나타나지 않지만, 일반적으로 스스로 결론을 내리고 `SoftwareEngineer`가 다시 이어받는 구조로 해석 가능합니다.
+   - 최종적으로 `SoftwareEngineer`는 `end` 노드를 향해 흐름을 내보내며, 이는 마지막 “continue” 흐름으로써 모든 작업이 종료되었음을 표시합니다.
+
+6. **점선과 실선의 의미 (추론)**  
+   - 이 도식에서 점선 흐름은 옵션, 반복, 비동기적 또는 보조적 흐름을 의미하고, 실선은 필수적인 흐름을 나타냅니다. 예시로 `CodeAnalyzer`와 `SoftwareEngineer` 간 “analyze_code” 실선 흐름은 필수 분석 사이클인 반면, “continue” 점선 흐름은 작업 지속 가능성 또는 도구 선택 옵션을 나타냅니다.
+
+7. **요약**  
+   - 종합하면 `start` → `SoftwareEngineer`로 시작한 다음, 엔지니어는 코드 분석(`CodeAnalyzer` → `code_analysis_tool`)이나 편집(`Editor` → `code_edit_tool`, `test_tool`)을 번갈아 수행하며 각 작업을 마친 후 다시 엔지니어로 되돌아옵니다.
+   - 필요 시 `swe_tool`과 같은 보조 도구를 활용하거나, 단순히 “continue” 흐름을 통해 추가 작업을 진행합니다.
+   - 최종적으로 모든 작업을 마친 엔지니어는 `end` 노드로 이동하면서 워크플로우가 종료되는 구조입니다.
+
+이런 흐름을 통해 소프트웨어 엔지니어가 코드 분석, 편집, 테스트, 보조 도구 활용 등을 반복하면서 점진적으로 개발 작업을 완료해 나가는 과정을 잘 표현하고 있습니다.

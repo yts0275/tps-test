@@ -1,0 +1,27 @@
+아래는 파이썬으로 구현한 **퀵소트(Quick Sort)** 알고리즘입니다.  
+코드의 **모든 줄**마다 한 줄 주석을 달아 설명했습니다.  
+
+```python
+def quicksort(arr):                            # 정렬할 리스트를 인자로 받는 함수 정의
+    if len(arr) <= 1:                         # 리스트가 0명 또는 1명 요소이면 그대로 반환
+        return arr
+    pivot = arr[len(arr) // 2]                # 중간 인덱스의 값을 pivot(분할값)으로 선택
+    left = [x for x in arr if x < pivot]       # pivot보다 작은 값들로만 이루어진 리스트
+    middle = [x for x in arr if x == pivot]    # pivot과 같은 값들로만 이루어진 리스트
+    right = [x for x in arr if x > pivot]      # pivot보다 큰 값들로만 이루어진 리스트
+    return quicksort(left) + middle + quicksort(right)   # 재귀 호출로 정렬한 결과를 합침
+
+# 아래 테스트 코드 (필요하면 사용)
+if __name__ == "__main__":                   # 스크립트가 직접 실행될 때만 실행
+    arr = [3, 6, 8, 10, 1, 2, 1]              # 예시 배열
+    sorted_arr = quicksort(arr)               # quicksort 호출
+    print(sorted_arr)                         # 정렬된 결과 출력
+```
+
+#### 핵심 포인트
+1. **pivot 선택** – 여기서는 배열의 중간 값을 사용했습니다.  
+2. **리스트 컴프리헨션** – `left`, `middle`, `right`를 한 줄에 만들어 가독성을 높였습니다.  
+3. **재귀** – 좌우 부분을 같은 방식으로 재귀적으로 정렬한 뒤 연결합니다.  
+4. **시간복잡도** – 평균적으로 `O(n log n)`, 최악은 `O(n²)`이지만 pivot 선택 방식을 바꿔 최악의 경우를 회피할 수 있습니다.  
+
+필요에 따라 in‑place(제자리) 퀵소트 구현이나 난수 pivot을 이용해 성능 개선 방안을 적용할 수 있습니다. 어려운 점이 있으면 언제든 물어보세요!

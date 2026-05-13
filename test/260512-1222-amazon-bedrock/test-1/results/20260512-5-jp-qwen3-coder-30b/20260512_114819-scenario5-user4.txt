@@ -1,0 +1,62 @@
+물론입니다! 아래는 **퀵정렬(Quick Sort)**의 Python 구현 코드이며, 각 줄에 상세한 주석을 달아 설명했습니다.
+
+```python
+# 퀵정렬 함수 정의: 배열과 시작 인덱스, 끝 인덱스를 입력 받음
+def quicksort(arr, low, high):
+    # 재귀 호출의 종료 조건: 시작 인덱스가 끝 인덱스보다 크거나 같으면 더 이상 정렬할 필요 없음
+    if low < high:
+        # 파티션 함수를 호출하여 기준값(pivot)의 올바른 위치를 찾고, 그 위치를 pivot_index에 저장
+        pivot_index = partition(arr, low, high)
+        
+        # 기준값 왼쪽 부분 배열에 대해 퀵정렬 재귀 호출
+        quicksort(arr, low, pivot_index - 1)
+        
+        # 기준값 오른쪽 부분 배열에 대해 퀵정렬 재귀 호출
+        quicksort(arr, pivot_index + 1, high)
+
+# 파티션 함수 정의: 기준값을 기준으로 배열을 두 부분으로 분할
+def partition(arr, low, high):
+    # 마지막 요소를 기준값(pivot)으로 설정
+    pivot = arr[high]
+    
+    # i는 작은 요소들을 배치할 위치를 가리킴 (초기값은 low - 1)
+    i = low - 1
+    
+    # low부터 high-1까지의 요소들을 순회하며 비교
+    for j in range(low, high):
+        # 현재 요소가 기준값보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i를 하나 증가시킨 후, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 기준값을 올바른 위치로 이동시키기 위해, arr[i+1]과 arr[high]를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 이제 기준값의 최종 위치를 반환
+    return i + 1
+
+# 사용 예시
+if __name__ == "__main__":
+    # 정렬할 배열
+    arr = [10, 7, 8, 9, 1, 5]
+    
+    # 배열의 길이
+    n = len(arr)
+    
+    # 퀵정렬 수행
+    quicksort(arr, 0, n - 1)
+    
+    # 정렬된 결과 출력
+    print("정렬된 배열:", arr)
+```
+
+### ✅ 실행 예시:
+
+```text
+정렬된 배열: [1, 5, 7, 8, 9, 10]
+```
+
+---
+
+필요하시면 C++ 또는 다른 언어 버전도 알려드릴 수 있어요!

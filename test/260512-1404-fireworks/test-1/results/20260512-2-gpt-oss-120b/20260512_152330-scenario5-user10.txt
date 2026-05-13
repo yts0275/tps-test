@@ -1,0 +1,42 @@
+아래는 **Python** 으로 작성한 퀵소트(Quick Sort) 구현 예시입니다.  
+각 코드 라인마다 한국어 주석을 달아 이해를 돕도록 하였습니다.
+
+```python
+def quick_sort(arr):                     # 퀵소트를 수행할 함수 정의, 입력은 정렬할 리스트
+    if len(arr) <= 1:                    # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                        # 그대로 반환
+
+    pivot = arr[len(arr) // 2]           # 피벗(pivot) 선택: 중간 요소를 기준으로 삼음
+    left = []                            # 피벗보다 작은 요소들을 담을 리스트
+    middle = []                          # 피벗과 같은 값들을 담을 리스트
+    right = []                           # 피벗보다 큰 요소들을 담을 리스트
+
+    for x in arr:                        # 원본 리스트를 순회하면서 요소 분류
+        if x < pivot:                     # 현재 요소가 피벗보다 작으면
+            left.append(x)                # left 리스트에 추가
+        elif x == pivot:                  # 현재 요소가 피벗과 같으면
+            middle.append(x)              # middle 리스트에 추가
+        else:                             # 현재 요소가 피벗보다 크면
+            right.append(x)               # right 리스트에 추가
+
+    # 재귀적으로 left와 right 부분을 정렬하고, middle은 그대로 연결
+    return quick_sort(left) + middle + quick_sort(right)   # 정렬된 결과를 합쳐 반환
+
+
+# ----------------------------------------------------------------------
+# 사용 예시
+if __name__ == "__main__":                # 스크립트가 직접 실행될 때만 아래 코드 실행
+    sample = [33, 10, 55, 71, 29, 3, 18]   # 정렬할 샘플 리스트
+    print("Original:", sample)            # 원본 리스트 출력
+    sorted_list = quick_sort(sample)      # 퀵소트 함수 호출
+    print("Sorted:", sorted_list)         # 정렬된 리스트 출력
+```
+
+### 코드 흐름 요약
+1. **기저 조건** – 리스트 길이가 1 이하이면 바로 반환(이미 정렬된 상태).  
+2. **피벗 선택** – 여기서는 리스트 중간값을 피벗으로 사용.  
+3. **분할** – `left`, `middle`, `right` 세 개의 리스트에 각각 피벗보다 작은, 같은, 큰 요소를 저장.  
+4. **재귀 호출** – `left`와 `right`에 대해 같은 과정을 반복(재귀)하여 정렬하고, `middle`은 그대로 결합.  
+5. **결과 반환** – 정렬된 `left`, `middle`, `right` 를 차례대로 연결해 최종 정렬 결과를 만든다.  
+
+이렇게 구현하면 퀵소트의 핵심 원리인 **분할‑정복(Divide and Conquer)** 을 직관적으로 확인할 수 있습니다. 필요에 따라 피벗 선택 방식을 바꾸면 최악의 경우 성능을 개선할 수도 있습니다.

@@ -1,0 +1,34 @@
+아래는 Python으로 구현한 퀵소트입니다. 코드의 모든 줄에 한국어 주석을 달았습니다.
+
+```python
+def quick_sort(arr):  # 리스트 전체를 퀵소트로 정렬하는 편의 함수 정의
+    if arr is None:  # 입력이 None이면 처리할 필요 없음
+        return arr  # None을 그대로 반환
+    quicksort(arr, 0, len(arr) - 1)  # 실제 정렬을 수행하는 재귀 함수 호출
+    return arr  # 정렬된 리스트(같은 객체)를 반환
+
+
+def quicksort(arr, low, high):  # arr[low..high] 구간을 정렬하는 재귀 함수 정의
+    if low < high:  # 정렬할 구간에 2개 이상 요소가 있을 때만 처리
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗의 최종 위치 인덱스 받기
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+    # low >= high인 경우 더 이상 분할할 필요가 없으므로 아무 작업도 하지 않음
+
+
+def partition(arr, low, high):  # Lomuto 분할 방식을 사용하여 분할 수행
+    pivot = arr[high]  # 피벗으로 구간의 마지막 요소를 선택
+    i = low - 1  # 작은 요소들의 경계 인덱스를 나타내는 i를 초기화
+    for j in range(low, high):  # low부터 high-1까지 각 요소를 피벗과 비교하며 순회
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면 작은 그룹으로 이동시킴
+            i += 1  # 경계 인덱스 하나 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 그룹의 끝으로 스왑
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 그룹 바로 다음 위치로 옮김
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+
+# 사용 예시:
+# a = [3, 6, 2, 7, 5, 1, 4]  # 정렬할 리스트 예시
+# quick_sort(a)  # 리스트 a를 제자리 정렬
+# print(a)  # [1, 2, 3, 4, 5, 6, 7] 출력
+```

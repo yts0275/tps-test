@@ -1,0 +1,59 @@
+아래는 **Python** 으로 구현한 퀵소트(Quick Sort) 알고리즘입니다.  
+각 줄마다 무슨 일을 하는지 설명하는 주석을 한글로 달아두었으니, 코드를 따라가면서 이해하시면 도움이 될 겁니다.
+
+```python
+def quick_sort(arr):
+    """ 퀵소트를 수행하고 정렬된 리스트를 반환합니다.
+        - 입력: 정렬할 리스트(arr)
+        - 출력: 정렬이 완료된 새로운 리스트
+    """
+    # 리스트가 비어있거나 원소가 하나만 있으면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # pivot(피벗) 요소를 선택합니다.
+    # 여기서는 리스트의 마지막 요소를 피벗으로 사용합니다.
+    pivot = arr[-1]
+
+    # 피벗보다 작은 값들을 담을 리스트
+    left = []
+    # 피벗보다 큰 값들을 담을 리스트
+    right = []
+    # 피벗과 값이 같은 요소들을 담을 리스트 (중복값 처리용)
+    middle = []
+
+    # 전체 리스트를 순회하면서 피벗과 비교해 세 개의 리스트에 나눕니다.
+    for x in arr:
+        if x < pivot:          # 현재 원소가 피벗보다 작으면 left에 추가
+            left.append(x)
+        elif x > pivot:        # 현재 원소가 피벳보다 크면 right에 추가
+            right.append(x)
+        else:                  # 현재 원소가 피벗과 같으면 middle에 추가
+            middle.append(x)
+
+    # left와 right 부분에 대해 재귀적으로 quick_sort를 호출해 정렬합니다.
+    # 이렇게 하면 작은 구간부터 차례대로 정렬됩니다.
+    sorted_left = quick_sort(left)      # left 부분을 재귀적으로 정렬
+    sorted_right = quick_sort(right)    # right 부분을 재귀적으로 정렬
+
+    # 최종 결과는 정렬된 left + middle(pivot 및 같은 값들) + 정렬된 right 를 이어붙인 리스트
+    return sorted_left + middle + sorted_right
+
+
+# ------------------------------
+# 사용 예시 (테스트용)
+if __name__ == "__main__":
+    unsorted = [33, 10, 55, 71, 29, 3, 18, 44, 55, 22]   # 정렬되지 않은 리스트
+    print("원본 리스트 :", unsorted)
+    sorted_list = quick_sort(unsorted)                  # 퀵소트 실행
+    print("정렬된 리스트:", sorted_list)
+```
+
+### 코드 설명 요약
+1. **Base case** – 리스트 길이가 1 이하이면 그대로 반환합니다.  
+2. **피벗 선택** – 여기서는 마지막 요소를 피벗으로 잡았습니다(다른 전략도 가능).  
+3. **분할** – 피벗보다 작은(`left`), 같은(`middle`), 큰(`right`) 값들로 나눕니다.  
+4. **재귀 호출** – `left`와 `right`에 대해 각각 `quick_sort`를 다시 실행해 정렬합니다.  
+5. **결합** – `sorted_left + middle + sorted_right`를 이어붙여 최종 정렬된 리스트를 반환합니다.  
+
+이 구현은 **안정적인(stable) 정렬은 아니지만**, 평균 시간 복잡도 `O(N log N)`을 가지며 가장 간단한 형태의 퀵소트 예시입니다. 필요에 따라 피벗 선택 방식을 바꾸거나 **in‑place** 버전으로 최적화할 수도 있습니다. Happy coding!

@@ -1,0 +1,27 @@
+아래는 파이썬으로 구현한 퀵소트이며, 각 줄마다 주석을 달았습니다.
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 주 함수: 배열과 정렬 구간의 시작/끝 인덱스를 받음
+    if low < high:  # 구간에 최소 2개의 원소가 있는지 확인
+        pi = partition(arr, low, high)  # 구간을 피벗 기준으로 분할하고 피벗 인덱스 얻음
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽 부분 배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # 파티션 함수: 피벗을 기준으로 배열 분할
+    pivot = arr[high]  # 구간의 마지막 원소를 피벗으로 선택
+    i = low - 1  # 피벗보다 작아지는 영역의 끝 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작아지는 영역의 끝을 한 칸 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소의 위치를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+if __name__ == "__main__":  # 스크립트로 실행될 때만 아래 코드가 실행되도록 보장
+    arr = [3, 6, 8, 10, 1, 2, 1, 5]  # 정렬할 배열 초기화
+    print("원본:", arr)  # 원본 배열 출력
+    quicksort(arr, 0, len(arr) - 1)  # 배열 전체를 퀵소트 실행
+    print("정렬 후:", arr)  # 정렬된 배열 출력
+``` 
+
+필요하시면 다른 언어 버전도 드릴게요.

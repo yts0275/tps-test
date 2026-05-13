@@ -1,0 +1,116 @@
+아래 그림의 Workflow는 “start → SoftwareEngineer(중앙) ↔ 여러 작업 도구(하위 Node들) ↔ end”로 이어지는 구조입니다. 화살표의 “done / continue / edit_file / analyze_code” 등의 레이블은 각 단계가 어떤 결과를 내거나 다음 상태로 넘어가는지를 나타내며, 전반적으로 **SoftwareEngineer가 작업을 지시하고**, **도구들이 실제 실행을 한 뒤 결과를 반환(또는 완료(done))**하면, **다시 SoftwareEngineer가 다음 작업(계속/수정/테스트 등)을 결정**하는 반복형 흐름으로 보입니다.
+
+---
+
+## 1) 시작: start
+- 최상단의 **start** Node에서 Workflow가 시작됩니다.
+- 이후 화살표가 **SoftwareEngineer** Node로 내려갑니다.
+- 즉, 처음에는 “소프트웨어 엔지니어(오케스트레이터/결정 주체)”가 전체 작업 흐름을 담당하는 상태로 들어갑니다.
+
+---
+
+## 2) 중심 제어 노드: SoftwareEngineer
+그림에서 **SoftwareEngineer**는 중앙에 있고, 여러 방향으로 화살표가 연결되어 있습니다.  
+이 Node의 역할은 다음과 같이 해석할 수 있습니다.
+
+- 현재 상태(문제/코드 상태/분석 결과/수정 여부 등)를 기준으로,
+- 하위 도구 Node들(**CodeAnalyzer, Editor, swe_tool, 그리고 각각의 작업 도구들**) 중 어떤 것을 실행할지 결정하고,
+- 각 도구로 “지시/입력”을 내려보낸 뒤,
+- 도구가 반환하는 “done/continue” 같은 결과에 따라 다음 단계로 진행하거나 반복합니다.
+
+그림에는 SoftwareEngineer에서 아래 방향(또는 옆 방향)으로 여러 Node로 연결되는 것이 보이며, 동시에 위쪽(혹은 중앙으로) 되돌아오는 화살표도 있어 **반복 제어(루프)** 가능성이 큽니다.
+
+---
+
+## 3) 코드 분석 흐름(Case A): CodeAnalyzer → code_analysis_tool
+### (1) SoftwareEngineer가 CodeAnalyzer를 호출
+- 그림 좌측에 **CodeAnalyzer** Node가 있고, SoftwareEngineer와 연결됩니다.
+- 점선/실선 화살표가 함께 표현되어 있는데, 이는 “SoftwareEngineer가 분석을 요청한다”는 의미로 읽힙니다.
+
+### (2) CodeAnalyzer가 실제 분석 도구 호출
+- **CodeAnalyzer**에서 아래쪽으로 **code_analysis_tool** Node로 화살표가 내려갑니다.
+- 이 단계는 “코드 분석 작업을 실제로 수행”하는 실행 담당(툴 실행)로 보입니다.
+
+### (3) 분석 결과 반환: analyze_code / done / continue
+- 좌측에 **analyze_code** 라벨이 보이고, **CodeAnalyzer** 또는 해당 단계에서 사용되는 입력/상태 전환의 트리거로 해석됩니다.
+- 또한 **CodeAnalyzer**에서 상위로 되돌아오는 화살표에 **done** 또는 **continue** 라벨이 함께 보입니다.
+  - **done**: 분석이 완료되어 다음 단계로 넘어갈 조건이 성립
+  - **continue**: 분석이 끝났지만 후속 작업을 계속 진행(또는 추가 분석/반복 가능)
+
+### (4) 다음 결정
+- CodeAnalyzer가 완료된 뒤에는 SoftwareEngineer로 제어가 돌아가며,
+- 이후 “Editor로 수정” 또는 “swe_tool로 더 큰 단위의 처리” 같은 선택지가 열립니다.
+
+---
+
+## 4) 코드 편집 흐름(Case B): Editor → code_edit_tool(+test_tool)
+중앙 하단에 **Editor** Node가 있고, 그 아래에 실제 실행 도구들이 배치되어 있습니다. Editor는 “분석 결과를 바탕으로 코드 변경” 및 “테스트 수행”을 오케스트레이션하는 역할로 보입니다.
+
+### (1) SoftwareEngineer가 Editor를 호출
+- SoftwareEngineer에서 **Editor**로 향하는 화살표가 존재합니다.
+- 이는 “분석 결과가 나왔으니 실제로 코드를 수정하자” 또는 “현재 상태에서 편집이 필요하니 진행” 같은 흐름입니다.
+
+### (2) Editor가 code_edit_tool을 호출 (edit_file)
+- **Editor** 아래쪽으로 **code_edit_tool** Node가 연결되어 있습니다.
+- **edit_file** 라벨이 Editor 쪽(또는 연결부)에 표시되어 있어,  
+  Editor가 “어떤 파일을 어떤 식으로 수정할지”를 구체화한 뒤 편집 도구를 실행한다는 의미로 읽힙니다.
+- **code_edit_tool**은 실제로 소스 파일을 수정하는 수행 단계입니다.
+
+### (3) Editor 완료/다음 단계 전환: done / continue
+- **code_edit_tool** 실행 뒤에는 **done** 또는 **continue** 같은 라벨이 표시된 경로를 통해 상위(대개 Editor 또는 SoftwareEngineer)로 결과가 반환되는 구조입니다.
+- 즉,
+  - 편집이 완료되면(done),
+  - 다음으로 테스트를 수행하거나(continue로 이어짐),
+  - 다시 분석/수정 루프를 돌릴 수 있습니다.
+
+### (4) Editor가 test_tool을 호출
+- Editor 하단에는 **test_tool** Node도 연결되어 있습니다.
+- 이는 “코드를 수정했으면 반드시 테스트를 돌려 결과를 검증”하는 단계로 해석됩니다.
+- **test_tool**에서 나온 결과는 Editor로 다시 돌아가고,
+- Editor는 그 결과를 바탕으로 SoftwareEngineer에게 “테스트 통과 여부/추가 수정 필요 여부”를 전달합니다.
+
+---
+
+## 5) swe_tool을 통한 추가 처리(또는 최종화/확장 단계)
+### (1) SoftwareEngineer → swe_tool
+- 오른쪽 하단에 **swe_tool** Node가 있고,
+- SoftwareEngineer에서 swe_tool로 향하는 화살표가 보입니다.
+- 이는 swe_tool이 “상위 레벨의 추가 작업(예: 전체 워크벤치, 복합 도구, 문맥 기반 처리, 병합/요약/후속 스텝)”을 담당할 가능성이 큽니다.
+
+### (2) swe_tool 완료 후 end로 이동 가능
+- 그림 오른쪽에 **end** Node가 있고,
+- swe_tool에서 end로 이어지는 경로가 존재합니다.
+- 또한 그 경로에 **continue** 같은 라벨이 보이는데,
+  - swe_tool 실행이 끝나면 다음 단계(최종 종료)로 진행한다는 의미로 볼 수 있습니다.
+
+---
+
+## 6) 반복(루프) 가능성: done / continue의 의미로 보는 전체 사이클
+그림 전반에서 **done**과 **continue**가 여러 구간에 등장합니다. 이 패턴은 다음과 같은 반복 로직을 시사합니다.
+
+1. **분석(CodeAnalyzer)** 수행  
+2. 분석 결과에 따라 **편집(Editor → code_edit_tool)** 수행  
+3. 편집 후 **테스트(test_tool)** 수행  
+4. 결과가 좋으면 **swe_tool** 또는 **종료(end)**로 이동  
+5. 결과가 만족스럽지 않거나 추가 개선이 필요하면
+   - **다시 분석으로 돌아가거나(CodeAnalyzer 재호출)**,
+   - 또는 Editor 단계에서 다시 수정/테스트를 반복
+
+즉, “분석→수정→검증”의 폐루프가 핵심이고, 그 중심에서 **SoftwareEngineer**가 매 단계 종료(done) 및 계속(continue) 신호를 기준으로 다음 행동을 선택하는 구조입니다.
+
+---
+
+## 7) 종료: end
+- 모든 필수 단계가 완료되었거나(또는 조건에 의해 더 진행할 필요가 없어졌을 때),
+- 최종적으로 **end** Node로 가서 Workflow가 종료됩니다.
+- end는 오른쪽에 단독으로 표시되어 있고, swe_tool에서 직접 접근하는 경로가 보이므로,
+  - swe_tool이 “마무리/최종 조치” 역할을 할 수 있습니다.
+
+---
+
+# 한 줄 요약(흐름 요약)
+**start → SoftwareEngineer(오케스트레이션) → [CodeAnalyzer(→ code_analysis_tool)] → Editor(→ code_edit_tool(edit_file) → test_tool) → (필요 시 반복) → swe_tool → end**
+
+---
+
+원하시면, 그림에서 **실선/점선이 각각 무엇을 의미하는지(예: 데이터 전달 vs 상태 전이, 분기 조건 vs 실행 전이)**까지 더 엄밀히 해석할 수 있도록, 사용 중인 워크플로우 프레임(예: LangGraph, n8n, Temporal, custom notation 등)이나 원본 이미지의 더 큰 버전을 알려주세요.

@@ -1,0 +1,33 @@
+아래는 **퀵소트(Quick Sort)** 구현 예시(파이썬)이고, **각 줄마다 주석**을 달아두었습니다.
+
+```python
+def quicksort(arr):  # 퀵소트 함수를 정의한다. 매개변수는 정렬할 리스트이다.
+    if len(arr) <= 1:  # 리스트 길이가 0 또는 1이면 이미 정렬 완료이므로
+        return arr  # 원본 리스트를 그대로 반환한다.
+
+    pivot = arr[len(arr) // 2]  # 중간 원소를 피벗(pivot)으로 선택한다.
+    left = []  # 피벗보다 작은 값들을 담을 리스트를 만든다.
+    middle = []  # 피벗과 같은 값들을 담을 리스트를 만든다.
+    right = []  # 피벗보다 큰 값들을 담을 리스트를 만든다.
+
+    for x in arr:  # 입력 리스트의 각 원소 x에 대해 반복한다.
+        if x < pivot:  # x가 피벗보다 작으면
+            left.append(x)  # left 리스트에 x를 추가한다.
+        elif x > pivot:  # x가 피벗보다 크면
+            right.append(x)  # right 리스트에 x를 추가한다.
+        else:  # x가 피벗과 같으면
+            middle.append(x)  # middle 리스트에 x를 추가한다.
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽(재귀 정렬) + 중간(피벗과 같음) + 오른쪽(재귀 정렬)을 합쳐 반환한다.
+
+# 사용 예시: 정렬할 배열을 준비한다.
+data = [3, 6, 1, 8, 4, 5, 2, 7]  # 섞여 있는 숫자 리스트를 만든다.
+
+# 퀵소트를 실행한다.
+result = quicksort(data)  # quicksort 함수를 호출해 정렬 결과를 result에 저장한다.
+
+# 결과를 출력한다.
+print(result)  # 정렬된 리스트를 출력한다.
+```
+
+원하시면 **(1) 파이썬 말고 C/C++/자바 버전**, 또는 **(2) 제자리(in-place) 퀵소트**(추가 리스트 없이 인덱스로만 정렬)로도 각 줄 주석 달아드릴게요. 어떤 언어로 원하세요?

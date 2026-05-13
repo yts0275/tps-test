@@ -1,0 +1,14 @@
+아래는 퀵소트를 구현한 파이썬 코드로, 각 줄마다 주석을 달아 설명을 덧붙였습니다.
+
+```python
+def quicksort(arr):  # 퀵소트 함수를 정의하며 정렬할 리스트를 매개변수로 받는다.
+    if len(arr) <= 1:  # 리스트의 길이가 0 또는 1이면 이미 정렬된 상태이므로 그대로 반환한다.
+        return arr  # 정렬이 필요 없으므로 원래 리스트를 반환한다.
+    pivot = arr[len(arr) // 2]  # 리스트 가운데 원소를 피벗으로 선택한다.
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들을 왼쪽 서브리스트로 모은다.
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들은 가운데에 모은다.
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들을 오른쪽 서브리스트로 모은다.
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽, 가운데, 오른쪽을 재귀 호출한 뒤 합쳐 최종 정렬 리스트를 만든다.
+```
+
+필요하시면 입력 예시나 실행 방법도 알려드릴게요.

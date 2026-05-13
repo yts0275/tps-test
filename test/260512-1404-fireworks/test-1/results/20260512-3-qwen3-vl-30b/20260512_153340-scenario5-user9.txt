@@ -1,0 +1,74 @@
+물론이에요! 아래는 **퀵소트(Quick Sort)** 알고리즘을 구현한 Python 코드이며, 각 줄마다 상세한 주석을 달았습니다. 퀵소트는 분할 정복(Divide and Conquer) 기반의 정렬 알고리즘입니다.
+
+```python
+# 퀵소트를 구현하는 함수 정의
+def quicksort(arr):
+    # 리스트의 길이가 1 이하라면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 리스트의 중간 인덱스를 기준으로 피벗 선택 (여기서는 중간값 사용)
+    pivot_index = len(arr) // 2
+    pivot = arr[pivot_index]
+    
+    # 피벗보다 작은 값, 피벗과 같은 값, 피벗보다 큰 값을 각각 담을 리스트 생성
+    left = []      # 피벗보다 작은 값
+    equal = []     # 피벗과 같은 값
+    right = []     # 피벗보다 큰 값
+    
+    # 리스트를 순회하며 각 요소를 왼쪽, 중간, 오른쪽 리스트에 분류
+    for x in arr:
+        if x < pivot:
+            left.append(x)
+        elif x == pivot:
+            equal.append(x)
+        else:
+            right.append(x)
+    
+    # 재귀적으로 왼쪽과 오른쪽 리스트를 정렬하고, 결과를 합침
+    # left와 right는 각각 정렬된 리스트가 됨
+    return quicksort(left) + equal + quicksort(right)
+
+
+# 예시: 퀵소트 함수 사용
+if __name__ == "__main__":
+    # 정렬할 리스트
+    unsorted_list = [64, 34, 25, 12, 22, 11, 90]
+    
+    # 퀵소트 적용
+    sorted_list = quicksort(unsorted_list)
+    
+    # 결과 출력
+    print("정렬 전:", unsorted_list)
+    print("정렬 후:", sorted_list)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+- `quicksort(arr)` 함수는 정렬할 리스트를 입력받음.
+- `len(arr) <= 1`이면 이미 정렬된 상태이므로 그대로 반환 (기저 조건).
+- 피벗은 중간 인덱스의 값을 선택 (`len(arr) // 2`).
+- `left`, `equal`, `right` 리스트로 요소를 분류:
+  - `left`: 피벗보다 작은 값
+  - `equal`: 피벗과 같은 값
+  - `right`: 피벗보다 큰 값
+- 각 리스트에 대해 재귀적으로 `quicksort`를 호출.
+- 최종적으로 `left + equal + right`로 정렬된 리스트를 반환.
+
+---
+
+### ✅ 실행 예시:
+```
+정렬 전: [64, 34, 25, 12, 22, 11, 90]
+정렬 후: [11, 12, 22, 25, 34, 64, 90]
+```
+
+---
+
+### 📌 추가 팁:
+- 이 구현은 **재귀적**이고, 평균 시간 복잡도는 **O(n log n)** 이며, 최악의 경우 (예: 이미 정렬된 리스트)는 **O(n²)** 이 됩니다.
+- 피벗 선택을 더 잘하면 성능을 개선할 수 있어요 (예: 무작위 선택, 세 개 중 중간값 선택 등).
+
+필요하시면 **in-place 퀵소트**(메모리 절약형)도 만들어 드릴 수 있어요!

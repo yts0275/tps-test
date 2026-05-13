@@ -1,0 +1,31 @@
+```python
+# 파이썬으로 구현한 퀵소트( Lomuto 분할 방식 ) 예시
+# 각 줄에 주석을 달았습니다.
+
+def quicksort(arr, low, high):  # 배열과 정렬할 부분의 시작(low)과 끝(high) 인덱스를 받음
+    if low < high:  # 부분 배열의 길이가 2 이상일 때만 재귀적으로 정렬
+        p = partition(arr, low, high)  # 피벗의 올바른 위치 인덱스를 구함
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분 배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # 부분 배열에서 피벗을 기준으로 재배치하는 함수
+    pivot = arr[high]  # 피벗은 해당 부분 배열의 마지막 원소로 고정
+    i = low - 1  # i는 피벗보다 작아야 하는 영역의 끝 인덱스
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 영역의 끝을 한 칸 앞으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소와 작은 영역 끝 원소를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 영역 끝 바로 뒤에 배치
+    return i + 1  # 피벗의 최종 위치 인덱스 반환
+
+def quicksort_wrapper(arr):  # 배열을 받아 전체를 정렬하는 편의 함수
+    if len(arr) <= 1:  # 배열이 비어있거나 원소가 하나면 이미 정렬된 상태
+        return  # 조기 반환
+    quicksort(arr, 0, len(arr) - 1)  # 전체 배열에 대해 퀵소트 시작
+
+# 예시 사용
+if __name__ == "__main__":  # 스크립트로 실행될 때만 아래 코드가 동작
+    data = [3, 6, 8, 10, 1, 2, 1]  # 테스트 데이터
+    quicksort_wrapper(data)  # 데이터 정렬 수행
+    print(data)  # 정렬 결과 출력
+```

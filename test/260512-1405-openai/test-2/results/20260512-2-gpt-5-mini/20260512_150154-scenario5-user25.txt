@@ -1,0 +1,26 @@
+아래는 퀵소트 구현으로, 각 코드 줄마다 한국어 주석을 달아둔 예시입니다:
+
+```python
+def quicksort(arr, low, high):  # 배열 arr의 인덱스 low부터 high까지 퀵소트 수행
+    if low < high:  # 정렬할 구간에 2개 이상의 요소가 있는지 확인
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗의 최종 인덱스 얻기
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽(작은 값들) 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽(큰 값들) 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):  # 분할 함수: 피벗을 기준으로 요소를 재배치하고 피벗 인덱스 반환
+    pivot = arr[high]  # 편의상 구간의 마지막 요소를 피벗으로 선택
+    i = low - 1  # 작은(피벗 이하) 요소들의 경계 인덱스를 초기화
+    for j in range(low, high):  # low부터 high-1까지 각 요소를 검사
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 경계 인덱스를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 요소를 왼쪽 부분으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 경계 다음 위치로 이동시켜 제자리에 놓음
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+# 사용 예시
+data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 샘플 배열
+quicksort(data, 0, len(data) - 1)  # 배열 전체 범위에 대해 퀵소트 실행
+print(data)  # 정렬된 결과를 출력
+```
+
+원하면 다른 피벗 선택 방법(예: 중앙값, 무작위 선택)이나 안정성/시간복잡도에 대한 설명도 추가해 드릴게요.

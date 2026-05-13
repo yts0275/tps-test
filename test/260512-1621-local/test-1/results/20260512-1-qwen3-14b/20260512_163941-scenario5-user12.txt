@@ -1,0 +1,77 @@
+<think>
+Okay, the user wants me to implement QuickSort in Python with comments on each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I'll need a function for the partitioning step. The partition function should take the array, low and high indices. I'll choose the last element as the pivot. Then, I'll initialize a pointer to track elements less than the pivot. Loop through the array, and if an element is less than the pivot, swap it with the element at the pointer and increment the pointer. Finally, swap the pivot to its correct position.
+
+Next, the quicksort function itself. It should check if the low index is less than the high index. Then, partition the array and recursively apply the same process to the left and right subarrays.
+
+Now, adding comments. Each line needs a clear explanation. For example, in the partition function, explain the pivot selection, the initial pointer, the loop, and the final swap. In the quicksort function, mention the base case, partitioning, and the recursive calls.
+
+Wait, the user might be a beginner, so the comments should be simple. Maybe explain why the pivot is chosen as the last element, how the partitioning works, and the recursion. Also, ensure that the code is properly formatted with indentation.
+
+Let me write the code step by step. Start with the partition function. Then the quicksort function. Then a sample array and a call to quicksort. Make sure to print the sorted array at the end.
+
+Check for any possible errors. For example, in Python, lists are mutable, so the changes will be in-place. The partition function should return the correct index. Also, the base case in quicksort is when low is greater than or equal to high.
+
+I think that's it. Let me put it all together with clear comments.
+</think>
+
+```python
+# 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 예제입니다.
+# 이 알고리즘은 분할 정복(Divide and Conquer) 전략을 사용하여 배열을 정렬합니다.
+
+def quicksort(arr, low, high):
+    """
+    퀵소트의 메인 함수입니다.
+    - arr: 정렬할 배열
+    - low: 배열의 시작 인덱스
+    - high: 배열의 끝 인덱스
+    """
+    if low < high:  # 배열이 하나 이상의 요소를 가질 때
+        # 파티션을 나누고, 피봇의 위치를 반환
+        pi = partition(arr, low, high)  # pivot index
+
+        # 피봇 기준으로 좌우 서브배열을 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)  # 왼쪽 서브배열
+        quicksort(arr, pi + 1, high)  # 오른쪽 서브배열
+
+def partition(arr, low, high):
+    """
+    배열을 피봇을 기준으로 두 부분으로 나누는 함수입니다.
+    - arr: 정렬할 배열
+    - low: 배열의 시작 인덱스
+    - high: 배열의 끝 인덱스
+    """
+    # 피봇은 마지막 요소로 선택
+    pivot = arr[high]  
+    i = low - 1  # 작은 요소를 저장할 인덱스
+
+    # low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면
+        if arr[j] < pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피봇을 올바른 위치로 이동 (i+1)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1  # 피봇의 인덱스를 반환
+
+# 예시 배열
+arr = [10, 7, 8, 9, 1, 5]
+print("정렬 전 배열:", arr)
+
+# 퀵소트 실행
+quicksort(arr, 0, len(arr) - 1)
+
+# 정렬된 배열 출력
+print("정렬 후 배열:", arr)
+```
+
+### 주석 설명:
+1. `quicksort` 함수는 재귀적으로 실행되며, 배열을 피봇 기준으로 분할합니다.
+2. `partition` 함수는 배열을 피봇을 중심으로 두 부분으로 나누고, 피봇의 최종 위치를 반환합니다.
+3. 피봇은 항상 배열의 마지막 요소로 선택됩니다 (이를 "리버스 피봇"이라고 합니다).
+4. `i` 변수는 "작은 요소"를 저장할 위치를 나타내며, `j` 변수는 배열을 순회하는 포인터입니다.
+5. 최종적으로 피봇을 올바른 위치로 이동하고, 이 위치를 기준으로 좌우 서브배열을 재귀적으로 정렬합니다.

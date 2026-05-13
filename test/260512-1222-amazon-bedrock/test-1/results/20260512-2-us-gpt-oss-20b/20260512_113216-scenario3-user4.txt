@@ -1,0 +1,25 @@
+아래는 **Python**으로 구현한 퀵소트(Quick Sort) 알고리즘입니다.  
+코드의 **각 줄에 한 줄씩** 주석을 달아 읽기 쉽도록 해두었으니 참고해주세요.  
+
+```python
+def quicksort(arr):  # 주어진 리스트를 정렬해 새로 반환하는 함수
+    if len(arr) <= 1:  # 리스트가 0개 혹은 1개일 때는 이미 정렬 완료 상태
+        return arr  # 그대로 반환
+    pivot = arr[len(arr) // 2]  # 중앙 요소를 피벗으로 선택
+    # 피벗보다 작은 값들만 모음
+    left = [x for x in arr if x < pivot]  
+    # 피벗과 같은 값들만 모음 (피벗 중복 처리)
+    middle = [x for x in arr if x == pivot]  
+    # 피벗보다 큰 값들만 모음
+    right = [x for x in arr if x > pivot]  
+    # 재귀 호출을 통해 왼쪽과 오른쪽을 정렬한 뒤,
+    # 정렬된 왼쪽 + 중간 + 정렬된 오른쪽을 합쳐 반환
+    return quicksort(left) + middle + quicksort(right)  
+
+# 사용 예시
+if __name__ == "__main__":  # 스크립트가 직접 실행될 때만 실행
+    sample = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트
+    sorted_list = quicksort(sample)  # 퀵소트 호출
+    print("정렬 전:", sample)  # 원본 리스트 출력
+    print("정렬 후:", sorted_list)  # 정렬된 결과 출력
+```

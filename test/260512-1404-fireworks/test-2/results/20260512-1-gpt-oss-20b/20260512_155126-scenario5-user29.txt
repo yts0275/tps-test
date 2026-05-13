@@ -1,0 +1,12 @@
+```python
+def quicksort(arr):  # 1️⃣ quicksort 함수 정의, 입력 배열 arr를 정렬해 반환합니다.
+    if len(arr) <= 1:  # 2️⃣ 배열 길이가 0 또는 1이면 이미 정렬된 상태이므로 그대로 반환합니다.
+        return arr  # 3️⃣ 정렬된 배열을 반환합니다.
+    pivot = arr[len(arr) // 2]  # 4️⃣ 중간 인덱스의 원소를 피벗으로 선택합니다.
+    less = [x for x in arr if x < pivot]  # 5️⃣ 피벗보다 작은 원소들만 모아 새로운 리스트를 만듭니다.
+    equal = [x for x in arr if x == pivot]  # 6️⃣ 피벗과 같은 원소들만 모아 새로운 리스트를 만듭니다.
+    greater = [x for x in arr if x > pivot]  # 7️⃣ 피벗보다 큰 원소들만 모아 새로운 리스트를 만듭니다.
+    return quicksort(less) + equal + quicksort(greater)  # 8️⃣ 재귀적으로 정렬한 결과를 합쳐 반환합니다.
+```
+
+위 코드는 각 줄마다 주석을 달아, 퀵소트 동작 과정을 한눈에 이해할 수 있도록 구성되었습니다.

@@ -1,0 +1,20 @@
+아래는 파이썬으로 작성한 퀵소트(QuickSort) 구현 예시입니다.  
+**각 실행 가능한 줄마다 반드시 한 개의 주석을 달았습니다**.  
+
+```python
+def quicksort(arr):  # 재귀적으로 주어진 목록을 퀵소트하는 함수 정의
+    if len(arr) <= 1:  # 목록이 한 개 이하이면 그대로 반환(정렬 필요 없음)
+        return arr     # 반환: 이미 정렬된 작은 목록
+    pivot = arr[len(arr)//2]  # 중앙값을 피벗으로 사용
+    left = [x for x in arr if x < pivot]   # 피벗보다 작은 값들 모음
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들 모음
+    right = [x for x in arr if x > pivot]   # 피벗보다 큰 값들 모음
+    return quicksort(left) + middle + quicksort(right)  # 재귀 호출 결과 합치기
+
+# 아래는 함수 사용 예시
+if __name__ == "__main__":  # 직접 실행 시 아래 코드가 동작하도록 함
+    sample = [34, 7, 23, 32, 5, 62]  # 정렬 전 비정렬 리스트
+    print("정렬 전:", sample)          # 원래 리스트 출력
+    sorted_list = quicksort(sample)    # 퀵소트 호출
+    print("정렬 후:", sorted_list)     # 정렬된 리스트 출력
+```

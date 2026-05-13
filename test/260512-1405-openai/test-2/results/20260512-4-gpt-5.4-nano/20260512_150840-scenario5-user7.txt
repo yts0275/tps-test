@@ -1,0 +1,33 @@
+아래는 **퀵소트(Quick Sort)** 구현 예시이며, **각 줄마다 주석**을 달았습니다. (파이썬)
+
+```python
+def quicksort(arr, low, high):  # 퀵소트를 재귀적으로 수행하는 함수 정의
+    if low >= high:  # 원소가 0개 또는 1개면 더 이상 정렬할 필요가 없으므로 종료
+        return  # 재귀 종료
+    
+    pivot = arr[high]  # 피벗을 마지막 원소로 설정
+    i = low - 1  # pivot보다 작은 값들을 모아둘 위치(경계 인덱스) 초기화
+    
+    for j in range(low, high):  # low부터 high-1까지 탐색(피벗 제외)
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 값 영역의 경계를 한 칸 전진
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 값 영역과 현재 원소를 교환하여 정렬 유지
+    
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 최종 위치(i+1)로 옮김
+    pivot_index = i + 1  # 피벗의 최종 인덱스 저장
+    
+    quicksort(arr, low, pivot_index - 1)  # 피벗보다 작은 구간을 재귀적으로 정렬
+    quicksort(arr, pivot_index + 1, high)  # 피벗보다 큰 구간을 재귀적으로 정렬
+
+
+def quicksort_wrapper(arr):  # 사용자가 쉽게 호출할 수 있도록 감싸는 함수
+    quicksort(arr, 0, len(arr) - 1)  # 전체 범위(0 ~ 마지막 인덱스)를 퀵소트에 전달
+    return arr  # 정렬된 배열 반환
+
+
+# 테스트 코드: 예시 배열
+data = [10, 7, 8, 9, 1, 5]  # 정렬 전 데이터
+print(quicksort_wrapper(data))  # 정렬 결과 출력
+```
+
+원하시면 **C/C++/Java** 버전으로도 바꿔드릴까요? (그리고 “각 줄 주석” 기준이 정말 엄격하게 **한 줄당 1줄 주석**이면 그 스타일로도 맞춰드릴 수 있어요.)

@@ -1,0 +1,77 @@
+<think>
+Okay, the user wants me to implement QuickSort in Python with comments on each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write a function for the partitioning step. The partition function should take the array, low and high indices. I'll choose the last element as the pivot. Then I need two pointers: one starting at low and another moving from low to high. The idea is to move elements smaller than the pivot to the left.
+
+Wait, in the partition function, I'll have a loop where I compare elements with the pivot. If an element is less than the pivot, I swap it with the element at the 'i' position and increment 'i'. After the loop, the pivot is placed at the correct position by swapping it with the element at 'i'.
+
+Then the quicksort function will call itself recursively on the left and right sub-arrays. The base case is when the low index is greater than the high index, which means the sub-array has one element or is empty.
+
+Now, for the comments. Each line should have a comment explaining what it does. Let me structure the code step by step. The main function will take the array, call quicksort with low=0 and high=len(arr)-1. Then the partition function. Then the recursive calls.
+
+Wait, I should make sure the comments are clear. For example, in the partition function, explain that 'i' is the index of the smaller element. Also, mention that the pivot is placed at the correct position.
+
+Testing the code with an example array would be good. Let me include a sample input and output. Oh, the user didn't ask for that, but maybe adding a test case in the comments could help.
+
+I should also mention that this is an in-place implementation, which is efficient in terms of space. But maybe the user is okay with that. Let me proceed to write the code with detailed comments for each line.
+</think>
+
+```python
+# 퀵소트(Quick Sort) 알고리즘 구현 (Python)
+# 시간 복잡도: 평균 O(n log n), 최악 O(n²)
+# 공간 복잡도: O(log n) (재귀 스택 사용)
+
+def quicksort(arr, low, high):
+    # 베이스 케이스: low >= high일 때 종료 (1개 요소 또는 빈 배열)
+    if low < high:
+        # 파티션 함수를 호출하여 피벗의 위치를 찾고
+        # 파티션을 기준으로 왼쪽/오른쪽 배열을 재귀적으로 정렬
+        pi = partition(arr, low, high)  # pi는 피벗의 최종 인덱스
+        quicksort(arr, low, pi - 1)     # 왼쪽 배열 재귀 정렬
+        quicksort(arr, pi + 1, high)    # 오른쪽 배열 재귀 정렬
+
+def partition(arr, low, high):
+    # 피벗으로 사용할 요소 선택 (이 예제에서는 마지막 요소)
+    pivot = arr[high]
+    i = low - 1  # 작은 요소의 인덱스 (초기 -1)
+
+    # low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작으면
+        if arr[j] < pivot:
+            # i를 1 증가시키고 arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피벗을 정확한 위치로 이동 (i+1)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗의 최종 인덱스 반환
+    return i + 1
+
+# 사용 예제
+if __name__ == "__main__":
+    arr = [10, 7, 8, 9, 1, 5]
+    print("정렬 전 배열:", arr)
+    quicksort(arr, 0, len(arr) - 1)
+    print("정렬 후 배열:", arr)
+```
+
+### 주석 설명
+1. **quicksort 함수**:
+   - `low`: 정렬할 배열의 시작 인덱스
+   - `high`: 정렬할 배열의 끝 인덱스
+   - `pi`: 파티션을 통해 얻은 피벗의 최종 위치
+
+2. **partition 함수**:
+   - `pivot`: 배열의 마지막 요소를 피벗으로 선택
+   - `i`: 피벗보다 작은 요소의 마지막 위치를 추적하는 인덱스
+   - `for` 루프: 배열을 순회하며 피벗보다 작은 요소를 왼쪽으로 이동
+   - 마지막에 피벗을 올바른 위치로 이동
+
+3. **재귀 호출**:
+   - 왼쪽 배열(`low` ~ `pi-1`)과 오른쪽 배열(`pi+1` ~ `high`)을 각각 재귀적으로 정렬
+
+4. **사용 예제**:
+   - `arr` 배열에 테스트 데이터를 입력하고 정렬 전/후를 출력하여 결과를 확인
+
+이 구현은 **in-place** 방식으로 배열을 정렬하고, 메모리 사용을 최소화한 퀵소트 알고리즘입니다.

@@ -1,0 +1,18 @@
+다음은 파이썬으로 구현한 퀵소트입니다(각 줄마다 주석 포함).
+
+```python
+def quicksort(arr):  # 리스트 arr을 받아 정렬된 새 리스트를 반환하는 함수 정의
+    if len(arr) <= 1:  # 요소가 0개 또는 1개면 이미 정렬되어 있으므로
+        return arr[:]  # 원본을 변경하지 않도록 얕은 복사본을 반환
+    pivot = arr[len(arr) // 2]  # 피벗으로 중간 인덱스의 값을 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들을 모아 리스트 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들을 모아 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 모아 리스트 생성
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬한 뒤 합쳐서 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 코드를 실행
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예제 리스트 정의
+    print("원본:", data)  # 정렬 전 원본 리스트 출력
+    sorted_data = quicksort(data)  # quicksort 함수 호출하여 정렬된 결과를 받음
+    print("정렬:", sorted_data)  # 정렬된 결과 출력
+```

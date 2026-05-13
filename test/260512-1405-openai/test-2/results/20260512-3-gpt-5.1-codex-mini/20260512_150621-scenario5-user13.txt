@@ -1,0 +1,17 @@
+```python
+def quicksort(arr):
+    # 배열 전체를 정렬하는 함수이며, 재귀적으로 호출된다.
+    if len(arr) <= 1:
+        # 배열의 길이가 1 이하라면 이미 정렬된 상태이므로 그대로 반환한다.
+        return arr
+    pivot = arr[len(arr) // 2]
+    # 피벗은 배열 가운데 요소로 설정한다.
+    left = [x for x in arr if x < pivot]
+    # 피벗보다 작은 값을 왼쪽 배열에 담는다.
+    middle = [x for x in arr if x == pivot]
+    # 피벗과 같은 값을 가운데 배열에 담는다.
+    right = [x for x in arr if x > pivot]
+    # 피벗보다 큰 값을 오른쪽 배열에 담는다.
+    return quicksort(left) + middle + quicksort(right)
+    # 왼쪽과 오른쪽 배열을 재귀적으로 정렬한 후 가운데 배열과 합쳐서 반환한다.
+```

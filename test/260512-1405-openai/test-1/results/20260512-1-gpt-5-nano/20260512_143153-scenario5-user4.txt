@@ -1,0 +1,28 @@
+다음은 각 줄마다 주석이 달린 파이썬 퀵소트 구현입니다.
+
+def quicksort(arr, low, high):  # 배열과 인덱스 구간을 받아 quicksort 수행
+    if low < high:  # 구간의 길이가 1보다 큰지 확인
+        p = partition(arr, low, high)  # 파티션 함수로 피벗 인덱스 얻기
+        quicksort(arr, low, p - 1)  # 피벗 좌측 부분 재귀 정렬
+        quicksort(arr, p + 1, high)  # 피벗 우측 부분 재귀 정렬
+
+def partition(arr, low, high):  # Lomuto 파티션 구현
+    pivot = arr[high]  # 마지막 요소를 피벗으로 선택
+    i = low  # 피벗 위치의 왼쪽 경계
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작으면
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소 교환
+            i += 1  # i 증가
+    arr[i], arr[high] = arr[high], arr[i]  # 피벗을 좌측 파티션 끝으로 이동
+    return i  # 피벗의 최종 위치 반환
+
+def quicksort_main(arr):  # 간편하게 전체 배열 정렬하기 위한 래퍼
+    if len(arr) <= 1:  # 배열의 길이가 0이나 1이면 이미 정렬됨
+        return  # 그냥 반환
+    quicksort(arr, 0, len(arr) - 1)  # 전체 구간에 대해 퀵소트 시작
+
+if __name__ == "__main__":  # 스크립트 실행 시 예시를 실행
+    data = [3, 1, 4, 1, 5, 9, 2, 6, 5]  # 테스트용 데이터
+    quicksort_main(data)  # 데이터 정렬 실행
+    print(data)  # 정렬 결과 출력
+

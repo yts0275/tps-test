@@ -1,0 +1,39 @@
+아래는 파이썬으로 구현한 간단한 **퀵소트(quick sort)** 예시입니다.  
+코드의 각 실행되는 줄마다 반영한 **한 줄 주석**이 한국어로 달려 있습니다.
+
+```python
+def quicksort(arr):
+    # 입력 받은 배열(arr)의 개수가 0 or 1이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 배열의 중간 인덱스를 기준으로 피벗(pivot) 값을 선택
+    pivot = arr[len(arr)//2]
+    
+    # 피벗보다 작은 값들로 구성된 새로운 배열 left
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗과 같은 값들로 구성된 새로운 배열 equal
+    equal = [x for x in arr if x == pivot]
+    
+    # 피벗보다 큰 값들로 구성된 새로운 배열 right
+    right = [x for x in arr if x > pivot]
+    
+    # 재귀적으로 정렬한 left와 right 배열을 결합하여 최종 정렬 결과 반환
+    return quicksort(left) + equal + quicksort(right)
+
+# 예시 사용
+if __name__ == "__main__":
+    배열 = [3, 6, 8, 10, 1, 2, 1]
+    정렬된_배열 = quicksort(배열)
+    print("정렬 전:", 배열)
+    print("정렬 후:", 정렬된_배열)
+```
+
+> **코드 설명**  
+> - `quicksort` 함수는 **재귀**로 작동합니다.  
+> - `pivot` 을 중간 값으로 삼아 **왼쪽**(작은 수), **같은 값**(equal), **오른쪽**(큰 수) 으로 나눕니다.  
+> - 각각을 재귀적으로 정렬한 뒤 `left + equal + right` 로 합쳐 최종 정렬된 리스트를 반환합니다.  
+> - 이 구현은 부정적인 입력이 없을 때 평균 시간복잡도 \(O(n \log n)\) 를 달성합니다.  
+
+각 실행 문장 옆에 주석을 남겨, 사용자가 코드 흐름을 쉽게 따라갈 수 있도록 했습니다. 필요에 따라 `quicksort` 를 원본 배열 자체를 정렬하도록 `in-place` 버전으로 바꿔 사용할 수도 있습니다.

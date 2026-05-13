@@ -1,0 +1,114 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 각 노드와 그间的 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+이 워크플로우는 소프트웨어 엔지니어(Software Engineer)라는 주체가 코드를 분석하고 편집하는 작업을 수행하는 프로세스를 나타냅니다. 이 프로세스는 반복적인 작업을 포함하며, 여러 도구를 활용하여 코드의 품질을 개선하고 수정하는 데 중점을 둡니다. 전체 흐름은 `start`에서 시작하여 `end`로 종료됩니다.
+
+---
+
+### **노드 및 흐름 분석**
+
+#### **1. `start` 노드**
+- **역할**: 워크플로우의 시작점입니다.
+- **흐름**: `start` 노드는 단방향으로 `SoftwareEngineer` 노드로 연결됩니다. 이는 워크플로우가 소프트웨어 엔지니어의 활동을 시작함을 의미합니다.
+
+---
+
+#### **2. `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 중심 역할을 하는 주체입니다. 이 노드는 소프트웨어 개발자의 작업을 대표하며, 다양한 작업을 수행하거나 다른 도구와 상호작용합니다.
+- **내부 동작**:
+  - `SoftwareEngineer`는 `CodeAnalyzer`, `Editor`, `swe_tool`과 상호작용합니다.
+  - `SoftwareEngineer`는 `analyze_code` 이벤트를 통해 `CodeAnalyzer`로 작업을 전달합니다.
+  - `SoftwareEngineer`는 `edit_file` 이벤트를 통해 `Editor`로 작업을 전달합니다.
+  - `SoftwareEngineer`는 `swe_tool`로 작업을 전달하여 특정 도구를 사용할 수 있습니다.
+- **반복성**: `SoftwareEngineer` 노드는 `continue` 라벨이 붙은 화살표를 통해 자신으로 돌아가는 경로를 가지고 있습니다. 이는 소프트웨어 엔지니어가 작업을 반복적으로 수행하거나, 작업이 완료되지 않으면 다시 시작할 수 있음을 의미합니다.
+
+---
+
+#### **3. `CodeAnalyzer` 노드**
+- **역할**: 코드 분석 도구를 대표합니다. 코드의 품질, 구조, 오류 등을 분석합니다.
+- **입력**: `SoftwareEngineer`에서 `analyze_code` 이벤트를 통해 입력을 받습니다.
+- **내부 동작**:
+  - `CodeAnalyzer`는 `code_analysis_tool`이라는 하위 도구를 사용하여 코드를 분석합니다.
+  - 분석이 완료되면 `done` 이벤트를 통해 `SoftwareEngineer`로 결과를 반환합니다.
+- **반복성**: `CodeAnalyzer`는 `continue` 라벨이 붙은 화살표를 통해 `SoftwareEngineer`로 돌아가는 경로를 가지고 있습니다. 이는 분석 후 수정이 필요하거나 반복적인 분석이 필요할 수 있음을 의미합니다.
+
+---
+
+#### **4. `Editor` 노드**
+- **역할**: 코드 편집 도구를 대표합니다. 소프트웨어 엔지니어가 코드를 수정하거나 추가하는 작업을 수행합니다.
+- **입력**: `SoftwareEngineer`에서 `edit_file` 이벤트를 통해 입력을 받습니다.
+- **내부 동작**:
+  - `Editor`는 `code_edit_tool`과 `test_tool`이라는 두 가지 하위 도구를 사용합니다.
+    - `code_edit_tool`: 코드를 직접 편집하는 도구.
+    - `test_tool`: 코드를 테스트하여 수정된 부분이 올바르게 작동하는지 확인하는 도구.
+  - `Editor`는 작업이 완료되면 `done` 이벤트를 통해 `SoftwareEngineer`로 결과를 반환합니다.
+- **반복성**: `Editor`는 `continue` 라벨이 붙은 화살표를 통해 `SoftwareEngineer`로 돌아가는 경로를 가지고 있습니다. 이는 편집 후 추가적인 수정이나 테스트가 필요할 수 있음을 의미합니다.
+
+---
+
+#### **5. `code_analysis_tool` 노드**
+- **역할**: `CodeAnalyzer`의 하위 도구로, 실제 코드 분석 작업을 수행합니다.
+- **입력**: `CodeAnalyzer`에서 입력을 받습니다.
+- **내부 동작**: 코드 분석 작업을 수행한 후, 결과를 `CodeAnalyzer`로 반환합니다.
+- **흐름**: `code_analysis_tool`은 `CodeAnalyzer`로만 연결되며, `done` 이벤트를 통해 결과를 전달합니다. `code_analysis_tool`은 워크플로우의 끝점이 아니므로, `end`로 연결되지 않습니다.
+
+---
+
+#### **6. `code_edit_tool` 노드**
+- **역할**: `Editor`의 하위 도구로, 코드를 직접 편집하는 작업을 수행합니다.
+- **입력**: `Editor`에서 입력을 받습니다.
+- **내부 동작**: 코드 편집 작업을 수행한 후, 결과를 `Editor`로 반환합니다.
+- **흐름**: `code_edit_tool`은 `Editor`로만 연결되며, `done` 이벤트를 통해 결과를 전달합니다. `code_edit_tool`은 워크플로우의 끝점이 아니므로, `end`로 연결되지 않습니다.
+
+---
+
+#### **7. `test_tool` 노드**
+- **역할**: `Editor`의 하위 도구로, 코드를 테스트하여 수정된 부분이 올바르게 작동하는지 확인합니다.
+- **입력**: `Editor`에서 입력을 받습니다.
+- **내부 동작**: 코드 테스트 작업을 수행한 후, 결과를 `Editor`로 반환합니다.
+- **흐름**: `test_tool`은 `Editor`로만 연결되며, `done` 이벤트를 통해 결과를 전달합니다. `test_tool`은 워크플로우의 끝점이 아니므로, `end`로 연결되지 않습니다.
+
+---
+
+#### **8. `swe_tool` 노드**
+- **역할**: 소프트웨어 엔지니어가 사용하는 추가적인 도구를 대표합니다. 이 도구는 `SoftwareEngineer`에서 직접 호출됩니다.
+- **입력**: `SoftwareEngineer`에서 입력을 받습니다.
+- **내부 동작**: 특정 작업을 수행한 후, `end`로 연결됩니다. 이는 `swe_tool`이 워크플로우의 마지막 단계로 사용될 수 있음을 의미합니다.
+- **흐름**: `swe_tool`은 `SoftwareEngineer`에서 시작하여 `end`로 연결됩니다. 이는 `swe_tool`이 작업을 완료하면 워크플로우가 종료될 수 있음을 의미합니다.
+
+---
+
+#### **9. `end` 노드**
+- **역할**: 워크플로우의 종료점입니다.
+- **흐름**: `end` 노드는 `swe_tool`에서 연결됩니다. 이는 `swe_tool`이 작업을 완료하면 워크플로우가 종료됨을 의미합니다.
+
+---
+
+### **흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **코드 분석**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (analyze_code)
+   - `CodeAnalyzer` → `code_analysis_tool`
+   - `code_analysis_tool` → `CodeAnalyzer` (done)
+   - `CodeAnalyzer` → `SoftwareEngineer` (done)
+   - `SoftwareEngineer` → `CodeAnalyzer` (continue) → 반복 가능
+3. **코드 편집**:
+   - `SoftwareEngineer` → `Editor` (edit_file)
+   - `Editor` → `code_edit_tool`
+   - `Editor` → `test_tool`
+   - `code_edit_tool` → `Editor` (done)
+   - `test_tool` → `Editor` (done)
+   - `Editor` → `SoftwareEngineer` (done)
+   - `SoftwareEngineer` → `Editor` (continue) → 반복 가능
+4. **추가 도구 사용**:
+   - `SoftwareEngineer` → `swe_tool`
+   - `swe_tool` → `end`
+5. **종료**: `end`
+
+---
+
+### **결론**
+이 워크플로우는 소프트웨어 엔지니어가 코드를 분석하고 편집하는 과정을 반복적으로 수행하는 구조를 가지고 있습니다. `SoftwareEngineer`는 주체로서 `CodeAnalyzer`와 `Editor`를 사용하여 코드의 품질을 개선하고, 필요에 따라 `swe_tool`을 사용하여 추가 작업을 수행합니다. 각 도구는 하위 도구를 사용하여 작업을 수행하고, 결과를 상위 노드로 반환합니다. `continue` 라벨은 작업의

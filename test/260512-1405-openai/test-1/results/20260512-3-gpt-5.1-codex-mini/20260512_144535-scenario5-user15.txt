@@ -1,0 +1,14 @@
+물론입니다! 아래는 퀵소트 구현 예시이며, 각 줄에 주석을 달았습니다:
+
+```python
+def quicksort(arr):  # 퀵소트 함수를 정의합니다.
+    if len(arr) <= 1:  # 배열의 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr  # 바로 배열 자체를 반환합니다.
+    pivot = arr[len(arr) // 2]  # 배열의 중간 값을 피벗으로 선택합니다.
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들을 왼쪽 리스트에 담습니다.
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들을 중간 리스트에 담습니다.
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들을 오른쪽 리스트에 담습니다.
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽, 중간, 오른쪽을 재귀적으로 정렬하여 합칩니다.
+```
+
+필요하시면 입력과 출력 예시도 제공해 드릴까요?

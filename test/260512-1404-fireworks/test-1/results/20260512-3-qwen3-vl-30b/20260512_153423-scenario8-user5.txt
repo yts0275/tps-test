@@ -1,0 +1,125 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 각 노드와 그间的 흐름을 최대한 상세히 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+이 워크플로우는 소프트웨어 엔지니어(SoftwareEngineer)가 코드를 분석하고 편집하며 테스트하는 일련의 작업을 자동화하는 시스템을 나타냅니다. 핵심은 **SoftwareEngineer**라는 주체가 여러 도구(Analysis, Editing, Testing)를 조율하면서 작업을 수행하고, 필요에 따라 반복하거나 종료하는 과정입니다. 전체적인 흐름은 `start`에서 시작하여 `end`로 끝나며, 중간에 반복 가능한 작업이 포함되어 있습니다.
+
+---
+
+### **노드별 상세 설명 및 흐름 분석**
+
+#### **1. `start` (시작 노드)**
+- **역할**: 워크플로우의 시작점을 나타냅니다.
+- **특징**: 원형 노드로, 단일 시작 지점입니다.
+- **흐름**: `start` 노드에서 단일한 화살표가 `SoftwareEngineer` 노드로 연결되어, 워크플로우가 이 노드에서 시작됨을 의미합니다.
+
+---
+
+#### **2. `SoftwareEngineer` (핵심 주체 노드)**
+- **역할**: 워크플로우의 중심 역할을 하는 주체입니다. 이 노드는 **작업을 수행하거나 지시하는 인터페이스**로 간주됩니다. 실제 작업은 다른 도구 노드에서 수행되지만, `SoftwareEngineer`가 이를 조정합니다.
+- **특징**: 사각형 노드로, 여러 연결을 수신하고 발신합니다.
+- **흐름**:
+  - **입력**: `start`에서 들어옵니다.
+  - **출력**:
+    - `analyze_code` 이벤트를 통해 `CodeAnalyzer` 노드로 작업을 전달합니다.
+    - `edit_file` 이벤트를 통해 `Editor` 노드로 작업을 전달합니다.
+    - `continue` 이벤트를 통해 `swe_tool` 노드로 이동하거나, `Editor` 또는 `CodeAnalyzer`에서 돌아올 수 있습니다.
+    - `done` 이벤트를 통해 `CodeAnalyzer` 또는 `Editor`에서 작업이 완료되었음을 알립니다.
+  - **반복 흐름**:
+    - `CodeAnalyzer`와 `Editor`에서 `continue` 이벤트를 통해 다시 `SoftwareEngineer`로 돌아오며, 반복 작업이 가능합니다.
+    - `SoftwareEngineer`는 이 두 노드의 결과를 기반으로 다음 작업을 결정합니다.
+
+---
+
+#### **3. `CodeAnalyzer` (코드 분석 노드)**
+- **역할**: 코드를 분석하는 도구를 나타냅니다. 코드 품질, 구조, 오류 등을 검사합니다.
+- **특징**: 사각형 노드로, `SoftwareEngineer`로부터 작업을 받고, `code_analysis_tool`과 상호작용합니다.
+- **흐름**:
+  - **입력**:
+    - `SoftwareEngineer`에서 `analyze_code` 이벤트를 통해 작업이 전달됩니다.
+  - **작업**:
+    - `code_analysis_tool`이라는 하위 도구를 호출하여 코드 분석을 수행합니다.
+  - **출력**:
+    - 분석이 완료되면 `done` 이벤트를 통해 `SoftwareEngineer`에게 결과를 전달합니다.
+    - `continue` 이벤트를 통해 `SoftwareEngineer`로 돌아가 반복 작업을 수행할 수 있습니다.
+  - **특징**: `code_analysis_tool`은 `CodeAnalyzer`의 하위 도구로, `CodeAnalyzer`가 사용하는 도구일 뿐, 워크플로우의 독립적인 노드는 아닙니다.
+
+---
+
+#### **4. `Editor` (편집 도구 노드)**
+- **역할**: 코드를 편집하는 도구를 나타냅니다. 코드 수정, 추가, 변경 등을 수행합니다.
+- **특징**: 사각형 노드로, `SoftwareEngineer`로부터 작업을 받고, `code_edit_tool`과 `test_tool`과 상호작용합니다.
+- **흐름**:
+  - **입력**:
+    - `SoftwareEngineer`에서 `edit_file` 이벤트를 통해 작업이 전달됩니다.
+  - **작업**:
+    - `code_edit_tool`을 사용하여 코드를 편집합니다.
+    - `test_tool`을 사용하여 편집된 코드를 테스트합니다.
+  - **출력**:
+    - 편집 및 테스트가 완료되면 `done` 이벤트를 통해 `SoftwareEngineer`에게 결과를 전달합니다.
+    - `continue` 이벤트를 통해 `SoftwareEngineer`로 돌아가 반복 작업을 수행할 수 있습니다.
+  - **특징**: `code_edit_tool`과 `test_tool`은 `Editor`의 하위 도구로, `Editor`가 사용하는 도구일 뿐, 워크플로우의 독립적인 노드는 아닙니다.
+
+---
+
+#### **5. `code_analysis_tool` (하위 도구 노드)**
+- **역할**: `CodeAnalyzer`가 사용하는 실제 코드 분석 도구입니다.
+- **특징**: 사각형 노드로, `CodeAnalyzer`와 연결되어 있습니다.
+- **흐름**:
+  - **입력**: `CodeAnalyzer`에서 작업을 받습니다.
+  - **출력**: 결과를 `CodeAnalyzer`로 전달합니다.
+  - **특징**: 워크플로우의 독립적인 실행 단위가 아니며, `CodeAnalyzer`의 하위 기능입니다.
+
+---
+
+#### **6. `code_edit_tool` (하위 도구 노드)**
+- **역할**: `Editor`가 사용하는 실제 코드 편집 도구입니다.
+- **특징**: 사각형 노드로, `Editor`와 연결되어 있습니다.
+- **흐름**:
+  - **입력**: `Editor`에서 작업을 받습니다.
+  - **출력**: 결과를 `Editor`로 전달합니다.
+  - **특징**: 워크플로우의 독립적인 실행 단위가 아니며, `Editor`의 하위 기능입니다.
+
+---
+
+#### **7. `test_tool` (하위 도구 노드)**
+- **역할**: `Editor`가 사용하는 테스트 도구입니다. 편집된 코드의 정확성과 성능을 검증합니다.
+- **특징**: 사각형 노드로, `Editor`와 연결되어 있습니다.
+- **흐름**:
+  - **입력**: `Editor`에서 작업을 받습니다.
+  - **출력**: 결과를 `Editor`로 전달합니다.
+  - **특징**: 워크플로우의 독립적인 실행 단위가 아니며, `Editor`의 하위 기능입니다.
+
+---
+
+#### **8. `swe_tool` (소프트웨어 엔지니어 도구 노드)**
+- **역할**: `SoftwareEngineer`가 수행하는 추가 작업 또는 보조 도구를 나타냅니다. 예: 문서 작성, 리뷰, 배포 등.
+- **특징**: 사각형 노드로, `SoftwareEngineer`에서 연결됩니다.
+- **흐름**:
+  - **입력**: `SoftwareEngineer`에서 `continue` 이벤트를 통해 작업이 전달됩니다.
+  - **출력**: 작업이 완료되면 `end` 노드로 연결됩니다.
+  - **특징**: 이 노드는 `SoftwareEngineer`의 작업을 종료하는 데 사용되며, `end`로의 최종 전환 지점입니다.
+
+---
+
+#### **9. `end` (종료 노드)**
+- **역할**: 워크플로우의 종료점을 나타냅니다.
+- **특징**: 원형 노드로, 단일 종료 지점입니다.
+- **흐름**: `swe_tool`에서 `end`로 연결되어, 워크플로우가 이 지점에서 종료됨을 의미합니다.
+
+---
+
+### **전체 흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **코드 분석 단계**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (`analyze_code`)
+   - `CodeAnalyzer` → `code_analysis_tool` (분석 수행)
+   - `code_analysis_tool` → `CodeAnalyzer` (결과 전달)
+   - `CodeAnalyzer` → `SoftwareEngineer` (`done`)
+   - `SoftwareEngineer` → `CodeAnalyzer` (`continue`) → 반복 가능
+3. **코드 편집 및 테스트 단계**:
+   - `SoftwareEngineer` → `Editor` (`edit_file`)
+   - `Editor` → `code_edit_tool` (편집 수행)
+   - `Editor` → `test_tool

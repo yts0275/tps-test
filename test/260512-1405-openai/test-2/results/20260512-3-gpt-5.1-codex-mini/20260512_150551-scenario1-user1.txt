@@ -1,0 +1,14 @@
+다음은 퀵소트 구현과 각 줄마다 주석을 단 예시입니다.
+
+```python
+def quick_sort(arr):                       # 퀵소트 함수 정의, 배열을 입력받음
+    if len(arr) <= 1:                      # 배열 길이가 1 이하면 이미 정렬된 상태이므로
+        return arr                         # 그대로 반환함
+    pivot = arr[len(arr) // 2]             # 기준값(pivot)을 배열 중앙값으로 선택함
+    left = [x for x in arr if x < pivot]   # pivot보다 작은 값들을 왼쪽 서브리스트로 모음
+    middle = [x for x in arr if x == pivot]# pivot과 같은 값들을 중간 리스트로 모음
+    right = [x for x in arr if x > pivot]  # pivot보다 큰 값들을 오른쪽 서브리스트로 모음
+    return quick_sort(left) + middle + quick_sort(right)  # 왼쪽과 오른쪽 부분을 재귀적으로 정렬 후 합침
+```
+
+필요한 경우 실행 예시도 제공해드릴까요?

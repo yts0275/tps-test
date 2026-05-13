@@ -1,0 +1,27 @@
+아래는 **퀵소트(Quicksort) 구현 예시**와 **각 줄(거의 모든 줄)마다 주석**을 단 코드입니다.  
+(언어: **파이썬**, 이해하기 쉬운 형태 / `pivot`을 가운데 원소로 선택)
+
+```python
+def quicksort(arr):  # 리스트 arr을 퀵소트로 정렬하는 함수 정의
+    if len(arr) <= 1:  # 원소가 0개 또는 1개면 이미 정렬되어 있으므로 그대로 반환
+        return arr  # 그대로 반환
+    
+    pivot = arr[len(arr) // 2]  # 가운데 원소를 피벗(pivot)으로 선택
+    left = []  # 피벗보다 작은 원소를 담을 리스트
+    middle = []  # 피벗과 같은 원소를 담을 리스트
+    right = []  # 피벗보다 큰 원소를 담을 리스트
+    
+    for x in arr:  # 입력 리스트의 각 원소 x를 순회
+        if x < pivot:  # x가 피벗보다 작으면
+            left.append(x)  # left 리스트에 추가
+        elif x > pivot:  # x가 피벗보다 크면
+            right.append(x)  # right 리스트에 추가
+        else:  # x가 피벗과 같으면
+            middle.append(x)  # middle 리스트에 추가
+    
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬 후 합쳐서 반환
+```
+
+원하시면:
+1) **파이썬 말고 C/C++/자바 버전**으로도 작성해드릴까요?  
+2) “각 줄마다”를 **정말로 모든 줄**(예: `else` 줄까지도 포함해 더 촘촘히) 주석 달게 더 엄격하게 맞출 수도 있어요. 어떤 스타일로 원하시는지 알려주세요.

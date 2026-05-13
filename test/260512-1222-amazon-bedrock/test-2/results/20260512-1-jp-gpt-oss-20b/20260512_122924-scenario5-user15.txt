@@ -1,0 +1,16 @@
+```python
+def quicksort(arr):  # quicksort 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 0 또는 1이면 그대로 반환(기저 조건)
+        return arr
+    pivot = arr[len(arr) // 2]  # 가운데 원소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 원소들 집계
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 원소들 집계
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 원소들 집계
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬 후 합치기
+
+if __name__ == "__main__":  # 메인 실행 블록
+    arr = [3, 6, 8, 10, 1, 2, 1]  # 테스트 배열
+    print("정렬 전:", arr)  # 정렬 전 배열 출력
+    sorted_arr = quicksort(arr)  # quicksort 호출
+    print("정렬 후:", sorted_arr)  # 정렬 후 배열 출력
+```

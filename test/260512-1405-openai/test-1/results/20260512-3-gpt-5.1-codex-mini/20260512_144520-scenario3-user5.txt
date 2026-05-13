@@ -1,0 +1,15 @@
+다음은 각 줄마다 한국어 주석을 달아 구현한 퀵소트입니다:
+
+```python
+def quicksort(arr):  # 입력받은 배열을 정렬하는 퀵소트 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 1 이하면 더 이상 분할할 필요가 없으므로
+        return arr  # 그대로 반환하여 정렬이 완료된 상태를 유지함
+    pivot = arr[len(arr) // 2]  # 가운데 위치의 요소를 피벗으로 선택하여 기준점을 정함
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들을 모아서 왼쪽 부분 배열 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들을 모아서 가운데 부분 배열 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 모아서 오른쪽 부분 배열 생성
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽과 오른쪽을 재귀 정렬하고 합쳐서 최종 배열 반환
+
+sample = [3, 1, 4, 1, 5, 9, 2, 6, 5]  # 예시로 사용할 정렬할 배열을 정의
+print(quicksort(sample))  # 퀵소트를 실행한 결과를 출력하여 확인
+```

@@ -1,0 +1,89 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the subarrays.
+
+First, I need to write the main function. The function should take an array and its low and high indices. I'll call it quicksort. The base case is when low is greater than or equal to high, so we return. That's straightforward.
+
+Next, the partition function. The partition function selects a pivot, usually the last element here. Then it moves all elements smaller than the pivot to the left and larger ones to the right. The pivot's final position is the partition index.
+
+Wait, in the code, I should have a variable to track the pivot index. Let me initialize it to low, then iterate through the array. For each element, if it's less than the pivot, swap it with the element at the pivot index and increment the pivot index. After the loop, swap the pivot element with the element at the pivot index. That places the pivot in its correct position.
+
+Now, adding comments. Each line of the code should have a comment explaining what it does. For example, the partition function's parameters, selecting the pivot, initializing the pivot index, the loop to compare and swap elements, and finally the swap to place the pivot correctly.
+
+Then, in the quicksort function, after partitioning, we recursively call quicksort on the left and right subarrays. Each of those calls should have comments explaining the recursive steps.
+
+I should make sure that the comments are clear and concise. Maybe mention that the partition function returns the index of the pivot. Also, note that the base case stops the recursion when the subarray has one element or is empty.
+
+Testing the code with an example array. Let's say [5, 3, 8, 4, 2]. The code should sort it. But the user didn't ask for testing, just the implementation with comments.
+
+Wait, should I include the main function that runs the example? The user didn't specify, but maybe it's helpful. However, the user might just want the core functions. I'll stick to the quicksort and partition functions with comments.
+
+Double-checking the code for syntax errors. In Python, the functions are defined with def. The parameters are arr, low, high. The partition function uses the last element as pivot. The loop runs from low to high-1. Then, the pivot element is swapped with the element at the pivot index.
+
+Yes, that seems right. Now, adding the comments line by line. Each step in the partition function is explained. The quicksort function's base case is noted, and the recursive calls are explained.
+
+I think that's all. The code should be correct and well-commented.
+</think>
+
+```python
+def quicksort(arr, low, high):
+    # 배열이 하나의 요소를 가진 경우 또는 비어있는 경우 재귀 종료
+    if low < high:
+        # 파티션을 통해 피벗의 정확한 위치를 찾고, 그 위치를 반환
+        pi = partition(arr, low, high)
+        
+        # 피벗을 기준으로 왼쪽 부분 배열을 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # 피벗을 기준으로 오른쪽 부분 배열을 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피벗으로 마지막 요소 선택
+    pivot = arr[high]
+    
+    # 피벗보다 작은 요소들을 왼쪽으로 옮길 인덱스
+    i = low - 1
+    
+    # 배열을 탐색하며 피벗보다 작은 요소를 찾음
+    for j in range(low, high):
+        if arr[j] < pivot:
+            # 작은 요소를 왼쪽으로 이동
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 위치 반환
+    return i + 1
+
+# 예제 실행
+if __name__ == "__main__":
+    arr = [5, 3, 8, 4, 2]
+    print("정렬 전 배열:", arr)
+    quicksort(arr, 0, len(arr) - 1)
+    print("정렬 후 배열:", arr)
+```
+
+### 코드 설명
+1. `quicksort` 함수:
+   - 배열을 재귀적으로 정렬하는 메인 함수
+   - `low`는 배열의 시작 인덱스, `high`는 배열의 끝 인덱스
+   - `partition` 함수를 통해 배열을 분할하고, 분할된 두 부분을 다시 정렬
+
+2. `partition` 함수:
+   - 피벗(기준 요소)을 선택하고, 배열을 두 부분으로 나눔
+   - `i`는 피벗보다 작은 요소들이 위치할 인덱스
+   - `j`는 배열을 순회하며 피벗보다 작은 요소를 찾는 인덱스
+   - `i+1` 위치에 피벗을 배치하고, 이 위치를 반환
+
+3. 예제 실행:
+   - `if __name__ == "__main__":` 블록에서 배열을 생성하고 정렬 실행
+   - 정렬 전/후 배열을 출력하여 결과 확인 가능
+
+### 특징
+- **시간 복잡도**: 평균 O(n log n), 최악 O(n²)
+- **공간 복잡도**: O(log n) (재귀 스택)
+- **인-플레이스 알고리즘**: 원본 배열을 수정하여 정렬 수행
+
+이 코드는 퀵소트의 기본 구조를 구현하며, 각 단계에 주석을 달아 이해를 돕습니다.

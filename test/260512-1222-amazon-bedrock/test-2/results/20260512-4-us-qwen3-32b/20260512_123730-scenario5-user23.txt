@@ -1,0 +1,65 @@
+물론입니다! 아래는 Python을 사용한 퀵소트(Quick Sort) 구현입니다.  
+각 줄마다 친절하게 자세한 주석을 달아 설명드릴게요. 😊
+
+---
+
+### ✅ 퀵소트 Python 구현 + 주석
+
+```python
+# 퀵소트(Quick Sort) 함수 정의
+def quick_sort(arr):
+    """
+    주어진 리스트를 퀵소트 알고리즘으로 정렬
+    매개변수: 
+        arr - 정렬할 리스트 (리스트 내 원소는 비교 가능)
+    반환: 정렬된 리스트
+    """
+    # 1. 리스트가 비어 있거나 (빈리스트) 한 개짜리일 경우
+    if len(arr) <= 1:
+        return arr
+    
+    # 2. 피벗(pivot)을 선택합니다. 여기서는 중간 값을 선택
+    pivot = arr[len(arr) // 2]  # 리스트의 중간 값
+    
+    # 3. 피벗보다 작은 요소 리스트
+    left = [x for x in arr if x < pivot]
+    
+    # 4. 피벗과 같은 요소 리스트 (중복이 있는 경우 포함)
+    middle = [x for x in arr if x == pivot]
+    
+    # 5. 피벗보다 큰 요소 리스트
+    right = [x for x in arr if x > pivot]
+    
+    # 6. 왼쪽, 피벗, 오른쪽을 재귀적으로 정렬한 후 합칩니다
+    return quick_sort(left) + middle + quick_sort(right)
+```
+
+---
+
+### 😊 예시 실행
+
+아래는 실제로 구현한 퀵소트를 실행해 보는 코드입니다:
+
+```python
+# 정렬할 리스트
+example_list = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 실행
+sorted_list = quick_sort(example_list)
+
+# 결과 출력
+print("정렬 결과:", sorted_list)
+```
+
+---
+
+### ✅ 실행 결과 예시
+
+```
+정렬 결과: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+필요하다면 이 퀵소트를 OOP 방식, in-place 방식, or 다른 언어로도 구현해 드릴 수 있어요!  
+궁금한 부분이나 추가 설명이 필요하면 언제든지 말씀해 주세요~ 😊

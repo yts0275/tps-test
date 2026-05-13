@@ -1,0 +1,13 @@
+<think>
+Okay, let me try to figure out what this code does. So, the user wants a 3-line analysis of the provided Python code.
+
+First, looking at the code structure, there are three main classes: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, stock, and methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages a collection of products and can display inventory.
+
+Then there's the run_system function which initializes products, shows inventory, creates two orders (one successful, one with insufficient stock), and finally shows the updated inventory and a total asset report. 
+
+So the main purpose is to manage inventory and process orders, checking stock availability and generating invoices. The code also demonstrates handling of stock shortages and generating reports. The analysis should highlight these points concisely in three lines.
+</think>
+
+이 코드는 제품 재고 관리 및 주문 처리 시스템을 구현한 것으로, 제품 정보 관리, 주문 생성 및 재고 감소 처리, 재고 현황 출력, 자산 리포트 생성 기능을 포함합니다.  
+Product 클래스는 제품 정보와 재고 조절 기능을, Order 클래스는 주문 생성과 계산서 출력을 담당하며, InventoryManager는 재고 데이터를 관리하고 시각화합니다.  
+실제 시나리오를 통해 재고 부족 처리와 총 자산 가치 계산을 테스트하는 구조로, 실무용 재고 관리 시스템의 핵심 로직을 보여줍니다.

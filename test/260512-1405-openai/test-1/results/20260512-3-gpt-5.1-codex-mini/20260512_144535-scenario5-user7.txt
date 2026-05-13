@@ -1,0 +1,10 @@
+```python
+def quick_sort(arr):  # 입력된 리스트를 퀵소트 방식으로 정렬하는 함수입니다.
+    if len(arr) <= 1:  # 리스트 길이가 1 이하라면 이미 정렬된 상태이므로 그대로 반환합니다.
+        return arr  # 현재 리스트를 그대로 반환합니다.
+    pivot = arr[len(arr) // 2]  # 리스트 가운데 값을 피벗으로 선택합니다.
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들을 모아서 left 리스트를 만듭니다.
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값을 가지는 요소들을 모읍니다.
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 모아서 right 리스트를 만듭니다.
+    return quick_sort(left) + middle + quick_sort(right)  # 왼쪽, 가운데, 오른쪽을 재귀적으로 정렬해 연결합니다.
+```

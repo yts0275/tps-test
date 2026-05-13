@@ -1,0 +1,28 @@
+아래는 Python으로 구현한 퀵소트이며, 코드의 각 줄마다 한국어 주석을 달아두었습니다.
+
+```python
+# 퀵소트 구현 (Lomuto 분할 방식) - 각 줄마다 주석 포함
+def partition(arr, low, high):  # 배열 arr의 구간 low..high를 분할하여 피벗의 최종 인덱스를 반환하는 함수
+    pivot = arr[high]  # 피벗으로 구간의 마지막 원소를 선택
+    i = low  # 작은 값들이 모일 시작 위치를 low로 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회하면서 각 원소를 검사
+        if arr[j] <= pivot:  # 현재 원소가 피벗 이하이면 작은 그룹에 포함
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 그룹의 끝과 현재 원소를 교환
+            i += 1  # 작은 그룹의 끝 인덱스를 하나 증가
+    arr[i], arr[high] = arr[high], arr[i]  # 피벗을 작은 그룹 바로 뒤 위치로 옮겨 분할 완료
+    return i  # 피벗의 최종 위치 인덱스 반환
+
+def quicksort(arr, low, high):  # 재귀적으로 arr[low..high]를 정렬하는 퀵소트 함수
+    if low < high:  # 구간에 두 개 이상의 원소가 있을 때만 정렬을 수행
+        p = partition(arr, low, high)  # 분할을 수행하고 피벗 위치를 얻음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시 코드를 실행
+    arr = [33, 10, 55, 71, 29, 3, 18]  # 정렬할 예시 배열 정의
+    print("정렬 전:", arr)  # 정렬 전 배열 출력
+    quicksort(arr, 0, len(arr) - 1)  # 배열 전체(인덱스 0부터 len(arr)-1까지)를 퀵소트로 정렬
+    print("정렬 후:", arr)  # 정렬된 배열 출력
+```
+
+원하면 다른 분할 방식(Hoare), 비재귀(스택 사용) 버전, 안정성/시간 복잡도 설명 등도 추가해 드리겠습니다.

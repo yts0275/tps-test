@@ -1,0 +1,58 @@
+물론입니다! 아래는 Python에서 **퀵소트**(Quicksort) 알고리즘을 구현한 코드이며, 각 줄에 친절하게 주석을 달아서 설명드립니다.
+
+```python
+def quicksort(arr):
+    """
+    주어진 리스트를 퀵소트 알고리즘을 사용하여 정렬합니다.
+    """
+    
+    # 기본 케이스: 리스트가 비어 있거나 하나의 요소만 있으면 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 기준점(pivot) 설정: 이 예에서는 리스트의 첫 번째 요소를 pivot으로 선택
+    pivot = arr[0]
+    
+    # 작음: pivot보다 작은 요소들
+    less = [x for x in arr[1:] if x < pivot]
+    
+    # 크거나 같음: pivot보다 크거나 같은 요소들
+    greater = [x for x in arr[1:] if x >= pivot]
+    
+    # 재귀: 왼쪽(작은 요소들), pivot, 오른쪽(큰/같은 요소들)을 합침
+    return quicksort(less) + [pivot] + quicksort(greater)
+```
+
+---
+
+### 💡 각 단계에 대한 간단한 설명
+
+1. **기본 케이스**:  
+   - 리스트가 비었거나 하나의 요소만 있으면 정렬할 필요가 없으므로 바로 반환합니다.
+
+2. **pivot 선택**:  
+   - 여기서는 리스트의 첫 번째 요소를 기준점(피벗)으로 선택합니다.
+
+3. **분할 작업**:  
+   - 리스트에서 피벗 제외한 나머지 요소들을 `작은 것`, `크거나 같은 것` 두 그룹으로 나누었습니다.
+
+4. **재귀적 정렬**:  
+   - 왼쪽 그룹(`less`)을 퀵소트로 정렬
+   - 오른쪽 그룹(`greater`)을 퀵소트로 정렬
+   - 정렬된 왼쪽 그룹 + 피벗 + 정렬된 오른쪽 그룹을 결합
+
+---
+
+### ✅ 예시 실행
+
+```python
+unsorted_array = [5, 3, 8, 4, 9, 2, 7]
+sorted_array = quicksort(unsorted_array)
+
+print("정렬 전:", unsorted_array)
+print("정렬 후:", sorted_array)
+```
+
+---
+
+필요하다면, **인플레이스**(in-place) 퀵소트 구현도 소개해 드릴 수 있어요. 궁금한 부분이 있으신가요? 😊

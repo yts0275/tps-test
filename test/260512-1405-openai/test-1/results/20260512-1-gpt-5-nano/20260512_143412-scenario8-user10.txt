@@ -1,0 +1,80 @@
+다음 Workflow의 노드 흐름을 가능한 한 자세히 설명합니다. 그림의 화살표 방향과 라벨을 바탕으로 구성 요소 간의 관계와 흐름 조건을 해석해 정리합니다.
+
+1) 전체 구조 개요
+- 시작점(start)에서 흐름이 시작되고, 중앙에 SoftwareEngineer 노드가 흐름을 제어합니다.
+- SoftwareEngineer는 코드 분석, 파일 편집, SWE 도구 사용 등 여러 하위 작업을 조합하여 진행합니다.
+- 최종적으로 end 노드에 도달하는 방식으로 종료됩니다.
+- 노드들 간의 연결은 두 가지 스타일로 보입니다.
+  - 실선 화살표: 주된 순차 흐름(다음 단계로의 진행)을 나타냅니다.
+  - 점선 화살표: 조건부/병렬 실행 또는 선택적 경로를 나타내는 것으로 해석할 수 있습니다. 라벨은 경로의 의미를 보조합니다.
+
+2) 노드 목록과 역할
+- start: 워크플로우의 시작점.
+- SoftwareEngineer: 워크플로우의 중앙 컨트롤러. 코드 분석, 파일 편집, 테스트 도구 실행, SWE 도구 사용 등을 시작하고 조합하는 역할.
+- CodeAnalyzer: 코드 분석을 담당하는 노드. analyze_code 트리거를 받아 분석 작업으로 진입.
+- code_analysis_tool: 실제 코드 분석 작업을 수행하는 구성 요소.
+- Editor: 파일 편집과 관련된 작업을 담당하는 노드. edit_file 트리거를 받아 편집 작업으로 진입.
+- code_edit_tool: 코드 편집 작업을 수행하는 세부 도구.
+- test_tool: 편집된 코드의 테스트를 담당하는 도구.
+- swe_tool: Software Engineer가 사용하는 보조 도구나 기능을 수행하는 노드.
+- end: 워크플로우의 종료점.
+
+3) 간선의 의미와 흐름 상세
+- start -> SoftwareEngineer: 시작에서 중앙 컨트롤러로 진입합니다.
+- SoftwareEngineer → CodeAnalyzer (레이블: analyze_code, 점선으로 표시될 가능성 있음)
+  - SoftwareEngineer가 코드 분석을 트리거하는 경로입니다.
+  - CodeAnalyzer가 코드 분석의 주 입력 지점으로 작동합니다.
+- CodeAnalyzer → code_analysis_tool (실선)
+  - 코드 분석의 실제 실행 단계로 넘어갑니다.
+- CodeAnalyzer의 완료 신호/다음 단계
+  - "done"이나 "continue" 같은 라벨이 간선에 보이고, 다음 단계로 넘어갑니다.
+  - 보통은 코드 분석이 완료되면 다음 단계로 자동으로 이어지는 흐름 (예: Editor 또는 다른 도구)로 연결될 수 있습니다.
+- Editor → code_edit_tool (실선)
+  - Editor에서 파일 편집 작업으로 진입합니다.
+  - code_edit_tool은 편집의 실제 실행을 담당합니다.
+- Editor → test_tool (실선 또는 이어지는 경로)
+  - 편집 후 테스트를 수행하는 경로로 연결될 수 있습니다.
+  - test_tool은 편집의 결과를 검증하는 역할.
+- SoftwareEngineer → swe_tool (점선 또는 보조 경로)
+  - SoftwareEngineer가 SWE 도구를 호출하는 경로.
+  - swe_tool은 독립적이거나 보조적 작업을 수행하고, 최종적으로 end로 연결됩니다.
+- swe_tool → end (실선 또는 점선 경로)
+  - SWE 도구의 작업이 종료 지점을 향해 흘러가 end에 도달합니다.
+- end: 워크플로우의 종점.
+
+4) 흐름의 동시성 및 분기 포인트
+- 점선 경로의 존재로 보아 SoftwareEngineer는 여러 하위 작업을 병렬로 시도할 여지가 있습니다.
+  - 예를 들어, analyze_code(CodeAnalyzer)와 edit_file(Editor) 작업이 서로 독립적으로 시작될 수 있게 보이는 구성일 수 있습니다.
+  - 또한 swe_tool은 독립적으로 실행될 수 있으며, 끝 포인트(end)로의 연결이 가능한 경로를 가질 수 있습니다.
+- 실선 경로는 주 흐름으로, 각 하위 도구의 실행이 끝난 뒤 다음 단계로의 순차적 진행을 나타냅니다.
+- 각 하위 도구 간에는 “done”, “continue” 같은 라벨이 달려 있어 진행 상태를 나타내거나 다음 단계로의 전시를 관리합니다.
+
+5) 시나리오 예시
+- 시나리오 A: 코드 분석 우선
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer가 analyze_code 트리거를 통해 CodeAnalyzer로 이동
+  3) CodeAnalyzer가 code_analysis_tool을 실행
+  4) code_analysis_tool의 작업 완료(d again: done) → CodeAnalyzer로 돌아오거나, 다음으로 Editor로 진행(다른 경로)될 수 있음
+  5) Editor가 edit_file 트리거를 받으면 Editor → code_edit_tool 실행
+  6) code_edit_tool의 작업 완료 후 필요하면 test_tool로 넘어가 테스트 수행
+  7) swe_tool과 end 경로가 병행/대안 흐름으로 추가될 수 있으며, end까지 도달
+- 시나리오 B: 파일 편집 우선
+  1) start → SoftwareEngineer
+  2) SoftwareEngineer가 edit_file 트리거를 통해 Editor로 이동
+  3) Editor가 code_edit_tool 실행
+  4) 편집 완료 후 필요 시 test_tool로 넘어가 테스트 수행
+  5) (선택적으로) CodeAnalyzer를 호출하는 analyze_code 경로가 병행 가능
+  6) swe_tool 경로를 통해 보조 도구 사용 후 end로 도달
+- 시나리오 C: 최종 종료 경로
+  1) SoftwareEngineer의 continue(또는 직접) 경로를 통해 end로 바로 도달하는 흐름도 보일 수 있음
+  2) 또는 swe_tool를 이용한 별도 종료 경로를 통해 end로 연결
+
+6) 요약 및 해석 포인트
+- 이 Workflow는 SoftwareEngineer를 중심으로 코드 분석(CodeAnalyzer + code_analysis_tool)과 파일 편집(Editor + code_edit_tool + test_tool)이라는 두 개의 주요 작업 흐름이 서로 병렬 혹은 순차적으로 작동하도록 구성된 구조임이 보입니다.
+- swe_tool은 보조 도구로 보이며, end로의 최종 경로를 제공합니다.
+- 실선 경로는 주 흐름, 점선 경로는 선택적/병렬 실행 가능성을 시사합니다.
+- 각 하위 도구의 완료 신호(don/continue 등)로 다음 단계로의 전이가 관리됩니다.
+
+추가로 원하시면:
+- 각 노드의 정확한 라벨(예: 각 간선의 텍스트)을 더 자세히 매핑해 흐름도를 재구성해 드리겠습니다.
+- 특정 경로의 예상 실행 순서(동시성 여부, 각 도구의 선후 관계)를 순서표로 정리해 드릴 수 있습니다.

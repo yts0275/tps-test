@@ -1,0 +1,38 @@
+물론입니다! 아래는 **파이썬**으로 구현한 **퀵소트(Quick Sort)** 코드이며, 각 줄에 대해 주석을 달아 설명을 추가했습니다.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 리스트가 비어 있거나 원소가 하나만 있으면 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot) 선택 - 여기서는 리스트 중간에 있는 원소를 선택
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗 기준으로 왼쪽, 오른쪽, 중간을 나누는 리스트
+    left = [x for x in arr if x < pivot]     # 피벗보다 작은 수
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 수
+    right = [x for x in arr if x > pivot]    # 피벗보다 큰 수
+
+    # 재귀적으로 왼쪽과 오른쪽 리스트 정렬 후 전체 합치기
+    return quick_sort(left) + middle + quick_sort(right)
+
+# 예시 실행
+arr = [3, 6, 8, 10, 1, 2, 1]
+print("정렬 전:", arr)
+sorted_arr = quick_sort(arr)
+print("정렬 후:", sorted_arr)
+```
+
+---
+
+### 📌 설명 정리:
+
+- `quick_sort(arr)`: 퀵소트를 수행하는 재귀 함수입니다.
+- `if len(arr) <= 1`: 재귀 종료 조건입니다. 즉, 정렬할 것이 너무 적은 경우.
+- `pivot`: 정렬 기준이 되는 값입니다. 여기서는 중간 인덱스를 선택했지만, 다른 방법 тоже 가능합니다.
+- `left`, `middle`, `right`: 피벗 기준으로 작은 수, 같은 수, 큰 수를 나누는 리스트입니다.
+- `return quick_sort(left) + middle + quick_sort(right)`: 재귀적으로 왼쪽, 중간, 오른쪽을 모두 정렬하고 합치는 부분입니다.
+
+필요하다면 다른 언어(예: Java, C++)로도 구현할 수 있습니다. 원하시면 말씀해주세요!

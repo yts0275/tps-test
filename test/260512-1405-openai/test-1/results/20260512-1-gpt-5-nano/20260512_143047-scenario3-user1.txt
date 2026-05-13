@@ -1,0 +1,12 @@
+def quicksort(arr):  # 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 1 이하이면 기본 케이스
+        return arr  # 이미 정렬된 배열 반환
+    pivot = arr[0]  # 피봇으로 첫 요소 선택
+    left = [x for x in arr[1:] if x <= pivot]  # 피봇보다 작거나 같은 원소들
+    right = [x for x in arr[1:] if x > pivot]  # 피봇보다 큰 원소들
+    sorted_left = quicksort(left)  # 왼쪽 부분 배열 재귀 정렬
+    sorted_right = quicksort(right)  # 오른쪽 부분 배열 재귀 정렬
+    return sorted_left + [pivot] + sorted_right  # 정렬된 결과 합치기
+if __name__ == "__main__":  # 모듈로 실행될 때만 실행
+    data = [3, 6, 8, 2, 3, 1]  # 테스트 데이터
+    print(quicksort(data))  # 정렬된 결과 출력

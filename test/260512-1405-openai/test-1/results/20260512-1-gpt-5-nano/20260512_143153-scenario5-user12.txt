@@ -1,0 +1,28 @@
+다음은 파이썬으로 구현한 제자리(quicksort-in-place) 퀵소트입니다. 각 줄에 주석을 달아 설명했습니다.
+
+def partition(arr, low, high):  # Lomuto 파티션 방식으로 피벗 위치 결정
+    pivot = arr[high]  # 피벗으로 배열의 마지막 원소를 선택
+    i = low - 1  # 작은 요소 구간의 끝 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 요소 구간의 끝을 한칸 뒤로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 구간 내 원소 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 정확한 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+def quicksort(arr, low, high):  # 재귀적 퀵정렬 구현
+    if low < high:  # 구간에 두 원소 이상이 있을 때만 진행
+        p = partition(arr, low, high)  # 피벗의 최종 위치를 얻음
+        quicksort(arr, low, p - 1)  # 왼쪽 부분배열 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 오른쪽 부분배열 재귀적으로 정렬
+
+def quicksort_inplace(arr):  # 배열을 제자리에서 정렬하는 래퍼
+    if arr is None:  # 입력이 없다면
+        return None  # None 반환
+    quicksort(arr, 0, len(arr) - 1)  # 전체 배열에 대해 퀵정렬 수행
+    return arr  # 정렬된 배열 반환
+
+# 예시 사용법(주석 처리)
+# a = [3, 6, 8, 10, 1, 2, 1]  # 예시 배열 선언
+# quicksort_inplace(a)  # 제자리에서 정렬 실행
+# print(a)  # 정렬 결과 출력

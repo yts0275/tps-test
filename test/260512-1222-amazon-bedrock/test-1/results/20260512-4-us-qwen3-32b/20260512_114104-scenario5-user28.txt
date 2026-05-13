@@ -1,0 +1,53 @@
+물론입니다! 아래는 Python으로 퀵소트(quick sort)를 구현하고, 각 줄에 대해 자세한 주석을 추가한 코드입니다.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    """
+    배열을 퀵소트 알고리즘으로 정렬합니다.
+    파라미터:
+        arr: 정렬할 대상인 리스트
+    반환:
+        정렬된 리스트
+    """
+    # 기저 조건: 리스트의 길이가 1 이하이면 정렬할 필요가 없음
+    if len(arr) <= 1:
+        return arr  # 단일 원소 또는 빈 리스트는 그대로 반환
+
+    # 피벗(pivot)을 선택 (여기서는 리스트의 첫 번째 원소를 선택)
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들로 구성된 왼쪽 리스트
+    left = [x for x in arr[1:] if x < pivot]
+
+    # 피벗보다 큰 요소들로 구성된 오른쪽 리스트
+    right = [x for x in arr[1:] if x >= pivot]
+
+    # 재귀호출: 왼쪽 리스트 정렬 + 피벗 + 오른쪽 리스트 정렬
+    return quick_sort(left) + [pivot] + quick_sort(right)
+
+
+# 예시 실행
+if __name__ == "__main__":
+    # 테스트 데이터 정의
+    my_list = [3, 6, 4, 7, 1, 2]
+    print("정렬 전:", my_list)
+
+    # 퀵소트 호출
+    sorted_list = quick_sort(my_list)
+    print("정렬 후:", sorted_list)
+```
+
+---
+
+### 💡 설명
+
+- **pivot**은 리스트에서 하나의 값을 선택해 기준이 됩니다.
+- **left**는 pivot보다 작은 원소들만 모아진 리스트
+- **right**는 pivot보다 같거나 큰 원소들만 모아진 리스트
+- `quick_sort(left)`와 `quick_sort(right)`를 재귀적으로 사용해 재정렬
+- 리스트가 작아질수록 효율적 (분할 정복 방식)
+
+---
+
+이 코드를 직접 실행하면 `[3,6,4,7,1,2]`가 `[1,2,3,4,6,7]`로 정렬된 것을 확인할 수 있습니다. 궁금한 부분이 있으면 추가로 설명해 드릴게요 😊

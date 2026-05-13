@@ -1,0 +1,24 @@
+다음은 파이썬으로 구현한 퀵소트입니다. 각 줄마다 주석을 달았습니다.
+
+```python
+def quicksort(arr, low, high):  # QuickSort: 인덱스 범위 [low, high]를 제자리에서 정렬
+    if low < high:  # 정렬할 구간이 남아있으면
+        pi = partition(arr, low, high)  # 피봇 인덱스를 구분점으로 얻음
+        quicksort(arr, low, pi - 1)  # 피봇 왼쪽 부분 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 피봇 오른쪽 부분 재귀적으로 정렬
+
+def partition(arr, low, high):  # 구간을 분할하는 함수
+    pivot = arr[high]  # 피봇으로 마지막 원소를 선택
+    i = low - 1  # i는 작은 원소 구간의 끝을 가리킴
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같으면
+            i += 1  # 작은 원소 구간의 끝을 한 칸 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소와 i 위치의 원소를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 작은 원소들 뒤로 배치
+    return i + 1  # 피봇의 최종 인덱스를 반환
+
+# 예시 사용
+arr = [10, 7, 8, 9, 1, 5]  # 정렬할 배열
+quicksort(arr, 0, len(arr) - 1)  # 배열을 제자리에서 퀵소트 수행
+print(arr)  # [1, 5, 7, 8, 9, 10]처럼 정렬된 배열을 출력
+```

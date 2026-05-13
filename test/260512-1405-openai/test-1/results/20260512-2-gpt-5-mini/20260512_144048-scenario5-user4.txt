@@ -1,0 +1,25 @@
+아래는 파이썬으로 구현한 퀵소트(람버토(Lomuto) 파티션) 예제입니다. 각 코드 줄마다 한국어 주석을 달아 설명했습니다.
+
+```python
+def quicksort(arr, low, high):  # 배열 arr를 in-place로 퀵소트하는 함수, low는 시작 인덱스, high는 끝 인덱스
+    if low < high:  # 정렬할 범위에 두 개 이상의 요소가 있을 때만 분할 및 재귀 수행
+        p = partition(arr, low, high)  # 기준 피벗을 정하고 분할하여 피벗의 최종 위치 인덱스 p를 받음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 구간을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 구간을 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 파티션: arr[low..high]를 피벗 기준으로 분할하는 함수
+    pivot = arr[high]  # 피벗으로 구간의 마지막 요소를 선택
+    i = low - 1  # 작은(<= 피벗) 요소들의 경계 인덱스를 초기화 (경계는 i)
+    for j in range(low, high):  # low부터 high-1까지 순회하며 피벗과 비교
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면
+            i += 1  # 작은 요소 그룹의 경계를 오른쪽으로 한 칸 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 그룹 끝으로 스왑
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 그룹 바로 뒤로 옮겨 최종 위치에 둠
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예제 코드 실행
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트 정의
+    print("정렬 전:", data)  # 정렬 전 리스트 출력
+    quicksort(data, 0, len(data) - 1)  # 리스트 전체 범위를 퀵소트로 정렬
+    print("정렬 후:", data)  # 정렬 결과 출력
+```

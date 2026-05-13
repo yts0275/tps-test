@@ -1,0 +1,37 @@
+아래는 파이썬으로 구현한 **퀵소트(QuickSort)** 함수입니다.  
+코드의 각 줄마다 `#` 뒤에 한 줄의 주석을 달았습니다.  
+
+```python
+def quicksort(arr):                 # 정렬할 리스트를 인자로 받는 함수 정의
+    """
+    주어진 리스트 arr을 퀵소트 알고리즘으로 정렬합니다.
+    이 구현은 in‑place(제자리) 정렬이므로, arr 자체가 정렬된 상태가 됩니다.
+    """
+    if len(arr) <= 1:               # 리스트가 0개 혹은 1개라면 이미 정렬된 상태
+        return arr                  # 그대로 반환 (변경 없음)
+
+    pivot = arr[len(arr) // 2]       # 분할 기준이 되는 피벗(pivot) 선택
+                                      # 보통 중간값을 선택하지만 이외의 방법도 가능
+
+    left  = [x for x in arr if x < pivot]   # 피벗보다 작은 값들을 모음
+    middle = [x for x in arr if x == pivot] # 피벗과 같은 값들을 모음 (중복 허용)
+    right = [x for x in arr if x > pivot]   # 피벗보다 큰 값들을 모음
+
+    # 왼쪽, 중앙, 오른쪽 리스트를 재귀적으로 퀵소트하고, 다시 합치기
+    return quicksort(left) + middle + quicksort(right)
+```
+
+#### 사용 예시
+```python
+if __name__ == "__main__":
+    unsorted_list = [33, 10, 55, 71, 29, 5, 92, 44]
+    print("정렬 전:", unsorted_list)
+    sorted_list = quicksort(unsorted_list)  # 인자 전달
+    print("정렬 후:", sorted_list)
+```
+
+> **주의**  
+> - 이 구현은 새로운 리스트를 만들어 반환하는 **재귀적** 설계이므로, 메모리 사용량이 많을 수 있습니다.  
+> - Python은 기본적으로 재귀 깊이 제한이 1000번이기 때문에, 길이가 1000개를 초과하는 리스트는 `RecursionError` 가 발생할 수 있습니다. 그때는 병합 정렬이나 상완 파티션(3-way partition)을 적용한 버전을 사용해 보세요.  
+
+필요에 따라 in‑place(제자리) 정렬 버전이나 3‑way 파티션을 추가로 구현해 드릴 수도 있으니, 원하시면 알려 주세요!

@@ -1,0 +1,26 @@
+다음은 각 줄에 주석이 달린 파이썬 QuickSort 구현 예시입니다.
+
+```python
+def quicksort(arr, low=0, high=None):  # QuickSort: 배열을 제자리에 정렬하는 최상위 함수
+    if high is None:  # high가 주어지지 않았다면
+        high = len(arr) - 1  # 배열의 마지막 인덱스로 설정
+    if low < high:  # 부분 배열에 원소가 2개 이상일 때만 진행
+        p = partition(arr, low, high)  # 분할하여 피봇 위치를 얻음
+        quicksort(arr, low, p - 1)  # 왼쪽 부분배열 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 오른쪽 부분배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 함수: 피봇 위치를 반환
+    pivot = arr[high]  # 피봇으로 마지막 원소 선택
+    i = low - 1  # 작은 값 영역의 끝 인덱스 초기화
+    for j in range(low, high):  # 하위 배열을 순회
+        if arr[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같다면
+            i += 1  # 작은 값 영역 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소를 교환하여 위치 바꿈
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 작은 값 영역 뒤로 이동
+    return i + 1  # 피봇의 최종 인덱스 반환
+
+if __name__ == "__main__":  # 테스트용 실행 블록
+    data = [33, 10, 55, 2, 89, 1, 5]  # 예시 배열
+    quicksort(data)  # 배열을 제자리에서 정렬
+    print(data)  # 정렬된 배열 출력
+```

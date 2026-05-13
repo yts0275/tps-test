@@ -1,0 +1,50 @@
+물론입니다! 아래는 **Python**으로 구현한 **퀵소트(Quicksort)** 알고리즘입니다. 각 줄에 쉽게 이해할 수 있도록 **주석**을 함께 달아드릴게요.
+
+---
+
+```python
+def quicksort(arr):
+    # 리스트가 비어 있거나 1개의 요소만 있을 경우, 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 리스트의 마지막 요소로 선택
+    pivot = arr[-1]
+    
+    # 피벗 보다 작은 요소를 모을 왼쪽 리스트 초기화
+    left = []
+    # 피벗과 같은 요소를 모을(중간) 리스트 초기화
+    middle = []
+    # 피벗 보다 큰 요소를 모을 오른쪽 리스트 초기화
+    right = []
+    
+    # 배열의 모든 요소를 순회
+    for element in arr:
+        if element < pivot:
+            left.append(element)  # 피벗보다 작으면 왼쪽에 추가
+        elif element == pivot:
+            middle.append(element)  # 피벗과 같으면 중간에 추가
+        else:
+            right.append(element)  # 피벗보다 크면 오른쪽에 추가
+    
+    # 재귀를 이용하여 왼쪽, 중간, 오른쪽 리스트를 정렬 후 연결해서 반환
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 사용법
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quicksort(arr)
+print("정렬 완료된 배열:", sorted_arr)
+```
+
+---
+
+### 📌 설명 요약
+
+- **.pivot** : 정렬 기준이 될 요소 (가장 마지막 요소 사용)
+- 왼쪽: 피벗보다 작은 수
+- 중간: 피벗과 같은 수 (중복 요소에 사용)
+- 오른쪽: 피벗보다 큰 수
+- 재귀로 각 리스트를 다시 정렬
+- 정렬된 왼쪽 + 중간 + 오른쪽을 이어붙혀 최종 완성
+
+필요하다면, **인플레이스**(in-place) 퀵소트로 변경하거나, 다른 언어 버전으로도 도와드릴 수 있어요. 🚀

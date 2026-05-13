@@ -1,0 +1,32 @@
+이미지에 나타난 Workflow는 시작부터 종료까지 “SoftwareEngineer”를 중심으로 여러 도구와 분석 흐름이 연결된 구조입니다. 아래에 각 Node들의 흐름을 최대한 상세히 설명합니다.
+
+1. **start → SoftwareEngineer**  
+   모든 작업은 “start” 노드에서 출발하여 “SoftwareEngineer” 노드로 이어집니다. 즉, “SoftwareEngineer”가 작업의 주체가 되어 이후 흐름을 결정합니다.
+
+2. **SoftwareEngineer → CodeAnalyzer / Editor / swe_tool / end**  
+   “SoftwareEngineer”는 다음과 같은 여러 방향으로 흐름을 파생시킬 수 있습니다.
+   - “analyze_code”라는 라벨이 붙은 화살표를 타고 “CodeAnalyzer”로 이동합니다. 이때 “SoftwareEngineer”는 코드 분석을 요청하는 역할을 하며, “CodeAnalyzer”가 분석을 수행하는 흐름이 시작됩니다.
+   - “edit_file”이라는 라벨을 통해 “Editor”로 흐름이 전달됩니다. 이는 “SoftwareEngineer”가 직접 혹은 편집 도구를 통해 코드 편집 작업을 수행한다는 의미입니다.
+   - “continue”라는 라벨을 달고 “swe_tool”로도 이어집니다. 여기서 “swe_tool”은 아마도 개발자가 사용하는 추가적인 S/W 공구를 의미하며, “SoftwareEngineer”가 작업을 잠시 해당 도구로 계속하는 흐름입니다.
+   - “end”로도 직접 이어지는 점선이 있어, 어떤 조건에서는 “SoftwareEngineer”가 직접 워크플로우를 종료할 수도 있습니다.
+
+3. **CodeAnalyzer → code_analysis_tool 및 “continue” → SoftwareEngineer**  
+   - “CodeAnalyzer”는 “code_analysis_tool”로 이동하는 화살표가 있으며, 이는 분석을 수행하는 실제 분석 도구의 사용을 의미합니다.
+   - 분석이 “done”되면 “SoftwareEngineer”로 돌아가는 흐름이 있고, “continue”를 통해 “Editor” 혹은 어떤 다음 단계로 이동할 수도 있습니다. 실제로 “CodeAnalyzer”에서 “continue” 라벨을 통해 “Editor”로 이어지는 점선도 존재합니다. 즉 분석 후 편집으로 자연스럽게 연결됩니다.
+
+4. **Editor → code_edit_tool / test_tool / SoftwareEngineer**  
+   - “Editor”는 “code_edit_tool”과 “test_tool”로 각각 흐름을 뻗습니다. “code_edit_tool”은 실제 코드 편집을 수행하는 도구이며, “test_tool”은 편집된 코드를 테스트하거나 검증하는 도구입니다.
+   - 편집이 “done”되면 “SoftwareEngineer”로 되돌아가는 경로가 있으며, “continue”라는 라벨로 “CodeAnalyzer”로 되돌아가는 흐름도 존재합니다. 이는 편집 후 다시 분석해야 할 상황을 나타낼 수 있습니다.
+
+5. **Editor → test_tool → (다시) Editor**  
+   - “test_tool”에 의한 흐름은 “Editor”로 되돌아와서 테스트 결과를 반영하여 다시 편집하는 순환 구조를 보여줍니다. (이미지에서 점선 흐름: Editor → test_tool → Editor)
+
+6. **SoftwareEngineer ← CodeAnalyzer / Editor / swe_tool**  
+   - “CodeAnalyzer”와 “Editor”에서 “done” 또는 “continue” 경로를 통해 “SoftwareEngineer”로 되돌아오는 모습이 확인됩니다. 이를 통해 모든 도구는 작업 완료 후 다시 “SoftwareEngineer”에게 리턴되어 다음 의사결정이나 작업을 이어가게 됩니다.
+   - “swe_tool” 또한 “SoftwareEngineer”한테 “continue”를 통해 연결되며, 그 후 “end” 혹은 다른 작업 흐름을 결정하는 구조로 이해됩니다.
+
+7. **전체적인 순환 구조**  
+   - “SoftwareEngineer”에서 “CodeAnalyzer” 또는 “Editor”를 거쳐 다시 “SoftwareEngineer”로 돌아오는 순환 흐름이 전체 워크플로우의 중심입니다. 분석→편집→테스트→다시 분석 또는 편집이라는 반복 구조를 통해 코드 개발과 검증 사이클을 표현합니다.
+   - 마지막에 “SoftwareEngineer”에서 “end”로 직접 흐름이 이어지기도 하므로, 일정 조건에서는 도구 사용을 마치고 워크플로우를 종료하는 흐름도 포함됩니다.
+
+요약하면, “SoftwareEngineer”는 코드 분석(“CodeAnalyzer”)과 편집(“Editor”)을 각각 호출하고, 필요한 도구(“code_analysis_tool”, “code_edit_tool”, “test_tool”, “swe_tool”)를 활용하면서 반복적으로 작업 후 다시 자신에게 돌아와 다음 작업을 결정합니다. 마지막에는 “end”로 흐름을 닫는 구조입니다.

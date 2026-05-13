@@ -1,0 +1,55 @@
+물론입니다! 아래는 파이썬에서 **퀵소트**(Quicksort)를 구현한 예제입니다. 각 줄에 주석을 달아 설명드리겠습니다.
+
+---
+
+### 🔄 퀵소트(Quicksort) 구현 (파이썬)
+
+```python
+def quicksort(arr):
+    """
+    퀵소트: 리스트를 재귀적으로 정렬합니다.
+    """
+    # 리스트가 비어 있거나 한 요소만 남았다면 정렬할 필요 없음
+    if len(arr) <= 1:
+        return arr
+    
+    # pivot: 기준 요소 (여기서는 리스트의 첫 번째 요소로 선택)
+    pivot = arr[0]
+    
+    # left: pivot보다 작거나 같은 요소들
+    left = [x for x in arr[1:] if x <= pivot]
+    
+    # right: pivot보다 큰 요소들
+    right = [x for x in arr[1:] if x > pivot]
+    
+    # 왼쪽, pivot, 오른쪽 리스트를 재귀적으로 정렬한 후 연결
+    return quicksort(left) + [pivot] + quicksort(right)
+```
+
+---
+
+### ✅ 예제 사용
+
+```python
+# 예제 리스트
+arr = [5, 3, 8, 4, 2]
+
+# 퀵소트 실행
+sorted_arr = quicksort(arr)
+
+# 결과 출력
+print("정렬 결과:", sorted_arr)
+```
+
+---
+
+### 📝 퀵소트에 대한 간단한 설명
+
+- 퀵소트는 **분할 정복**(Divide and Conquer) 알고리즘입니다.
+- 하나의 pivot(기준값)을 선택하고, 리스트를 pivot에 따라 두 부분으로 나누어 재귀적으로 정렬합니다.
+- 평균 실행 시간: **O(n log n)**, 최악의 경우: **O(n²)** (보완된 버전에서는 거의 발생하지 않음)
+- 공간복잡도는 **O(log n)**입니다 (재귀 스택 때문)
+
+---
+
+필요하다면 반복문을 사용한 퀵소트나, 인플레이스(in-place) 퀵소트도 구현해드릴 수 있습니다! 😊

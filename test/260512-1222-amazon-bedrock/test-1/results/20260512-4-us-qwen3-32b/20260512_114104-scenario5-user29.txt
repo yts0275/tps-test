@@ -1,0 +1,36 @@
+물론입니다. 아래는 **파이썬에서 퀵소트(Quick Sort)**의 구현 코드이며, 각 줄에 **주석**을 달아 설명하였습니다.
+
+```python
+# 퀵소트 함수 정의
+def quicksort(arr):
+    # 리스트가 비었거나 요소가 1개만 있다면, 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    # 피벗을 리스트의 중간 요소로 선택
+    pivot = arr[len(arr) // 2]
+    # 피벗보다 작은 요소들을 포함하는 왼쪽 리스트
+    left = [x for x in arr if x < pivot]
+    # 피벗과 같은 요소들 (피벗 포함)
+    middle = [x for x in arr if x == pivot]
+    # 피벗보다 큰 요소들을 포함하는 오른쪽 리스트
+    right = [x for x in arr if x > pivot]
+    # 왼쪽 리스트 정렬 -> middle 리스트 -> 오른쪽 리스트 정렬, 순서대로 결합
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 실행
+arr = [5, 2, 9, 1, 7, 3]
+print(quicksort(arr))  # 출력: [1, 2, 3, 5, 7, 9]
+```
+
+---
+
+**코드 설명:**
+
+- `if len(arr) <= 1: return arr`: 재귀의 종료 조건. 요소가 없거나 하나밖에 없다면 정렬 필요 없음.
+- `pivot = ...`: 피벗을 리스트 중간에 있는 요소로 선택.
+- `left`: 피벗보다 작은 수들.
+- `middle`: 피벗과 같은 수들.
+- `right`: 피벗보다 큰 수들.
+- `return quicksort(left) + middle + quicksort(right)`: 재귀적으로 왼쪽과 오른쪽을 정렬하고 병합.
+
+필요하다면, 실제 메모리에 영향을 주는 인플레이스(in-place) 버전도 구현해 드릴 수 있어요!

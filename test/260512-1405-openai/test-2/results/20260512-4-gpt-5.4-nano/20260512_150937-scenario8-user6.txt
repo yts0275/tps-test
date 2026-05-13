@@ -1,0 +1,121 @@
+아래 그림은 “Workflow”의 노드(단계)들이 **어떤 방향으로 실행되고**, 각 노드에서 **어떤 도구로 작업을 위임하며**, 조건(루프)처럼 되돌아가는 흐름이 어떻게 연결되는지를 보여줍니다. 그림에 나타난 노드 기준으로 전체 흐름을 최대한 상세히 풀어 설명하겠습니다.
+
+---
+
+## 1) 전체 구조 요약
+이 워크플로우는 크게 다음 요소로 구성됩니다.
+
+- **start**: 시작점
+- **SoftwareEngineer**: 중앙 제어/오케스트레이션 역할(여기서 여러 하위 작업을 분기)
+- **CodeAnalyzer**: 코드 분석 단계
+- **Editor**: 코드 수정 단계
+- **swe_tool**: 소프트웨어 엔지니어링/도구 수행 단계(그림상 우측)
+- 하위 세부 도구 3개:
+  - **code_analysis_tool**
+  - **code_edit_tool**
+  - **test_tool**
+- **end**: 종료점
+
+핵심은 중앙의 **SoftwareEngineer**가 “분석 → 필요 시 수정/테스트 → 다시 SoftwareEngineer로 되돌아가 다음 결정을 반복”하는 형태의 루프를 갖는다는 점입니다.
+
+---
+
+## 2) 실행 흐름(순차 + 루프) 상세 서술
+
+### Step A. start → SoftwareEngineer
+1. **start** 노드에서 시작합니다.
+2. 다음으로 **SoftwareEngineer** 노드가 실행됩니다.
+   - 이 노드는 전체 워크플로우의 “두뇌/컨트롤러”처럼 동작하며,
+   - 이후 작업을 수행할 하위 노드들(**CodeAnalyzer**, **Editor**, **swe_tool**)로 분기하거나 결과를 다시 종합합니다.
+
+---
+
+### Step B. SoftwareEngineer → CodeAnalyzer (분석 경로)
+그림에서 **SoftwareEngineer**에서 **CodeAnalyzer**로 향하는 화살표가 있으며(점선 포함), 이는 보통 다음 의미를 갖습니다.
+
+3. **SoftwareEngineer**는 먼저 코드에 대한 이해가 필요하다고 판단되면 **CodeAnalyzer**로 작업을 위임합니다.
+4. **CodeAnalyzer** 내부에서는 하위 도구 **code_analysis_tool**이 호출됩니다.
+   - 즉, “코드 분석”이라는 고수준 단계가 실제 분석 로직/도구인 `code_analysis_tool`을 통해 수행됩니다.
+
+5. **code_analysis_tool**이 분석을 마치면 다시 **CodeAnalyzer**로 “done” 상태가 돌아옵니다.
+   - 그림에 **analyze_code** 및 **done** 라벨이 보이며, 이는 “분석 지시 → 분석 완료”를 뜻하는 연결로 해석됩니다.
+
+6. CodeAnalyzer에서 결과를 얻으면 **SoftwareEngineer**로 계속 진행하기 위한 신호가 이어집니다.
+   - 그림에는 CodeAnalyzer에서 “continue” 형태의 점선/라벨이 보이고,
+   - 이는 “분석 결과를 가지고 다음 단계(수정/테스트/다른 도구 호출)로 넘어감”을 의미합니다.
+
+---
+
+### Step C. SoftwareEngineer → Editor (수정 경로)
+분석 결과가 “수정이 필요”하다고 판단되면, 흐름은 **Editor**로 이어집니다.
+
+7. **SoftwareEngineer**는 수정이 필요하다고 판단하여 **Editor** 노드를 실행합니다.
+8. **Editor**의 내부 작업은 **code_edit_tool**로 진행됩니다.
+   - 그림에서 **edit_file** 라벨이 Editor 쪽으로 연결되어 있고,
+   - 이는 “어떤 파일을 어떻게 수정할지” 같은 편집 요청이 `code_edit_tool`에 반영된다는 흐름입니다.
+
+9. `code_edit_tool`이 수정 작업을 완료하면 **Editor**로 돌아오며(그림의 done/continue 흐름),
+10. 그 다음으로 Editor는 테스트 단계로 넘어가거나(또는 테스트가 필요하면) 다시 SoftwareEngineer로 보고를 올립니다.
+
+---
+
+### Step D. Editor → test_tool (테스트 경로)
+수정이 끝났다면 결과 검증이 필요합니다.
+
+11. **Editor**는 하위 도구인 **test_tool**을 호출합니다.
+   - 그림에서 Editor 아래쪽에 **test_tool** 박스가 있고,
+   - Editor에서 test_tool로 가는 화살표가 보입니다.
+
+12. `test_tool`이 실행을 완료하면 다시 **Editor**로 “done”이 반영됩니다.
+13. Editor는 테스트 결과를 바탕으로 “continue” 신호를 통해 다시 **SoftwareEngineer**에게 상황을 전달합니다.
+   - 즉, “수정했지만 문제가 해결됐는지”를 판단하는 데이터가 SoftwareEngineer로 올라갑니다.
+
+---
+
+### Step E. SoftwareEngineer → swe_tool (보조/재수행 경로)
+그림 우측에는 **swe_tool** 노드가 있고, 이는 SoftwareEngineer가 필요에 따라 추가적인 엔지니어링 도구/행동을 수행하도록 하는 경로로 해석됩니다.
+
+14. **SoftwareEngineer**는 특정 조건(예: 더 구체적인 액션이 필요, 추가 분석/실행, 특정 스크립트 실행 등)을 만족하면 **swe_tool**로 분기합니다.
+15. **swe_tool**이 수행을 완료하면(그림에 done/continue 형태의 흐름이 보임)
+16. 다시 **SoftwareEngineer** 또는 작업 종료 결정(**end**)으로 이어집니다.
+
+---
+
+## 3) “continue”와 “done”에 따른 반복 구조(루프) 해석
+그림에서 가장 중요한 패턴은 다음입니다.
+
+- **done**: 특정 하위 작업(분석/편집/테스트)이 완료되었다는 상태 반환
+- **continue**: 그 완료 결과를 바탕으로 다음 단계(다음 반복 또는 종료)로 이어가라는 의미
+
+즉, 실제 실행 관점에서는 아래 같은 루프가 성립합니다.
+
+1) SoftwareEngineer가 목표/상태를 평가  
+2) 필요하면 CodeAnalyzer 실행 → 분석 결과 확보  
+3) 필요하면 Editor 실행 → code_edit_tool로 수정  
+4) 수정 후 test_tool로 검증  
+5) 결과를 SoftwareEngineer가 평가  
+6) 해결이 안 되었으면 다시 분석/수정 루프로 반복  
+7) 해결되었다고 판단되면 종료로 이동
+
+---
+
+## 4) 종료 흐름: SoftwareEngineer → end
+17. 반복(분석/수정/테스트/보조도구 수행)이 적절히 끝나고,
+18. **SoftwareEngineer**가 “더 이상 할 작업이 없다”고 결정하면,
+19. 우측의 **end** 노드로 흐름이 연결되어 워크플로우가 종료됩니다.
+
+그림에서는 **SoftwareEngineer에서 end로 직접 이어지는 점선 화살표**가 보이므로, 종료는 “마지막 루프 이후의 최종 결정”으로 이해하면 자연스럽습니다.
+
+---
+
+## 5) 정리: 노드별 역할과 연결 관계
+- **SoftwareEngineer**: 전체 제어자. 분석/수정/테스트/보조도구 호출을 결정하고, 결과를 종합해 종료 또는 재시도로 분기.
+- **CodeAnalyzer**: 코드 이해를 위한 단계. `code_analysis_tool`로 실제 분석 수행 후 결과를 상위(SoftwareEngineer)로 보고.
+- **Editor**: 수정 단계. `code_edit_tool`로 파일/코드 수정 수행 후 테스트로 넘어가거나 상위에 결과 전달.
+- **test_tool**: 수정 결과 검증.
+- **swe_tool**: SoftwareEngineer가 필요 시 수행하는 추가 도구/행동 단계(우측 분기).
+- **end**: 모든 조건 충족 후 종료.
+
+---
+
+원하시면, 제가 위 흐름을 **“루프가 몇 번까지 도는지(가능한 반복 시나리오별 경로)”** 또는 **각 화살표 라벨(continue/done/analyze_code/edit_file 등)을 기준으로 더 엄밀한 상태전이표(표 형태)**로도 정리해드릴 수 있어요.

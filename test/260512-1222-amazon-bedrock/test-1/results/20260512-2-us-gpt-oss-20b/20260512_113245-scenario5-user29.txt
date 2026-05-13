@@ -1,0 +1,63 @@
+아래는 **Python**으로 작성한 인‑플레이스(원래 배열을 바로 정렬하는) 퀵소트 구현입니다.  
+줄마다 한 줄씩 주석을 달아, 각 단계가 어떤 일을 수행하는지 자세히 설명했습니다.  
+
+```python
+def quicksort(arr, low, high):
+    """
+    퀵소트(Quick Sort)로 배열 arr을 low~high 범위 내에서 정렬하는 함수.
+    인‑플레이스 정렬이므로 별도의 배열을 만들지 않는다.
+    """
+    # 기준이 되는 pivot(분할 값)을 기준으로 배열을 나누는 컨트롤 루프
+    if low < high:
+        # 파티션을 수행하고 pivot이 정렬된 위치인 idx를 반환하도록 함
+        pivot_index = partition(arr, low, high)
+
+        # 파티션을 통해 좌우로 바로 이동한 두 부분을 재귀적으로 정렬
+        quicksort(arr, low, pivot_index - 1)   # 왼쪽 부분 정렬
+        quicksort(arr, pivot_index + 1, high)  # 오른쪽 부분 정렬
+
+def partition(arr, low, high):
+    """
+    배열 arr의 low~high 범위 중 마지막 원소를 pivot 으로 잡아
+    배열을 다시 배치하고, pivot의 최종 인덱스를 반환한다.
+    """
+    pivot = arr[high]                 # 마지막 원소를 pivot 으로 설정
+    i = low - 1                       # 작은 값들을 모을 인덱스(임시창)
+
+    # low부터 high-1까지 모든 원소를 순회
+    for j in range(low, high):
+        if arr[j] <= pivot:           # pivot 이하인 경우
+            i += 1                    # 작은 값이 들어갈 위치를 한 칸 뒤로 가져오기
+            arr[i], arr[j] = arr[j], arr[i]   # i와 j 위치 섞기
+
+    # pivot 자체도 남은 작은 값들 보다 큰 쪽에 위치해야 함
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1                     # pivot의 최종 위치 반환
+
+# 사용자 정의 테스트 예시
+if __name__ == "__main__":
+    numbers = [33, 10, 55, 71, 29, 4, 88, 18]  # 정렬할 원본 배열
+    print("정렬 전:", numbers)
+
+    quicksort(numbers, 0, len(numbers) - 1)     # 인‑플레이스 정렬 호출
+
+    print("정렬 후 :", numbers)
+```
+
+### 코드 설명 (주요 포인트)
+
+1. **quicksort 함수**  
+   - 재귀 기반으로 동작하며, `low < high`일 때만 파티션을 수행.
+   - 파티션 후 좌우 절반을 각각 재귀적으로 정렬.
+
+2. **partition 함수**  
+   - pivot 값을 배열의 마지막 원소로 잡음 (다른 전략도 가능).
+   - `i`를 `low - 1`로 초기화하고, `j`를 `low ~ high-1`까지 돌며 pivot 이하인 값이 나오면  
+     `i`를 한 칸 이동시키고 `arr[i]`와 `arr[j]`를 교환.
+   - 마지막에 pivot을 `i+1` 위치와 교환해, `i+1`이 정렬된 pivot 인덱스가 됨.
+
+3. **메인 실행 부분**  
+   - 예시 배열을 선언 후, `quicksort`를 호출해 정렬.
+   - 정렬 전후를 출력해 결과 확인.
+
+이렇게 작성된 코드는 평균적으로 **O(n log n)**의 시간복잡도와 O(1)의 추가 공간복잡도를 가지며, 정렬에 필요한 대다수 상황에서 활용할 수 있습니다.

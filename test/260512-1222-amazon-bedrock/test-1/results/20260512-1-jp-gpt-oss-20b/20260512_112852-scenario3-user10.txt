@@ -1,0 +1,47 @@
+```python
+# random 모듈을 가져와서 랜덤한 피벗을 선택하도록 한다
+import random
+
+# 퀵소트 함수: 배열 arr을 인덱스 low~high 사이를 정렬한다
+def quicksort(arr, low, high):
+    # low가 high보다 작은 경우에만 정렬을 진행한다
+    if low < high:
+        # 문제의 범위(low~high)에서 랜덤하게 피벗 인덱스를 선택한다
+        pivot_index = random.randint(low, high)
+        # 선택된 피벗을 범위의 가장 끝(high) 위치로 옮긴다
+        arr[pivot_index], arr[high] = arr[high], arr[pivot_index]
+        # 피벗을 기준으로 분할하고 피벗이 최종적으로 위치한 인덱스를 얻는다
+        partition_index = partition(arr, low, high)
+        # 피벗보다 작은 부분 배열(left)을 재귀적으로 정렬한다
+        quicksort(arr, low, partition_index - 1)
+        # 피벗보다 큰 부분 배열(right)을 재귀적으로 정렬한다
+        quicksort(arr, partition_index + 1, high)
+
+# partition 함수: 피벗을 기준으로 배열을 분할하고 피벗의 최종 인덱스를 반환한다
+def partition(arr, low, high):
+    # 배열의 가장 끝(high)을 피벗 값으로 설정한다
+    pivot = arr[high]
+    # 피벗보다 작은 값이 들어갈 위치를 지정하기 위한 인덱스
+    i = low - 1
+    # low ~ high-1 까지 반복하며 피벗보다 작은 값은 왼쪽으로 모은다
+    for j in range(low, high):
+        # 현재 값이 피벗 이하라면 왼쪽 영역에 삽입한다
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # 피벗을 마지막에 적절한 위치에 옮긴다
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗이 현재 정렬된 배열에서 차지하는 인덱스를 반환
+    return i + 1
+
+# 예시 실행 부분
+if __name__ == "__main__":
+    # 정렬되지 않은 데이터 리스트를 정의한다
+    data = [10, 7, 8, 9, 1, 5]
+    # 원본 리스트를 출력한다
+    print("Original array:", data)
+    # quicksort 함수를 호출해 data를 정렬한다
+    quicksort(data, 0, len(data) - 1)
+    # 정렬된 리스트를 출력한다
+    print("Sorted array:  ", data)
+```

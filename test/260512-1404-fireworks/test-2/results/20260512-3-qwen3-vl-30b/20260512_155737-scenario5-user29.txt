@@ -1,0 +1,82 @@
+물론이에요! 아래는 **퀵소트(Quick Sort)** 알고리즘을 구현한 Python 코드이며, 각 줄마다 상세한 주석을 달았습니다. 퀵소트는 분할 정복(divide and conquer) 방식을 사용하는 정렬 알고리즘입니다.
+
+```python
+# 퀵소트를 구현하는 함수
+def quicksort(arr):
+    # 입력된 배열의 길이가 1 이하이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 배열의 중간 위치를 기준으로 피벗(pivot) 선택
+    # 여기서는 중간 인덱스를 사용하여 피벗을 선택 (단순화를 위해)
+    pivot_index = len(arr) // 2
+    pivot = arr[pivot_index]
+    
+    # 피벗보다 작은 요소, 피벗과 같은 요소, 피벗보다 큰 요소를 각각 분리
+    # 이 과정을 '분할'이라고 함
+    left = []      # 피벗보다 작은 값들
+    equal = []     # 피벗과 같은 값들
+    right = []     # 피벗보다 큰 값들
+    
+    # 배열을 순회하며 각 요소를 left, equal, right에 분류
+    for x in arr:
+        if x < pivot:
+            left.append(x)
+        elif x == pivot:
+            equal.append(x)
+        else:
+            right.append(x)
+    
+    # 재귀적으로 left와 right를 정렬하고, 정렬된 결과를 합침
+    # 이 과정을 '정복'이라고 함
+    return quicksort(left) + equal + quicksort(right)
+
+
+# 예시 사용법
+if __name__ == "__main__":
+    # 정렬할 배열
+    arr = [64, 34, 25, 12, 22, 11, 90]
+    
+    # 퀵소트 실행
+    sorted_arr = quicksort(arr)
+    
+    # 결과 출력
+    print("정렬된 배열:", sorted_arr)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+1. **`if len(arr) <= 1:`**  
+   - 배열이 1개 이하이면 이미 정렬된 상태이므로, 그대로 반환 (기저 조건)
+
+2. **`pivot_index = len(arr) // 2`**  
+   - 피벗을 선택하기 위해 중간 인덱스를 사용 (이를 통해 균형 잡힌 분할 가능)
+
+3. **`pivot = arr[pivot_index]`**  
+   - 피벗을 배열의 중간 값으로 설정
+
+4. **`left, equal, right` 리스트 생성**  
+   - 피벗보다 작은, 같은, 큰 값을 각각 분리
+
+5. **`for x in arr:`**  
+   - 배열의 모든 요소를 순회하며 분류
+
+6. **`quicksort(left) + equal + quicksort(right)`**  
+   - 왼쪽, 오른쪽을 재귀적으로 정렬한 후 합침 (분할 정복)
+
+---
+
+### ✅ 시간 복잡도:
+- **최선**: O(n log n)  
+- **평균**: O(n log n)  
+- **최악**: O(n²) (피벗이 항상 가장 큰/작은 값일 때)
+
+---
+
+### 💡 팁:
+- 피벗을 무작위로 선택하면 최악의 경우를 줄일 수 있음.
+- 인-place 정렬을 위해 더 효율적인 구현도 가능 (여기선 단순화를 위해 별도의 리스트 사용)
+
+필요하시면 **in-place 퀵소트** 버전도 알려드릴 수 있어요!

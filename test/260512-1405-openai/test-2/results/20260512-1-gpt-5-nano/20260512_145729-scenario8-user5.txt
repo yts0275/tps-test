@@ -1,0 +1,77 @@
+다음 Workflow의 노드 간 흐름을 노드 단위로 풀어 설명합니다. 그림에 표시된 엣지 라벨은 흐름의 의도(무엇을 시작/다음으로 보낼지)를 나타냅니다. 다이어그램의 점선 엣지는 “continue(계속)” 혹은 보조 경로를 뜻하고, 실선 엣지는 주 흐름이나 의존 관계를 나타내는 경향이 있습니다. 노드 이름은 이미지에 보이는 순서와 연결 관계를 바탕으로 해석했습니다. 흐름은 대략 아래와 같이 작동합니다.
+
+1) start → SoftwareEngineer
+- 시작점에서 가장 먼저 도달하는 노드는 SoftwareEngineer입니다. 이 노드는 전체 워크플로우를 조정하는 중심 컨트롤러 역할로 보이며, 이후 아래의 하위 흐름들을 트리거합니다.
+
+2) SoftwareEngineer의 기본 역할과 가능한 하위 경로
+- SoftwareEngineer는 다음의 주 흐름들을 통해 다른 노드로 트리거를 보냅니다.
+  - 분석 파트 시작: analyze_code 라벨의 경로로 CodeAnalyzer로 보냄.
+  - 편집 파트 시작: edit_file 라벨의 경로로 Editor로 보냄.
+  - 추가 도구 파트 시작: continue 라벨의 경로로 swe_tool로 보냄(보조 또는 확장 경로).
+  - 종결 경로: 필요 시 end로의 경로도 암시적으로 형성될 수 있습니다.
+
+3) CodeAnalyzer (왼쪽 중간)
+- 입력: SoftwareEngineer로부터 analyze_code를 받아 시작합니다.
+- 내부 작업: CodeAnalyzer 노드 자체는 다음과 같은 하위 작업을 수행합니다.
+  - code_analysis_tool: CodeAnalyzer가 실제 코드 분석(정적 분석 등) 작업을 수행하는 실제 도구 단계입니다.
+- 출력/다음 흐름:
+  - 완료 신호: 작업이 끝나면 두 가지 방향으로 흐름이 생깁니다.
+    - continue: Editor로의 다음 단계로 넘어가도록 연결됩니다. 즉, 코드 분석이 끝난 후 편집 단계로 넘어가는 주 흐름.
+    - done: SoftwareEngineer로 신호를 다시 보내(또는 소통 루프를 닫아) 다음 작업으로 진행될 수 있도록 합니다(회로를 닫고 상위 조정자에 완료를 알리는 의미로 해석 가능).
+- 요약: 분석 도구실행(code_analysis_tool)으로 실제 작업 수행 -> 분석 종료 후 Editor로 이어지는 주 흐름 또는 상위 컨트롤러로의 신호.
+
+4) Editor (가운데 아래)
+- 입력/활용:
+  - CodeAnalyzer의 continue 신호를 받아 편집 단계로 진입(또는 SoftwareEngineer의 edit_file 신호와 연결될 수 있음).
+- 내부 작업:
+  - code_edit_tool: 실제 코드 편집 도구를 사용하여 수정 작업을 수행합니다.
+  - test_tool: Editor 하위의 또 다른 도구로, 편집된 코드의 테스트를 수행합니다. 편집 이후 자동 검증/테스트 루프를 담당합니다.
+- 출력/다음 흐름:
+  - 편집 완료 후 보이는 흐름은 보통 SoftwareEngineer로의 신호(done) 또는 Editor 내부에서의 다음 단계로의 흐름으로 표시됩니다.
+  - 테스트가 끝나면 다시 Editor로 돌아와서 추가 검증을 수행하거나, 완료 신호를 통해 SoftwareEngineer로 돌아가는 구성이 일반적입니다.
+- 요약: 편집 도구(code_edit_tool)와 테스트 도구(test_tool)를 포함하는 편집 단계의 핵심 실행 노드. 상위 조정자(SoftwareEngineer)로의 귀환 신호를 통해 다음 경로를 결정합니다.
+
+5) code_analysis_tool (CodeAnalyzer의 하위 도구)
+- 역할은 CodeAnalyzer 내부의 구체적 분석 엔진으로, 실제 정적 코드 분석을 수행합니다.
+- 흐름상 CodeAnalyzer에서 호출되며, 분석 완료 여부에 따라 상위 흐름(continue) 또는 완료(done) 경로로 신호를 보냅니다.
+
+6) code_edit_tool (Editor의 하위 도구)
+- Editor 노드에서 실제 코드 편집 작업을 수행하는 도구입니다.
+- Editor의 주 도메인 안에서 실행되며, 편집 완료 후 Editor로 돌아가 추가 검토(test_tool 호출 여부 등)를 결정합니다.
+
+7) test_tool (Editor의 하위 도구)
+- Editor 내에서 편집된 코드의 품질/정합성을 확인하기 위한 테스트 도구입니다.
+- 테스트가 끝난 후 결과에 따라 다음 행위를 결정합니다(다시 Editor로 돌아가 최종 확인, 또는 SoftwareEngineer로 완료 신호를 보냄).
+
+8) swe_tool (오른쪽)
+- SoftwareEngineer가 continue 경로를 통해 호출하는 보조 도구입니다.
+- 이 노드는 추가적인 검증/도구 작업 등, 분석과 편집 외의 보조 작업으로 해석됩니다.
+- 완료되면 end로 연결되어 전체 워크플로우를 마무리합니다.
+
+9) end
+- 최종 도착 지점으로, swe_tool의 작업이 끝나거나, 필요 시 SoftwareEngineer로부터의 최종 신호를 통해 도달합니다.
+- 워크플로우의 종료를 나타냅니다.
+
+노드 간 흐름의 특징과 해석 포인트
+- 중심 컨트롤러의 역할: SoftwareEngineer가 흐름의 시작점이자 각 서브 워크플로의 트리거를 관리하는 중앙 노드입니다. analyze_code, edit_file, continue(swe_tool) 같은 엣지를 통해 하위 태스크를 시작합니다.
+- 하위 도구의 구성: CodeAnalyzer는 code_analysis_tool, Editor는 code_edit_tool과 test_tool이라는 하위 구성을 가지며, 각각의 작업은 독립적이면서도 상호 의존적으로 흐름을 이끕니다.
+- 흐름의 방향성/의존성: 일반적으로 분석 → 편집 → 테스트의 순차 흐름이 주된 패턴으로 보이며, 필요 시 SoftwareEngineer가 다른 경로(swe_tool 등)로 분기할 수 있습니다. 다만 다이어그램의 점선 엣지(continue)로 표시된 경로는 보조적/확장적 흐름을 나타내는 경우가 많습니다.
+- 종료 조건: end 노드는 전체 워크플로우의 종료를 나타냅니다. swe_tool의 완료 신호가 end로 이어지는 흐름이 시각적으로 가장 명확합니다.
+
+예시: 일반적인 한 사이클의 실행 흐름(추정 가능 경로)
+- start → SoftwareEngineer
+- SoftwareEngineer → CodeAnalyzer (analyze_code)
+- CodeAnalyzer → code_analysis_tool 실행
+- code_analysis_tool 완료 → CodeAnalyzer에서 continue 신호 → Editor로 넘어감
+- Editor → code_edit_tool 실행 (edit_file)
+- code_edit_tool 완료 → Editor에서 test_tool 실행(또는 추가 검토)
+- test_tool 완료 → Editor로 다시 돌아와 필요 시 SoftwareEngineer로 done 신호
+- SoftwareEngineer → swe_tool (continue) → swe_tool 실행
+- swe_tool 완료 → end
+
+주의할 점
+- 실제 엣지 라벨의 정확한 의미는 다이어그램의 해석에 따라 다를 수 있습니다. 위 설명은 노드 간의 관계와 라벨의 일반적 의도를 바탕으로 구성한 해석이며, 특정 구현에서 라벨의 표현이 다를 수 있습니다.
+- 다이어그램의 점선 경로는 병렬 실행의 가능성이나 보조 경로를 나타내는 경우가 많습니다. 실제 시스템에서 병렬 실행이 허용되는지 여부는 의도에 따라 달라질 수 있습니다.
+- 각 노드는 단순한 입력-출력 대신, 데이터 흐름의 포인트이기도 합니다. 예를 들어 code_analysis_tool은 CodeAnalyzer의 내부 엔진이고, code_edit_tool은 Editor의 내부 엔진으로서 각각의 출력 데이터를 상위 노드에 전달합니다.
+
+필요하면 이 흐름을 바탕으로 실제 다이어그램의 엣지 레이블과 방향을 정확히 재확인해 더 정확한 단계별 순서를 도식화해 드리겠습니다.

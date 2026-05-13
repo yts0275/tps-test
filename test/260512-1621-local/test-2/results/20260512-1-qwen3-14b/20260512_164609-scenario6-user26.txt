@@ -1,0 +1,11 @@
+<think>
+Okay, let's see. The user provided a Python code and wants a 3-line analysis of what it does. I need to break down the code into its main components and explain their purpose.
+
+First, looking at the classes: there's a Product class with attributes like product_id, name, price, stock, and methods to update stock and a string representation. Then there's an Order class that handles adding items, updating total amount, and printing invoices. The InventoryManager manages products, adds them, and shows inventory. The run_system function initializes products, processes orders, checks inventory, and generates reports.
+
+So the main points are: managing products with inventory, handling orders with stock checks, and generating invoices and reports. I need to condense that into three concise lines, making sure each line highlights a different aspect of the code's functionality.
+</think>
+
+1. **재고 관리 시스템 구현**: `Product` 클래스는 상품 정보와 재고 관리를 위해 설계되었으며, `InventoryManager`는 제품을 저장하고 재고 현황을 출력하는 기능을 제공합니다.  
+2. **주문 처리 및 인보이스 생성**: `Order` 클래스는 주문을 생성하고 제품 주문 시 재고 확인, 결제 금액 계산, 인보이스 출력을 처리하며, 재고 부족 시 예외 처리를 수행합니다.  
+3. **시뮬레이션 및 보고서 생성**: `run_system()` 함수는 초기 데이터 설정, 주문 시나리오 실행, 최종 재고 확인 및 창고 자산 리포트를 생성하여 전체 시스템 흐름을 시뮬레이션합니다.

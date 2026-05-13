@@ -1,0 +1,20 @@
+def quicksort(arr, low, high):  # 정렬 대상 배열, 왼쪽 인덱스, 오른쪽 인덱스
+    if low < high:  # 남은 요소가 두 개 이상일 때만 분할 및 재귀 호출 수행
+        pi = partition(arr, low, high)  # 피벗 위치를 반환하는 분할 수행
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽 부분 배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # 배열을 피벗 기준으로 분할하는 함수
+    pivot = arr[high]  # 가장 오른쪽 원소를 피벗으로 선택
+    i = low - 1  # 작은 영역의 끝 인덱스 초기화
+    for j in range(low, high):  # 왼쪽에서 오른쪽으로 순회하며 원소 비교
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 영역의 끝을 한 칸 증가시킴
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소를 작은 영역으로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 최종 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+if __name__ == "__main__":  # 직접 실행 시에만 아래 코드가 수행되도록 함
+    data = [10, 7, 8, 9, 1, 5]  # 정렬할 데이터 준비
+    quicksort(data, 0, len(data) - 1)  # 배열 전체를 정렬 시작
+    print(data)  # 정렬 결과 출력

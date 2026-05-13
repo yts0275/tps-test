@@ -1,0 +1,16 @@
+다음은 파이썬으로 구현한 퀵소트로, 코드의 각 줄마다 한국어 주석을 달아놓았습니다.
+
+```python
+def quicksort(arr):  # 함수 정의: 리스트 arr을 받아 정렬된 새 리스트를 반환하는 퀵소트 함수
+    if len(arr) <= 1:  # 리스트 길이가 0 또는 1이면 이미 정렬되어 있음
+        return arr  # 그대로 반환
+    pivot = arr[len(arr) // 2]  # 피벗을 리스트 중앙 요소로 선택(간단한 선택 방식)
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 원소들을 모음
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 원소들을 모음(중복 처리)
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 원소들을 모음
+    return quicksort(left) + middle + quicksort(right)  # 재귀 호출로 왼쪽/오른쪽 정렬 후 합쳐서 반환
+
+if __name__ == "__main__":  # 스크립트를 직접 실행할 때 아래 예시 코드를 수행
+    arr = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트
+    print(quicksort(arr))  # 정렬 결과를 출력
+```

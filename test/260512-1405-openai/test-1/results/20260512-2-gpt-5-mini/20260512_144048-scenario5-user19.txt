@@ -1,0 +1,24 @@
+다음은 파이썬으로 구현한 퀵소트이며, 코드의 각 줄마다 한국어 주석을 달아 설명한 것입니다.
+
+```python
+def quicksort(a, low=0, high=None):  # 리스트 a를 퀵소트로 오름차순 정렬하는 함수, low와 high는 정렬 구간 인덱스
+    if high is None: high = len(a) - 1  # high가 주어지지 않으면 전체 리스트 끝 인덱스로 설정
+    def partition(lo, hi):  # 리스트의 lo..hi 구간을 피벗 기준으로 분할하는 내부함수
+        pivot = a[hi]  # 구간의 마지막 원소를 피벗으로 선택
+        i = lo - 1  # i는 피벗보다 작거나 같은 원소의 마지막 인덱스를 가리키도록 초기화
+        for j in range(lo, hi):  # lo부터 hi-1까지 각 원소를 순회
+            if a[j] <= pivot:  # 현재 원소가 피벗 이하이면
+                i += 1  # 작은 그룹의 경계를 하나 늘리고
+                a[i], a[j] = a[j], a[i]  # 현재 원소를 작은 그룹 뒤로 교환
+        a[i+1], a[hi] = a[hi], a[i+1]  # 피벗을 작은 그룹의 바로 다음 위치로 이동시켜 분할 완료
+        return i + 1  # 피벗의 최종 인덱스를 반환
+    if low < high:  # 정렬 구간에 두 개 이상의 원소가 있을 때만 정렬 수행
+        p = partition(low, high)  # 구간을 분할하고 피벗 인덱스 p를 얻음
+        quicksort(a, low, p-1)  # 피벗 왼쪽 구간을 재귀적으로 정렬
+        quicksort(a, p+1, high)  # 피벗 오른쪽 구간을 재귀적으로 정렬
+
+# 사용 예시
+arr = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 샘플 리스트
+quicksort(arr)  # 리스트를 제자리(in-place)로 정렬
+print(arr)  # 정렬 결과 출력
+```

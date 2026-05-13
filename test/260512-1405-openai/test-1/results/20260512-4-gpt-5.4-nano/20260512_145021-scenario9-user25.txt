@@ -1,0 +1,113 @@
+아래 그림은 “SoftwareEngineer”를 중심으로 여러 서브 도구(Node)들이 병렬/조건 흐름처럼 엮이며 코드 분석→수정→테스트→검증의 형태로 진행되는 Workflow를 보여줍니다. 전체 흐름을 노드(박스) 단위로 최대한 자세히 풀어 쓰면 다음과 같습니다.
+
+---
+
+## 1) 시작(start) → SoftwareEngineer로 진입
+1. **start 노드**: 워크플로우가 사용자/시스템에 의해 시작되는 지점입니다.
+2. **SoftwareEngineer 노드**: 시작 직후 모든 작업의 “메인 오케스트레이터(중앙 노드)” 역할을 하는 **SoftwareEngineer**로 제어가 넘어갑니다.
+
+이 노드에서 이후 분기되는 경로들이 여러 개 보이며, 그림상 **done / continue / edit_file / analyze_code** 같은 라벨이 각 하위 단계의 상태 전환을 암시합니다.
+
+---
+
+## 2) SoftwareEngineer의 주요 하위 흐름(병렬/분기)들
+그림에서 **SoftwareEngineer**에서 아래로 향하는 화살표들이 여러 갈래로 뻗어 있습니다. 즉, SoftwareEngineer는 상황에 따라 아래 작업들을 수행하거나 결과를 기다렸다가 다음 상태로 넘어가는 구조입니다.
+
+아래에서 각 하위 노드를 “어떤 도구를 호출하고 어떤 상태로 되돌아오는지” 중심으로 정리하겠습니다.
+
+---
+
+## 3) CodeAnalyzer 경로: 코드 분석 단계
+### (1) SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer에서 **CodeAnalyzer**로 제어/요청이 전달됩니다.
+- 화살표 라벨로 **analyze_code**가 보이며, 이는 “코드 분석을 수행하라”는 작업 지시 성격의 신호로 읽힙니다.
+
+### (2) CodeAnalyzer → code_analysis_tool
+- **CodeAnalyzer** 노드 내부(혹은 하위 실행 단계)에서 **code_analysis_tool**이 호출/실행됩니다.
+- 이 도구는 말 그대로 “코드 분석”을 수행하는 엔진으로 보입니다(정적 분석, 패턴 탐지, 오류/취약점 탐지 등).
+
+### (3) code_analysis_tool → CodeAnalyzer: done / continue 흐름
+- 분석 도구 실행이 끝나면 **done** 또는 **continue** 관련 라벨이 연결된 굴곡 화살표가 존재합니다.
+- 그림에서는 **CodeAnalyzer로 다시 돌아가는 루프**가 표시되어 있어, 결과를 수집한 뒤:
+  - 분석 결과가 충분하면 상위로 **done**
+  - 추가 분석/재분석이 필요하면 **continue**
+  같은 식의 상태 전환이 일어나는 구조로 해석됩니다.
+
+### (4) CodeAnalyzer 결과 반영 후 다음 단계로
+- CodeAnalyzer가 완료되면 다시 SoftwareEngineer 쪽으로 제어가 이어지거나,
+- 혹은 분석 결과에 따라 **Edit 단계(수정)**로 넘어가도록 트리거될 수 있습니다.
+- 그림상 SoftwareEngineer에서 여러 갈래가 뻗기 때문에, CodeAnalyzer는 “수정이 필요하다는 신호”를 만들고 SoftwareEngineer가 그 다음 액션을 결정하는 역할을 하는 형태입니다.
+
+---
+
+## 4) Editor 경로: 코드 수정 단계
+### (1) SoftwareEngineer → Editor
+- SoftwareEngineer에서 **Editor**로 제어가 넘어갑니다.
+- 화살표 라벨에 **edit_file**이 보이므로, Editor 단계는 “파일을 편집/수정”하는 작업을 의미합니다.
+
+### (2) Editor → code_edit_tool
+- **Editor** 노드 역시 내부적으로 하위 도구 **code_edit_tool**을 호출합니다.
+- 이는 실제로 소스 코드 파일을 읽고 변경(패치)하는 실행 도구에 해당합니다.
+
+### (3) code_edit_tool → Editor: done / continue 흐름
+- 편집 작업이 끝난 뒤에는 다시 Editor로 결과가 돌아오는 형태가 그려져 있고,
+- **done / continue** 루프가 있어 편집이 한 번에 끝나지 않을 수 있음을 시사합니다.
+  - 변경이 확정되면 done
+  - 변경 방향을 더 다듬어야 하면 continue(추가 편집 사이클)  
+  같은 패턴을 표현한 것으로 볼 수 있습니다.
+
+### (4) Editor 결과 반영 후 테스트로 이동
+- 편집이 완료되면 다음 단계로 넘어가기 위해 SoftwareEngineer 또는 **test 단계로의 연결**이 이루어집니다.
+- 그림상 Editor에서 **test_tool**로 향하는 화살표가 명확히 존재합니다.
+
+---
+
+## 5) 테스트 경로: Editor → test_tool → Editor(루프 가능)
+### (1) Editor → test_tool
+- **Editor**에서 **test_tool**(테스트 도구)로 진행합니다.
+- 즉 “코드를 수정했으니 실제로 테스트/검증을 수행한다”는 흐름입니다.
+
+### (2) test_tool 수행 결과 반영
+- 테스트가 끝나면 다시 **Editor로 돌아오는 굴곡/루프 화살표**가 표시됩니다.
+- 그리고 여기에도 **continue** 라벨이 보이므로, 테스트 결과가 기대대로 나오지 않으면:
+  1) Editor가 수정 방향을 재검토하고  
+  2) 다시 code_edit_tool로 돌아가 패치를 반복하거나(continue 루프)  
+  3) 반대로 만족하면 done으로 종료/다음 단계로 전환  
+  같은 식의 재시도 루프 구조가 내포됩니다.
+
+---
+
+## 6) swe_tool 경로: 통합/추가 처리 또는 최종 확인
+### (1) SoftwareEngineer → swe_tool
+- SoftwareEngineer에서 **swe_tool**로 향하는 화살표가 존재합니다.
+- 이 경로는 “SWE(SW Engineer) 관련 도구” 또는 “전체 작업을 더 상위 레벨에서 처리/검증”하는 단계로 해석됩니다.
+- 그림에서는 **continue** 라벨이 같이 표시되어 있어, 이 단계도 단순 1회 실행이 아니라 중간 상태/조건에 따라 반복 또는 다음으로 넘길지 결정하는 역할일 수 있습니다.
+
+### (2) swe_tool → end
+- **end** 노드로 직접 연결되는 구조가 보입니다.
+- 즉 swe_tool 단계가 최종 결과를 정리하거나, 모든 작업(분석/편집/테스트)이 끝난 뒤 “마무리”를 담당한 뒤 워크플로우를 종료하는 형태로 읽힙니다.
+
+---
+
+## 7) 종료(end)
+- **end** 노드는 워크플로우가 완전히 끝나는 지점입니다.
+- 그림상 end로 향하는 경로가 SoftwareEngineer와 swe_tool을 통해 연결되어 있으므로,
+  - 분석(CodeAnalyzer),
+  - 수정(Editor),
+  - 테스트(test_tool),
+  - 그리고 최종 처리(swe_tool)  
+  이 사이클들이 완료되면 결과를 확정하고 종료합니다.
+
+---
+
+## 전체를 한 문장 흐름으로 요약(상위 시나리오)
+1. **start** → **SoftwareEngineer**
+2. SoftwareEngineer가 **CodeAnalyzer**를 통해 코드 상태를 분석(**code_analysis_tool** 실행, 결과에 따라 done/continue)
+3. 분석 결과를 바탕으로 **Editor**로 넘어가 파일을 수정(**code_edit_tool** 실행, 필요 시 수정 루프)
+4. 수정 후 **test_tool**로 테스트/검증 수행(결과에 따라 다시 편집하거나 통과 시 종료 준비)
+5. 마지막으로 SoftwareEngineer가 **swe_tool**로 최종 처리/검증을 수행
+6. 최종적으로 **end**로 종료
+
+---
+
+원하시면, 제가 그림에 있는 **화살표 라벨(done/continue/edit_file/analyze_code)**을 기준으로 “어떤 조건일 때 어느 루프로 들어가는지”를 더 엄밀한 상태 머신(State machine) 형태로도 재구성해 드릴게요. (예: `done이면 상위로`, `continue면 동일 노드 재실행` 같은 규칙을 명시)

@@ -1,0 +1,43 @@
+물론입니다! 아래는 퀵정렬(Quick Sort) 알고리즘을 Python으로 구현한 코드입니다. 각 줄에 주석을 달아 퀵정렬의 작동 방식을 설명드리겠습니다.
+
+```python
+# 퀵정렬 함수 정의
+def quicksort(arr):
+    # 리스트가 비어 있거나 하나의 요소만 있을 경우, 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 선택: 여기서는 리스트의 중간 요소를 선택 (일관성 있는 선택)
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗을 기준으로 리스트를 세 부분으로 나눔
+    left = [x for x in arr if x < pivot]      # 피벗보다 작은 요소들
+    middle = [x for x in arr if x == pivot]    # 피벗과 같은 요소들
+    right = [x for x in arr if x > pivot]      # 피벗보다 큰 요소들
+
+    # 왼쪽, 오른쪽 부분에 대해 재귀적으로 퀵정렬 수행 후, 결합
+    return quicksort(left) + middle + quicksort(right)
+
+# 퀵정렬 테스트
+arr = [3, 6, 8, 10, 1, 2, 1]
+print("정렬 전:", arr)
+sorted_arr = quicksort(arr)
+print("정렬 후:", sorted_arr)
+```
+
+### 코드 설명:
+- **`if len(arr) <= 1:`**  
+  재귀의 종료 조건입니다. 요소가 1개 이하이면 더 이상 정렬할 필요가 없으므로 그대로 반환합니다.
+  
+- **`pivot = arr[len(arr) // 2]:`**  
+  피벗을 리스트의 중간 요소로 선택합니다. 피벗 선택 방법은 다양하나, 여기서는 중간 요소를 사용했습니다.
+
+- **`left, middle, right`**  
+  각각 피벗보다 작고 큰 요소들을 나누고, 중간에 있는 요소(피벗과 같은 값)도 따로 저장합니다.
+
+- **`quicksort(left) + middle + quicksort(right)`**  
+  왼쪽과 오른쪽 리스트를 각각 재귀적으로 정렬한 후, 중간 요소와 결합하여 전체 리스트를 정렬합니다.
+
+---
+
+원하시면 다른 방식의 피벗 선택이나 in-place 퀵정렬 구현도 도와드릴 수 있습니다!

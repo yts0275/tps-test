@@ -1,0 +1,36 @@
+```python
+# 1. 파이썬에서 퀵소트(quick sort)를 구현하기 위한 모듈
+def partition(arr, low, high):
+    # 2. 가장 오른쪽 원소를 피벗(중간값 기준)으로 선택
+    pivot = arr[high]
+    # 3. 작은 값이 들어갈 영역의 끝을 가리키는 인덱스, 초깃값은 low-1
+    i = low - 1
+    # 4. low 부터 high-1 까지의 원소를 순회하면서 피벗보다 작은 것들을 앞쪽으로 이동
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            # 5. i를 하나 증가시키고 현재 원소와 i번째 원소를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # 6. 피벗을 올바른 위치(지정된 작은 값 뒤)로 옮김
+    arr[i+1], arr[high] = arr[high], arr[i+1]
+    # 7. 피벗이 위치한 인덱스를 반환
+    return i + 1
+
+def quick_sort(arr, low, high):
+    # 8. low가 high보다 작으면 재귀 호출을 수행
+    if low < high:
+        # 9. partition을 호출해 피벗 인덱스를 얻음
+        pi = partition(arr, low, high)
+        # 10. 피벗 앞부분을 재귀적으로 정렬
+        quick_sort(arr, low, pi-1)
+        # 11. 피벗 뒷부분을 재귀적으로 정렬
+        quick_sort(arr, pi+1, high)
+
+if __name__ == "__main__":
+    # 12. 예시 배열 정의
+    arr = [10, 7, 8, 9, 1, 5]
+    # 13. 퀵소트를 호출 (인덱스 0부터 배열 길이-1까지)
+    quick_sort(arr, 0, len(arr)-1)
+    # 14. 정렬된 배열 출력
+    print("정렬된 배열:", arr)
+```

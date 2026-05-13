@@ -1,0 +1,28 @@
+다음은 퀵소트 구현 예시입니다. 각 코드 줄마다 한글 주석을 달았습니다.
+
+```python
+def quicksort(arr, low=0, high=None):  # 퀵소트 함수 정의, 기본 인자 설정
+    if high is None:  # high가 None이면 (초기 호출 시)
+        high = len(arr) - 1  # 전체 리스트의 마지막 인덱스를 high로 설정
+    if low < high:  # 정렬할 구간에 두 개 이상의 요소가 있으면
+        pivot_index = partition(arr, low, high)  # 분할 수행 후 피벗의 최종 위치를 얻음
+        quicksort(arr, low, pivot_index - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+    return arr  # (같은 객체) 정렬된 배열을 반환
+
+def partition(arr, low, high):  # 분할 함수 정의
+    pivot = arr[high]  # 피벗으로 배열의 마지막 요소를 선택
+    i = low - 1  # 작은 요소들의 경계를 나타내는 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 모든 요소를 검사
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면
+            i += 1  # 경계 인덱스를 한 칸 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 그룹 끝으로 이동(스왑)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 경계 다음 위치로 이동(정렬된 위치)
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 코드 실행
+    arr = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예제 리스트 선언
+    print("원본:", arr)  # 정렬 전 리스트 출력
+    sorted_arr = quicksort(arr)  # 퀵소트 호출하여 정렬 수행 (제자리 정렬)
+    print("정렬됨:", sorted_arr)  # 정렬 결과 출력
+```

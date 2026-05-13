@@ -1,0 +1,77 @@
+<think>
+Okay, I need to help the user implement a quicksort algorithm in Python with comments on each line. Let's start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I'll outline the steps. The main function will be quicksort, which takes a list and its low and high indices. Then, a helper function to partition the array. The partition function selects the last element as the pivot, moves all smaller elements to the left and larger to the right, then places the pivot in the correct position.
+
+Wait, the user wants comments on each line. So I need to make sure every line of code has a clear comment explaining what it does. Let me structure the code step by step.
+
+Start with the partition function. Initialize a pivot index, then iterate through the array, comparing elements to the pivot. Swap elements as needed. Then place the pivot in the correct position. The quicksort function will check if low is less than high, then partition and recurse.
+
+I should also include an example usage, like sorting a list and printing the result. Make sure the comments are concise but informative. Let me write the code with comments now, ensuring each line is explained. Also, check for any possible errors, like the base case in quicksort when low >= high. That's important to avoid infinite recursion.
+
+Wait, in Python, list indices start at 0, so when passing parameters, the initial call should be quicksort(arr, 0, len(arr)-1). The partition function uses the last element as pivot, so the index is high. Then, the loop runs from low to high-1, comparing each element to the pivot.
+
+I think that's all. Let me put it all together with comments and test it with a sample list. The user might not know about the partition index, so the comments should clarify that. Also, mention that the pivot is placed at its correct position after partitioning. Alright, that should cover the implementation with detailed comments.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python에서 구현한 코드입니다. 각 줄에 주석을 달아 설명을 추가했습니다:
+
+```python
+def quicksort(arr, low, high):
+    # 종료 조건: low가 high보다 크거나 같으면 더 이상 정렬할 요소가 없음
+    if low < high:
+        # 파티션을 수행하고, 피봇의 최종 위치를 반환
+        pi = partition(arr, low, high)
+        
+        # 피봇을 기준으로 왼쪽 부분 배열 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # 피봇을 기준으로 오른쪽 부분 배열 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피봇은 마지막 요소로 설정
+    pivot = arr[high]
+    
+    # 피봇보다 작은 요소를 저장할 인덱스
+    i = low - 1  # 초기값은 low - 1
+    
+    # 배열의 low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면
+        if arr[j] < pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피봇을 최종 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피봇의 최종 인덱스를 반환
+    return i + 1
+
+# 예제 실행
+arr = [10, 7, 8, 9, 1, 5]
+print("정렬 전 배열:", arr)
+
+# 퀵소트 실행
+quicksort(arr, 0, len(arr) - 1)
+
+print("정렬 후 배열:", arr)
+```
+
+### 설명
+1. **quicksort 함수**:
+   - 배열 `arr`의 `low`와 `high` 인덱스 사이의 요소를 정렬합니다.
+   - `low`가 `high`보다 작으면 `partition` 함수를 호출하여 피봇을 정하고, 그 기준으로 재귀적으로 왼쪽/오른쪽 배열을 정렬합니다.
+
+2. **partition 함수**:
+   - `high` 인덱스의 요소를 피봇으로 설정합니다.
+   - `i`는 피봇보다 작은 요소의 최종 위치를 저장하는 인덱스입니다.
+   - `j`는 배열을 순회하며 `arr[j] < pivot`인 경우 `i`를 증가시키고 `arr[i]`와 `arr[j]`를 교환합니다.
+   - 마지막으로 피봇을 `i+1` 위치로 이동시키고 해당 인덱스를 반환합니다.
+
+3. **예제 실행**:
+   - `[10, 7, 8, 9, 1, 5]` 배열을 정렬한 결과를 출력합니다.
+
+이 코드는 퀵소트의 기본적인 구현 방식으로, 피봇을 마지막 요소로 선택하고 분할 정복 방식으로 작동합니다.

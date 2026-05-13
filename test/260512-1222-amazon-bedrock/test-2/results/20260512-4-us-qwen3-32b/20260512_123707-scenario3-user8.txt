@@ -1,0 +1,51 @@
+물론입니다! 아래는 Python에서 **퀵소트**(Quick Sort)를 구현한 코드이며, 각 줄에 대한 이해를 돕기 위해 **자세한 주석**을 추가했습니다.
+
+```python
+# 퀵소트 알고리즘 구현 (재귀 방식)
+
+def quicksort(arr):
+    # 종료 조건: 리스트의 길이가 0이거나 1이면 이미 정렬되어 있다고 가정하고 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 값을 선택합니다. 여기서는 리스트의 첫 번째 원소를 피벗으로 선택
+    pivot = arr[0]
+    
+    # 피벗보다 작은 요소들로 구성된 리스트 초기화
+    less = []
+    # 피벗보다 큰 요소들로 구성된 리스트 초기화
+    greater = []
+    
+    # 피벗을 제외한 나머지 요소들을 순회
+    for num in arr[1:]:
+        if num <= pivot:
+            # 피벗보다 작거나 같으면 'less' 리스트에 추가
+            less.append(num)
+        else:
+            # 피벗보다 크면 'greater' 리스트에 추가
+            greater.append(num)
+    
+    # 재귀적으로 'less'와 'greater' 리스트를 정렬하고, 결과를 이어붙여 반환
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 예시 실행
+example_array = [5, 3, 8, 4, 2, 7, 1, 10]
+sorted_array = quicksort(example_array)
+print("정렬된 배열:", sorted_array)
+```
+
+---
+
+### 📘 각 단계 설명 (주석 요약)
+
+1. `if len(arr) <= 1:` — 재귀의 기저 조건: 작은 리스트는 정렬하지 않아도 되기 때문
+2. `pivot = arr[0]` — 피벗(Pivot) 선택
+3. `less` / `greater` — 피벗 기준으로 분할
+4. `for num in arr[1:]` — 피벗을 제외한 남은 요소를 순회
+5. `if num <= pivot`: `less.append(...)` — 작거나 같은 값을 `less` 리스트에
+6. `else`: `greater.append(...)` — 큰 값을 `greater` 리스트에
+7. `return quicksort(less) + [pivot] + quicksort(greater)` — 재귀적으로 왼쪽, 오른쪽 서브배열 정렬 후 전체 결합
+
+---
+
+필요하다면 **인자 값 수정**, **중간 과정 출력**, **반복 구조를 위한 반복형 퀵소트** 등도 도와드릴 수 있습니다. 😊

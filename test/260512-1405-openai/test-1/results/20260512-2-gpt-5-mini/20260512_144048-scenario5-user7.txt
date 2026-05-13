@@ -1,0 +1,30 @@
+다음은 파이썬으로 구현한 퀵소트 예제입니다. 각 코드 줄마다 한국어 주석을 달아 동작을 설명했습니다.
+
+```python
+def quicksort(arr):  # 퀵소트를 수행하는 함수의 시작부(리스트를 직접 정렬하고 동일한 리스트를 반환)
+    def _quicksort(low, high):  # 재귀적으로 부분 배열을 정렬하는 내부 함수 정의
+        if low < high:  # 정렬할 구간에 원소가 2개 이상 있는지 확인
+            p = partition(low, high)  # 피벗을 기준으로 분할하고 피벗의 최종 위치 인덱스를 받음
+            _quicksort(low, p - 1)  # 피벗 왼쪽 부분 배열을 재귀적으로 정렬
+            _quicksort(p + 1, high)  # 피벗 오른쪽 부분 배열을 재귀적으로 정렬
+
+    def partition(low, high):  # 분할을 수행하는 함수(Lomuto 파티션 사용)
+        pivot = arr[high]  # 배열의 맨 오른쪽 원소를 피벗으로 선택
+        i = low  # 피벗보다 작은 원소들의 경계 인덱스 초기화
+        for j in range(low, high):  # 피벗 바로 전까지 모든 원소를 검사
+            if arr[j] < pivot:  # 현재 원소가 피벗보다 작으면
+                arr[i], arr[j] = arr[j], arr[i]  # 경계 위치와 현재 원소를 교환하여 작은 원소를 앞쪽으로 모음
+                i += 1  # 작은 원소들의 경계를 한 칸 오른쪽으로 이동
+        arr[i], arr[high] = arr[high], arr[i]  # 피벗을 작은 값들 바로 다음 위치로 옮겨서 분할 완료
+        return i  # 피벗의 최종 위치 인덱스 반환
+
+    _quicksort(0, len(arr) - 1)  # 전체 배열을 정렬하기 위해 내부 재귀 함수 호출
+    return arr  # 정렬된 리스트를 반환
+```
+
+사용 예:
+```python
+# 예시 사용
+a = [3, 6, 1, 8, 4, 5]  # 정렬할 리스트 예시
+print(quicksort(a))  # 정렬 결과 출력
+```

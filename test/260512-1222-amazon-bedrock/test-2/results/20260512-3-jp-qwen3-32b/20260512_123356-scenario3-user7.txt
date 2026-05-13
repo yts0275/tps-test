@@ -1,0 +1,53 @@
+물론입니다! 아래는 **파이썬**에서 **퀵소트(Quick Sort)** 알고리즘을 구현한 코드입니다. 각 줄에 대해 자세한 주석을 달아 설명하겠습니다.
+
+```python
+def quick_sort(arr):
+    # 배열이 비어 있거나 하나의 원소만 있다면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 선택 (여기서는 항상 첫 번째 원소를 사용)
+    pivot = arr[0]
+    
+    # 피벗보다 작은 수들을 모을 리스트
+    less_than_pivot = []
+    
+    # 피벗과 같은 수들을 모을 리스트
+    equal_to_pivot = []
+    
+    # 피벗보다 큰 수들을 모을 리스트
+    greater_than_pivot = []
+    
+    # 배열의 모든 원소를 반복하면서 각각의 리스트에 넣음
+    for num in arr:
+        if num < pivot:
+            less_than_pivot.append(num)      # 피벗보다 작은 수
+        elif num == pivot:
+            equal_to_pivot.append(num)       # 피벗과 같은 수
+        else:
+            greater_than_pivot.append(num)   # 피벗보다 큰 수
+            
+    # 재귀적으로 less_than_pivot과 greater_than_pivot을 정렬한 후 결합
+    return quick_sort(less_than_pivot) + equal_to_pivot + quick_sort(greater_than_pivot)
+```
+
+---
+
+### ✅ 예시 사용법:
+
+```python
+arr = [5, 3, 8, 4, 2]
+sorted_arr = quick_sort(arr)
+print(sorted_arr)  # 출력: [2, 3, 4, 5, 8]
+```
+
+---
+
+### 💡 설명 요약:
+
+- **퀵소트**는 **분할 정복(divide and conquer)** 기법이 적용된 정렬 알고리즘입니다.
+- 배열을 **기준 값(pivot)**을 기준으로 작은 수, 같은 수, 큰 수로 나누고,
+- 각각의 리스트에 대해 다시 **재귀적으로 퀵소트**를 적용합니다.
+- 평균적인 시간복잡도는 **O(n log n)**, 최악의 경우는 **O(n²)** 입니다.
+
+필요하시면 다른 버전의 퀵소트(예: 인플레이스 정렬)도 설명해 드릴 수 있어요!

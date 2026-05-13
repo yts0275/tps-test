@@ -1,0 +1,91 @@
+물론이에요! 아래는 퀵소트(Quick Sort) 알고리즘을 구현한 Python 코드이며, 각 줄에 상세한 주석을 달았습니다. 퀵소트는 분할 정복(Divide and Conquer) 기반의 정렬 알고리즘으로, 평균적으로 O(n log n)의 시간 복잡도를 가집니다.
+
+```python
+# 퀵소트 알고리즘을 구현한 함수
+def quicksort(arr):
+    # 입력 배열의 길이가 1 이하이면 정렬할 필요 없음
+    if len(arr) <= 1:
+        return arr
+    
+    # 배열의 중간 인덱스를 기준으로 피벗 선택 (여기선 중간값 사용)
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗보다 작은 값, 피벗과 같은 값, 피벗보다 큰 값을 각각 리스트에 분류
+    left = [x for x in arr if x < pivot]      # 피벗보다 작은 요소
+    middle = [x for x in arr if x == pivot]   # 피벗과 같은 요소
+    right = [x for x in arr if x > pivot]     # 피벗보다 큰 요소
+    
+    # 재귀적으로 왼쪽과 오른쪽을 정렬하고, 중간 요소와 합침
+    return quicksort(left) + middle + quicksort(right)
+
+
+# 예시: 퀵소트 함수 사용
+if __name__ == "__main__":
+    # 정렬할 배열
+    unsorted_array = [64, 34, 25, 12, 22, 11, 90]
+    
+    # 퀵소트 수행
+    sorted_array = quicksort(unsorted_array)
+    
+    # 결과 출력
+    print("정렬 전:", unsorted_array)
+    print("정렬 후:", sorted_array)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+1. `def quicksort(arr):`  
+   - 퀵소트를 수행할 함수 정의.
+
+2. `if len(arr) <= 1:`  
+   - 배열의 길이가 1 이하이면 이미 정렬된 상태이므로 그대로 반환.
+
+3. `pivot = arr[len(arr) // 2]`  
+   - 피벗을 배열의 중간값으로 선택 (이것은 단순한 예시. 다른 방식도 가능함).
+
+4. `left = [x for x in arr if x < pivot]`  
+   - 피벗보다 작은 요소들을 `left` 리스트에 모음.
+
+5. `middle = [x for x in arr if x == pivot]`  
+   - 피벗과 같은 값을 `middle` 리스트에 모음.
+
+6. `right = [x for x in arr if x > pivot]`  
+   - 피벗보다 큰 값을 `right` 리스트에 모음.
+
+7. `return quicksort(left) + middle + quicksort(right)`  
+   - 왼쪽과 오른쪽을 재귀적으로 정렬하고, 중간 요소를 합쳐서 반환.
+
+8. `if __name__ == "__main__":`  
+   - 스크립트가 직접 실행되었을 때만 아래 코드 실행.
+
+9. `unsorted_array = [...]`  
+   - 정렬할 원본 배열 정의.
+
+10. `sorted_array = quicksort(unsorted_array)`  
+    - 퀵소트를 통해 정렬.
+
+11. `print(...)`  
+    - 결과 출력.
+
+---
+
+### 💡 보너스: 피벗 선택 방식 변경
+
+피벗을 항상 중간값으로 선택하는 대신, **첫 번째 요소**나 **무작위 요소**를 선택하는 것도 가능합니다. 예를 들어:
+
+```python
+pivot = arr[0]  # 첫 번째 요소를 피벗으로 선택
+```
+
+또는 무작위 선택:
+
+```python
+import random
+pivot = random.choice(arr)
+```
+
+---
+
+필요하시면 **in-place 퀵소트**(추가 메모리 없이 정렬) 버전도 제공해 드릴 수 있어요!

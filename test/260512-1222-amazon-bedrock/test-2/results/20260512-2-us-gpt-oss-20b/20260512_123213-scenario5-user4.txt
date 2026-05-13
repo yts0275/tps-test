@@ -1,0 +1,51 @@
+아래는 **Python**으로 구현한 퀵소트(QuickSort)이며, **각 줄마다 한글 주석**이 달려있습니다.  
+이 구현은 입력 리스트를 **제자리(인‑플레이스)** 로 정렬합니다.  
+
+```python
+def quicksort(arr, low, high):
+    """
+    퀵소트: 리스트 arr을 인덱스 low ~ high 사이에서 정렬한다.
+    arr: 정렬할 리스트
+    low: 정렬 시작 인덱스
+    high: 정렬 끝 인덱스
+    """
+    # 1. low가 high보다 크거나 같으면 더 이상 쪼갤 필요가 없다.
+    if low < high:
+        # 2. 배열을 분할하여 피벗의 최종 위치 파악
+        pivot_index = partition(arr, low, high)   # 3. 피벗을 정하고 좌우 부분을 재귀 호출
+        quicksort(arr, low, pivot_index - 1)  # 4. 피벗보다 작은 부분 정렬
+        quicksort(arr, pivot_index + 1, high)  # 5. 피벗보다 큰 부분 정렬
+
+
+def partition(arr, low, high):
+    """
+    1. 마지막 원소를 피벗으로 선택
+    2. 피벗보다 작은 값은 왼쪽, 큰 값은 오른쪽에 배치
+    3. 최종적으로 피벗이 위치할 인덱스를 반환
+    """
+    pivot = arr[high]   # 4. 피벗(범위 끝 요소) 지정
+    i = low - 1         # 5. i는 "작은 원소들의 끝"을 가리킨다
+
+    for j in range(low, high):  # 6. low ~ high-1 까지 탐색
+        if arr[j] <= pivot:   # 7. 현재 원소가 피벗 이하이면
+            i += 1           # 8. i를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 9. i와 j 사이의 원소 교환
+
+    # 10. 마지막에 피벗을 올바른 위치에 삽입
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 11. 피벗과 i+1 인덱스 원소 교환
+    return i + 1    # 12. 피벗이 최종적으로 놓인 인덱스 반환
+
+
+# 사용 예시
+if __name__ == "__main__":
+    data = [10, 7, 8, 9, 1, 5]
+    quicksort(data, 0, len(data) - 1)  # 13. 정렬 호출
+    print("정렬된 리스트:", data)     # 14. 결과 출력
+```
+
+**해설**  
+- `quicksort`는 재귀적으로 호출되어 배열을 분할하고 정렬합니다.  
+- `partition`은 피벗을 기준으로 배열을 두 부분으로 나누며, 피벗이 최종적으로 위치할 인덱스를 반환합니다.  
+- 인‑플레이스 구현이므로 추가적인 배열 복사 없이 O(1) 공간 복잡도를 갖습니다.  
+
+필요에 따라 `quicksort`를 래퍼 함수로 정의해 `low`와 `high`를 숨길 수도 있습니다.

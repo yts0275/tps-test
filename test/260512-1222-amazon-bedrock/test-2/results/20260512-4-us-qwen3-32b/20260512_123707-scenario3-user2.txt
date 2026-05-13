@@ -1,0 +1,54 @@
+물론입니다! 아래는 Python으로 작성된 퀵소트(Quick Sort) 알고리즘의 구현입니다. 각 줄마다 쉽게 이해할 수 있도록 주석을 달아드리겠습니다.
+
+---
+
+### ✅ 퀵소트(Python) + 주석
+
+```python
+# 퀵소트 함수 정의
+def quicksort(arr):
+    # 리스트가 비었거나 하나의 원소만 있다면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 리스트의 첫 번째 원소로 선택
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들로 구성된 리스트
+    less = [x for x in arr[1:] if x < pivot]
+
+    # 피벗보다 큰 요소들로 구성된 리스트
+    greater = [x for x in arr[1:] if x >= pivot]
+
+    # 재귀적으로 'less'와 'greater'를 정렬하고, 그 사이에 피벗을 넣음
+    return quicksort(less) + [pivot] + quicksort(greater)
+# end of quicksort
+```
+
+---
+
+### 🧪 예시를 위한 실행 코드
+
+```python
+# 테스트 리스트
+arr = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 실행
+sorted_arr = quicksort(arr)
+
+# 결과 출력
+print("정렬 결과:", sorted_arr)
+```
+
+---
+
+### 🔍 설명
+
+- **기본 케이스 (Base Case)**: 원소가 1개 이하라면 정렬된 상태.
+- **피벗 선택**: 여기서는 리스트의 첫 번째 요소로 선택.
+- **재귀 구조**: 작은 그룹과 큰 그룹을 각각 정렬한 후, 전체 리스트로 합침.
+- 효율은 O(n log n) 평균, 최악의 경우 O(n²)입니다. (이 과정에서 피벗이 잘 선택되어야 효율적)
+
+---
+
+필요하시면 C++, Java, JavaScrpit 등 다른 언어로도 구현해드릴 수 있습니다!

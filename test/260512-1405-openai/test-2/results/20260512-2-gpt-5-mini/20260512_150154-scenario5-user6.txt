@@ -1,0 +1,26 @@
+아래는 파이썬으로 구현한 퀵소트(Lomuto 분할)를 각 줄마다 주석을 달아서 보여드립니다.
+
+```python
+# 퀵소트 구현 (Lomuto 분할) - 각 줄마다 주석 포함
+def quicksort(arr, low, high):  # 배열 arr의 구간 [low, high]를 재귀적으로 정렬하는 함수 정의
+    if low < high:  # 정렬할 구간에 원소가 2개 이상 있는 경우에만 분할 및 정렬 수행
+        p = partition(arr, low, high)  # partition 함수로 피벗의 최종 위치 인덱스를 얻음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+def partition(arr, low, high):  # Lomuto 분할 알고리즘을 사용하여 구간을 분할하는 함수 정의
+    pivot = arr[high]  # 구간의 마지막 원소를 피벗으로 선택
+    i = low - 1  # 작은 값들의 경계 인덱스를 초기화 (작은 값의 마지막 인덱스)
+    for j in range(low, high):  # low부터 high-1까지 순회하면서 피벗과 비교
+        if arr[j] <= pivot:  # 현재 원소가 피벗 이하이면 작은 값 영역으로 이동시킬 필요 있음
+            i += 1  # 작은 값 영역의 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 원소를 작은 값 영역의 끝으로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 값 영역 바로 다음 위치로 옮겨 고정
+    return i + 1  # 피벗의 최종 위치 인덱스를 반환
+def quicksort_inplace(arr):  # 전체 배열을 편리하게 정렬하기 위한 래퍼 함수 정의
+    quicksort(arr, 0, len(arr) - 1)  # 배열 전체 구간 [0, len-1]에 대해 퀵소트 실행
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시 코드가 동작하도록 함
+    sample = [3, 6, 8, 10, 1, 2, 1]  # 예시로 사용할 배열을 정의
+    print("정렬 전:", sample)  # 정렬 전 배열을 출력
+    quicksort_inplace(sample)  # 퀵소트로 배열을 제자리(in-place) 정렬
+    print("정렬 후:", sample)  # 정렬 후 배열을 출력
+```

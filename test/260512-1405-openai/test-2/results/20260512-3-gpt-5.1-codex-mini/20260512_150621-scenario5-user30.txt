@@ -1,0 +1,14 @@
+다음은 퀵소트 구현 예시입니다. 각 줄마다 주석을 달아 설명하였습니다.
+
+```python
+def quicksort(arr):  # arr 리스트를 받아 퀵소트로 정렬하는 함수 정의
+    if len(arr) <= 1:  # 리스트 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr  # 그대로 반환
+    pivot = arr[len(arr) // 2]  # 리스트 가운데 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들을 모은 리스트
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들 리스트
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 모은 리스트
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬한 후 합쳐서 결과 반환
+```
+
+필요하시면 다른 버전도 제공해드릴 수 있습니다!

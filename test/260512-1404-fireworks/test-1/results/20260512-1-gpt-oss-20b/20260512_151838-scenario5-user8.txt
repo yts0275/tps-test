@@ -1,0 +1,23 @@
+```python
+def quicksort(arr, low, high):  # quicksort 함수 정의 (arr: 리스트, low: 시작 인덱스, high: 끝 인덱스)
+    if low < high:  # 재귀 종료 조건: low가 high보다 작을 때만 실행
+        pi = partition(arr, low, high)  # 피벗 위치 반환
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽 부분 재귀 호출
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽 부분 재귀 호출
+
+def partition(arr, low, high):  # partition 함수 정의 (피벗 기준 분할)
+    pivot = arr[high]  # 피벗 선택 (끝 원소)
+    i = low - 1  # i는 피벗보다 작은 요소의 가장 오른쪽 인덱스
+    for j in range(low, high):  # j는 low부터 high-1까지 탐색
+        if arr[j] <= pivot:  # 현재 원소가 피벗 이하이면
+            i += 1  # i를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j의 원소 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치(배열 사분)로 이동
+    return i + 1  # 피벗의 최종 인덱스를 반환
+
+if __name__ == "__main__":  # 스크립트가 직접 실행될 때만 아래 코드 실행
+    arr = [10, 7, 8, 9, 1, 5]  # 정렬할 예시 배열
+    print("원본 배열:", arr)  # 원본 출력
+    quicksort(arr, 0, len(arr)-1)  # quicksort 호출 (전체 범위)
+    print("정렬된 배열:", arr)  # 정렬 결과 출력
+```

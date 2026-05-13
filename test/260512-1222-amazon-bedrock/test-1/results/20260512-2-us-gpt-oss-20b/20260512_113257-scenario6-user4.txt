@@ -1,0 +1,3 @@
+1. **Product** 클래스는 `product_id`, `name`, `price`, `stock`을 저장하고 `update_stock` 메서드로 재고를 증가·감소하며, 문자열 표현을 제공한다.  
+2. **Order** 클래스는 주문 ID, 고객명, 주문 일시를 기록하고 `add_item` 으로 재고 차감과 금액 계산을 수행하며, `print_invoice` 로 상세 영수증을 출력한다.  
+3. **InventoryManager** 가 제품을 등록·목록화하고, `run_system`에서는 샘플 제품을 추가해 재고를 확인하고 두 주문을 처리한 뒤, 최종 재고와 창고 자산 가치를 출력한다.

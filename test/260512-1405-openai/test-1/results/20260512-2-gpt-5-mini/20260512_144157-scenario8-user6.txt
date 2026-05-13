@@ -1,0 +1,98 @@
+이미지에 있는 Workflow 다이어그램을 한 노드씩, 그리고 노드들 사이의 흐름(화살표와 라벨)을 최대한 상세히 풀어 설명하겠습니다.
+
+1) 전체 구조(개요)
+- 시작 노드: start → SoftwareEngineer 로 흐릅니다.
+- 중앙에 사람 역할 노드인 SoftwareEngineer 가 있고, 이 역할을 중심으로 CodeAnalyzer(왼쪽), Editor(아래 중앙), swe_tool(오른쪽) 등으로 분기합니다.
+- CodeAnalyzer 와 Editor 는 각각 하위의 실제 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출하는 관계로 표현되어 있습니다.
+- 화살표는 점선(dotted)으로 그려져 있고, 각 화살표 옆에 동작 이름(예: analyze_code, edit_file, done, continue)이 표기되어 있습니다. 이 표시는 이벤트(또는 행동)와 그 결과로 발생하는 상태 전이를 나타냅니다.
+
+2) 노드별 상세 흐름
+- Start → SoftwareEngineer
+  - 워크플로우는 start(시작)에서 SoftwareEngineer(소프트웨어 엔지니어) 역할로 진입합니다.
+
+- SoftwareEngineer → CodeAnalyzer (라벨: "analyze_code")
+  - 엔지니어가 'analyze_code' 행동을 취하면 흐름은 CodeAnalyzer 노드로 향합니다.
+  - 즉, 코드 분석을 수행하도록 CodeAnalyzer를 호출하는 시나리오입니다.
+
+- CodeAnalyzer → code_analysis_tool (하위 툴 호출)
+  - CodeAnalyzer 노드는 바로 아래의 code_analysis_tool(코드 분석 툴)을 호출/사용합니다(점선으로 연결).
+  - code_analysis_tool 에서 분석 작업이 수행됩니다.
+
+- CodeAnalyzer → SoftwareEngineer (라벨: "done")
+  - 분석이 완료되면 CodeAnalyzer 는 'done' 신호로 다시 SoftwareEngineer 쪽으로 되돌아오는 화살표가 있습니다.
+  - 즉, 분석 결과가 완료되면 엔지니어에게 제어가 반환됩니다.
+
+- CodeAnalyzer → Editor (라벨: "continue" 또는 점선 연결)
+  - 다이어그램상 CodeAnalyzer 에서 Editor 로 이어지는 점선 흐름(또는 양방향 연결/경로)이 보입니다. 이는 다음과 같은 의미로 해석됩니다:
+    - 분석 후 곧바로 편집 단계로 넘어갈 수 있음(continue).
+    - 또는 분석 결과를 바탕으로 코드 수정을 위해 Editor 를 호출할 수 있음.
+  - 이 경로를 통해 분석 → 편집(또는 분석 결과 기반의 편집)으로 연속적인 흐름이 가능합니다.
+
+- SoftwareEngineer → Editor (라벨: "edit_file")
+  - 엔지니어가 'edit_file' 행동을 취하면 Editor 노드로 이동합니다.
+  - 즉, 직접 파일 편집을 시작하는 경로입니다.
+
+- Editor → code_edit_tool (하위 툴 호출)
+  - Editor 는 code_edit_tool(코드 편집 툴)을 호출하여 실제 편집 작업을 수행합니다(점선 연결).
+  - 편집 작업은 여기서 실행됩니다.
+
+- Editor → test_tool (하위 툴 호출)
+  - Editor 는 또 다른 하위 툴인 test_tool(테스트 툴)을 호출하는 흐름도 갖고 있습니다. 이는 편집 후 테스트를 수행하거나 편집 과정에서 테스트를 병행할 수 있음을 의미합니다.
+
+- Editor → SoftwareEngineer (라벨: "done")
+  - 편집(및 선택적 테스트)이 완료되면 Editor 는 'done' 신호로 다시 SoftwareEngineer 로 제어를 반환합니다.
+  - 즉, 엔지니어는 편집 완료를 확인한 뒤 다음 행동을 결정합니다.
+
+- Editor → (다음 단계로의 continue)
+  - Editor 에서 또한 'continue' 라벨이 붙은 경로들이 보입니다(예: 다시 CodeAnalyzer 로 가거나 SoftwareEngineer 로 복귀 후 다른 툴 호출).
+  - 편집→추가분석→재편집 등 반복적인 루프를 지원하는 흐름입니다.
+
+- SoftwareEngineer → swe_tool (라벨: "continue")
+  - SoftwareEngineer 로부터 swe_tool(우측의 도구상자 형태 노드)로 이어지는 'continue' 경로가 있습니다.
+  - 이는 엔지니어가 코드 분석/편집 루프를 종료하고 다른 소프트웨어 엔지니어링 툴(swe_tool)을 사용하거나 다음 단계로 진행하는 동작을 의미합니다.
+
+- swe_tool → end (그리고/또는 SoftwareEngineer → end)
+  - swe_tool 쪽에서 워크플로우의 끝(end)으로 이어지는 경로가 보입니다(우측).
+  - 또한 SoftwareEngineer 에서 직접 end 로 이어지는 점선(라벨: continue로 보임)도 있어, 엔지니어가 더 이상 작업을 지속하지 않고 워크플로우를 종료할 수 있습니다.
+
+3) 루프(반복)와 분기 요약
+- 주 루프: SoftwareEngineer ⇄ CodeAnalyzer ⇄ Editor
+  - 엔지니어가 분석(analyze_code) → 분석툴 실행 → 완료(done) → (필요 시) 편집(edit_file) → 편집툴/테스트툴 실행 → 완료(done)로 다시 엔지니어에게 돌아오며, 이 과정을 여러 번 반복할 수 있습니다.
+  - CodeAnalyzer 와 Editor 사이에 'continue' 경로가 있어 분석에서 바로 편집으로, 편집에서 다시 분석으로 자연스럽게 전환됩니다.
+
+- 종료 분기:
+  - 위 루프를 반복한 뒤 엔지니어는 'continue' 로 swe_tool 을 호출하거나(다음 단계 도구로 이동), 바로 end 로 가서 워크플로우를 종료할 수 있습니다.
+
+4) 각 라벨(이벤트)의 의미(다이어그램 기준 해석)
+- analyze_code: 엔지니어가 코드 분석을 시작하는 액션(SoftwareEngineer → CodeAnalyzer).
+- edit_file: 엔지니어가 파일 편집을 시작하는 액션(SoftwareEngineer → Editor).
+- done: 하위 노드(Analyzer/Editor)에서 작업이 완료되어 엔지니어에게 돌아오는 완료 신호(Analyzer/Editor → SoftwareEngineer).
+- continue: 현재 단계를 계속하거나 다음 단계로 이어지는 신호(예: Analyzer → Editor, Editor → 다음 단계, SoftwareEngineer → swe_tool 또는 end).
+
+5) 예시 시나리오(구체적 흐름 예)
+- 시나리오 A (분석 → 편집 → 종료)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer: analyze_code → CodeAnalyzer
+  3. CodeAnalyzer → code_analysis_tool 실행
+  4. 분석 완료 → CodeAnalyzer: done → SoftwareEngineer
+  5. SoftwareEngineer: edit_file → Editor
+  6. Editor → code_edit_tool 로 편집, 필요시 test_tool 실행
+  7. 편집 완료 → Editor: done → SoftwareEngineer
+  8. SoftwareEngineer: continue → swe_tool (또는 바로 end)
+  9. swe_tool → end (또는 SoftwareEngineer → end)
+
+- 시나리오 B (반복적 수정)
+  1. start → SoftwareEngineer
+  2. analyze_code → CodeAnalyzer → code_analysis_tool
+  3. 분석 후 continue → Editor → code_edit_tool/test_tool
+  4. 편집 후 done → SoftwareEngineer
+  5. 다시 analyze_code 로 돌려서 재분석 → (위 루프 반복)
+  6. 만족 시 continue → swe_tool 또는 end
+
+6) 시각적/구조적 특징 정리
+- 점선 화살표: 여러 분기와 비동기적/선택적 전환을 표현(직접적 순차 흐름뿐 아니라 이벤트 기반 전이).
+- 중앙의 SoftwareEngineer 노드가 제어의 허브: 시작점에서 다양한 작업(분석, 편집, 다른 툴 사용, 종료)을 선택함.
+- CodeAnalyzer 및 Editor는 각각 내부적으로 전용 툴을 호출하여 실제 작업을 수행하고 완료 신호로 엔지니어에게 반환.
+- 전체적으로 분석 → 편집 → 테스트 의 반복 루프를 지원하고, 작업이 끝나면 swe_tool 로 이동하거나 워크플로우를 종료하는 구조.
+
+원하시면 이 흐름을 상태 머신(state machine) 표기(상태-이벤트-전이 테이블)로 정리하거나, 가능한 전이 경로를 모두 나열한 전이 목록(transition list)으로도 정리해 드리겠습니다. 어느 방식으로 추가 정리할까요?

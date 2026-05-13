@@ -1,0 +1,66 @@
+물론입니다! 다음은 **퀵소트**(Quick Sort) 알고리즘을 Python으로 구현한 코드입니다.  
+각 줄에는 설명을 달아, 알고리즘의 동작 흐름을 이해하기 쉽도록 했습니다.
+
+---
+
+### 🟡 퀵소트란?
+퀵소트는 **분할 정복**(Divide and Conquer) 방식의 정렬 알고리즘입니다.  
+어떤 기준값(피벗)을 기준으로 배열을 두 부분으로 나누고, 각 부분을 재귀적으로 정렬합니다.
+
+---
+
+### ✅ 퀵소트 구현 (Python)
+
+```python
+def quicksort(arr):
+    # 1. 재귀 종료 조건: 배열 길이가 1 이하이면 정렬할 필요 없음
+    if len(arr) <= 1:
+        return arr
+    
+    # 2. 피벗(Pivot) 선택: 여기서는 리스트의 첫 번째 요소로 선택
+    pivot = arr[0]
+    
+    # 3. 피벗보다 작은 요소들을 모을 리스트
+    less_than_pivot = []
+    
+    # 4. 피벗보다 큰 요소들을 모을 리스트
+    greater_than_pivot = []
+    
+    # 5. 피벗을 제외한 나머지 요소를 기준에 따라 분류
+    for x in arr[1:]:
+        if x <= pivot:
+            less_than_pivot.append(x)
+        else:
+            greater_than_pivot.append(x)
+    
+    # 6. 재귀적으로 왼쪽, 오른쪽 부분 정렬 후, 합침
+    return quicksort(less_than_pivot) + [pivot] + quicksort(greater_than_pivot)
+```
+
+---
+
+### 📌 예시 확인
+
+```python
+unsorted_list = [5, 2, 9, 1, 7, 3]
+sorted_list = quicksort(unsorted_list)
+print(sorted_list)
+```
+
+```output
+[1, 2, 3, 5, 7, 9]
+```
+
+---
+
+### 📌 주석 정리
+
+- `if len(arr) <= 1`: 배열 길이가 1이하이면 정렬 필요 없음
+- `pivot = arr[0]`: 피벗을 첫 번째 요소로 선택
+- `less_than_pivot` 과 `greater_than_pivot`: 피벗 기준으로 분리
+- `for x in arr[1:]`: 피벗 제외 나머지 요소 반복
+- `return quicksort(less_than_pivot) + ...`: 재귀로 왼쪽, 오른쪽 정렬
+
+---
+
+필요하시면, in-place 버전의 퀵소트도 만들어 드릴 수 있어요! 😊

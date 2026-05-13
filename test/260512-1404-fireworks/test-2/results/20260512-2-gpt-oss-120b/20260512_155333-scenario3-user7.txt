@@ -1,0 +1,53 @@
+아래는 파이썬(Python)으로 구현한 **퀵소트(Quick Sort)** 알고리즘입니다.  
+각 코드 줄마다 동작을 설명하는 주석을 한 줄씩 달아두었습니다.  
+
+```python
+def quick_sort(arr):
+    # 입력받은 리스트가 비어 있거나 원소가 하나뿐이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)으로 사용할 요소를 선택 – 여기서는 리스트의 마지막 요소를 사용
+    pivot = arr[-1]
+
+    # 피벗보다 작은 요소들을 저장할 리스트
+    left = []
+    # 피벗보다 큰 요소들을 저장할 리스트
+    right = []
+    # 피벗과 같은 값이면서 피벗 자체를 제외한 요소들을 저장할 리스트
+    middle = []
+
+    # 배열의 마지막 요소(피벗)를 제외하고 모든 원소를 검사
+    for element in arr[:-1]:
+        if element < pivot:          # 피벗보다 작으면 left 리스트에 추가
+            left.append(element)
+        elif element > pivot:        # 피벗보다 크면 right 리스트에 추가
+            right.append(element)
+        else:                        # 피벗과 값이 같으면 middle 리스트에 추가
+            middle.append(element)
+
+    # 재귀적으로 left와 right 부분을 정렬하고
+    # 정렬된 left + 피벗 + middle + 정렬된 right 순서로 합쳐 최종 결과를 만든다
+    return quick_sort(left) + [pivot] + middle + quick_sort(right)
+
+
+# ------------------------------------------------------------
+# 사용 예시
+if __name__ == "__main__":
+    unsorted = [33, 10, 55, 71, 29, 3, 18, 90, 42]
+    # quick_sort 함수를 호출하여 정렬된 리스트를 얻음
+    sorted_list = quick_sort(unsorted)
+    # 결과 출력
+    print("정렬 전 :", unsorted)
+    print("정렬 후 :", sorted_list)
+```
+
+**알고리즘 흐름 요약**
+1. 리스트가 1개 이하이면 그대로 반환(재귀 종료 조건).  
+2. 마지막 요소를 피벗으로 선택하고, 피벗보다 작은·큰·같은 요소를 각각 `left`, `right`, `middle`에 분류.  
+3. `left`와 `right`에 대해 재귀적으로 `quick_sort`를 호출해 정렬.  
+4. `left` 정렬 결과 + 피벗 + `middle` + `right` 정렬 결과를 이어붙여 최종 정렬 리스트를 만든다.  
+
+이 구현은 **제자리(in‑place) 정렬**은 아니며, 추가 리스트를 사용해 가독성을 높였습니다.  
+시간 복잡도는 평균 \(O(n \log n)\), 최악(이미 정렬된 경우 등)에는 \(O(n^2)\)이며,  
+추가 메모리 사용량은 \(O(n)\) 정도입니다.  

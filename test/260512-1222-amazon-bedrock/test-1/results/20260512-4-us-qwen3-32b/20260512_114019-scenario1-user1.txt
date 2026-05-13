@@ -1,0 +1,68 @@
+물론입니다! 아래는 Python으로 구현한 **퀵정렬**(Quick Sort) 알고리즘입니다. 각 줄에 대해 자세한 주석을 달아 설명드리겠습니다.
+
+```python
+# 퀵정렬(Quick Sort) 함수 정의
+def quick_sort(arr):
+    # 배열이 비었거나, 하나의 요소만 남아있으면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 선택 (일반적으로 가장 첫 번째 요소를 사용)
+    pivot = arr[0]
+    
+    # 피벗보다 작은 수를 담을 리스트 초기화
+    left = []
+    
+    # 피벗보다 큰 수를 담을 리스트 초기화
+    right = []
+    
+    # 피벗을 제외한 나머지 배열 요소들 반복
+    for i in range(1, len(arr)):
+        # 현재 요소가 피벗보다 작으면 left 리스트에 추가
+        if arr[i] < pivot:
+            left.append(arr[i])
+        # 현재 요소가 피벗보다 크거나 같으면 right 리스트에 추가
+        else:
+            right.append(arr[i])
+    
+    # 재귀적으로 left와 right를 퀵정렬하고, pivot과 결합 (작은 요소 + pivot + 큰 요소)
+    return quick_sort(left) + [pivot] + quick_sort(right)
+
+# 예시 실행
+arr = [3, 6, 8, 10, 1, 2, 1]
+print("정렬 전:", arr)
+sorted_arr = quick_sort(arr)
+print("정렬 후:", sorted_arr)
+```
+
+---
+
+### 주석 정리:
+
+1. `if len(arr) <= 1`:  
+   - 배열 크기가 1 이하이면 정렬할 필요 없음.
+
+2. `pivot = arr[0]`:  
+   - 첫 번째 요소를 피벗으로 선택.
+
+3. `left = []` / `right = []`:  
+   - 피벗보다 작은 수와 큰 수를 나누기 위한 두 리스트 생성.
+
+4. `for i in range(1, len(arr))`:  
+   - 배열을 순회하며 피벗과 비교.
+
+5. `if arr[i] < pivot`:  
+   - 피벗보다 작은 수는 `left` 리스트에 추가.
+
+6. `else`:  
+   - 피벗 이상인 수는 `right` 리스트에 추가.
+
+7. `return quick_sort(left) + [pivot] + quick_sort(right)`:  
+   - `left`와 `right`를 재귀적으로 정렬 후, `pivot`과 함께 결합.
+
+8. 예시 실행:  
+   - 퀵정렬 함수를 호출하여 배열 정렬을 수행.
+
+---
+
+궁금한 부분이 있거나 다른 방식으로 구현하고 싶으면 알려주세요!

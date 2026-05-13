@@ -1,0 +1,40 @@
+아래는 파이썬으로 구현한 퀵소트(Quick Sort) 함수이며, **모든 코드 줄마다** 주석을 달았습니다. 주석은 한 줄 말미에 `#` 뒤에 작성했습니다.  
+
+```python
+def quick_sort(arr):                                          # 주어진 리스트를 퀵소트로 정렬하는 함수 정의
+    """초기에 설정한 리스트를 정렬한 뒤 같은 리스트를 반환합니다."""  # docstring: 함수 설명
+                                                                # (문자열은 실제 로직과 관계가 없으므로 주석 없이 비우지도 않음)
+
+    def _quick_sort(items, low, high):                       # 내부 재귀 정렬 함수 정의
+        if low < high:                                       # base case: (low < high) 가 아니면 더 이상 나눌 수 없음
+            pivot_index = partition(items, low, high)        # 피벗을 기준으로 partition 수행 및 피벗 위치 반환
+            _quick_sort(items, low, pivot_index - 1)         # 피벗 왼쪽 부분 배열 재귀 정렬
+            _quick_sort(items, pivot_index + 1, high)        # 피벗 오른쪽 부분 배열 재귀 정렬
+
+    def partition(items, low, high):                         # 파티션을 수행하는 함수 정의
+        pivot = items[high]                                  # 가장 오른쪽 원소를 피벗으로 선택
+        i = low - 1                                          # i는 피벗보다 작은 값의 가장 큰 인덱스를 가리킴
+        for j in range(low, high):                           # 범위 내 모든 인덱스 j를 순회
+            if items[j] <= pivot:                           # 현재 원소가 피벗보다 작거나 같으면
+                i += 1                                      # i를 한 칸 증가
+                items[i], items[j] = items[j], items[i]   # items[i]와 items[j] 교환
+        items[i + 1], items[high] = items[high], items[i+1]  # 피벗 원소를 올바른 위치에 놓음
+        return i + 1                                         # 피벗의 최종 인덱스를 반환
+
+    _quick_sort(arr, 0, len(arr) - 1)                         # 외부 호출: 전체 리스트에 대해 재귀 함수 실행
+    return arr                                               # 정렬된 리스트 반환
+
+# 예제 사용
+if __name__ == "__main__":                                  # 스크립트가 직접 실행될 때만 아래 코드를 실행
+    arr = [3, 6, 8, 10, 1, 2, 1]                            # 정렬할 테스트 리스트 정의
+    print("정렬 전:", arr)                                  # 정렬 전 리스트 출력
+    sorted_arr = quick_sort(arr)                            # quick_sort 함수 호출
+    print("정렬 후:", sorted_arr)                           # 정렬된 리스트 출력
+```
+
+**주요 포인트**
+
+- `quick_sort` 함수는 입력 리스트를 직접 정렬하고 같은 리스트를 반환합니다.
+- `partition` 단계에서 피벗을 기준으로 `items`를 재배열합니다.
+- 재귀 호출 인자를 `low`와 `high`으로 제한해 파티션마다 서브 배열을 지정합니다.
+- 모든 코딩 라인은 한 줄에 한 번씩 `#` 뒤에 주석을 달아 이해를 돕도록 했습니다.

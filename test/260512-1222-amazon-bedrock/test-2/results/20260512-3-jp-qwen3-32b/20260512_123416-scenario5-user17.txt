@@ -1,0 +1,50 @@
+물론입니다! 아래는 Python으로 구현한 퀵소트 알고리즘입니다. 그리고 각 줄마다 쉽게 이해할 수 있도록 주석을 달았습니다.
+
+```python
+def quicksort(arr):
+    # 리스트가 비어 있거나 하나의 원소만 남으면, 그 리스트 자체를 반환합니다.
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 리스트의 첫 번째 요소로 선택합니다.
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들의 리스트
+    less = []
+
+    # 피벗과 같은 요소들의 리스트
+    equal = []
+
+    # 피벗보다 큰 요소들의 리스트
+    greater = []
+
+    # 배열을 순회하면서 요소들을 less, equal, greater 리스트에 분류합니다.
+    for num in arr:
+        if num < pivot:
+            less.append(num)
+        elif num == pivot:
+            equal.append(num)
+        elif num > pivot:
+            greater.append(num)
+
+    # 재귀적으로 less, equal, greater를 정렬한 후 합칩니다.
+    return quicksort(less) + equal + quicksort(greater)
+
+
+# 예시 실행
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quicksort(arr)
+print("정렬된 배열:", sorted_arr)
+```
+
+---
+
+### 💡 설명:
+- **pivot**은 리스트의 첫 번째 요소를 사용했는데, 이는 가장 단순한 방법입니다.
+- **less, equal, greater** 리스트는 각각 피벗보다 작거나, 같거나, 큰 요소들을 담습니다.
+- **재귀**를 통해 각각의 서브리스트를 다시 퀵소트하여 전체 배열을 정렬합니다.
+- 전체 시간복잡도: **평균 O(n log n), 최악 O(n²)**
+
+---
+
+필요하면 다른 방식의 퀵소트(예: 인플레이스 정렬)도 알려드릴 수 있어요!

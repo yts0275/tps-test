@@ -1,0 +1,116 @@
+물론입니다. 아래는 주어진 워크플로우 다이어그램의 노드들 간의 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+이 워크플로우는 소프트웨어 엔지니어의 작업 흐름을 모델링한 것으로, 주요 역할은 **SoftwareEngineer** 노드이며, 이는 여러 도구를 사용하여 코드를 분석, 편집, 테스트하는 과정을 반복적으로 수행합니다. 전체 흐름은 `start`에서 시작하여 `end`로 종료되며, 중간에 여러 도구(Analyzer, Editor 등)를 활용합니다. 노드 간의 연결은 점선 화살표로 표현되며, 연결선 위에 있는 라벨은 이동 조건이나 이벤트를 나타냅니다.
+
+---
+
+### **1. 시작 (start)**
+- 워크플로우의 시작점입니다.
+- `start` 노드는 `SoftwareEngineer` 노드로 흐름을 전달합니다.
+- 이는 **소프트웨어 엔지니어가 작업을 시작**한다는 의미입니다.
+
+---
+
+### **2. SoftwareEngineer (소프트웨어 엔지니어)**
+- 워크플로우의 중심 노드입니다. 엔지니어의 주요 작업을 수행하는 역할을 합니다.
+- 이 노드는 여러 가지 작업을 수행할 수 있으며, 각 작업은 다른 도구로 이어집니다.
+- **다음 세 가지 작업으로 흐름이 분기**합니다:
+  1. **코드 분석 (analyze_code)** → `CodeAnalyzer`로 이동
+  2. **파일 편집 (edit_file)** → `Editor`로 이동
+  3. **도구 실행 (swе_tool)** → `swe_tool`로 이동
+
+- 또한, `CodeAnalyzer`와 `Editor`에서 작업이 완료되면 `done` 이벤트를 통해 다시 `SoftwareEngineer`로 돌아옵니다.
+- `Editor` 노드에서 `continue` 이벤트를 통해 다시 `SoftwareEngineer`로 돌아올 수 있습니다.
+- `SoftwareEngineer`는 `end` 노드로 이동하여 워크플로우를 종료할 수 있습니다.
+
+---
+
+### **3. CodeAnalyzer (코드 분석기)**
+- `SoftwareEngineer`가 `analyze_code` 이벤트를 통해 이 노드로 진입합니다.
+- 이 노드는 코드를 분석하는 역할을 합니다.
+- **하위 도구로 `code_analysis_tool`을 사용**합니다. 이는 분석 도구로, `CodeAnalyzer`가 실제로 분석 작업을 수행하는 데 사용됩니다.
+- 분석이 완료되면 `done` 이벤트를 통해 `SoftwareEngineer`로 돌아갑니다.
+- `CodeAnalyzer`는 `continue` 이벤트를 통해 다시 `SoftwareEngineer`로 돌아갈 수 있습니다. 이는 분석 후 추가 작업이 필요할 수 있음을 의미합니다.
+
+---
+
+### **4. Editor (편집기)**
+- `SoftwareEngineer`가 `edit_file` 이벤트를 통해 이 노드로 진입합니다.
+- 이 노드는 코드를 편집하는 역할을 합니다.
+- **하위 도구로 `code_edit_tool`과 `test_tool`을 사용**합니다.
+  - `code_edit_tool`: 코드 편집 도구. 실제 코드 수정에 사용됩니다.
+  - `test_tool`: 테스트 도구. 편집 후 코드의 동작을 검증합니다.
+- 편집 및 테스트 후, `done` 이벤트를 통해 `SoftwareEngineer`로 돌아갑니다.
+- `Editor`에서 `continue` 이벤트를 통해 `SoftwareEngineer`로 돌아갈 수 있습니다. 이는 편집 후 추가 작업이 필요하거나 반복적인 수정이 필요한 경우를 의미합니다.
+
+---
+
+### **5. code_analysis_tool (코드 분석 도구)**
+- `CodeAnalyzer` 노드가 사용하는 하위 도구입니다.
+- 코드 분석 작업을 수행합니다.
+- 분석이 완료되면 결과를 `CodeAnalyzer`로 전달합니다.
+- 이 노드는 워크플로우의 하위 레벨에서 작동하며, 직접적인 흐름은 `CodeAnalyzer` → `code_analysis_tool` → `CodeAnalyzer`로 이루어집니다.
+
+---
+
+### **6. code_edit_tool (코드 편집 도구)**
+- `Editor` 노드가 사용하는 하위 도구입니다.
+- 코드 편집 작업을 수행합니다.
+- 편집 결과를 `Editor`로 전달합니다.
+- 이 노드는 `Editor`의 하위 작업 도구로, `Editor`가 `code_edit_tool`을 호출하고 결과를 받는 구조입니다.
+
+---
+
+### **7. test_tool (테스트 도구)**
+- `Editor` 노드가 사용하는 하위 도구입니다.
+- 코드 편집 후 테스트를 수행합니다.
+- 테스트 결과를 `Editor`로 전달합니다.
+- 이 노드는 `Editor`의 테스트 단계에서 사용되며, 테스트 결과에 따라 `Editor`가 추가 작업을 결정할 수 있습니다.
+
+---
+
+### **8. swe_tool (소프트웨어 도구)**
+- `SoftwareEngineer`가 `swе_tool` 이벤트를 통해 이 노드로 진입합니다.
+- 이는 소프트웨어 엔지니어가 사용하는 **일반적인 도구**로, 코드 분석이나 편집 외의 작업을 수행할 수 있습니다.
+- 이 노드는 `end` 노드로 직접 연결됩니다. 즉, 이 도구를 사용한 후 워크플로우가 종료될 수 있음을 의미합니다.
+- 이 노드는 `SoftwareEngineer`에서 직접 호출되며, `end`로 이어지는 유일한 경로 중 하나입니다.
+
+---
+
+### **9. end (종료)**
+- 워크플로우의 종료점입니다.
+- `swe_tool` 노드에서 `end`로 연결됩니다.
+- 이는 소프트웨어 엔지니어가 특정 도구를 사용한 후 작업을 완료하고 워크플로우를 종료하는 경우를 의미합니다.
+
+---
+
+### **흐름 요약 및 순서**
+1. **시작**: `start` → `SoftwareEngineer`
+2. **작업 선택**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (analyze_code)
+   - `SoftwareEngineer` → `Editor` (edit_file)
+   - `SoftwareEngineer` → `swe_tool` (swе_tool)
+3. **코드 분석 흐름**:
+   - `SoftwareEngineer` → `CodeAnalyzer` → `code_analysis_tool` → `CodeAnalyzer` → `SoftwareEngineer` (done)
+   - `CodeAnalyzer` → `SoftwareEngineer` (continue)
+4. **코드 편집 흐름**:
+   - `SoftwareEngineer` → `Editor` → `code_edit_tool` → `Editor` → `Editor` → `test_tool` → `Editor` → `SoftwareEngineer` (done)
+   - `Editor` → `SoftwareEngineer` (continue)
+5. **종료 흐름**:
+   - `SoftwareEngineer` → `swe_tool` → `end`
+
+---
+
+### **핵심 특징**
+- **반복성**: `done`과 `continue` 이벤트를 통해 `SoftwareEngineer`가 여러 번 반복적으로 작업을 수행할 수 있습니다.
+- **모듈화**: 각 작업은 별도의 도구로 분리되어 있으며, `SoftwareEngineer`는 이를 조합하여 작업합니다.
+- **선택적 흐름**: `SoftwareEngineer`는 분석, 편집, 또는 일반 도구 사용 중 하나를 선택할 수 있으며, 이는 상황에 따라 결정됩니다.
+- **하위 도구 사용**: `CodeAnalyzer`, `Editor`는 각각 하위 도구를 사용하여 구체적인 작업을 수행합니다.
+
+---
+
+### **결론**
+이 워크플로우는 **소프트웨어 엔지니어의 작업 프로세스를 시각화한 모델**로, 코드 분석, 편집, 테스트, 그리고 일반 도구 사용을 포함합니다. 각 작업은 별도의 도구로 구성되며, `SoftwareEngineer`가 중심이 되어 작업을 조정하고 반복적으로 수행합니다. `done`과 `continue` 이벤트는 작업의 완료와 반복 가능성을 나타내며, `end` 노드는 작업의 종료를 의미합니다.

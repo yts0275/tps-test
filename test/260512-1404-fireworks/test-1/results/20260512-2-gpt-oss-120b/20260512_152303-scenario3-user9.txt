@@ -1,0 +1,31 @@
+```python
+def quicksort(arr):                           # 퀵소트 함수 정의, 정렬할 리스트를 매개변수로 받는다
+    if len(arr) <= 1:                        # 리스트 길이가 0이나 1이면 이미 정렬된 상태이므로
+        return arr                           # 그대로 반환한다
+
+    pivot = arr[len(arr) // 2]               # 피벗을 리스트 중앙 요소로 선택한다
+    left = []                                 # 피벗보다 작은 요소들을 저장할 리스트
+    middle = []                               # 피벗과 같은 요소들을 저장할 리스트
+    right = []                                # 피벗보다 큰 요소들을 저장할 리스트
+
+    for x in arr:                            # 입력 리스트의 모든 요소를 순회한다
+        if x < pivot:                         # 현재 요소가 피벗보다 작으면
+            left.append(x)                    # left 리스트에 추가한다
+        elif x > pivot:                       # 현재 요소가 피벗보다 크면
+            right.append(x)                   # right 리스트에 추가한다
+        else:                                 # 현재 요소가 피벗과 같으면
+            middle.append(x)                  # middle 리스트에 추가한다
+
+    # 재귀적으로 left와 right 부분을 정렬하고, middle을 가운데에 놓는다
+    return quicksort(left) + middle + quicksort(right)   # 정렬된 리스트를 합쳐서 반환한다
+
+
+# -------------------------------------------------------------------------
+
+# 사용 예시
+if __name__ == "__main__":                    # 이 스크립트를 직접 실행할 때만 아래 코드를 수행
+    unsorted = [33, 10, 55, 71, 29, 3, 89, 41]  # 정렬할 예시 리스트
+    sorted_list = quicksort(unsorted)           # 퀵소트를 호출하여 정렬된 리스트를 얻는다
+    print("원본 리스트 :", unsorted)            # 정렬 전 리스트 출력
+    print("정렬된 리스트 :", sorted_list)       # 정렬 후 리스트 출력
+```

@@ -1,0 +1,27 @@
+아래는 **퀵소트(Quick Sort) 구현 코드**예요. **각 줄마다 주석**을 달았습니다. (파이썬 예시)
+
+```python
+def quick_sort(arr):  # 리스트 arr을 정렬한 결과를 반환하는 함수 정의
+    if len(arr) <= 1:  # 원소가 0개 또는 1개면 이미 정렬되어 있으므로 그대로 반환
+        return arr  # 정렬된 리스트(자기 자신)를 반환
+
+    pivot = arr[0]  # 기준점(pivot)을 첫 번째 원소로 선택
+    left = []  # pivot보다 작은 값들을 담을 리스트
+    right = []  # pivot보다 크거나 같은 값들을 담을 리스트
+
+    for x in arr[1:]:  # 두 번째 원소부터 끝까지 순회
+        if x < pivot:  # 현재 값 x가 pivot보다 작으면
+            left.append(x)  # left 리스트에 x를 추가
+        else:  # 그렇지 않으면(>= pivot)
+            right.append(x)  # right 리스트에 x를 추가
+
+    return quick_sort(left) + [pivot] + quick_sort(right)  # 정렬된 left + pivot + 정렬된 right 결합 후 반환
+
+
+# 사용 예시
+data = [5, 3, 8, 4, 2, 7, 1, 10]  # 정렬할 입력 리스트
+sorted_data = quick_sort(data)  # quick_sort를 호출해 정렬 수행
+print(sorted_data)  # 정렬 결과 출력
+```
+
+원하시면 **(1) 제자리(in-place) 퀵소트**, **(2) 반복문 버전**, **(3) 랜덤 pivot/중복 처리 방식 개선** 같은 형태로도 같은 수준의 주석을 달아드릴까요?

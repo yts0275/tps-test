@@ -1,0 +1,49 @@
+물론입니다! 아래는 **파이썬**으로 작성된 퀵소트(Quick Sort) 알고리즘의 구현이며, 각 줄에 자세한 주석이 달려 있습니다.
+
+```python
+def quick_sort(arr):
+    """
+    퀵소트: 리스트를 정렬하는 재귀 알고리즘입니다.
+    작동 원리:
+    - 기준 요소(pivot)를 정하고, 리스트를 pivot 보다 작거나 같고 큰 두 부분으로 나누어 재귀적으로 정렬합니다.
+    """
+    
+    # 재귀의 종료 조건: 리스트의 길이가 0이거나 1이면 이미 정렬된 상태이므로 그대로 리턴합니다.
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택합니다. (보통 첫 번째 요소나 중간, 마지막 요소로 선택)
+    # 여기서는 리스트의 첫 번째 요소를 피벗으로 사용합니다.
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 모은 리스트
+    less_than_pivot = [x for x in arr[1:] if x <= pivot]
+
+    # 피벗보다 큰 요소들을 모은 리스트
+    greater_than_pivot = [x for x in arr[1:] if x > pivot]
+
+    # 재귀적으로 less_than_pivot과 greater_than_pivot을 정렬한 후,
+    # 결과를 [작은 요소들] + [피벗] + [큰 요소들] 순서로 합칩니다.
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+
+
+# 테스트
+unsorted_list = [3, 6, 8, 10, 1, 2, 1]
+sorted_list = quick_sort(unsorted_list)
+print("정렬된 리스트:", sorted_list)
+```
+
+### 실행 결과 예시:
+```
+정렬된 리스트: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+### 요약:
+
+- **재귀**: 리스트를 점점 더 작은 부분으로 나누어서 정렬합니다.
+- **피벗 선택**: 여기서는 첫 번째 요소를 피벗으로 쓰고 있지만, 실제로는 랜덤 선택이나 중앙값을 선택하여 최악의 성능을 피할 수 있습니다.
+- **시간 복잡도**: 평균 `O(n log n)`, 최악의 경우 `O(n²)`.
+
+원하시면 퀵소트의 최악의 경우를 개선한 버전도 소개해드릴게요!

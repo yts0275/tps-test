@@ -1,0 +1,37 @@
+물론입니다! 아래는 Python으로 작성된 **퀵소트**(Quick Sort) 알고리즘 구현 예제입니다. 각 줄은 주석을 통해 설명되어 있습니다.
+
+```python
+def quick_sort(arr):
+    """
+    퀵소트 함수: 주어진 배열을 오름차순으로 정렬합니다.
+    """
+    # 배열이 비거나 오직 하나의 요소만 있다면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗을 선택합니다. 여기서는 가운데 요소를 선택합니다.
+    pivot = arr[len(arr) // 2]
+
+    # 왼쪽: 피벗보다 작은 요소들
+    # 중앙: 피벗과 같은 요소들
+    # 오른쪽: 피벗보다 큰 요소들
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+
+    # 재귀 호출을 통해 왼쪽과 오른쪽 부분도 퀵소트 수행
+    return quick_sort(left) + middle + quick_sort(right)
+```
+
+---
+
+### 설명 요약:
+
+- `quick_sort(arr)` 은 재귀 함수로, 배열을 빠르게 정렬합니다.
+- `pivot`: 기준이 되는 값으로, 이 값을 기준으로 배열을 나눕니다.
+- `left`, `middle`, `right`: 피벗 기준으로 배열을 분할하여 재귀로 정렬을 반복합니다.
+- 재귀는 더 이상 분할할 요소가 없을 때 종료됩니다 (`len(arr) <= 1`).
+
+---
+
+이 구현은 간단하고 읽기 쉬운 버전으로, 실제로 빠른 성능이 요구되는 경우 보다 최적화된 방식도 있습니다. 궁금하다면 그 버전도 도와드릴 수 있습니다!

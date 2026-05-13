@@ -1,0 +1,52 @@
+물론입니다! 아래는 Python으로 구현한 퀵소트(Quick Sort) 알고리즘입니다. 각 줄마다 친절하게 주석을 달아 설명드리겠습니다.
+
+---
+
+### ✅ 퀵소트(Quick Sort)란?
+퀵소트는 **분할 정복**(divide and conquer) 방식을 사용하는 효율적인 정렬 알고리즘입니다.  
+기준 요소(pivot)를 하나 선택하고, 그 기준으로 데이터를 두 그룹(작은 그룹, 큰 그룹)으로 나누는 방식입니다.
+
+---
+
+### 🔢 퀵소트 Python 구현 (재귀 버전)
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 1. 입력 배열이 비어 있거나 요소가 하나라면 이미 정렬되어 있으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 2. pivot(기준)을 선택합니다. 여기서는 첫 번째 요소를 pivot으로 선택
+    pivot = arr[0]
+
+    # 3. pivot보다 작은 요소들로 구성된 리스트 생성
+    less_than_pivot = [x for x in arr[1:] if x < pivot]
+
+    # 4. pivot보다 큰 요소들로 구성된 리스트 생성
+    greater_than_pivot = [x for x in arr[1:] if x > pivot]
+
+    # 5. 재귀적으로 less_than_pivot과 greater_than_pivot 정렬 후 pivot을 가운데에 둔 최종 리스트 생성
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+```
+
+---
+
+### 📌 실행 예시
+
+```python
+# 정렬되지 않은 배열
+unsorted_list = [3, 6, 8, 10, 1, 2, 1]
+
+# quick_sort 함수 호출
+sorted_list = quick_sort(unsorted_list)
+
+print(sorted_list)  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+이 코드는 간단하고 직관적인 퀵소트 구현이며,
+파이썬 스타일로 리스트 내포(list comprehension)를 사용해서 짧고 가독성이 좋은 코드를 만들 수 있습니다.
+
+추가로 궁금한 부분이 있으면 언제든지 물어보세요! 😊

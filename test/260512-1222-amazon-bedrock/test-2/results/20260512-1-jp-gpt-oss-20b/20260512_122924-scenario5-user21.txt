@@ -1,0 +1,12 @@
+```python
+# 빠른 정렬(Quick Sort) 구현
+def quicksort(arr):                                            # 함수 정의: 정렬할 리스트를 입력받음
+    if len(arr) <= 1:                                          # 리스트가 비었거나 한 개의 원소만 있으면 정렬이 끝난 상태
+        return arr                                             # 그대로 반환(정렬 완료)
+    pivot = arr[0]                                            # 피벗 선택: 현재 리스트의 첫 번째 원소를 기준값으로 사용
+    less = [x for x in arr[1:] if x <= pivot]                 # 피벗보다 작거나 같은 원소들을 새 리스트에 수집
+    greater = [x for x in arr[1:] if x > pivot]               # 피벗보다 큰 원소들을 새 리스트에 수집
+    return quicksort(less) + [pivot] + quicksort(greater)     # 재귀 호출로 정렬한 작은 리스트와 펴정되는 리스트를 합침
+```
+
+위 코드는 파이썬으로 구현된 퀵소트이며, 각 코드 라인마다 한 줄씩 주석을 달아 이해를 돕고 있습니다. 필요에 따라 피벗 선택 방식을 변경하거나 대체 알고리즘을 적용해 볼 수도 있습니다.

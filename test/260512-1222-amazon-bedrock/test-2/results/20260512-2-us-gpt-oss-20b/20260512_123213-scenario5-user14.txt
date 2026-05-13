@@ -1,0 +1,43 @@
+아래는 파이썬으로 구현한 퀵소트(QuickSort) 예제입니다.  
+**각 줄마다 주석을 달아** 왜 그 코드가 필요한지 설명했습니다.  
+
+```python
+# 1: 타입 힌트를 위해 typing 모듈에서 List를 import합니다.
+from typing import List
+
+# 2: 사용자에게 공개할 외부 API(함수)를 정의합니다. 입력받은 리스트는 원본을 그대로 두도록 복사본을 사용해 정렬합니다.
+def quicksort(arr: List[int]) -> List[int]:          # 함수 정의: 정렬된 리스트를 반환
+    arr_copy = arr[:]                               # 3: 원본 리스트를 그대로 두기 위해 복사본을 만듭니다.
+    _quicksort(arr_copy, 0, len(arr_copy) - 1)     # 4: 내부 재귀 함수를 호출해 실제 정렬을 수행합니다.
+    return arr_copy                                 # 5: 정렬된 복사본을 반환합니다.
+
+# 6: 내부 재귀 정렬 함수로, 리스트와 정렬 범위(low~high)를 인자로 받습니다.
+def _quicksort(arr: List[int], low: int, high: int) -> None:    # 함수 정의: 원본 리스트를 비수정적으로 정렬
+    if low < high:                                        # 7: 정렬 범위가 두 개 이상의 요소를 포함할 때만 실행
+        pivot_index = partition(arr, low, high)           # 8: 피벗을 기준으로 리스트를 분할하고 피벗 인덱스를 반환
+        _quicksort(arr, low, pivot_index - 1)            # 9: 피벗보다 작은 부분을 재귀적으로 정렬
+        _quicksort(arr, pivot_index + 1, high)           # 10: 피벗보다 큰 부분을 재귀적으로 정렬
+
+# 11: 분할(Partition) 함수: 피벗(보통 범위의 마지막 요소)를 기준으로 리스트를 재배치하고 피벗의 최종 인덱스를 반환합니다.
+def partition(arr: List[int], low: int, high: int) -> int:      # 함수 정의: 피벗을 기준으로 리스트를 재배치
+    pivot = arr[high]                                       # 12: 피벗을 리스트 마지막 요소로 지정
+    i = low - 1                                             # 13: i는 피벗 보다 작거나 같은 요소가 모일 위치
+    for j in range(low, high):                              # 14: low부터 high-1까지 순회하면서 비교
+        if arr[j] <= pivot:                                 # 15: 현재 요소가 피벗보다 작거나 같으면
+            i += 1                                         # 16: i를 한 칸 앞으로 이동
+            arr[i], arr[j] = arr[j], arr[i]                # 17: i 위치와 현재 j 위치의 요소를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]           # 18: 피벗을 올바른 위치(즉, i+1)로 이동
+    return i + 1                                            # 19: 피벗의 최종 인덱스를 반환
+```
+
+### 사용 예시
+```python
+if __name__ == "__main__":
+    data = [3, 6, 8, 10, 1, 2, 1]
+    sorted_data = quicksort(data)
+    print("원본:", data)
+    print("정렬된:", sorted_data)
+```
+
+위 코드는 **핵심 단계별**(입력 복사 → 재귀 호출 → 파티션)로 정렬을 수행하며,  
+모든 줄에 주석을 달아 이해를 돕고 있습니다.

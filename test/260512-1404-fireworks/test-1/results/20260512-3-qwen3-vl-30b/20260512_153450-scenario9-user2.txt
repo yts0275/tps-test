@@ -1,0 +1,136 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 각 노드와 그间的 흐름을 최대한 상세히 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+
+이 워크플로우는 소프트웨어 엔지니어(SoftwareEngineer)가 코드를 분석하고 편집하며, 테스트를 수행하는 전체 프로세스를 나타냅니다. 이 프로세스는 **반복적이고 순환적**이며, 각 단계에서 엔지니어는 도구를 활용하고, 결과에 따라 다음 행동을 결정합니다. 주요 흐름은 `start`에서 시작하여 `end`로 종료되며, 중간에 여러 도구를 사용하는 하위 작업들이 존재합니다.
+
+---
+
+### **1. `start` 노드**
+
+- **기능**: 워크플로우의 시작점을 나타냅니다.
+- **흐름**: `start` 노드는 단일한 출력 연결을 통해 `SoftwareEngineer` 노드로 흐릅니다.
+- **설명**: 이는 전체 작업의 시작을 의미하며, 이후 모든 활동은 소프트웨어 엔지니어의 활동을 중심으로 진행됩니다.
+
+---
+
+### **2. `SoftwareEngineer` 노드**
+
+- **기능**: 워크플로우의 핵심 역할을 수행하는 주체입니다. 이 노드는 코드 분석, 편집, 테스트 등의 작업을 조정하고, 필요한 도구를 선택하고 실행합니다.
+- **입력**:
+  - `start` → `SoftwareEngineer`: 초기 시작.
+  - `CodeAnalyzer` → `SoftwareEngineer`: 코드 분석 결과가 완료되면, 소프트웨어 엔지니어에게 결과를 전달합니다.
+  - `Editor` → `SoftwareEngineer`: 편집 작업이 완료되면, 결과를 전달합니다.
+- **출력**:
+  - `CodeAnalyzer`: `analyze_code` 이벤트를 통해 코드 분석을 요청합니다.
+  - `Editor`: `edit_file` 이벤트를 통해 파일 편집을 요청합니다.
+  - `swe_tool`: `done` 이벤트를 통해 최종 완료를 알립니다.
+  - `continue`: 반복적인 작업을 위한 루프를 생성합니다.
+- **흐름 설명**:
+  - `SoftwareEngineer`는 처음에 `start`로부터 시작된 후, `analyze_code` 이벤트를 통해 `CodeAnalyzer`로 작업을 넘깁니다.
+  - `CodeAnalyzer`가 `done` 상태가 되면, 다시 `SoftwareEngineer`로 제어권이 돌아옵니다.
+  - 마찬가지로, `Editor`가 `done` 상태가 되면, `SoftwareEngineer`로 제어권이 돌아옵니다.
+  - `SoftwareEngineer`는 `continue` 이벤트를 통해 `CodeAnalyzer` 또는 `Editor`로 다시 돌아가 반복 작업을 수행할 수 있습니다.
+  - `SoftwareEngineer`는 `swe_tool`로 `done` 이벤트를 보내며, 이는 워크플로우의 최종 완료를 의미합니다.
+  - `swe_tool`은 `end` 노드로 연결되며, 이는 워크플로우의 종료를 나타냅니다.
+
+---
+
+### **3. `CodeAnalyzer` 노드**
+
+- **기능**: 코드 분석 작업을 수행하는 도구입니다. 예를 들어, 코드 품질, 버그, 보안 취약점 등을 분석합니다.
+- **입력**:
+  - `SoftwareEngineer` → `CodeAnalyzer`: `analyze_code` 이벤트를 통해 코드 분석 요청을 받습니다.
+- **출력**:
+  - `SoftwareEngineer`: `done` 이벤트를 통해 분석 결과를 전달합니다.
+  - `continue`: 분석 후 반복적으로 다시 분석을 수행할 수 있도록 합니다.
+- **흐름 설명**:
+  - `SoftwareEngineer`가 `analyze_code` 이벤트를 보내면, `CodeAnalyzer`가 활성화됩니다.
+  - `CodeAnalyzer`는 `code_analysis_tool`을 사용하여 분석을 수행합니다.
+  - 분석이 완료되면, `done` 이벤트를 통해 `SoftwareEngineer`로 결과를 전달합니다.
+  - `continue` 이벤트를 통해 `SoftwareEngineer`가 다시 `CodeAnalyzer`로 돌아가 반복 분석을 수행할 수 있습니다.
+
+---
+
+### **4. `code_analysis_tool` 노드**
+
+- **기능**: `CodeAnalyzer`가 사용하는 실제 코드 분석 도구입니다. 예: ESLint, SonarQube, Pylint 등.
+- **입력**:
+  - `CodeAnalyzer` → `code_analysis_tool`: 분석 작업을 요청합니다.
+- **출력**:
+  - `CodeAnalyzer`: 결과를 전달합니다.
+- **흐름 설명**:
+  - `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 코드를 분석합니다.
+  - 분석 결과는 `CodeAnalyzer`로 돌아오며, 이후 `SoftwareEngineer`로 전달됩니다.
+
+---
+
+### **5. `Editor` 노드**
+
+- **기능**: 파일을 편집하는 도구입니다. 예를 들어, 코드 수정, 기능 추가, 버그 수정 등을 수행합니다.
+- **입력**:
+  - `SoftwareEngineer` → `Editor`: `edit_file` 이벤트를 통해 편집 요청을 받습니다.
+- **출력**:
+  - `SoftwareEngineer`: `done` 이벤트를 통해 편집 결과를 전달합니다.
+  - `continue`: 편집 후 반복적으로 다시 편집을 수행할 수 있도록 합니다.
+  - `code_edit_tool`: `code_edit_tool`을 사용하여 실제 편집 작업을 수행합니다.
+  - `test_tool`: `test_tool`을 사용하여 테스트를 수행합니다.
+- **흐름 설명**:
+  - `SoftwareEngineer`가 `edit_file` 이벤트를 보내면, `Editor`가 활성화됩니다.
+  - `Editor`는 `code_edit_tool`을 사용하여 코드를 편집합니다.
+  - 편집 후, `done` 이벤트를 통해 `SoftwareEngineer`로 결과를 전달합니다.
+  - `continue` 이벤트를 통해 `SoftwareEngineer`가 다시 `Editor`로 돌아가 반복 편집을 수행할 수 있습니다.
+  - `Editor`는 `test_tool`을 호출하여 테스트를 수행할 수 있습니다.
+
+---
+
+### **6. `code_edit_tool` 노드**
+
+- **기능**: `Editor`가 사용하는 실제 코드 편집 도구입니다. 예: VS Code, Vim, Sublime Text 등.
+- **입력**:
+  - `Editor` → `code_edit_tool`: 편집 작업을 요청합니다.
+- **출력**:
+  - `Editor`: 편집 결과를 전달합니다.
+- **흐름 설명**:
+  - `Editor`는 `code_edit_tool`을 호출하여 코드를 편집합니다.
+  - 편집 결과는 `Editor`로 돌아오며, 이후 `SoftwareEngineer`로 전달됩니다.
+
+---
+
+### **7. `test_tool` 노드**
+
+- **기능**: 코드의 테스트를 수행하는 도구입니다. 예: Jest, PyTest, JUnit 등.
+- **입력**:
+  - `Editor` → `test_tool`: 테스트 요청을 받습니다.
+- **출력**:
+  - `Editor`: 테스트 결과를 전달합니다.
+- **흐름 설명**:
+  - `Editor`는 `test_tool`을 호출하여 코드를 테스트합니다.
+  - 테스트 결과는 `Editor`로 돌아오며, 이후 `SoftwareEngineer`로 전달됩니다.
+
+---
+
+### **8. `swe_tool` 노드**
+
+- **기능**: 소프트웨어 엔지니어링 도구로, 최종 작업 완료를 나타냅니다. 예: CI/CD 파이프라인, 배포 도구 등.
+- **입력**:
+  - `SoftwareEngineer` → `swe_tool`: `done` 이벤트를 통해 최종 완료를 알립니다.
+- **출력**:
+  - `end`: 워크플로우의 종료를 나타냅니다.
+- **흐름 설명**:
+  - `SoftwareEngineer`가 작업을 완료하면, `swe_tool`로 `done` 이벤트를 보냅니다.
+  - `swe_tool`은 최종 작업을 처리한 후, `end` 노드로 연결됩니다.
+
+---
+
+### **9. `end` 노드**
+
+- **기능**: 워크플로우의 종료점을 나타냅니다.
+- **입력**:
+  - `swe_tool` → `end`: 최종 완료를 알립니다.
+- **출력**:
+  - 없음 (종료 노드).
+- **흐름 설명**:
+  - `swe_tool`이 `done` 이벤

@@ -1,0 +1,17 @@
+```python
+def quick_sort(lst):  # 함수 정의: 입력된 리스트를 정렬해서 새 리스트를 반환합니다.
+    if len(lst) <= 1:  # 리스트가 0개 또는 1개라면 이미 정렬이 끝난 상태입니다.
+        return lst     # 그대로 반환합니다.
+    pivot = lst[-1]    # 마지막 요소를 피벗(pivot) 으로 선택합니다.
+    
+    # 피벗보다 작은 값들만 모은 리스트
+    less = [x for x in lst[:-1] if x < pivot]
+    
+    # 피벗보다 크거나 같은 값들만 모은 리스트
+    greater_or_equal = [x for x in lst[:-1] if x >= pivot]
+    
+    # 재귀적으로 정렬 후 피벗과 합쳐서 반환합니다.
+    return quick_sort(less) + [pivot] + quick_sort(greater_or_equal)
+```
+
+이 코드는 각 라인마다 주석이 달려 있어, 프로그램의 동작을 한 줄씩 쉽게 이해할 수 있습니다.

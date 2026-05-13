@@ -1,0 +1,17 @@
+```python
+def quicksort(arr):                               # 주어진 리스트를 정렬된 리스트로 반환하는 퀵소트 함수
+    if len(arr) <= 1:                             # 리스트가 0개 또는 1개 원소만 있으면 정렬이 필요 없음
+        return arr                                # 정렬이 끝난 리스트를 그대로 반환
+    pivot = arr[len(arr)//2]                      # 리스트 중간에 위치한 원소를 피벗으로 선택
+    less = [x for x in arr if x < pivot]          # 피벗보다 작은 원소들로 이루어진 하위 리스트
+    equal = [x for x in arr if x == pivot]        # 피벗과 같은 원소들로 이루어진 하위 리스트
+    greater = [x for x in arr if x > pivot]       # 피벗보다 큰 원소들로 이루어진 하위 리스트
+    return quicksort(less) + equal + quicksort(greater)   # 재귀 호출로 정렬 시키고 합쳐서 반환
+
+
+if __name__ == "__main__":                       # 스크립트가 메인 프로그램으로 실행될 때만 아래 코드를 실행
+    arr = [3, 6, 8, 10, 1, 2, 1]                 # 예시로 사용할 정렬 전 배열
+    print("정렬 전:", arr)                       # 정렬하기 전 배열 출력
+    sorted_arr = quicksort(arr)                  # 퀵소트 함수 호출
+    print("정렬 후:", sorted_arr)                # 정렬된 결과 출력
+```

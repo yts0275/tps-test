@@ -1,0 +1,114 @@
+물론입니다. 아래는 주어진 워크플로우 다이어그램의 모든 노드와 연결 관계를 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **1. 시작점: `start` 노드**
+- 워크플로우의 시작을 나타내는 원형 노드입니다.
+- 이 노드는 단순히 흐름의 시작을 알리는 역할을 하며, **`SoftwareEngineer`** 노드로 흐름을 전달합니다.
+- 연결: `start` → `SoftwareEngineer` (실선, 방향성 있음)
+
+---
+
+### **2. 핵심 역할: `SoftwareEngineer` 노드**
+- 이 노드는 워크플로우의 중심 역할을 담당하는 '소프트웨어 엔지니어'를 모델링한 것으로, 주요 작업을 조정하고 분배하는 역할을 합니다.
+- 이 노드는 여러 작업을 수행하거나, 다른 도구를 호출할 수 있으며, **반복적**이고 **조건부**로 동작합니다.
+- **다양한 경로로 연결됨**:
+  - `start` → `SoftwareEngineer` (입력)
+  - `SoftwareEngineer` → `CodeAnalyzer` (분석 요청)
+  - `SoftwareEngineer` → `Editor` (편집 요청)
+  - `SoftwareEngineer` → `swe_tool` (보조 도구 사용)
+  - `SoftwareEngineer` ← `CodeAnalyzer` (분석 완료 후 복귀)
+  - `SoftwareEngineer` ← `Editor` (편집 완료 후 복귀)
+  - `SoftwareEngineer` ← `swe_tool` (도구 사용 후 복귀)
+  - `SoftwareEngineer` → `end` (종료)
+
+- **반복적인 흐름**:
+  - `SoftwareEngineer` 노드는 **`continue`** 라벨이 붙은 화살표를 통해 자신으로 돌아가는 경로를 가지고 있습니다. 이는 작업이 완료된 후에도 계속해서 새로운 작업을 수행할 수 있음을 의미합니다.
+  - 예: `CodeAnalyzer`가 `done` 상태가 되면 `SoftwareEngineer`로 돌아오고, 다시 `edit_file` 요청을 할 수 있음.
+
+---
+
+### **3. 코드 분석: `CodeAnalyzer` 노드**
+- 코드 분석 작업을 수행하는 노드입니다.
+- `SoftwareEngineer`로부터 `analyze_code` 요청을 받고, `code_analysis_tool`을 사용하여 분석을 수행합니다.
+- 분석이 완료되면 `done` 상태로 `SoftwareEngineer`로 결과를 전달합니다.
+- **내부 흐름**:
+  - `SoftwareEngineer` → `CodeAnalyzer` (분석 요청)
+  - `CodeAnalyzer` → `code_analysis_tool` (도구 호출)
+  - `code_analysis_tool` → `CodeAnalyzer` (분석 결과 반환)
+  - `CodeAnalyzer` → `SoftwareEngineer` (분석 완료, `done` 라벨)
+- **반복 흐름**:
+  - `CodeAnalyzer` ← `SoftwareEngineer` (반복 요청)
+  - `CodeAnalyzer` → `continue` → `SoftwareEngineer` (반복 처리 가능)
+
+---
+
+### **4. 코드 편집: `Editor` 노드**
+- 코드 편집 작업을 수행하는 노드입니다.
+- `SoftwareEngineer`로부터 `edit_file` 요청을 받고, `code_edit_tool`과 `test_tool`을 사용하여 코드를 수정하고 테스트합니다.
+- 편집이 완료되면 `done` 상태로 `SoftwareEngineer`로 결과를 전달합니다.
+- **내부 흐름**:
+  - `SoftwareEngineer` → `Editor` (편집 요청)
+  - `Editor` → `code_edit_tool` (편집 도구 호출)
+  - `Editor` → `test_tool` (테스트 도구 호출)
+  - `code_edit_tool` → `Editor` (편집 결과 반환)
+  - `test_tool` → `Editor` (테스트 결과 반환)
+  - `Editor` → `SoftwareEngineer` (편집 완료, `done` 라벨)
+- **반복 흐름**:
+  - `Editor` ← `SoftwareEngineer` (반복 요청)
+  - `Editor` → `continue` → `SoftwareEngineer` (반복 처리 가능)
+
+---
+
+### **5. 보조 도구: `swe_tool` 노드**
+- `SoftwareEngineer`가 직접 호출하는 보조 도구 노드입니다.
+- 이 도구는 `SoftwareEngineer`의 요청을 받아 특정 작업을 수행하고, 결과를 `SoftwareEngineer`로 전달합니다.
+- **내부 흐름**:
+  - `SoftwareEngineer` → `swe_tool` (도구 호출)
+  - `swe_tool` → `SoftwareEngineer` (결과 전달)
+- **반복 흐름**:
+  - `swe_tool` ← `SoftwareEngineer` (반복 요청)
+  - `swe_tool` → `SoftwareEngineer` (반복 처리 가능)
+
+---
+
+### **6. 종료점: `end` 노드**
+- 워크플로우의 종료를 나타내는 원형 노드입니다.
+- `SoftwareEngineer` 노드에서 `end`로 흐름이 전달되며, 이는 작업의 완료를 의미합니다.
+- **연결**:
+  - `SoftwareEngineer` → `end` (실선, 방향성 있음)
+
+---
+
+### **7. 보조 도구 노드들**
+- **`code_analysis_tool`**: `CodeAnalyzer`가 호출하는 코드 분석 도구. 분석 결과를 `CodeAnalyzer`로 반환.
+- **`code_edit_tool`**: `Editor`가 호출하는 코드 편집 도구. 편집 결과를 `Editor`로 반환.
+- **`test_tool`**: `Editor`가 호출하는 테스트 도구. 테스트 결과를 `Editor`로 반환.
+
+---
+
+### **전체 흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **작업 요청**: `SoftwareEngineer`가 `CodeAnalyzer`, `Editor`, `swe_tool` 중 하나를 선택하여 작업 요청.
+3. **작업 수행**:
+   - `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 분석.
+   - `Editor`는 `code_edit_tool`과 `test_tool`을 호출하여 편집 및 테스트.
+   - `swe_tool`은 독립적으로 작업을 수행.
+4. **결과 반환**: 각 작업이 완료되면 `done` 상태로 `SoftwareEngineer`로 결과를 전달.
+5. **반복 또는 종료**:
+   - `SoftwareEngineer`는 `continue` 라벨이 있는 화살표를 통해 **반복**하여 새로운 작업을 요청.
+   - `SoftwareEngineer`는 `end`로 흐름을 전달하여 **종료**.
+6. **반복 가능성**: `SoftwareEngineer`는 여러 작업을 반복적으로 수행할 수 있으며, 각 작업이 완료될 때마다 `continue`로 돌아가서 다음 작업을 요청할 수 있음.
+
+---
+
+### **핵심 특징**
+- **중심 제어**: `SoftwareEngineer`가 모든 작업을 조정하고, 각 도구와의 상호작용을 관리.
+- **반복성**: `continue` 라벨이 있는 화살표로 인해 작업이 반복 가능하며, `SoftwareEngineer`가 지속적으로 작업을 수행할 수 있음.
+- **분산 처리**: 각 작업은 별도의 도구로 분리되어 처리되며, `SoftwareEngineer`가 통합적으로 조율.
+- **조건부 흐름**: `done`, `continue`, `analyze_code`, `edit_file` 등의 라벨로 작업의 상태와 다음 동작을 명시.
+
+---
+
+이 워크플로우는 **소프트웨어 개발 프로세스의 자동화된 흐름**을 모델링한 것으로 보이며, `SoftwareEngineer`가 인간 개발자 역할을 대체하는 AI 에이전트로 작동할 수 있음을 시사합니다.

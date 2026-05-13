@@ -1,0 +1,26 @@
+아래는 Python으로 구현한 in-place 퀵소트 예제입니다. 코드의 각 줄마다 한글 주석을 달아 동작을 설명했습니다.
+
+```python
+def quicksort(arr, low, high):  # arr: 정렬할 리스트, low: 시작 인덱스, high: 끝 인덱스
+    if low < high:  # 분할할 부분 배열에 2개 이상의 요소가 있으면 정렬을 진행
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗의 최종 위치를 받음
+        quicksort(arr, low, p-1)  # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, p+1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):  # 분할 함수: 피벗을 기준으로 작은 값과 큰 값을 나눔
+    pivot = arr[high]  # 편의상 마지막 요소를 피벗으로 선택
+    i = low - 1  # 작은 값들이 모일 인덱스 경계(초기에는 경계가 왼쪽 바깥)
+    for j in range(low, high):  # low부터 high-1까지 순회하면서 각 요소를 검사
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소와 경계 위치의 요소를 교환
+    arr[i+1], arr[high] = arr[high], arr[i+1]  # 피벗을 경계 바로 다음 위치로 옮겨 최종 위치 확보
+    return i+1  # 피벗의 최종 인덱스를 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시를 실행
+    lst = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 리스트를 정의
+    quicksort(lst, 0, len(lst) - 1)  # 리스트 전체 범위를 퀵소트로 정렬
+    print(lst)  # 정렬된 리스트를 출력
+```
+
+원하면 피벗 선택을 무작위로 바꾸거나(최악의 경우 회피), 비재귀(스택 사용) 버전, 안정 정렬을 원할 때의 대안(병합정렬) 등 다른 변형도 보여드리겠습니다. 어떤 언어로 보고 싶으신지 알려주시면 그 언어로도 작성해 드립니다.

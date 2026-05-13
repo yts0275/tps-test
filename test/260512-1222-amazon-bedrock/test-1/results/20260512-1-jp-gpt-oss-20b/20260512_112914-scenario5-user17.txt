@@ -1,0 +1,41 @@
+```python
+# 퀵소트(quick sort) 구현 함수  
+def quicksort(arr):  
+    # 정렬할 배열과 정렬 범위를 정의하는 내부 재귀 함수  
+    def _quicksort(arr, low, high):  
+        # 현재 범위에 적어도 두 원소가 있을 때만 재귀 수행  
+        if low < high:  
+            # 파티션 함수를 호출해 피벗의 최종 위치를 구함  
+            pivot_index = partition(arr, low, high)  
+            # 피벗의 왼쪽 구간(작은 값)을 정렬  
+            _quicksort(arr, low, pivot_index - 1)  
+            # 피벗의 오른쪽 구간(큰 값)을 정렬  
+            _quicksort(arr, pivot_index + 1, high)  
+
+    # 파티션 함수: 피벗을 기준으로 배열을 분리  
+    def partition(arr, low, high):  
+        # 현재 구간의 마지막 원소를 피벗으로 선택  
+        pivot = arr[high]  
+        # 작은 원소를 할당할 인덱스(초기값은 low-1)  
+        i = low - 1  
+        # low부터 high-1까지 원소를 순회하면서 피벗 이하인 경우 교환  
+        for j in range(low, high):  
+            if arr[j] <= pivot:  
+                i += 1  # 작은 값이 저장될 위치 증가  
+                arr[i], arr[j] = arr[j], arr[i]  # 인덱스 i와 j 사이 값 교환  
+        # 피벗을 적절한 위치에 놓음 (i+1)  
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]  
+        # 피벗이 정렬된 최종 인덱스를 반환  
+        return i + 1  
+
+    # 재귀를 시작할 때 전체 배열 범위를 전달  
+    _quicksort(arr, 0, len(arr) - 1)  
+    # 정렬된 배열을 반환  
+    return arr  
+
+# 예시 실행 (필요 시 주석 해제)  
+# if __name__ == "__main__":  
+#     sample = [3, 6, 8, 10, 1, 2, 1]  
+#     print("원본:", sample)  
+#     print("정렬:", quicksort(sample))  
+```

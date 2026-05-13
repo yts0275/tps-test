@@ -1,0 +1,75 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I need to write the partition function. The partition function selects a pivot, usually the last element in this case. Then, it moves all elements smaller than the pivot to the left and larger ones to the right. The pivot is placed at the correct position, and the function returns the index of the pivot.
+
+Next, the quicksort function itself. It should check if the array has more than one element. If not, return. Otherwise, call the partition function, then recursively sort the left and right subarrays.
+
+Now, adding comments to each line. For the partition function: explain the parameters, initialize low and high pointers, pivot selection, and the loop that moves elements. Then, place the pivot in the correct position.
+
+In the quicksort function, explain the base case, partitioning, and the recursive calls. Each step should have a comment indicating its purpose.
+
+Wait, should I use the last element as the pivot? That's common, but maybe mention that the user can choose a different pivot strategy. Also, make sure the indices are handled correctly to avoid out-of-bounds errors.
+
+Testing the code might be a good idea, but the user didn't ask for that. Just the implementation with comments. Let me structure the code with clear variable names and comments explaining each step.
+
+I think that's all. Now, write the code with line-by-line comments in Korean.
+</think>
+
+```python
+def quicksort(arr, low, high):
+    # 배열이 두 개 이상의 요소를 포함할 때만 실행
+    if low < high:
+        # 파티션을 분할하고, 피벗의 최종 위치를 반환
+        pi = partition(arr, low, high)
+        
+        # 피벗 왼쪽의 부분 배열을 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # 피벗 오른쪽의 부분 배열을 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피벗은 고정된 마지막 요소로 선택
+    pivot = arr[high]
+    
+    # i는 작은 요소들의 마지막 인덱스를 나타냄
+    i = low - 1
+    
+    # high보다 작은 요소를 왼쪽으로 이동
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 정확한 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 위치 반환
+    return i + 1
+
+# 예시 사용
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+quicksort(arr, 0, n - 1)
+print("정렬된 배열:")
+for i in range(n):
+    print(arr[i], end=" ")
+```
+
+### 주석 설명:
+1. **quicksort 함수**:
+   - `low`와 `high`는 배열의 시작과 끝 인덱스
+   - `low < high` 조건으로 종료 조건 설정
+   - `partition` 함수로 배열 분할 후 재귀 호출
+
+2. **partition 함수**:
+   - `pivot`은 마지막 요소로 고정
+   - `i`는 작은 값들의 끝 위치 추적
+   - `for` 루프로 배열 순회하며 피벗보다 작은 요소를 왼쪽으로 이동
+   - 피벗을 정확한 위치로 이동 후 인덱스 반환
+
+3. **예제 실행**:
+   - 배열 `[10, 7, 8, 9, 1, 5]` 정렬
+   - 정렬된 배열 출력: `1 5 7 8 9 10`

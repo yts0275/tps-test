@@ -1,0 +1,128 @@
+물론입니다. 아래는 제공된 워크플로우(Workflow) 그림에 대한 최대한 상세한 설명입니다. 이 워크플로우는 소프트웨어 엔지니어의 작업 흐름을 시각화한 것으로, 여러 도구와 작업 단계가 상호작용하며 진행됩니다.
+
+---
+
+### **1. 전체적인 흐름 개요**
+
+이 워크플로우는 **"SoftwareEngineer"** 라는 주체(또는 에이전트)가 중심이 되어, 코드 분석, 편집, 테스트 등의 작업을 수행하는 프로세스를 나타냅니다. 시작은 `start` 노드에서 시작하여, `SoftwareEngineer` 노드로 진입한 후, 다양한 도구와 상호작용하며 작업을 반복하거나 완료합니다. 최종적으로 `end` 노드로 종료됩니다.
+
+---
+
+### **2. 노드별 상세 설명 및 흐름 분석**
+
+#### **2.1. `start` 노드**
+- **역할**: 워크플로우의 시작점.
+- **흐름**: 단일한 화살표로 `SoftwareEngineer` 노드로 연결됩니다.
+- **설명**: 이는 전체 작업의 시작을 의미하며, `SoftwareEngineer` 에이전트가 활성화되고, 작업을 시작할 준비가 되었음을 나타냅니다.
+
+---
+
+#### **2.2. `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 중심 에이전트. 실제 작업을 수행하는 주체입니다.
+- **상태**: 이 노드는 여러 도구와 상호작용하며, 각 작업의 결과에 따라 다음 단계를 결정합니다.
+- **연결 관계**:
+  - **`start` → `SoftwareEngineer`**: 시작 시점에서 이 노드로 진입.
+  - **`SoftwareEngineer` → `CodeAnalyzer`**: `analyze_code` 이벤트를 통해 코드 분석을 요청.
+  - **`SoftwareEngineer` → `Editor`**: `edit_file` 이벤트를 통해 파일 편집을 요청.
+  - **`SoftwareEngineer` → `swe_tool`**: `swe_tool`으로 이동하여 특정 도구를 사용 (예: 소프트웨어 공학 도구).
+  - **`CodeAnalyzer` → `SoftwareEngineer`**: `done` 이벤트로 코드 분석이 완료되었음을 알림.
+  - **`Editor` → `SoftwareEngineer`**: `done` 이벤트로 편집 작업이 완료되었음을 알림.
+  - **`SoftwareEngineer` → `SoftwareEngineer` (자기 참조)**: `continue` 이벤트로 현재 상태를 유지하거나 다음 작업으로 이어짐.
+  - **`SoftwareEngineer` → `end`**: 워크플로우의 종료를 의미.
+
+---
+
+#### **2.3. `CodeAnalyzer` 노드**
+- **역할**: 코드 분석을 수행하는 도구 또는 서비스.
+- **상태**: 코드를 분석하고 결과를 `SoftwareEngineer` 에게 전달.
+- **연결 관계**:
+  - **`SoftwareEngineer` → `CodeAnalyzer`**: `analyze_code` 이벤트로 분석 요청.
+  - **`code_analysis_tool` → `CodeAnalyzer`**: `code_analysis_tool`은 `CodeAnalyzer`에 입력을 제공하는 도구로, 실제 분석을 수행.
+  - **`CodeAnalyzer` → `SoftwareEngineer`**: `done` 이벤트로 분석 완료를 알림.
+  - **`CodeAnalyzer` → `CodeAnalyzer` (자기 참조)**: `continue` 이벤트로, 분석 후 추가 작업이 필요할 수 있음을 의미.
+
+---
+
+#### **2.4. `Editor` 노드**
+- **역할**: 파일을 편집하는 도구 또는 서비스.
+- **상태**: 파일 수정을 수행하고 결과를 `SoftwareEngineer` 에게 전달.
+- **연결 관계**:
+  - **`SoftwareEngineer` → `Editor`**: `edit_file` 이벤트로 편집 요청.
+  - **`code_edit_tool` → `Editor`**: `code_edit_tool`은 `Editor`에 입력을 제공하는 도구.
+  - **`test_tool` → `Editor`**: `test_tool`은 테스트 도구로, 편집 후 테스트를 수행할 수 있음을 나타냄.
+  - **`Editor` → `SoftwareEngineer`**: `done` 이벤트로 편집 완료를 알림.
+  - **`Editor` → `Editor` (자기 참조)**: `continue` 이벤트로, 편집 후 추가 작업이 필요할 수 있음을 의미.
+
+---
+
+#### **2.5. `code_analysis_tool` 노드**
+- **역할**: 코드 분석을 위한 도구.
+- **상태**: `CodeAnalyzer`의 입력으로 사용되며, 실제 분석 로직을 수행.
+- **연결 관계**:
+  - **`code_analysis_tool` → `CodeAnalyzer`**: 분석 결과를 `CodeAnalyzer`에 전달.
+  - **연결 방향**: `code_analysis_tool` → `CodeAnalyzer` (단방향).
+
+---
+
+#### **2.6. `code_edit_tool` 노드**
+- **역할**: 코드 편집을 위한 도구.
+- **상태**: `Editor`의 입력으로 사용되며, 실제 편집 작업을 수행.
+- **연결 관계**:
+  - **`code_edit_tool` → `Editor`**: 편집 결과를 `Editor`에 전달.
+  - **연결 방향**: `code_edit_tool` → `Editor` (단방향).
+
+---
+
+#### **2.7. `test_tool` 노드**
+- **역할**: 테스트를 수행하는 도구.
+- **상태**: `Editor`의 입력으로 사용되며, 편집된 코드에 대한 테스트를 수행.
+- **연결 관계**:
+  - **`test_tool` → `Editor`**: 테스트 결과를 `Editor`에 전달.
+  - **연결 방향**: `test_tool` → `Editor` (단방향).
+
+---
+
+#### **2.8. `swe_tool` 노드**
+- **역할**: 소프트웨어 공학 관련 도구 또는 서비스.
+- **상태**: `SoftwareEngineer`가 특정 작업을 위해 이 도구를 사용.
+- **연결 관계**:
+  - **`SoftwareEngineer` → `swe_tool`**: `swe_tool`으로 이동.
+  - **`swe_tool` → `end`**: `swe_tool`에서 작업이 완료되면, 워크플로우가 종료될 수 있음을 의미.
+
+---
+
+#### **2.9. `end` 노드**
+- **역할**: 워크플로우의 종료점.
+- **상태**: 작업이 완료되었음을 나타냄.
+- **연결 관계**:
+  - **`swe_tool` → `end`**: `swe_tool`에서 작업이 완료되면 종료.
+  - **`SoftwareEngineer` → `end`**: `SoftwareEngineer`가 직접 종료를 결정할 수 있음.
+
+---
+
+### **3. 흐름의 반복성 및 조건 분석**
+
+- **`continue` 연결**:
+  - `SoftwareEngineer` → `SoftwareEngineer` (자기 참조)
+  - `CodeAnalyzer` → `CodeAnalyzer` (자기 참조)
+  - `Editor` → `Editor` (자기 참조)
+  - 이는 각 작업이 **완료되지 않았거나, 추가 작업이 필요**할 수 있음을 의미합니다. 예를 들어, 코드 분석 후 수정이 필요하면 `continue`로 돌아가 `Editor`를 통해 편집을 수행할 수 있습니다.
+
+- **`done` 연결**:
+  - `CodeAnalyzer` → `SoftwareEngineer` (`done`)
+  - `Editor` → `SoftwareEngineer` (`done`)
+  - 이는 작업이 **완료되었으며, 결과가 `SoftwareEngineer`에게 전달**되었음을 의미합니다.
+
+- **`analyze_code` 및 `edit_file` 이벤트**:
+  - `SoftwareEngineer`가 `CodeAnalyzer`와 `Editor`에 작업을 요청할 때 사용되는 **이벤트**입니다.
+  - 이는 명시적인 요청을 의미하며, 작업이 시작된다는 신호입니다.
+
+---
+
+### **4. 워크플로우의 전체적인 흐름 예시**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **코드 분석 요청**: `SoftwareEngineer` → `CodeAnalyzer` (이벤트: `analyze_code`)
+3. **분석 수행**: `code_analysis_tool` → `CodeAnalyzer`
+4. **분석 완료**: `CodeAnalyzer` → `SoftwareEngineer` (이벤트: `done`)
+5. **편집 요청**: `SoftwareEngineer` → `Editor` (이벤트: `

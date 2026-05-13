@@ -1,0 +1,45 @@
+```python
+def quicksort(arr, low, high):
+    # 재귀적으로 퀵소트를 호출하는 함수
+    # arr: 정렬할 배열, low: 시작 인덱스, high: 끝 인덱스
+    
+    if low < high:
+        # 파티션 함수를 호출하여 피벗의 올바른 위치를 얻음
+        pivot_index = partition(arr, low, high)
+        
+        # 피벗 왼쪽 부분에 대해 재귀적으로 퀵소트 호출
+        quicksort(arr, low, pivot_index - 1)
+        
+        # 피벗 오른쪽 부분에 대해 재귀적으로 퀵소트 호출
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    # 배열을 피벗을 기준으로 두 부분으로 분할하는 함수
+    # 피벗은 마지막 요소로 설정
+    pivot = arr[high]
+    
+    # i는 작은 요소들의 인덱스를 추적
+    i = low - 1
+    
+    # arr[low]부터 arr[high-1]까지의 요소들을 순회
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i를 증가시키고, 현재 요소와 i 위치의 요소를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동 (피벗보다 작은 요소들과 큰 요소들 사이에)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗이 위치한 인덱스 반환
+    return i + 1
+
+# 예제 사용법
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+
+print("정렬 전:", arr)
+quicksort(arr, 0, n - 1)
+print("정렬 후:", arr)
+```

@@ -1,0 +1,26 @@
+주어진 워크플로우는 SoftwareEngineer를 중심으로 여러 도구들과 상호작용하며 흐름이 전개되는 구조입니다. 각 노드와 연결들의 의미를 최대한 상세히 풀이하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   워크플로우는 `start` 노드에서 시작하여 `SoftwareEngineer`로 진입합니다. 이는 전체 프로세스의 중심에 개발자가 있으며, 이후 모든 작업이 개발자를 출발점으로 하여 이어짐을 의미합니다.
+
+2. **SoftwareEngineer ↔ CodeAnalyzer**  
+   - `SoftwareEngineer`는 `analyze_code`라는 조건이나 행위를 통해 `CodeAnalyzer`로 이동할 수 있습니다. 이는 개발자가 코드를 분석하기 위해 CodeAnalyzer 역할을 수행하는 도구나 단계로 전환함을 나타냅니다.
+   - `CodeAnalyzer`는 `code_analysis_tool`이라는 구체적인 도구(서브노드)를 통해 실제 분석을 수행하며, 분석이 완료된 이후 `done` 플로우로 `SoftwareEngineer`에게 다시 되돌아옵니다. 다시 돌아온 Developer는 다음 단계로 넘어갈 계획을 세울 수 있습니다.
+   - 또한 `CodeAnalyzer`는 `continue` 조건을 통해 `Editor`로 추가 진입이 가능합니다. 이는 분석 결과를 바탕으로 직접 수정 작업을 계속하기 위한 흐름입니다.
+
+3. **SoftwareEngineer ↔ Editor**  
+   - `SoftwareEngineer`는 `edit_file` 행위를 통해 `Editor` 노드로 이동합니다. 이는 코드 편집을 위해 편집기 단계로 넘어가는 것을 의미합니다.
+   - `Editor`는 `code_edit_tool`이라는 도구를 통해 실제 수정을 수행하며, 수정을 마친 뒤 `done` 플로우로 다시 `SoftwareEngineer`에게 돌아옵니다. 그러면 개발자는 수정 결과를 검토하거나 다음 작업으로 이동할 수 있습니다.
+   - `Editor` 또한 `continue` 조건으로 `test_tool`을 호출할 수 있고, 테스트 도구를 통해 수정된 코드의 검증을 계속할 수 있습니다.
+   - `Editor`에서 다시 `continue` 흐름이 `CodeAnalyzer`로 향하게 되어, 편집 이후 재분석을 하거나, 분석과 편집을 반복적으로 순환하는 패턴도 존재합니다.
+
+4. **SoftwareEngineer ↔ swe_tool → end**  
+   - `SoftwareEngineer`는 `continue` 조건을 통해 `swe_tool`이라는 또 다른 도구 단계로 진입합니다. (이 도구가 구체적으로 무엇인지는 도식상으로만 제시되어 있지만, 테스트나 배포 등 추가 활동을 나타내는 것으로 보입니다.)
+   - `swe_tool`에서 다시 `continue` 흐름을 통해 최종 `end`에 도달합니다. 따라서, 개발자가 여러 작업(분석, 편집, 테스트 등)을 거쳐 `swe_tool` 단계에서 추가적인 연산을 수행한 후 워크플로우를 종료하는 구조입니다.
+
+5. **종합적인 반복 흐름**  
+   - 전체적으로 보면 `SoftwareEngineer`는 `CodeAnalyzer`와 `Editor` 사이를 `done` 또는 `continue` 조건에 따라 여러 차례 오가며, 필요에 따라 코드 분석→편집→검증 순환을 수행합니다.
+   - 각 도구 노드는 특정 서브 도구(`code_analysis_tool`, `code_edit_tool`, `test_tool`)와 연결되어 있어 해당 활동의 실제 실행을 나타내며, 완료 시점에 다시 중심으로 돌아오는 방식입니다.
+   - 최종적으로 `SoftwareEngineer`는 `swe_tool`을 경유하여 `end`에 도달함으로써 워크플로우를 종료합니다.
+
+이러한 흐름으로 워크플로우는 개발자 중심의 반복 작업 구조를 명확히 보여주며, 코드를 분석하고 수정하고 검증하면서 최종 도구를 통해 종료하는 전형적인 소프트웨어 개발 주기를 표현하고 있습니다.

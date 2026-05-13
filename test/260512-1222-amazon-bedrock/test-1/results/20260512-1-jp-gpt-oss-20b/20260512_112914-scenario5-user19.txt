@@ -1,0 +1,26 @@
+```python
+# quicksort를 재귀적으로 구현한 함수
+def quicksort(arr: list) -> list:
+    # 입력 리스트가 1개 이하이면 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗을 리스트의 마지막 원소로 지정
+    pivot = arr[-1]
+
+    # 피벗보다 작거나 같은 값들을 left 리스트에, 그보다 큰 값들을 right 리스트에 저장
+    left = [x for x in arr[:-1] if x <= pivot]
+    right = [x for x in arr[:-1] if x > pivot]
+
+    # 왼쪽 하위 리스트와 오른쪽 하위 리스트를 정렬한 뒤 피벗을 가운데로 붙여 반환
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 프로그램 실행 시 예시를 보여주는 블록
+if __name__ == "__main__":
+    # 정렬 전 데이터 예시
+    sample = [3, 6, 8, 10, 1, 2, 1]
+    # quicksort를 호출해 정렬 수행
+    sorted_list = quicksort(sample)
+    # 정렬된 결과를 출력
+    print(sorted_list)
+```

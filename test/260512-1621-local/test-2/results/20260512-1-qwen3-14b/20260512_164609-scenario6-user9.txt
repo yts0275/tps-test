@@ -1,0 +1,11 @@
+<think>
+Okay, let's see. I need to analyze this Python code in three lines. First, I'll read through the code to understand what it does.
+
+The code starts by importing the datetime module. Then there are three classes: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, and stock. It has methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages a collection of products and can display inventory. The run_system function initializes products, processes orders, checks inventory, and generates reports.
+
+So the main purpose is managing inventory and orders for a product system. It tracks products, allows placing orders with stock checks, and generates invoices and reports. The code includes scenarios for successful orders and stock shortages. The final report shows the total asset value of the inventory.
+</think>
+
+이 코드는 제품 재고 관리 및 주문 처리 시스템을 구현한 것입니다.  
+- `Product` 클래스는 제품 정보와 재고 관리를, `Order` 클래스는 주문 생성 및 영수증 출력을 담당합니다.  
+- `InventoryManager`는 재고 목록을 관리하고 주문 시 재고 감소 여부를 확인하며, 최종 자산 가치를 계산하는 기능을 제공합니다.

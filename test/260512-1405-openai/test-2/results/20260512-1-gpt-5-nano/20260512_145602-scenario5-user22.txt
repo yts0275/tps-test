@@ -1,0 +1,33 @@
+다음은 파이썬으로 작성한 인플레이(quicksort in-place) 구현이며, 각 줄마다 주석을 달았습니다.
+
+```python
+def quicksort(arr):
+    # 엔트리 포인트: 주어진 배열을 제자리에서 정렬한다
+    def _quicksort(a, low, high):
+        # 재귀적으로 부분배열을 정렬하는 내부 함수
+        if low < high:
+            # 파티션을 수행하고 피벗 인덱스를 얻는다
+            p = partition(a, low, high)
+            # 피벗 왼쪽 부분 재귀적으로 정렬
+            _quicksort(a, low, p - 1)
+            # 피벗 오른쪽 부분 재귀적으로 정렬
+            _quicksort(a, p + 1, high)
+    def partition(a, low, high):
+        # 마지막 원소를 피벗으로 선택한다
+        pivot = a[high]
+        # 피벗보다 작아야 하는 구간의 끝 인덱스
+        i = low - 1
+        # low부터 high-1까지 순회하며 피벗보다 작으면 앞쪽으로 교환
+        for j in range(low, high):
+            if a[j] <= pivot:
+                i += 1
+                a[i], a[j] = a[j], a[i]
+        # 피벗을 최종 위치로 이동시키며 배치한다
+        a[i + 1], a[high] = a[high], a[i + 1]
+        # 피벗의 위치를 반환한다
+        return i + 1
+    # 전체 배열에 대해 퀵소트를 실행한다
+    _quicksort(arr, 0, len(arr) - 1)
+    # 정렬된 배열을 반환한다
+    return arr
+```

@@ -1,0 +1,32 @@
+이 Workflow는 소프트웨어 엔지니어가 여러 도구를 활용해 작업을 수행하는 일련의 흐름을 나타냅니다. 각 노드의 흐름을 시작부터 끝까지 순차적으로 상세히 설명하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**  
+   모든 흐름은 시작 노드(start)에서 출발하여 SoftwareEngineer 노드를 향합니다. 이 지점에서 실제 작업을 수행할 담당자가 도입됩니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (analyze_code)**  
+   SoftwareEngineer는 “analyze_code”라는 레이블이 붙은 흐름을 따라 CodeAnalyzer 노드로 이동합니다. 이 단계는 엔지니어가 코드 분석을 실행해야 하는 상황을 나타냅니다. CodeAnalyzer 노드는 두 방향성이 존재합니다:
+   - **CodeAnalyzer → code_analysis_tool**  
+     CodeAnalyzer는 내부적으로 code_analysis_tool이라는 실제 분석 도구를 활용합니다. 이는 도구가 코드를 구체적으로 분석하는 절차를 상징하며, 이 흐름은 하위 기능을 실행하는 세부 단계입니다.
+   - **CodeAnalyzer → SoftwareEngineer (done)**  
+     분석 작업이 완료된 후 “done”이라는 흐름으로 다시 SoftwareEngineer 노드로 돌아옵니다. 이때 엔지니어는 분석 결과를 검토하고 다음 단계로 이동할 준비를 합니다.
+   - **CodeAnalyzer → Editor (continue)**  
+     때로는 분석 결과를 바탕으로 바로 에디터로 연결되기도 합니다. “continue” 흐름을 통해 CodeAnalyzer에서 편집 단계인 Editor로 넘어가며, 수정이 필요한 코드를 즉시 편집할 수 있게 됩니다.
+
+3. **SoftwareEngineer → Editor (edit_file)**  
+   SoftwareEngineer가 “edit_file”이라는 흐름을 따라 Editor 노드로 이동하면 소스 코드 편집 단계로 들어갑니다. Editor 노드는 두 가지 도구와 연관됩니다:
+   - **Editor → code_edit_tool**  
+     코드 수정을 수행하기 위해 code_edit_tool을 사용합니다. 이는 실제 텍스트 편집 도구가 작동하여 코드를 수정하는 과정을 차례대로 나타냅니다.
+   - **Editor → test_tool**  
+     수정된 코드가 테스트될 수 있도록 test_tool을 활용합니다. 이는 수정 이후 검증을 의미합니다.
+   - **Editor → SoftwareEngineer (done)**  
+     편집 및 테스트 작업이 완료된 후 “done” 흐름을 통해 사용자(SoftwareEngineer)로 되돌아옵니다.
+   - **Editor → SoftwareEngineer (continue)**  
+     특정 상황에서는 다음 작업이나 반복을 위해 바로 SoftwareEngineer로 복귀하는 “continue” 흐름이 형성됩니다. 이는 반복적 편집/테스트 사이클을 말합니다.
+
+4. **SoftwareEngineer → swe_tool (continue)**  
+   SoftwareEngineer 노드는 CodeAnalyzer나 Editor에서의 결과 외에도 소프트웨어 엔지니어링 도구(swe_tool)로 직접 연결되는 “continue” 흐름을 가지고 있습니다. 이 흐름은 단순히 하나의 도구 상태를 이어받을 수도 있으며, swe_tool은 엔지니어링 업무의 다른 보조적 또는 통합적 기능을 수행하는 컴포넌트로 볼 수 있습니다. swe_tool 노드는 추가적으로 다른 노드로 이어지진 않지만 SoftwareEngineer로 되돌아오는 흐름이 존재하진 않은 것으로 보입니다.
+
+5. **SoftwareEngineer → end (continue)**  
+   모든 작업이 완료되면 SoftwareEngineer는 “continue” 흐름을 따라 최종 노드인 end로 이동합니다. 이 노드는 전체 워크플로우의 끝을 의미하며, 더 이상의 작업 흐름이 없음을 나타냅니다.
+
+요약하면, 이 워크플로우의 핵심은 SoftwareEngineer가 CodeAnalyzer와 Editor를 오가며 분석, 편집, 테스트를 반복하고, 때로는 swe_tool과 같은 보조 도구를 활용한 다음, 최종적으로 종료 지점(end)에 도달하는 구조입니다. CodeAnalyzer와 Editor는 각각 특정 보조 도구(code_analysis_tool, code_edit_tool, test_tool)를 내부적으로 사용하며, 모든 작업은 SoftwareEngineer를 중심으로 “done” 또는 “continue” 흐름을 따라 순환한 후 종료됩니다.

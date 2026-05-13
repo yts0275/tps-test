@@ -1,0 +1,66 @@
+이미지의 Workflow를 노드별로 단계·조건·반환 경로까지 상세하게 분석해 설명하겠습니다.
+
+주요 노드 목록
+- start: 워크플로우 시작점.
+- SoftwareEngineer: 중심(주체) 노드. 여러 행동(분석, 편집, 툴 실행, 종료)을 선택함.
+- CodeAnalyzer: 코드 분석 작업을 수행하는 서브노드.
+- Editor: 코드 편집 및 테스트 작업을 수행하는 서브노드.
+- swe_tool: Software Engineer가 직접 호출할 수 있는 별도 도구 노드(예: 배포/빌드/관리 도구).
+- end: 워크플로우 종료점.
+- code_analysis_tool: CodeAnalyzer가 내부적으로 호출하는 실제 분석 툴(하위 서비스).
+- code_edit_tool: Editor가 내부적으로 호출하는 코드 편집 툴(하위 서비스).
+- test_tool: Editor가 내부적으로 호출하는 테스트 툴(하위 서비스).
+
+엣지(흐름)와 레이블의 의미
+- start → SoftwareEngineer: 워크플로우가 시작되어 SoftwareEngineer가 제어를 받음.
+- SoftwareEngineer → CodeAnalyzer (레이블: "analyze_code"): 엔지니어가 코드 분석을 수행하기 위해 CodeAnalyzer를 호출.
+- SoftwareEngineer → Editor (레이블: "edit_file"): 엔지니어가 파일/코드를 편집하기 위해 Editor를 호출.
+- SoftwareEngineer → swe_tool (레이블: "continue"): 엔지니어가 추가 작업(예: 도구 실행, 리뷰 완료 등)으로 swe_tool을 호출하는 경로.
+- SoftwareEngineer → end (레이블: "continue"): 엔지니어가 즉시 워크플로우를 종료하는 경로.
+- CodeAnalyzer → code_analysis_tool: CodeAnalyzer가 실제 분석 수행을 위해 코드 분석 툴을 호출(하위 작업).
+- Editor → code_edit_tool: Editor가 코드 편집용 툴을 호출.
+- Editor → test_tool: Editor가 테스트용 툴을 호출(편집 후 자동/수동 테스트).
+- CodeAnalyzer → SoftwareEngineer (레이블: "done"): 분석 작업이 완료되어 결과를 가지고 SoftwareEngineer에게 반환(또는 제어권 반환).
+- Editor → SoftwareEngineer (레이블: "done"): 편집/테스트 작업이 완료되어 제어권을 SoftwareEngineer에 반환.
+- CodeAnalyzer ↔ Editor (레이블: "continue", 점선 화살표로 상호 연결): 분석과 편집 사이에 반복적/순환적 전환이 가능. 예: 분석 결과 문제 발견 → Editor로 편집하러 이동, 편집 후 다시 분석이 필요하면 Editor가 CodeAnalyzer로 흐름을 보내는 형태.
+- Editor → swe_tool 및 CodeAnalyzer → Editor 등으로 이어지는 "continue" 경로들: 각 서브노드에서 다음 단계로 계속 진행할 수 있는 선택지(후속 작업이나 파이프라인 계속).
+
+동작 시나리오(구체적 흐름 예시)
+1) 기본 순환(분석 → 편집 → 분석 → 완료)
+   - start → SoftwareEngineer
+   - SoftwareEngineer 선택: analyze_code → CodeAnalyzer
+   - CodeAnalyzer 호출: code_analysis_tool 실행
+   - 분석 결과: 문제가 있으면 "continue" → Editor
+   - Editor 호출: code_edit_tool로 편집, test_tool로 테스트
+   - 편집/테스트 후: Editor가 "continue" 또는 "done"을 선택
+     - 다시 분석이 필요하면 Editor → CodeAnalyzer (continue) (루프 반복)
+     - 변경이 충분하면 Editor → SoftwareEngineer (done)으로 돌아옴
+
+2) 단순 분석 후 종료
+   - start → SoftwareEngineer → CodeAnalyzer → code_analysis_tool 실행
+   - 분석이 끝나면 CodeAnalyzer → SoftwareEngineer (done)
+   - SoftwareEngineer가 더 이상 작업하지 않으면 SoftwareEngineer → end (continue)
+
+3) 편집 직행 후 툴 실행 및 종료
+   - start → SoftwareEngineer → Editor → code_edit_tool & test_tool 실행
+   - Editor → SoftwareEngineer (done)
+   - SoftwareEngineer → swe_tool (continue)로 추가 도구 실행
+   - swe_tool 완료 후 → end
+
+4) 툴 직접 실행 후 종료
+   - start → SoftwareEngineer → swe_tool (continue)
+   - swe_tool → end
+
+조건/의미 정리
+- "analyze_code", "edit_file"는 SoftwareEngineer가 특정 액션을 선택했을 때 호출되는 명령(이동)이다.
+- "done" 레이블은 서브작업(분석/편집)이 완료되어 제어권을 호출자(SoftwareEngineer)로 반환함을 의미.
+- "continue" 레이블은 현재 노드에서 다음 단계(다른 서브노드 또는 종료)로 즉시 이어지는 선택지를 나타냄. 특히 CodeAnalyzer와 Editor 사이의 "continue"는 반복적 상호작용(수정→재분석)을 가능하게 한다.
+- 점선/대쉬 화살표는 동기/비동기, 또는 서브프로세스 호출의 의미(설계도에 따라 다름)를 암시하지만, 핵심은 노드 간 이동과 반환/연속 흐름이다.
+
+정리(요약)
+- 워크플로우는 SoftwareEngineer를 중심으로 분석(CodeAnalyzer)과 편집(Editor)이 반복적으로 오가며(continue 레이블) 문제를 해결하는 루프를 허용한다.
+- 각 서브노드는 내부적으로 전용 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출해 실제 작업을 수행하고, 완료 시 "done"으로 SE에게 제어를 반환한다.
+- SE는 언제든지 swe_tool을 호출하거나 직접 종료(end)할 수 있어 작업을 마무리할 수 있다.
+- 따라서 가능한 경로는 단순 종료, 분석만 수행 후 종료, 편집-테스트-재분석을 반복한 뒤 종료, 또는 툴 실행을 거쳐 종료하는 등 여러 분기와 루프를 포함한다.
+
+필요하시면 이 흐름을 상태 다이어그램 형식(상태 전이표)이나 특정 예제(예: 버그 수정 워크플로우의 세부 타임라인)로 풀어 더 구체적으로 기술해 드리겠습니다.

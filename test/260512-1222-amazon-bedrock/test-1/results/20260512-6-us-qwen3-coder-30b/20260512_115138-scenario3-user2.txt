@@ -1,0 +1,60 @@
+물론입니다! 아래는 **퀵정렬(Quick Sort)**의 파이썬 구현 코드이며, 각 줄에 해당하는 **주석**을 달아 두었습니다.
+
+```python
+# 퀵정렬 함수 정의: 배열과 시작 인덱스, 끝 인덱스를 입력받음
+def quicksort(arr, low, high):
+    # 재귀적으로 호출되며, 시작 인덱스가 끝 인덱스보다 작을 경우만 실행
+    if low < high:
+        # 피벗을 기준으로 배열을 분할하고, 피벗의 올바른 위치를 반환받음
+        pi = partition(arr, low, high)
+
+        # 피벗의 왼쪽 부분 배열에 대해 재귀적으로 퀵정렬 호출
+        quicksort(arr, low, pi - 1)
+
+        # 피벗의 오른쪽 부분 배열에 대해 재귀적으로 퀵정렬 호출
+        quicksort(arr, pi + 1, high)
+
+# 분할 함수 정의: 피벗을 기준으로 배열을 나누는 역할 수행
+def partition(arr, low, high):
+    # 가장 오른쪽 요소를 피벗으로 설정
+    pivot = arr[high]
+
+    # i는 작은 요소들을 추적하는 인덱스 (초기값은 low - 1)
+    i = low - 1
+
+    # low부터 high-1까지 반복하며 요소 비교
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작거나 같으면
+        if arr[j] <= pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 교환
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # 피벗을 올바른 위치로 이동시킴 (피벗보다 작은 값들은 왼쪽, 큰 값들은 오른쪽에 배치)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+
+    # 피벗이 있는 위치(인덱스) 반환
+    return i + 1
+
+# 예제 사용법
+if __name__ == "__main__":
+    # 정렬할 배열 생성
+    arr = [10, 7, 8, 9, 1, 5]
+    n = len(arr)
+
+    # 퀵정렬 함수 호출
+    quicksort(arr, 0, n - 1)
+
+    # 정렬된 배열 출력
+    print("정렬된 배열:", arr)
+```
+
+### ✅ 코드 설명 요약:
+
+- `quicksort`: 재귀적으로 배열을 분할하여 정렬함
+- `partition`: 피벗을 기준으로 배열을 분할하고 피벗의 위치를 반환함
+- 피벗 선택: 일반적으로 마지막 요소 사용
+- 시간 복잡도: 평균 O(n log n), 최악 O(n²)
+- 공간 복잡도: O(log n) (재귀 스택 공간)
+
+필요하다면 실행 예시나 시각화도 도와드릴 수 있어요! 😊

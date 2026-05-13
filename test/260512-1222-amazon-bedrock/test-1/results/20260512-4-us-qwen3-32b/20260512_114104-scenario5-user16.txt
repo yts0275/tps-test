@@ -1,0 +1,55 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort)를 구현한 코드이며, 각 줄에 친절한 주석을 달아 설명을 드겠습니다.
+
+```python
+def quick_sort(arr):
+    """
+    퀵소트(Quick Sort) 알고리즘을 구현한 함수
+    :param arr: 정렬할 리스트
+    :return: 정렬된 리스트
+    """
+    
+    # 입력 리스트가 비어있거나 하나의 요소만 있을 경우 (더 이상 정렬할 필요 없음)
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 리스트의 첫 번째 요소로 선택
+    pivot = arr[0]
+    
+    # 피벗보다 작거나 같은 요소들을 포함하는 왼쪽 리스트
+    left = [x for x in arr[1:] if x <= pivot]
+    
+    # 피벗보다 큰 요소들을 포함하는 오른쪽 리스트
+    right = [x for x in arr[1:] if x > pivot]
+    
+    # 재귀적으로 왼쪽과 오른쪽을 정렬하고, 피벗을 중간에 배치하여 전체 리스트 반환
+    return quick_sort(left) + [pivot] + quick_sort(right)
+```
+
+### 예시:
+
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quick_sort(arr)
+print("정렬된 리스트:", sorted_arr)
+```
+
+### 주석 설명 요약:
+
+1. **`if len(arr) <= 1:`**  
+   - 리스트에 요소가 1개 이하일 때는 이미 정렬되어 있다고 간주하고, 그대로 반환
+
+2. **`pivot = arr[0]`**  
+   - 퀵소트에서 기준이 되는 값을 피벗으로 선택 (여기서는 첫 번째 요소 사용)
+
+3. **`left = [x for x in arr[1:] if x <= pivot]`**  
+   - 피벗보다 작거나 같은 요소들을 왼쪽 부분 리스트로 분할
+
+4. **`right = [x for x in arr[1:] if x > pivot]`**  
+   - 피벗보다 큰 요소들을 오른쪽 부분 리스트로 분할
+
+5. **`return quick_sort(left) + [pivot] + quick_sort(right)`**  
+   - 왼쪽과 오른쪽을 퀵소트 재귀적으로 정렬하고, 피벗을 사이에 더한 리스트를 반환
+
+---
+
+필요하시면 퀵소트의 동작을 시각적으로 설명드릴 수도 있고, 리스트에 중복이 많은 경우에 최적화된 버전도 만들어 드릴 수 있습니다. 😊

@@ -1,0 +1,23 @@
+def quicksort(arr):  # QuickSort: in-place wrapper for an array
+    if len(arr) <= 1:  # Trivial case: 이미 정렬되어 있을 때
+        return  # 종료
+    def partition(a, low, high):  # 부분배열을 분할하고 피벗 인덱스 반환
+        pivot = a[high]  # 피벗을 마지막 원소로 선택
+        i = low - 1  # 작은 요소 경계 인덱스 초기화
+        for j in range(low, high):  # 부분배열 순회
+            if a[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+                i += 1  # 작은 요소 영역 확장
+                a[i], a[j] = a[j], a[i]  # 원소 교환으로 배치
+        a[i + 1], a[high] = a[high], a[i + 1]  # 피벗을 정렬된 위치에 배치
+        return i + 1  # 피벗 인덱스 반환
+    def _quicksort(a, low, high):  # 재귀적으로 퀵소트 수행
+        if low < high:  # 정렬할 부분이 존재하면
+            p = partition(a, low, high)  # 분할 후 피벗 위치 얻기
+            _quicksort(a, low, p - 1)  # 왼쪽 부분 재귀 정렬
+            _quicksort(a, p + 1, high)  # 오른쪽 부분 재귀 정렬
+    _quicksort(arr, 0, len(arr) - 1)  # 전체 배열에 대해 QuickSort 시작
+
+# 사용 예시
+arr = [3, 1, 4, 1, 5, 9, 2, 6]  # 예시 배열
+quicksort(arr)  # 배열을 제자리에서 정렬
+print(arr)  # 정렬된 결과 출력

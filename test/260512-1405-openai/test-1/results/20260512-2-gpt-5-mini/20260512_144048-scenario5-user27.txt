@@ -1,0 +1,24 @@
+다음은 파이썬으로 구현한 퀵소트이며, 각 코드 줄마다 한국어 주석을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):  # 퀵소트 재귀 함수 정의: arr는 정렬할 리스트, low와 high는 현재 구간의 인덱스
+    if low < high:  # 구간에 2개 이상의 요소가 있어야 정렬을 수행하므로 조건 검사
+        p = partition(arr, low, high)  # partition 함수를 호출해 피벗의 최종 위치를 얻음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 구간을 재귀적으로 정렬
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 구간을 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 방식을 사용하는 partition 함수 정의
+    pivot = arr[high]  # 구간의 마지막 요소를 피벗으로 선택
+    i = low  # 작은 요소들을 모아둘 경계 인덱스를 low로 초기화
+    for j in range(low, high):  # low부터 high-1까지의 요소들을 순회
+        if arr[j] < pivot:  # 현재 요소가 피벗보다 작으면
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 경계 위치로 스왑하여 왼쪽으로 이동
+            i += 1  # 경계 인덱스를 하나 증가시켜 다음 작은 요소 위치로 이동
+    arr[i], arr[high] = arr[high], arr[i]  # 피벗을 경계 위치로 스왑하여 올바른 위치에 놓음
+    return i  # 피벗의 최종 인덱스를 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예제 코드가 동작하도록 함
+    a = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예제 리스트를 선언
+    quicksort(a, 0, len(a) - 1)  # 리스트 전체를 퀵소트로 정렬
+    print(a)  # 정렬된 리스트를 출력
+```

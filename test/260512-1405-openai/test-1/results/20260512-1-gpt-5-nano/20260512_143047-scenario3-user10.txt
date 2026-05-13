@@ -1,0 +1,29 @@
+다음은 파이썬으로 구현한 퀵소트이며, 각 줄마다 주석을 달았습니다.
+
+```python
+# 퀵소트(Quicksort) 구현: 인덱스 기준으로 제자리 정렬
+def quicksort(arr, low, high):  # arr를 low부터 high까지 정렬
+    if low < high:  # 구간에 두 개 이상의 요소가 남아있으면
+        pi = partition(arr, low, high)  # 파티션으로 피봇 위치를 얻음
+        quicksort(arr, low, pi - 1)  # 왼쪽 부분배열 재귀 정렬
+        quicksort(arr, pi + 1, high)  # 오른쪽 부분배열 재귀 정렬
+
+def partition(arr, low, high):  # 파티션 함수: 피봇을 기준으로 배열 분할
+    pivot = arr[high]  # 가장 오른쪽 원소를 피봇으로 삼음
+    i = low - 1  # 작은 원소의 구분 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피봇보다 작거나 같으면
+            i += 1  # 작은 원소 구분 인덱스 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 교환하여 앞쪽으로 모으기
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 올바른 위치로 이동
+    return i + 1  # 피봇 위치 반환
+
+def quicksort_main(arr):  # 편의 함수: arr 전체를 정렬
+    if arr:  # 배열이 비어있지 않으면
+        quicksort(arr, 0, len(arr) - 1)  # 전체 구간에 대해 퀵소트 시작
+
+# 사용 예
+arr = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 배열 샘플
+quicksort_main(arr)  # 배열을 퀵소트로 정렬
+print(arr)  # 정렬된 배열 출력
+```

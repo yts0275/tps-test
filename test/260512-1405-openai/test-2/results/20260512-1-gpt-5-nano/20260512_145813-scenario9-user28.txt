@@ -1,0 +1,81 @@
+다음 워크플로우 그래프는 소프트웨어 엔지니어가 주도하는 코드 분석, 편집, 테스트 및 도구 사용 흐름을 나타낸다. 노드 간의 흐름은 대체로 순차적이되 필요 시 루프를 통해 재진행되도록 구성되어 있다. 아래에 각 노드의 역할과 흐름을 최대한 자세히 설명한다.
+
+1) 노드 및 역할 요약
+- start: 워크플로우의 시작점.
+- SoftwareEngineer: 중심 피처링 노드로, 분석/편집/도구 사용을 오케스트레이션하는 역할. 이후의 흐름을 선택하고 여러 하위 작업으로 분기시키는 지점이다.
+- CodeAnalyzer: 코드 분석 과정을 담당하는 노드. 실제 분석은 아래의 도구(code_analysis_tool)를 통해 수행된다.
+- Editor: 코드 편집 및 수정 작업을 조정하는 노드. 코드 편집(tool)과 테스트(tool) 등의 하위 작업을 실행한다.
+- swe_tool: 소프트웨어 엔지니어링 도구를 사용하는 노드. 이 경로를 통해 최종적으로 엔드로 흐름이 간다.
+- end: 워크플로우의 종료점.
+- code_analysis_tool: CodeAnalyzer가 사용하는 실제 코드 분석 도구.
+- code_edit_tool: Editor가 사용하는 코드 편집 도구.
+- test_tool: Editor가 사용하는 테스트 도구.
+
+2) 노드 간 흐름의 상세 설명
+- 시작과 엔지니어의 진입
+  - start → SoftwareEngineer: 워크플로우의 진입은 시작 이벤트에서 소프트웨어 엔지니어로 전달된다.
+  - SoftwareEngineer는 다음의 주된 작업 중 하나 또는 복수의 조합으로 흐름을 분기시킨다.
+    - analyze_code(코드 분석) 경로로 이동
+    - edit_file(파일 편집) 경로로 이동
+    - swe_tool(도구 사용) 경로로 이동
+    - end로의 직접 경로(다이어그램의 끝 지점으로의 간접 경로)도 존재하는 것으로 보인다. 다만 일반적으로는 swe_tool 경로나 편집 흐름을 거쳐 end에 도달하는 흐름이 주를 이룬다.
+
+- CodeAnalyzer 및 code_analysis_tool 흐름 (코드 분석 루프)
+  - SoftwareEngineer → CodeAnalyzer: 분석 요청을 전달받아 analyze_code 동작 시작.
+  - CodeAnalyzer → code_analysis_tool: 실제 코드 분석 작업 수행. 이 도구는 코드의 정적 분석, 품질 규칙 검사 등을 담당하는 하위 도구로 해석된다.
+  - code_analysis_tool → CodeAnalyzer: 분석이 완료되면 결과를 CodeAnalyzer로 반환한다. 이때의 상태는 보통 “done”으로 표현된다.
+  - CodeAnalyzer의 다음 동작은 두 가지로 해석될 수 있다.
+    - 분석 결과가 편집이 필요하다고 판단되면 Editor로의 continue 경로를 통해 편집 단계로 넘어간다.
+    - 분석이 충분히 끝났거나 다음 작업으로 바로 넘어가야 할 경우, SoftwareEngineer 쪽의 흐름으로 돌아가거나(continue/done에 따라) 상위 루프를 반복하는 경로가 열려 있다.
+  - 요약: CodeAnalyzer는 코드를 분석하고, 분석 도구의 작업이 끝나면 자신의 흐름으로 돌아가(또는 Editor로 넘어가) 다음 단계를 준비한다.
+
+- Editor 흐름 (편집 및 테스트의 래핑)
+  - SoftwareEngineer 또는 CodeAnalyzer로부터 편집 흐름이 시작될 수 있다.
+  - Editor → code_edit_tool: 실제 코드 편집 작업 수행. 이 도구는 개발자가 파일을 수정하는 구체적 작업을 수행한다.
+  - Editor → test_tool: 수정된 코드에 대해 테스트를 실행하는 단계로 연결될 수 있다.
+  - code_edit_tool 및 test_tool의 작업은 보통 Editor로 다시 돌아와(형태상은 Editor 내의 하위 작업으로 묶여 있음) 추가 수정 여부를 결정하게 한다.
+  - Editor의 흐름은 다시 SoftwareEngineer로 돌아가거나(continue) 전체 흐름의 다음 단계로 이동하도록 구성된다. 이때 “continue” 라벨로 재진입하는 경로가 다이어그램에 표현된다.
+  - 요약: 편집 단계는 편집 도구(code_edit_tool)와 테스트 도구(test_tool)를 연속적으로 호출하며, 완료 후 Editor가 SoftwareEngineer로 제어를 반환하거나 준비 상태를 알려 다음 단계로 넘긴다.
+
+- swe_tool 흐름 및 종료
+  - SoftwareEngineer → swe_tool: 소프트웨어 엔지니어링 도구를 사용한다. 이 경로는 특정 도구를 통해 추가 작업을 수행하는 흐름이다.
+  - swe_tool → end: swe_tool의 작업이 마무리되면 엔드로 흐름이 닫힌다.
+  - 이 경로는 다른 흐름들과 독립적으로 끝까지 진행될 수 있으며, end에 도달하면 워크플로우가 종료된다.
+  
+- 루프 및 재진입 포인트
+  - 다이어그램의 점선(edge들)은 주로 “continue” 또는 “done” 등의 상태를 표시하며,
+    - continue: 다음 단계로의 재진입 또는 루프를 허용하는 분기점.
+    - done: 특정 작업의 완료를 의미하고, 그다음 단계로의 이동을 허용한다.
+  - 일반적으로 SoftwareEngineer가 다시 제어권을 가지며 위의 하위 노드들(CodeAnalyzer, Editor, swe_tool)을 재차 호출할 수 있다. 이로써 반복적이고 점진적인 개발 사이클(분석 → 편집 → 테스트 → 재평가)을 구현한다.
+  - 루프의 끝은 보통 end로의 최종 경로이며, 필요 시 다시 시작점으로 돌아가는 흐름은 다이어그램의 디자인 의도에 의해 달라질 수 있다.
+
+3) 흐름의 실행 예시(가능한 시나리오의 예)
+- 시나리오 A: 코드 분석 → 편집 → 테스트 → 재분석
+  - start → SoftwareEngineer
+  - SoftwareEngineer → CodeAnalyzer (analyze_code)
+  - CodeAnalyzer → code_analysis_tool (실행)
+  - code_analysis_tool → CodeAnalyzer (done)
+  - CodeAnalyzer → Editor (continue)  // 분석 결과에 따라 편집 필요
+  - Editor → code_edit_tool (편집 실행)
+  - code_edit_tool → Editor (완료)
+  - Editor → test_tool (테스트 실행)
+  - test_tool → Editor (테스트 완료)
+  - Editor → SoftwareEngineer (continue)
+  - SoftwareEngineer → swe_tool (필요 시 다른 도구 사용)
+  - swe_tool → end (프로세스 종료)
+
+- 시나리오 B: 간단한 편집 경로 후 종료
+  - start → SoftwareEngineer → Editor (edit_file)
+  - Editor → code_edit_tool → Editor
+  - Editor → SoftwareEngineer (continue) → end (최종 종료 경로에 의해 끝)
+
+4) 에지 라벨의 의미 요약
+- analyze_code, edit_file: SoftwareEngineer가 해당 작업을 시작한다는 신호.
+- continue: 해당 단계가 완료된 후 다음 단계로 재진입하거나 상위 흐름으로 돌아가 재작업을 지속할 수 있음을 나타낸다.
+- done: 특정 도구 작업의 완료를 나타내며, 다음 단계로의 진행을 허용한다.
+- end: 워크플로우의 종료 지점.
+
+5) 요약
+- 이 워크플로우는 SoftwareEngineer를 중심으로 CodeAnalyzer와 Editor가 핵심 작업을 하되, 실제 분석/편집/테스트는 각각 code_analysis_tool, code_edit_tool, test_tool 같은 하위 도구를 통해 수행된다. 완료된 작업은 계속 경로를 통해 다시 엔지니어에게 제어가 돌아가며 필요 시 swe_tool을 사용해 추가 작업 후 end로 종료되는 구조이다. 흐름은 주로 순차적이지만 다이어그램에 표현된 continue/done 라벨에 의해 명시적으로 루프가 가능하도록 설계되어 있다.
+
+원하시면 각 노드 간의 관계를 더 구체적으로 예시 흐름(특정 경로의 순서)으로 도식화해 드리겠습니다.

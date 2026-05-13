@@ -1,0 +1,78 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I need to write the partition function. The function should take the array, low and high indices. The pivot is usually chosen as the last element. Then, I'll need two pointers: one starting at low and moving right, another at high moving left. They swap elements when the left pointer's value is greater than the pivot and the right's is less. This continues until the pointers cross. Then, the pivot is placed in its correct position.
+
+Next, the quicksort function itself. It should check if low is less than high. If so, it calls partition to get the pivot index and then recursively sorts the left and right subarrays.
+
+Now, adding comments. Each line should have a clear explanation. For example, in the partition function, explain choosing the pivot, initializing pointers, the loop conditions, swapping, and placing the pivot. In the quicksort function, mention the base case and the recursive calls.
+
+Wait, the user said each line should have a comment. That might be a bit tedious, but necessary. I need to make sure that even simple lines have comments. For example, even the parameter definitions in the functions should have comments explaining their roles.
+
+Also, make sure the code is in Python. The user didn't specify the language, but since it's a common request, Python is a safe choice. Let me check for syntax errors. The partition function returns the pivot index, which is correct. The recursive calls are on the left and right partitions.
+
+I should test the code with an example array. Let's say [10, 7, 8, 9, 1, 5]. After sorting, it should be [1,5,7,8,9,10]. The comments should help someone understand each step without prior knowledge of quicksort.
+
+Wait, in the partition function, when swapping, the loop conditions are while i < j and arr[i] < pivot. Wait, no, the condition is while i < j and arr[i] < pivot and arr[j] > pivot. Because if arr[i] is less than pivot, it's on the correct side, so we move the pointer. Similarly for arr[j]. The loop continues until i and j cross, then the pivot is placed.
+
+Hmm, I need to make sure the comments accurately reflect the logic. Also, note that the pivot is at the end, so after partitioning, it's placed at index j. Then, the quicksort function uses this index to split the array.
+
+I think that's all. Now, structure the code with line-by-line comments. Make sure the comments are concise but informative.
+</think>
+
+```python
+def quicksort(arr, low, high):
+    # base case: if the array has one element or less, it's already sorted
+    if low < high:
+        # partition the array and get the pivot index
+        pivot_index = partition(arr, low, high)
+        # recursively sort the elements before the pivot
+        quicksort(arr, low, pivot_index - 1)
+        # recursively sort the elements after the pivot
+        quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    # choose the last element as pivot
+    pivot = arr[high]
+    # initialize pointer for the greater element
+    i = low - 1  # i marks the boundary of elements less than pivot
+
+    # iterate through the array
+    for j in range(low, high):
+        # if current element is less than or equal to pivot
+        if arr[j] <= pivot:
+            # move the boundary of elements less than pivot
+            i += 1
+            # swap the boundary element with current element
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # swap the pivot element with the element at i+1 (correct position for pivot)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # return the partition index
+    return i + 1
+
+# 예시 사용
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+quicksort(arr, 0, n - 1)
+print("정렬된 배열:", arr)
+```
+
+### 설명:
+1. **`quicksort` 함수**:
+   - `low`: 정렬할 배열의 시작 인덱스
+   - `high`: 정렬할 배열의 끝 인덱스
+   - `if low < high`: 배열이 하나 이상의 요소를 포함해야 재귀 호출
+
+2. **`partition` 함수**:
+   - `pivot`: 기준이 되는 요소 (가장 오른쪽 요소)
+   - `i`: `low`에서 `high` 사이의 요소 중 `pivot`보다 작은 요소의 경계를 나타냄
+   - `for j in range(low, high)`: 배열을 순회하며 `pivot`보다 작은 요소를 찾음
+   - `arr[i], arr[j] = arr[j], arr[i]`: 경계 요소와 현재 요소를 교환
+   - `arr[i + 1], arr[high] = arr[high], arr[i + 1]`: `pivot`을 정확한 위치로 이동
+
+3. **결과**:
+   - `quicksort` 호출 후 배열이 정렬됨
+   - `print`로 정렬된 배열을 확인할 수 있음
+
+이 코드는 퀵소트 알고리즘을 구현한 예제로, 각 줄에 주석을 달아 이해를 돕고 있습니다.

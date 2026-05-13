@@ -1,0 +1,20 @@
+```python
+# QuickSort 구현 예시(각 줄마다 주석을 달았습니다)
+
+def quicksort(arr):  # quicksort 함수 정의, 입력으로 정렬할 리스트 arr을 받음
+    if len(arr) <= 1:  # 재귀 종료 조건: 길이가 0이거나 1인 리스트는 이미 정렬 됨
+        return arr  # 작은 리스트는 그대로 반환
+    pivot = arr[len(arr) // 2]  # 기준값(pivot)을 리스트 중간 원소로 선택
+    left = [x for x in arr if x < pivot]  # pivot보다 작은 요소들을 left 리스트에 모음
+    middle = [x for x in arr if x == pivot]  # pivot과 같은 요소들을 middle 리스트에 모음
+    right = [x for x in arr if x > pivot]  # pivot보다 큰 요소들을 right 리스트에 모음
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 left와 right를 정렬하고 합침
+
+# 아래 예시는 함수를 직접 호출해 보는 간단한 테스트 예시입니다
+if __name__ == "__main__":  # 스크립트가 직접 실행될 때만 아래 코드 수행
+    unsorted_list = [33, 10, 55, 71, 29, 18, 90, 5, 44]  # 정렬되지 않은 리스트 예시
+    sorted_list = quicksort(unsorted_list)  # quicksort 함수 호출
+    print("정렬 전:", unsorted_list)  # 원본 리스트 출력
+    print("정렬 후:", sorted_list)  # 정렬된 리스트 출력
+```
+*각 줄 끝에 `#` 뒤에 주석을 적어 가독성을 높였습니다.*

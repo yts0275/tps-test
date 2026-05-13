@@ -1,0 +1,123 @@
+물론입니다. 아래는 주어진 워크플로우 다이어그램의 노드들 간의 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+이 워크플로우는 **소프트웨어 엔지니어**(SoftwareEngineer)라는 주체가 코드 분석, 편집, 테스트 등의 작업을 수행하는 프로세스를 나타냅니다. 이는 자동화된 개발 프로세스나 AI 기반 개발 보조 시스템의 동작 흐름을 시각화한 것으로 보이며, 주요 작업 단위를 **노드**(Node)로 표현하고, 각 노드 간의 전환은 **이벤트**(예: `analyze_code`, `done`, `continue`)를 통해 제어됩니다.
+
+---
+
+### **노드별 역할 및 흐름 분석**
+
+#### **1. `start` 노드**
+- **역할**: 워크플로우의 시작점을 나타냅니다.
+- **흐름**: 단일한 출구를 가지며, `SoftwareEngineer` 노드로 이동합니다.
+- **설명**: 프로세스가 시작될 때, `SoftwareEngineer`라는 주체가 활성화됩니다.
+
+---
+
+#### **2. `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 중심 역할을 담당하는 주체입니다. 이 노드는 여러 작업을 조정하고, 각 작업의 상태를 감시하며, 다음 단계를 결정합니다.
+- **입구**:
+  - `start` → `SoftwareEngineer` (처음 시작)
+  - `CodeAnalyzer` → `SoftwareEngineer` (분석 완료 후)
+  - `Editor` → `SoftwareEngineer` (편집 완료 후)
+  - `SoftwareEngineer` → `SoftwareEngineer` (자기 자신으로의 루프, `continue` 이벤트로 반복)
+- **출구**:
+  - `analyze_code` → `CodeAnalyzer` (코드 분석 요청)
+  - `edit_file` → `Editor` (파일 편집 요청)
+  - `swe_tool` → `end` (작업 종료)
+  - `continue` → `SoftwareEngineer` (자기 자신으로 반복)
+- **흐름 분석**:
+  - `SoftwareEngineer`는 초기에 `start`로부터 시작된 후, `analyze_code` 이벤트를 통해 `CodeAnalyzer` 노드로 작업을 전달합니다.
+  - 작업이 완료되면 (`done` 이벤트) `CodeAnalyzer` 또는 `Editor`에서 다시 `SoftwareEngineer`로 제어권을 돌려받습니다.
+  - `SoftwareEngineer`는 이벤트를 기반으로 다음 작업을 결정할 수 있으며, `continue` 이벤트를 통해 자신을 다시 호출하여 반복 작업을 수행할 수 있습니다.
+  - 최종적으로 `swe_tool`을 통해 `end` 노드로 이동하여 워크플로우를 종료합니다.
+
+---
+
+#### **3. `CodeAnalyzer` 노드**
+- **역할**: 코드를 분석하는 도구 또는 서비스입니다. 예: 코드 품질 분석, 정적 분석, 보안 취약점 탐지 등.
+- **입구**:
+  - `SoftwareEngineer` → `CodeAnalyzer` (분석 요청)
+- **출구**:
+  - `done` → `SoftwareEngineer` (분석 완료)
+  - `continue` → `CodeAnalyzer` (반복 분석)
+- **내부 흐름**:
+  - `code_analysis_tool` 노드는 `CodeAnalyzer`의 하위 도구로, 실제로 분석을 수행합니다.
+  - `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 분석을 수행한 후, 결과를 `SoftwareEngineer`로 반환합니다.
+  - `continue` 경로는 분석이 완료되었지만, 추가 분석이 필요할 수 있음을 의미하며, `CodeAnalyzer`가 다시 자신을 호출하여 반복 작업을 수행할 수 있습니다.
+  - `done` 이벤트는 분석이 완료되었음을 나타내며, `SoftwareEngineer`로 제어권을 넘깁니다.
+
+---
+
+#### **4. `Editor` 노드**
+- **역할**: 코드를 편집하거나 수정하는 도구 또는 서비스입니다. 예: 코드 리팩토링, 수정, 추가 등.
+- **입구**:
+  - `SoftwareEngineer` → `Editor` (편집 요청)
+- **출구**:
+  - `done` → `SoftwareEngineer` (편집 완료)
+  - `continue` → `Editor` (반복 편집)
+- **내부 흐름**:
+  - `code_edit_tool`과 `test_tool`은 `Editor`의 하위 도구로, 실제로 편집 및 테스트를 수행합니다.
+  - `Editor`는 `code_edit_tool`을 호출하여 코드를 수정한 후, `test_tool`을 통해 수정된 코드의 테스트를 수행할 수 있습니다.
+  - `done` 이벤트는 편집 및 테스트가 완료되었음을 의미하며, `SoftwareEngineer`로 제어권을 넘깁니다.
+  - `continue` 이벤트는 편집이 완료되었지만, 추가 수정이 필요할 수 있음을 나타내며, `Editor`가 다시 자신을 호출하여 반복 작업을 수행할 수 있습니다.
+
+---
+
+#### **5. `code_analysis_tool` 노드**
+- **역할**: `CodeAnalyzer`의 하위 도구로, 실제 코드 분석을 수행합니다.
+- **입구**: `CodeAnalyzer` → `code_analysis_tool` (분석 요청)
+- **출구**: 없음 (직접적으로 `CodeAnalyzer`로 제어권을 돌려줌)
+- **설명**: 이 노드는 단순한 실행 단위로, `CodeAnalyzer`가 호출할 때만 작동하며, 분석 결과를 `CodeAnalyzer`로 반환합니다.
+
+---
+
+#### **6. `code_edit_tool` 노드**
+- **역할**: `Editor`의 하위 도구로, 코드 편집을 수행합니다.
+- **입구**: `Editor` → `code_edit_tool` (편집 요청)
+- **출구**: 없음 (직접적으로 `Editor`로 제어권을 돌려줌)
+- **설명**: 이 노드는 `Editor`가 호출할 때만 작동하며, 실제 코드 수정을 수행한 후 결과를 `Editor`로 반환합니다.
+
+---
+
+#### **7. `test_tool` 노드**
+- **역할**: `Editor`의 하위 도구로, 코드 테스트를 수행합니다.
+- **입구**: `Editor` → `test_tool` (테스트 요청)
+- **출구**: 없음 (직접적으로 `Editor`로 제어권을 돌려줌)
+- **설명**: 이 노드는 `Editor`가 호출할 때만 작동하며, 수정된 코드의 테스트를 수행한 후 결과를 `Editor`로 반환합니다.
+
+---
+
+#### **8. `swe_tool` 노드**
+- **역할**: 워크플로우의 최종 도구 또는 서비스로, 소프트웨어 엔지니어의 작업을 종료하거나 최종 처리합니다.
+- **입구**: `SoftwareEngineer` → `swe_tool` (최종 처리 요청)
+- **출구**: `end` (워크플로우 종료)
+- **설명**: `SoftwareEngineer`가 모든 작업을 완료한 후, `swe_tool`을 호출하여 최종 처리를 수행합니다. 예: 빌드, 배포, 보고서 생성 등.
+
+---
+
+#### **9. `end` 노드**
+- **역할**: 워크플로우의 종료점을 나타냅니다.
+- **입구**: `swe_tool` → `end` (최종 처리 완료)
+- **설명**: 워크플로우가 완료되었음을 나타내며, 더 이상의 작업이 없음을 의미합니다.
+
+---
+
+### **전체 흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **코드 분석**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (analyze_code)
+   - `CodeAnalyzer` → `code_analysis_tool` (분석 수행)
+   - `code_analysis_tool` → `CodeAnalyzer` (결과 반환)
+   - `CodeAnalyzer` → `SoftwareEngineer` (done)
+3. **코드 편집**:
+   - `SoftwareEngineer` → `Editor` (edit_file)
+   - `Editor` → `code_edit_tool` (편집 수행)
+   - `Editor` → `test_tool` (테스트 수행)
+   - `test_tool` → `Editor` (결과 반환)
+   - `Editor` → `SoftwareEngineer` (done)
+4. **반복 작업**:
+   - `SoftwareEngineer`는 `continue` 이벤트를 통해 자신을 다시 호출하여

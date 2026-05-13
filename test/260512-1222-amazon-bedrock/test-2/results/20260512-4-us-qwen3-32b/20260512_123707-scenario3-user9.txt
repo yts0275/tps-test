@@ -1,0 +1,66 @@
+물론입니다! 아래는 Python을 이용한 퀵소트(Quick Sort) 알고리즘의 구현입니다. 각 줄에 자세한 주석을 달아 설명드릴게요.
+
+---
+
+### ✅ 퀵소트(quick sort)란?
+분할 정복 알고리즘입니다. 기본 아이디어는:
+1. 배열에서 피벗(pivot)을 선택.
+2. 피벗보다 작은 수는 왼쪽, 큰 수는 오른쪽으로 분류 (파티셔닝).
+3. 각 부분 배열에 재귀적으로 동일한 과정을 반복.
+
+---
+
+```python
+# 퀵소트 함수 정의
+def quicksort(arr):
+    """
+    퀵소트를 재귀적으로 구현
+    arr: 정렬할 배열
+    return: 정렬된 배열
+    """
+
+    # 1. 배열이 비었거나 하나의 요소만 갖고 있다면 그대로 return (재귀의 종료 조건)
+    if len(arr) <= 1:
+        return arr
+
+    # 2. 피벗(pivot) 설정: 여기서는 배열의 첫 번째 요소를 피벗으로 선택
+    pivot = arr[0]
+
+    # 3. 피벗보다 작은 요소들을 모을 리스트
+    less = []
+
+    # 4. 피벗보다 큰 요소들을 모을 리스트
+    greater = []
+
+    # 5. 두 번째 요소부터 끝까지 반복하여 분류
+    for i in range(1, len(arr)):
+
+        # 6. 현재 요소가 피벗보다 작으면 less 리스트에 추가
+        if arr[i] < pivot:
+            less.append(arr[i])
+
+        # 7. 현재 요소가 피벗보다 크면 greater 리스트에 추가
+        elif arr[i] > pivot:
+            greater.append(arr[i])
+
+    # 8. equal을 위한 별도 처리는 필요 없음 (pivot은 이미 less/greater 분류에서 제외되므로)
+
+    # 9. less 배열 정렬 -> pivot -> greater 배열 정렬 -> 합치기
+    return quicksort(less) + [pivot] + quicksort(greater)
+
+# 예시 실행
+arr = [10, 7, 8, 9, 1, 5]
+print("원래 배열:", arr)
+sorted_arr = quicksort(arr)
+print("정렬된 배열:", sorted_arr)
+```
+
+---
+
+### 💡 참고:
+- 위 예시는 피벗을 항상 배열의 **첫 번째 요소**로 사용하는 간단한 버전입니다.
+- 피벗 선택 방식이나 파티셔닝 방식은 다양한 방식으로 구현 가능(예: 마지막 요소, 중간 요소 등).
+
+---
+
+필요하시면 Lomuto 방식, Hoare 방식, 파티셔닝 과정을 따로 정의한 퀵소트도 설명해드릴게요! 😄

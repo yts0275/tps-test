@@ -1,0 +1,110 @@
+아래 이미지는 “SoftwareEngineer”라는 상위 작업(허브) 중심으로 여러 Node(도구/모듈)가 **분기 → 수행 → 다시 합류(continue/done/edits)** 하며 전체 워크플로우가 진행되는 구조를 보여줍니다. 흐름을 **Start부터 End까지**, 그리고 각 Node 사이의 화살표(지시 신호: `analyze_code`, `edit_file`, `done`, `continue`) 기준으로 최대한 상세히 풀어 설명하겠습니다.
+
+---
+
+## 1) 시작: `start` → `SoftwareEngineer`
+1. 화면 상단의 원형 노드 **start**에서 워크플로우가 시작합니다.
+2. 곧바로 중앙의 직사각형 **SoftwareEngineer** 노드로 이동합니다.
+3. **SoftwareEngineer** 노드는 단순 실행 단계라기보다, 아래에 있는 작업들(분석, 편집, 테스트, 도구 호출)을 **조율**하고 결과에 따라 다음 흐름을 선택하는 역할을 합니다.
+
+---
+
+## 2) SoftwareEngineer의 핵심 역할: 여러 작업을 동시에(또는 조건부로) 호출/수집
+이미지에서 **SoftwareEngineer**는 주변 노드들(특히 `CodeAnalyzer`, `Editor`, `swe_tool`)과 양방향처럼 연결되어 있고, 점선 화살표와 함께 **`continue`**, **`done`** 표기가 반복됩니다.
+
+- 이는 보통 다음 의미를 갖습니다:
+  - **SoftwareEngineer**가 특정 하위 작업을 “호출”한다.
+  - 하위 노드가 작업을 수행한 뒤 “done(완료)”를 리포트한다.
+  - 그리고 SoftwareEngineer가 그 완료 결과를 바탕으로 다음 단계로 넘어가거나(continue), 필요하면 편집/재분석을 반복한다.
+
+---
+
+## 3) 코드 분석 파트: `SoftwareEngineer` → `CodeAnalyzer` → `code_analysis_tool`
+### (1) 분석 요청 전개
+1. **SoftwareEngineer**에서 왼쪽 방향으로 점선 화살표가 뻗어 **CodeAnalyzer** 노드로 연결됩니다.
+2. 이 연결선에는 `analyze_code`라는 라벨이 보입니다.
+3. 따라서 **SoftwareEngineer가 CodeAnalyzer에게 “analyze_code(코드 분석해봐)”를 요청**하는 흐름으로 해석됩니다.
+
+### (2) CodeAnalyzer 동작
+4. **CodeAnalyzer** 노드는 실제 분석을 수행하기보다는, 그 아래의 도구로 작업을 위임합니다.
+5. **CodeAnalyzer** 아래쪽에는 **code_analysis_tool** 노드(도구)가 있고, **CodeAnalyzer가 이 도구를 호출**하여 분석 결과를 얻습니다.
+
+### (3) 분석 완료 신호: `done` / `continue`
+6. **code_analysis_tool** 작업이 끝나면, **CodeAnalyzer**로 `done`이 돌아오고(그림에서 `done` 라벨이 보임),
+7. 이후 **CodeAnalyzer에서 다시 SoftwareEngineer로 `done`/또는 `continue` 흐름**이 이어집니다.
+8. 이 단계의 목적은:
+   - 코드 상태를 진단하고,
+   - 문제 지점/수정 후보/버그 원인 등을 정리하여,
+   - 다음 편집 단계(또는 종료) 의사결정에 쓰이는 정보를 제공하는 것입니다.
+
+---
+
+## 4) 코드 편집 파트: `SoftwareEngineer` → `Editor` → `code_edit_tool`
+### (1) 수정 요청 전개
+1. **SoftwareEngineer**에서 가운데 아래쪽으로 뻗는 점선/고리 형태의 연결이 있으며,
+2. `edit_file` 라벨이 **Editor 방향**에 해당합니다.
+3. 즉 **SoftwareEngineer가 Editor에게 “edit_file(파일 수정해봐)” 요청**을 보냅니다.
+
+### (2) Editor 동작
+4. **Editor** 노드는 편집을 직접 구현하기보다 **code_edit_tool**로 작업을 위임합니다.
+5. 따라서 **Editor → code_edit_tool** 호출이 일어나고,
+6. **코드 분석(CodeAnalyzer) 결과**(문제 포인트, 수정 방향)를 바탕으로 실제 파일/코드 변경이 이루어집니다.
+
+### (3) 편집 완료 및 되돌림: `done` / 재진입 구조
+7. 편집이 완료되면 `done`이 **Editor → SoftwareEngineer**로 돌아옵니다(그림에 done 표기가 존재).
+8. 여기서 중요한 점은:
+   - 워크플로우가 한 번에 끝나기보다,
+   - 편집 후 다시 분석하거나(다시 CodeAnalyzer로) 혹은 테스트로 넘어가는 **루프/분기 구조**를 가진 것으로 보인다는 것입니다.
+9. 실제로 그림에는 점선 흐름이 `SoftwareEngineer`에서 **CodeAnalyzer로도 다시 이어질 수 있고**, `Editor` 이후에도 테스트로 이어지는 경로가 함께 표현되어 있습니다.
+
+---
+
+## 5) 테스트 파트: `Editor` → `test_tool`
+### (1) 테스트 요청
+1. 그림 가운데 하단에는 **test_tool** 노드가 있고,
+2. 그 위쪽으로 **Editor**에서 내려가는 흐름이 있습니다.
+3. 이는 보통 “코드가 수정되면 테스트를 수행한다”는 의미입니다.
+
+### (2) 테스트 수행
+4. **Editor가 변경 작업(code_edit_tool)을 끝낸 후**, **test_tool**을 호출하여
+   - 수정이 의도대로 동작하는지,
+   - 회귀(다른 부분 영향)가 발생하지 않았는지,
+   - 테스트 통과 여부를 확인합니다.
+
+### (3) 테스트 결과의 흐름(continue)
+5. 테스트 완료 후 `continue` 신호가 그림에 표시되어 **SoftwareEngineer로 다시 반영**되는 구조로 보입니다.
+6. 이 단계에서 SoftwareEngineer는 결과에 따라 다음을 결정합니다:
+   - 테스트 통과 → 종료(end)로 진행
+   - 테스트 실패 또는 불충분 → 다시 편집(Editor) 또는 분석(CodeAnalyzer)을 반복
+
+---
+
+## 6) swe_tool 및 종료로의 수렴: `SoftwareEngineer` → `swe_tool` → `end`
+### (1) swe_tool 호출
+1. 오른쪽에 **swe_tool** 노드가 있으며,
+2. **SoftwareEngineer**에서 오른쪽 방향으로 연결된 점선 화살표가 있고 `continue` 및 `end`로 이어집니다.
+3. 따라서 **SoftwareEngineer가 최종적으로 swe_tool이라는 도구를 사용**해
+   - 추가 조치(예: 작업 실행/패치 적용/최종 검증 단계/대체 해결 전략 수행)
+   - 또는 결과를 정리하고 다음 단계로 넘기는 작업
+   을 수행할 가능성이 큽니다.
+
+### (2) end로 이동
+4. **swe_tool**이 끝나면 최종 원형 노드 **end**로 흐름이 이어집니다.
+5. 그림에서 `end`는 가장 오른쪽에 있고, 보라색 원형으로 강조되어 있습니다.
+6. 이는 테스트/편집/분석 루프가 만족 조건을 충족하면 **워크플로우가 정상 종료**된다는 의미입니다.
+
+---
+
+## 7) 전체 흐름을 한 문장 요약하면
+- **start → SoftwareEngineer**가
+  1) `analyze_code`로 **CodeAnalyzer(code_analysis_tool)**를 호출해 문제를 파악하고,  
+  2) `edit_file`로 **Editor(code_edit_tool)**를 호출해 수정하며,  
+  3) 수정 후 **test_tool**로 검증한 뒤,  
+  4) 필요 시 `continue`/`done` 신호에 따라 다시 분석·편집 루프를 돌고,  
+  5) 최종적으로 **swe_tool**을 통해 마무리한 뒤 **end**로 종료합니다.
+
+---
+
+## 확인 질문(정확도 향상용)
+원하시면, 제가 이 워크플로우를 “루프 조건”까지 더 정확히 서술할 수 있게 **각 `continue/done`가 의미하는 상태 조건**(예: 테스트 통과 여부, 분석 결과의 유효성 등)이 워크플로우 시스템 문서에서 어떻게 정의되는지 알려주실 수 있을까요?  
+(예: continue는 “다음 노드로 진행”, done은 “업무 결과 반환”인지 등)

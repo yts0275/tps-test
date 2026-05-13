@@ -1,0 +1,137 @@
+이미지의 Workflow는 “start → SoftwareEngineer(중앙 허브)”를 중심으로, 코드 분석(CodeAnalysis)–코드 편집(Editor)–도구 실행 및 반복(continue)–최종 종료(end)로 이어지는 구조입니다. 아래는 Node(블록)들이 어떤 순서로 흐르고, 각 단계에서 분기가 어떻게 발생하는지를 가능한 한 상세히 풀어쓴 설명입니다.  
+
+---
+
+## 1) 전체 큰 흐름(상위 순서)
+1. **start**  
+2. **SoftwareEngineer**(중앙 노드)로 진입  
+3. **SoftwareEngineer**에서 여러 작업 경로가 동시에/순차적으로 유도됨  
+   - **CodeAnalyzer** 경로(코드 분석)  
+   - **Editor** 경로(코드 수정)  
+   - **swe_tool** 경로(도구 기반 동작/추가 단계)  
+4. 각 단계가 **done** 또는 **continue** 신호로 다음 상태를 유도  
+5. 모든 작업이 정리되면 **end**로 이동
+
+즉, “SoftwareEngineer”가 중앙에서 작업들을 조율(허브 역할)하고, 각 서브 단계가 완료/진행 신호에 따라 다시 SoftwareEngineer 쪽으로 되돌아오거나 다음 종료로 넘어가는 형태입니다.
+
+---
+
+## 2) Node별 세부 흐름
+
+### (1) start → SoftwareEngineer
+- 상단의 **start**에서 아래 화살표가 **SoftwareEngineer**로 연결됩니다.
+- 이 시점부터 Workflow는 “소프트웨어 엔지니어(또는 엔지니어 역할)가 작업을 수행”하는 상태로 전환됩니다.
+
+---
+
+### (2) SoftwareEngineer에서 뻗어 나가는 주요 경로들
+이미지에서 **SoftwareEngineer**에서 아래쪽/바깥쪽으로 굵직한 흐름이 여러 갈래로 연결됩니다. 특히 아래 Node들이 눈에 띕니다.
+
+- **CodeAnalyzer**  
+- **Editor**  
+- **swe_tool**  
+- 그리고 **continue / done** 같은 상태 메시지가 반복 루프를 만들고 있습니다.
+
+즉, SoftwareEngineer는 “현재 해야 할 일을 수행”하기 위해 필요한 작업 모듈들을 호출(또는 다음 상태로 분기)하고, 해당 모듈의 결과가 **done**으로 다시 합쳐지거나 **continue**로 더 진행되게 설계된 그림입니다.
+
+---
+
+## 3) CodeAnalyzer 경로(코드 분석 부분)
+
+### (3) SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer에서 왼쪽 아래 방향으로 **CodeAnalyzer**로 향하는 화살표가 존재합니다.
+- 이는 “코드 분석이 필요하니 CodeAnalyzer를 실행”하는 흐름으로 해석됩니다.
+- CodeAnalyzer는 박스 아래쪽에 **code_analysis_tool**이라는 실행 도구 노드를 연결합니다.
+
+### (4) CodeAnalyzer → code_analysis_tool
+- **CodeAnalyzer**에서 **code_analysis_tool**로 “실제로 분석을 수행”하는 단계가 연결됩니다.
+- 여기서 code_analysis_tool은 코드를 분석하는 엔진/도구(예: 정적 분석, 규칙 기반 분석, LLM 기반 분석 등) 역할을 수행한다고 볼 수 있습니다.
+
+### (5) code_analysis_tool → CodeAnalyzer(donen)
+- 분석 결과가 나오면 **done** 라벨이 있는 경로로 다시 **CodeAnalyzer** 쪽 상태가 갱신되는 형태가 표현됩니다.
+- 그림에서 **done** 표기가 CodeAnalyzer 영역과 연결되어 있어, “코드 분석 단계 완료” 신호로 읽힙니다.
+
+### (6) CodeAnalyzer → SoftwareEngineer(또는 continue)
+- 코드 분석이 끝나면 흐름이 다시 상위로 올라가야 하므로, 그림에 있는 **done / continue** 형태의 점선 루프가 CodeAnalyzer 단계에서 SoftwareEngineer로 되돌아가는 구조를 보여줍니다.
+- 즉, “분석 결과를 바탕으로 다음 편집 단계로 갈지, 추가 분석을 더 할지”를 결정하는 루프가 걸려 있을 가능성이 큽니다.
+- **continue** 라벨은 “아직 끝난 것이 아니고 더 진행(다음 작업 또는 반복)을 계속한다”는 의미로 해석됩니다.
+
+---
+
+## 4) Editor 경로(코드 수정 부분)
+
+### (7) SoftwareEngineer → Editor
+- SoftwareEngineer에서 중앙 아래쪽으로 **Editor**로 향하는 화살표가 있습니다.
+- 이는 “분석 결과를 반영해 코드를 수정해야 한다”는 전환입니다.
+
+### (8) Editor → code_edit_tool
+- **Editor** 아래에는 **code_edit_tool** 노드가 연결되어 있습니다.
+- Editor는 실제로 코드를 “작성/수정”하기 위한 작업을 담당하고, code_edit_tool은 그 작업을 수행하는 도구(에디터/패치 생성기/코드 수정 API 등)로 볼 수 있습니다.
+
+### (9) code_edit_tool → Editor(done)
+- 수정 도구 실행 후에는 **done**이 표시된 경로를 통해 Editor로 상태가 되돌아오는 구조입니다.
+- 즉, “코드 편집/패치 적용 완료”를 의미합니다.
+
+### (10) Editor → test_tool (연결)
+- Editor에서 **test_tool**로 향하는 경로가 추가로 그려져 있습니다.
+- 이는 “수정 후 반드시 테스트/검증을 실행한다”는 흐름을 나타냅니다.
+
+### (11) test_tool → Editor(continue)
+- test_tool 수행 후에는 **continue** 또는 점선 루프 형태로 다시 상위 상태(주로 Editor 또는 SoftwareEngineer)로 이어질 가능성이 표현되어 있습니다.
+- 그림에서 Editor 아래의 test_tool 쪽에서 **continue**가 나타나 있어, 테스트가 계속/반복될 수 있거나, 테스트 결과에 따라 추가 수정을 이어갈 수 있게 설계되어 있는 것으로 해석됩니다.
+
+---
+
+## 5) swe_tool 경로(추가 도구/상위 조치)
+
+### (12) SoftwareEngineer → swe_tool
+- SoftwareEngineer에서 오른쪽 아래 방향으로 **swe_tool**이 연결됩니다.
+- 이는 CodeAnalyzer/Editor/test 외에도, “SWE를 수행하기 위한 외부 도구”를 추가로 호출하는 단계로 해석할 수 있습니다.
+  - 예: 저장소 실행, 작업 단위 실행, 이슈 처리 자동화, 특정 스텝 수행 등
+
+### (13) swe_tool → end 또는 SoftwareEngineer(continue/done)
+- 이미지 오른쪽에는 **end**가 큰 원으로 표시되어 있고, swe_tool 쪽에서 **end**로 직접 연결되는 흐름이 보입니다(점선 포함).
+- 또한 **continue**가 SoftwareEngineer 영역과 연결되어 있어,
+  - swe_tool이 어떤 조건에서 바로 종료(end)로 가거나,
+  - 또는 결과를 SoftwareEngineer가 다시 받아 다른 사이클을 돌리는 구조일 수 있습니다.
+
+그림의 점선 형태는 “상황에 따라 반복/분기”가 있다는 신호로 이해하면 가장 자연스럽습니다.
+
+---
+
+## 6) continue / done / 루프의 의미(그림에서 반복을 만드는 방식)
+그림에는 **done**과 **continue**가 반복적으로 보입니다. 이를 Workflow 제어 관점에서 정리하면:
+
+- **done**
+  - 특정 하위 작업(CodeAnalysis, code_edit, test 등)이 “완료”되어 다음 단계로 넘어갈 수 있음을 의미.
+  - 즉, done이 발생하면 해당 모듈의 역할이 끝났고 결과를 상위(SoftwareEngineer)로 올려 다음 작업을 결정하게 됩니다.
+
+- **continue**
+  - 아직 목표가 완전히 달성되지 않았거나, 추가 시도가 필요하여 “다음 라운드(반복)를 계속”한다는 의미.
+  - 예를 들어:
+    - 테스트가 실패하면 Editor로 돌아가 수정을 더 한다
+    - 분석 결과가 불충분하면 CodeAnalyzer로 돌아가 더 분석한다
+    - 또는 swe_tool로 추가 액션을 이어간다
+
+이 때문에 Workflow는 일회성 선형 흐름이라기보다, **SoftwareEngineer가 하위 모듈들을 호출하고 done/continue 신호에 따라 반복 사이클을 형성하는 구조**로 보는 게 정확합니다.
+
+---
+
+## 7) 최종 종료: end
+- 여러 작업이 정리되고 조건이 맞으면, 점선 흐름을 따라 **end**로 진입합니다.
+- end는 “Workflow 전체가 종료”되는 지점이며, 보통
+  - 테스트 통과,
+  - 코드 수정 완료,
+  - 추가 도구 실행 필요 없음
+  - 또는 목적 작업 완료  
+  같은 조건이 만족되면 발생했을 가능성이 큽니다(그림상 논리적 귀결).
+
+---
+
+# 한 줄 요약
+**start → SoftwareEngineer(허브) → CodeAnalyzer(code_analysis_tool, done/continue) → Editor(code_edit_tool → test_tool, continue 가능) → swe_tool(조건에 따라) → end**  
+이며, **done/continue** 신호로 인해 분석-수정-테스트가 필요할 때 반복되는 “SWE 작업 사이클” 형태의 Workflow입니다.
+
+---
+
+원하시면, 이 그림을 기준으로 **“각 done/continue가 발생했을 때 다음으로 정확히 어떤 Node가 활성화되는지”를 조건표(예: 테스트 실패 시 Editor로 회귀 등)** 형태로도 재구성해 드릴까요?

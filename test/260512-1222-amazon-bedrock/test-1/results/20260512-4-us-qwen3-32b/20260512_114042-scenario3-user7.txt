@@ -1,0 +1,44 @@
+물론이죠! 아래는 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 코드입니다. 각 줄마다 주석을 달아 설명하겠습니다.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 배열이 비어 있거나 요소가 하나만 있다면 이미 정렬된 것이므로
+    if len(arr) <= 1:
+        return arr
+
+    # 기준값(pivot)을 선택합니다. 여기서는 첫 번째 요소를 기준값으로
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들로 구성된 리스트
+    less = [i for i in arr[1:] if i <= pivot]
+    # 피벗보다 큰 요소들로 구성된 리스트
+    greater = [i for i in arr[1:] if i > pivot]
+
+    # 재귀적으로 왼쪽, 오른쪽 부분을 정렬한 후
+    # 피벗을 가운데 두어 결합
+    return quick_sort(less) + [pivot] + quick_sort(greater)
+
+# 예제 실행
+arr = [5, 3, 8, 4, 2, 7, 1, 10]
+sorted_arr = quick_sort(arr)
+print("정렬된 배열:", sorted_arr)
+```
+
+### 코드 설명:
+
+- `quick_sort(arr)`: 퀵소트를 수행하는 재귀 함수.
+- `if len(arr) <= 1: return arr`: 종료 조건. 요소가 하나 이하일 때는 이미 정렬된 것으로 반환.
+- `pivot = arr[0]`: 피벗을 첫 번째 요소로 선택.
+- `less` 리스트: 피벗보다 작거나 같은 요소들.
+- `greater` 리스트: 피봇보다 큰 요소들.
+- `return quick_sort(less) + [pivot] + quick_sort(greater)`: 왼쪽, 오른쪽 배열을 재귀로 정렬하고, 결합.
+
+출력:
+```
+정렬된 배열: [1, 2, 3, 4, 5, 7, 8, 10]
+```
+
+이 구현은 기본적인 퀵소트의 아이디어를 보여줍니다. 실제 높은 성능을 요구하는 상황에서는 in-place 정렬 방식을 사용하는 퀵소트가 더 일반적이지만, 위 구현은 개념 이해에 좋습니다.
+
+필요하다면 in-place 방식으로 구현한 퀵소트도 작성해드릴 수 있어요. 😊

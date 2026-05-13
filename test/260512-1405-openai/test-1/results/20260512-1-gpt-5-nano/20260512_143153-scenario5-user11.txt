@@ -1,0 +1,25 @@
+다음은 각 줄에 주석을 달아 만든 파이썬 퀵소트 구현입니다.
+
+```python
+def quicksort(a):  # 리스트 a를 퀵소트로 정렬하는 진입점
+    _quicksort(a, 0, len(a) - 1)  # 리스트의 모든 원소를 정렬 범위로 설정
+    return a  # 정렬된 리스트를 반환
+
+def _quicksort(a, low, high):  # 부분배열 a[low:high+1]에 대해 퀵소트를 수행하는 재귀 함수
+    if low < high:  # 부분배열에 2개 이상 원소가 있을 때만 진행
+        p = _partition(a, low, high)  # 피벗의 최종 위치를 얻고
+        _quicksort(a, low, p - 1)  # 피벗 왼쪽 부분배열 재귀적으로 정렬
+        _quicksort(a, p + 1, high)  # 피벗 오른쪽 부분배열 재귀적으로 정렬
+
+def _partition(a, low, high):  # 파티션 작업: 피벗을 기준으로 배열을 분할
+    pivot = a[high]  # 마지막 원소를 피벗으로 선택
+    i = low  # 피벗보다 작거나 같은 원소의 구분 인덱스 초기화
+    for j in range(low, high):  # 하한~피벗 직전까지 순회
+        if a[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            a[i], a[j] = a[j], a[i]  # 앞쪽으로 스왑하여 위치를 정렬
+            i += 1  # 구분 인덱스 증가
+    a[i], a[high] = a[high], a[i]  # 피벗을 최종 위치에 배치
+    return i  # 피벗의 최종 위치 인덱스 반환
+``` 
+
+참고: 이 구현은 제자리에서 작동하며, 최악의 경우 시간 복잡도는 O(n^2)이고 평균적으로는 O(n log n)입니다.

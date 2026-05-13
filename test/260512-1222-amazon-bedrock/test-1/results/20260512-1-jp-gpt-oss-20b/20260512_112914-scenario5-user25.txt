@@ -1,0 +1,29 @@
+```python
+# 한 줄에 한 줄 주석을 달아 QuickSort 구현 (Python)
+
+def quicksort(arr, low, high):
+    # 파라미터: arr  -> 정렬할 리스트, low  -> 서브리스트의 시작 인덱스, high -> 끝 인덱스
+    if low < high:  # 재귀 종료 조건: 서브리스트에 두 개 이상의 요소가 있을 때만 실행
+        pivot_index = partition(arr, low, high)  # 피봇을 기준으로 분할하고 피봇 인덱스 반환
+        quicksort(arr, low, pivot_index - 1)     # 피봇 왼쪽 부분에 대해 재귀 호출
+        quicksort(arr, pivot_index + 1, high)    # 피봇 오른쪽 부분에 대해 재귀 호출
+
+def partition(arr, low, high):
+    # 파이톤 구현에서 가장 마지막 요소를 피봇으로 선택
+    pivot = arr[high]
+    i = low - 1  # 작은 요소가 위치할 인덱스
+    for j in range(low, high):  # 피봇을 제외한 모든 요소에 대해 반복
+        if arr[j] <= pivot:  # 현재 요소가 피봇보다 작거나 같으면
+            i += 1           # i 를 한 칸 오른쪽으로 옮김
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j 위치의 요소를 교환
+    # 마지막에 피봇을 올바른 위치에 삽입
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1  # 피봇이 최종적으로 위치한 인덱스 반환
+
+# QuickSort 사용 예시
+if __name__ == "__main__":
+    numbers = [33, 10, 55, 71, 29, 2, 44, 19]
+    print("정렬 전:", numbers)
+    quicksort(numbers, 0, len(numbers) - 1)
+    print("정렬 후:", numbers)
+```

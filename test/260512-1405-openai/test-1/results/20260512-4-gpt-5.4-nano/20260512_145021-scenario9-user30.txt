@@ -1,0 +1,130 @@
+이미지의 워크플로우는 **SoftwareEngineer**가 중심이 되고, 그 아래에서 **CodeAnalyzer / Editor / swe_tool** 같은 보조 노드(도구)가 병렬 또는 순차적으로 실행되는 구조입니다. 전체 흐름을 노드(상자) 단위로, 화살표(화살표 라벨: *continue, done, analyze_code, edit_file*)가 의미하는 단계를 따라 최대한 상세히 풀어쓰면 아래와 같습니다.
+
+---
+
+## 1) 시작 단계
+### **start**
+- 워크플로우의 입력/시작 지점입니다.
+- start에서 곧바로 **SoftwareEngineer** 노드로 제어가 이동합니다.
+
+---
+
+## 2) 중심 노드: SoftwareEngineer 실행
+### **SoftwareEngineer**
+- 이 노드는 워크플로우의 “오케스트레이터(관리자)” 역할에 해당합니다.
+- 이미지에서 이 노드는 아래의 여러 경로(여러 도구/노드)로 화살표를 뻗고, 완료 신호(done 등)를 다시 받아 다음 단계로 넘어가는 형태입니다.
+- 또한 **continue**와 연결된 둥근(점선) 루프가 보이는데, 이는 “아직 작업이 완료되지 않았거나 추가 처리가 필요할 때 반복/다음 사이클로 넘어간다”는 의미로 해석됩니다.
+
+---
+
+## 3) CodeAnalyzer 경로 (코드 분석 쪽)
+### (1) SoftwareEngineer → CodeAnalyzer
+- **SoftwareEngineer**에서 **CodeAnalyzer**로 제어가 내려갑니다.
+- 이때 점선 라인이 “작업 흐름이 계속 진행될 수 있음(continue)” 성격으로 표현되어 있습니다.
+
+### **CodeAnalyzer**
+- 코드베이스(또는 특정 파일)를 분석하여 결함/취약점/불일치/개선 포인트 등을 찾는 역할의 노드로 보입니다.
+
+### **CodeAnalyzer → code_analysis_tool**
+- **CodeAnalyzer**는 내부적으로 **code_analysis_tool**(실제 분석을 수행하는 도구)를 호출합니다.
+- 즉,
+  - CodeAnalyzer(설계/판단/정리 계층)
+  - code_analysis_tool(실제 분석 실행)
+  구조입니다.
+
+### **code_analysis_tool → CodeAnalyzer (done)**
+- 분석 도구가 결과를 반환하면 **done** 신호가 CodeAnalyzer로 돌아옵니다.
+- 여기서 **done** 라벨이 있는 경로는 “분석 단계가 끝났다”는 완료 이벤트로 읽힙니다.
+
+### (2) CodeAnalyzer → SoftwareEngineer 또는 다음 단계로 복귀
+- done 이후에는 다시 **SoftwareEngineer** 쪽으로 흐름이 연결됩니다.
+- 이미지에는 CodeAnalyzer와 SoftwareEngineer 사이에 **continue** 또는 루프성 점선 화살표가 있어서,
+  - 분석 결과를 바탕으로 추가 편집이 필요한지,
+  - 혹은 바로 다음 단계로 넘어갈지
+  를 SoftwareEngineer가 결정하는 형태로 보입니다.
+
+---
+
+## 4) Editor 경로 (코드 수정 쪽)
+### (1) SoftwareEngineer → Editor
+- CodeAnalyzer와 별개로(또는 분석 완료 후 이어서) **SoftwareEngineer**가 **Editor** 노드로 제어를 보냅니다.
+- 이 흐름은 “분석 결과를 반영하여 코드 변경이 필요하다”는 컨셉과 잘 맞습니다.
+
+### **Editor**
+- 코드 내용을 실제로 수정하는 역할의 노드입니다.
+- 이미지에서 Editor는 아래의 도구로 작업을 위임합니다.
+
+### **Editor → code_edit_tool (코드 편집 수행)**
+- **Editor**는 **code_edit_tool**에 작업을 위임합니다.
+- 즉,
+  - Editor(수정 계획/구체화/검증 조건 설정)
+  - code_edit_tool(실제 파일/코드 변경)
+  으로 분업됩니다.
+
+### **code_edit_tool → Editor (done)**
+- 편집 도구가 변경을 완료하면 **done** 신호가 Editor로 돌아옵니다.
+- 이후 Editor는 변경된 코드가 유효한지(또는 다음 검증 단계로 넘길지) 결정합니다.
+
+### (2) Editor → test_tool
+- 이미지에서 Editor에서 **test_tool**로 향하는 화살표가 있습니다.
+- 이는 “코드를 수정했으니 테스트(검증)를 반드시 수행한다”는 검증 단계입니다.
+
+---
+
+## 5) test_tool 경로 (수정 검증/테스트)
+### **Editor → test_tool**
+- **test_tool**은 수정 결과가 의도대로 동작하는지 확인하기 위한 실행/검증 역할을 수행합니다.
+
+### **test_tool → (결과 반환 후) SoftwareEngineer로 continue**
+- test_tool 실행이 끝나면 결과를 바탕으로 작업 흐름이 계속됩니다.
+- 이미지에는 Editor로 되돌아오는 done 또는 SoftwareEngineer 방향으로 이어지는 **continue** 흐름이 같이 나타나 있어,
+  - 테스트 통과 시: 다음 단계(예: 종료/최종 도구)로 진행
+  - 테스트 실패 시: 다시 Editor 또는 CodeAnalyzer로 회귀하여 반복
+  하는 반복 사이클이 존재할 가능성이 큽니다.
+
+---
+
+## 6) swe_tool 경로 (추가 처리/특정 도구 단계)
+### **SoftwareEngineer → swe_tool**
+- SoftwareEngineer에서 **swe_tool**로 향하는 별도 경로가 있습니다.
+- swe_tool은 이미지 명칭 그대로 “SWE 관련 도구” 또는 “시스템/실행/추가 편의 도구”처럼, 기존 분석/편집/테스트 외의 추가 작업을 담당하는 것으로 보입니다.
+
+### **swe_tool → end (혹은 SoftwareEngineer 복귀 후 end)**
+- swe_tool에서 **end**로 연결되는 길이 존재합니다.
+- 이는 테스트/편집/분석 이후 최종 산출물 생성 또는 후처리 단계로 swe_tool이 수행되고,
+- 그 결과가 끝나면 워크플로우를 종료(end)합니다.
+
+---
+
+## 7) 반복(Loop) 구조: continue / done의 의미
+이미지 전반에서 **continue**와 **done**이 점선/고리 형태로 반복 연결되어 있습니다.
+
+- **done**: 특정 단계(예: 코드 분석 완료, 코드 편집 완료 등)가 완료되었음을 나타냅니다.  
+- **continue**: 완료된 결과를 바탕으로 다음 단계로 진행하거나, 조건에 따라 다시 다른 노드(예: Editor나 CodeAnalyzer)로 돌아가 작업을 반복할 수 있음을 나타냅니다.
+
+정리하면, 이 워크플로우는 기본적으로:
+1) 분석(CodeAnalyzer)  
+2) 수정(Editor)  
+3) 테스트(test_tool)  
+4) 추가 도구 처리(swe_tool)  
+5) 종료(end)  
+의 큰 흐름을 가지되,
+- 중간 테스트 실패나 추가 개선 필요 시
+- **continue**를 통해 다시 수정/분석을 반복하는 구조로 해석됩니다.
+
+---
+
+## 8) 종료 단계
+### **end**
+- 모든 주요 작업(또는 swe_tool의 최종 처리) 이후 도달하는 종료 노드입니다.
+- 이미지에서 swe_tool과 end가 직접 연결된 경로가 보이므로, swe_tool 결과가 “최종 완료” 트리거 역할을 하는 것으로 읽힙니다.
+
+---
+
+# 한 줄 요약(흐름의 본질)
+**start → SoftwareEngineer(오케스트레이션) → (코드 분석: CodeAnalyzer → code_analysis_tool) → (코드 수정: Editor → code_edit_tool → test_tool으로 검증) → (추가 처리: swe_tool) → end**  
+이며, **done/continue** 신호에 따라 분석-수정-테스트를 반복하면서 최종 종료로 수렴하는 형태입니다.
+
+---
+
+원하시면, 제가 이 흐름을 **“실제 실행 순서(가능한 시나리오 A/B)”**로 나눠(예: 분석 먼저 후 편집 vs 편집 후 테스트 실패 시 재분석) 더 구체적인 타임라인 형태로도 재구성해 드릴까요?

@@ -1,0 +1,11 @@
+<think>
+Okay, let me look at this code. So, the user wants a 3-line analysis of what the code does. Let me break it down.
+
+First, there are classes defined: Product, Order, InventoryManager. The Product class has attributes like product_id, name, price, stock, and methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages products and displays inventory.
+
+Then, the run_system function initializes the inventory with some products, shows the inventory, creates two orders. The first order successfully adds items, the second tries to order more than available stock, which is handled by checking the stock update. Finally, it shows the updated inventory and a total asset report.
+
+So the main purpose is to manage products, process orders with stock checks, generate invoices, and track inventory and total value. The code simulates an inventory management system with order processing and stock updates.
+</think>
+
+이 코드는 재고 관리 시스템을 구현한 것으로, 제품 정보 관리, 주문 처리, 재고 업데이트 기능을 포함합니다. `Product` 클래스는 제품 정보와 재고 조절 기능을 제공하고, `Order` 클래스는 주문 생성 및 인보이스 출력을 처리합니다. `InventoryManager`는 제품 재고를 관리하며, 주문 시 재고 부족 상황을 처리하는 시뮬레이션과 최종 재고/자산 리포트를 생성합니다.

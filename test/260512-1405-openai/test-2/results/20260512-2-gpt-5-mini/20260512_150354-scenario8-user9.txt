@@ -1,0 +1,66 @@
+이미지에 표현된 Workflow 노드들과 그들 사이의 흐름을 가능한 한 상세히 풀어 설명하면 다음과 같습니다.
+
+전체 구조(핵심 노드)
+- start → SoftwareEngineer
+  - 워크플로우는 start에서 시작해 SoftwareEngineer 노드로 진입합니다.
+
+SoftwareEngineer(중심 역할)
+- SoftwareEngineer는 의사 결정(행위 선택)을 하는 중심 노드입니다.
+- SoftwareEngineer로부터 갈 수 있는 주요 경로(화살표와 라벨):
+  - analyze_code → CodeAnalyzer
+  - edit_file → Editor
+  - continue → swe_tool
+  - continue → end
+  (화살표들은 점선/파선으로 표현되어 있어 “작업 호출” 또는 “상태 전환”을 나타냅니다.)
+
+CodeAnalyzer 분기
+- SoftwareEngineer가 analyze_code를 선택하면 CodeAnalyzer로 이동합니다.
+- CodeAnalyzer의 하위 호출(툴 사용)
+  - code_analysis_tool로 호출(분석 실행) — CodeAnalyzer에서 아래쪽으로 연결된 툴 노드.
+  - 또한 CodeAnalyzer는 code_edit_tool과 연계되는 화살표(점선)가 있어, 분석 과정에서 편집 도구를 호출하거나 편집 흐름으로 전환할 수 있음을 보입니다.
+- CodeAnalyzer에서의 반환/전환
+  - done 라벨의 화살표로 SoftwareEngineer로 되돌아갑니다(분석이 끝나면 엔지니어에게 완료 알림/제어 반환).
+  - continue 라벨의 화살표로 Editor로 이동할 수 있습니다(분석 결과를 바탕으로 곧바로 편집 단계로 넘어감).
+- 요약: CodeAnalyzer는 코드 분석을 수행하고(내부적으로 code_analysis_tool 사용), 분석 후에는 완료(donen)로 돌아오거나 편집 단계로 계속(continue) 이어집니다.
+
+Editor 분기
+- SoftwareEngineer가 edit_file을 선택하면 Editor로 이동합니다.
+- Editor의 하위 호출(툴 사용)
+  - code_edit_tool 호출(파일 편집 기능 사용)
+  - test_tool 호출(편집한 결과를 테스트)
+- Editor에서의 반환/전환
+  - done 라벨의 화살표로 SoftwareEngineer로 되돌아갑니다(편집·테스트 완료 시 제어 반환).
+  - continue 라벨의 화살표로 CodeAnalyzer로 이동할 수 있습니다(편집한 코드를 다시 분석하러 이동 — 반복적 루프).
+- 요약: Editor는 편집과 테스트를 수행하고(내부적으로 code_edit_tool, test_tool 사용), 완료되면 엔지니어에게 반환하거나 분석기로 계속 전환할 수 있습니다.
+
+툴 노드들(code_analysis_tool, code_edit_tool, test_tool)
+- 이들은 CodeAnalyzer와 Editor가 실제 작업을 수행하기 위해 호출하는 하위 도구들입니다.
+  - code_analysis_tool: 코드 분석 수행
+  - code_edit_tool: 코드/파일 편집 기능
+  - test_tool: 편집 결과에 대한 테스트 실행
+- 화살표들은 도구 호출·응답 관계를 나타내며, 도구 실행 후 다시 호출자(Analyzer/Editor)로 제어가 돌아오는 것으로 해석됩니다.
+
+swe_tool 및 종료 경로
+- SoftwareEngineer는 직접 swe_tool을 호출할 수 있고(continue 라벨), 그 뒤에 end로 흐르거나 swe_tool에서 엔드로 가는 경로가 존재합니다.
+- 또한 SoftwareEngineer에서 직접 end로 가는 continue 경로(즉시 종료)도 표현되어 있습니다.
+- 요약: 엔지니어는 언제든지 도구(swe_tool)를 사용하거나 워크플로우를 종료할 수 있습니다.
+
+반복과 루프(중요한 흐름 특성)
+- Editor ↔ CodeAnalyzer 간의 continue 화살표들로 인해 반복적인 사이클이 가능함을 보여줍니다:
+  - 예: SoftwareEngineer → CodeAnalyzer(분석) → continue → Editor(수정) → continue → CodeAnalyzer(재분석) … 을 반복
+- 각 단계(Analyzer/Editor)는 완료(done) 시 SoftwareEngineer로 제어를 반환해 다음 의사결정을 하게 합니다.
+- 따라서 전형적인 반복 시나리오:
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer → analyze_code → CodeAnalyzer → (code_analysis_tool 실행)
+  3. CodeAnalyzer → continue → Editor → (code_edit_tool / test_tool 실행)
+  4. Editor → continue → CodeAnalyzer (또는 Editor → done → SoftwareEngineer로 귀환)
+  5. 반복 후 SoftwareEngineer → swe_tool 사용 또는 직접 end로 종료
+
+요약(사용자 관점의 흐름)
+- 엔지니어는 시작점에서 분석 또는 편집을 선택할 수 있다.
+- 분석 선택 → CodeAnalyzer가 code_analysis_tool로 분석 → 결과에 따라 편집으로 넘기거나 완료 후 엔지니어로 복귀.
+- 편집 선택 → Editor가 code_edit_tool 및 test_tool 사용 → 결과에 따라 분석으로 넘기거나 완료 후 엔지니어로 복귀.
+- Editor와 CodeAnalyzer 사이의 continue 전환으로 편집↔분석의 반복 사이클을 형성한다.
+- 필요 시 swe_tool을 호출하거나 워크플로우를 즉시 종료(end)할 수 있다.
+
+이상은 그림의 노드와 라벨( analyze_code, edit_file, done, continue 등)에 근거한 가능한 제어 흐름의 상세한 해석입니다. 그림의 점선/파선은 주로 “작업 호출/상태 전환”을 의미하며, 핵심은 SoftwareEngineer를 중심으로 CodeAnalyzer와 Editor가 상호작용하면서 하위 툴들을 호출하고 반복적으로 작업을 수행한 뒤 종료로 이어진다는 점입니다.

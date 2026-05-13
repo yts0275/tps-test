@@ -1,0 +1,81 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I need to write the quicksort function. The base case is when the array has zero or one element, which is already sorted. Then, I'll choose a pivot. Common choices are the first element, last element, or middle element. For simplicity, I'll pick the last element as the pivot.
+
+Next, the partitioning step. I need two pointers: one starting at the beginning (i) and another at the end (j). Wait, actually, the standard approach is to have a pointer that tracks elements less than the pivot. Let me think. The partition function will rearrange the array so that all elements less than the pivot come before it, and elements greater come after. 
+
+Wait, maybe I should use the Lomuto partition scheme. In that case, the pivot is usually the last element. Then, we iterate through the array, and whenever we find an element less than the pivot, we swap it with the element at the 'i' index, which tracks the position where the next smaller element should go. After the loop, we swap the pivot into its correct place.
+
+So the steps for the partition function: initialize i to low - 1. Then, for j from low to high - 1, if arr[j] < pivot, increment i and swap arr[i] and arr[j]. Finally, swap arr[i+1] with arr[high] (the pivot), and return i+1 as the pivot index.
+
+Then, the quicksort function will recursively call itself on the left and right subarrays.
+
+Now, adding comments to each line. Let me structure the code with functions. The main function will take an array and its low and high indices. The partition function will do the partitioning.
+
+Wait, in Python, the list is passed by reference, so the function can modify it in place. So the quicksort function can modify the array directly.
+
+Let me write the code step by step, adding comments for each line. For example, the base case check, selecting the pivot, partitioning, and then recursive calls.
+
+I should also test the code with an example array. Maybe [10, 7, 8, 9, 1, 5] to see if it sorts correctly.
+
+Make sure the comments explain each part clearly, like the purpose of the partition function, how the pivot is chosen, and the steps in the partitioning process.
+</think>
+
+```python
+def quicksort(arr, low, high):
+    # 기저 조건: 배열의 요소가 0개 또는 1개일 때, 이미 정렬된 상태
+    if low < high:
+        # 파티션 함수를 호출하여 피봇의 위치를 반환
+        pi = partition(arr, low, high)
+        
+        # 피봇을 기준으로 왼쪽 부분 배열 재귀 호출
+        quicksort(arr, low, pi - 1)
+        
+        # 피봇을 기준으로 오른쪽 부분 배열 재귀 호출
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피봇으로 마지막 요소를 선택
+    pivot = arr[high]
+    
+    # i는 "작은 요소의 위치"를 추적하는 포인터
+    i = low - 1
+    
+    # j는 배열을 순회하는 포인터
+    for j in range(low, high):
+        # 현재 요소가 피봇보다 작으면 i를 증가시키고 요소를 교환
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피봇을 올바른 위치로 이동 (i+1)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피봇의 최종 위치 반환
+    return i + 1
+
+# 예제 사용
+arr = [10, 7, 8, 9, 1, 5]
+print("정렬 전 배열:", arr)
+quicksort(arr, 0, len(arr) - 1)
+print("정렬 후 배열:", arr)
+```
+
+### 코드 설명
+1. **quicksort 함수**:
+   - `low`와 `high`는 배열의 범위를 나타냄.
+   - `low < high`일 때만 실행 (기저 조건).
+   - `partition` 함수를 호출하여 피봇 위치 `pi`를 얻음.
+   - 피봇 기준으로 왼쪽/오른쪽 배열을 재귀적으로 정렬.
+
+2. **partition 함수**:
+   - `pivot`은 배열의 마지막 요소로 선택.
+   - `i`는 "작은 요소"의 위치를 추적 (초기값: `low-1`).
+   - `j`는 배열을 순회하며 `arr[j] < pivot`인 요소를 찾음.
+   - 작은 요소를 `i` 위치로 이동 (스왑).
+   - 모든 요소를 순회한 후, 피봇을 `i+1` 위치로 이동.
+   - 피봇의 최종 위치 `i+1` 반환.
+
+3. **예제**:
+   - `[10, 7, 8, 9, 1, 5]` 배열을 정렬하여 `[1, 5, 7, 8, 9, 10]` 결과.

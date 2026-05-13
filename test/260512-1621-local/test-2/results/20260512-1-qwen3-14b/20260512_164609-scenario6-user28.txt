@@ -1,0 +1,15 @@
+<think>
+Okay, let's see. The user wants me to analyze this Python code in three lines. First, I need to understand what the code does. 
+
+Looking at the code, there are three main classes: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, and stock. It also has methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages products and their inventory, with methods to add products and display inventory.
+
+The run_system function initializes the inventory with some products, shows the inventory, creates two orders (one successful, one with insufficient stock), and then shows the updated inventory and a total asset report. 
+
+So, the code is a simple inventory and order management system. It tracks products, processes orders, checks stock availability, and generates reports. The key features are stock management, order processing with error handling for insufficient stock, and generating invoices and reports. 
+
+I need to summarize this in three lines. The first line should mention the system's purpose. The second line can talk about the classes and their functions. The third line can highlight the main operations like order processing and reporting.
+</think>
+
+이 코드는 제품 재고 관리 및 주문 처리 시스템을 구현한 것으로, 제품 정보 관리, 주문 생성, 재고 업데이트, 인보이스 출력 기능을 포함합니다.  
+Product 클래스는 제품 정보와 재고 관리 기능을, Order 클래스는 주문 처리 및 인보이스 생성을 담당하며, InventoryManager는 전체 재고 상태를 관리합니다.  
+시뮬레이션은 초기 재고 설정, 주문 처리(재고 부족 시나리오 포함), 최종 재고 확인 및 자산 리포트 생성을 통해 시스템 동작을 검증합니다.

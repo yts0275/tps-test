@@ -1,0 +1,21 @@
+# QuickSort 구현 예시 (파이썬, in-place)
+def quicksort(arr, low, high):  # 배열과 정렬 구간의 인덱스 받는 함수
+    if low < high:  # 구간에 두 원소 이상이 남아 있다면
+        pi = partition(arr, low, high)  # 피벗의 최종 인덱스를 구한다
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽 부분 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽 부분 재귀적으로 정렬
+
+def partition(arr, low, high):  # 피벗 기준으로 배열 분할하는 함수
+    pivot = arr[high]  # 마지막 원소를 피벗으로 선정
+    i = low - 1  # '<' 구간의 끝 인덱스, 초기에는 구간이 비었다고 간주
+    for j in range(low, high):  # 구간의 각 원소를 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # '<' 구간의 확장을 위한 인덱스 증가
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소의 위치를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 '<' 구간의 바로 뒤로 이동
+    return i + 1  # 피벗의 최종 위치를 반환
+
+if __name__ == "__main__":  # 스크립트로 실행될 때만 실행
+    arr = [10, 7, 8, 9, 1, 5]  # 정렬 대상 배열
+    quicksort(arr, 0, len(arr) - 1)  # 퀵소트 수행
+    print("정렬 결과:", arr)  # 정렬 결과 출력

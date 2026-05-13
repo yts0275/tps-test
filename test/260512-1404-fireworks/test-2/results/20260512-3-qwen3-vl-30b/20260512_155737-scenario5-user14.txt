@@ -1,0 +1,104 @@
+물론이에요! 아래는 **퀵소트(Quick Sort)** 알고리즘을 구현한 Python 코드이며, 각 줄에 자세한 주석을 달아드렸습니다. 퀵소트는 분할 정복(divide and conquer) 기반의 정렬 알고리즘으로, 평균 시간 복잡도는 O(n log n)입니다.
+
+```python
+# 퀵소트 함수 정의 (정렬할 리스트와 시작 인덱스, 끝 인덱스를 파라미터로 받음)
+def quicksort(arr, low, high):
+    # low와 high가 유효한 범위인지 확인 (low < high이면 정렬 필요)
+    if low < high:
+        # 피벗을 기준으로 배열을 분할하고, 피벗의 최종 위치를 반환
+        # partition 함수는 피벗을 올바른 위치로 이동시키고, 그 위치를 반환
+        pivot_index = partition(arr, low, high)
+        
+        # 피벗 기준 왼쪽 부분(피벗보다 작은 값들)을 재귀적으로 정렬
+        quicksort(arr, low, pivot_index - 1)
+        
+        # 피벗 기준 오른쪽 부분(피벗보다 큰 값들)을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)
+
+# 분할 함수: 피벗을 선택하고, 배열을 피벗 기준으로 나누는 함수
+def partition(arr, low, high):
+    # 마지막 요소를 피벗으로 선택 (이 경우 high 인덱스의 값)
+    pivot = arr[high]
+    
+    # i는 피벗보다 작은 요소들의 오른쪽 끝 위치를 가리킴
+    i = low - 1
+    
+    # low부터 high-1까지의 모든 요소를 탐색
+    for j in range(low, high):
+        # 만약 현재 요소가 피벗보다 작거나 같으면,
+        if arr[j] <= pivot:
+            # i를 한 칸 오른쪽으로 이동하고, arr[i]와 arr[j]를 교환
+            i = i + 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동 (i+1 위치에 삽입)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 위치를 반환
+    return i + 1
+
+# 사용 예시
+if __name__ == "__main__":
+    # 정렬할 리스트
+    arr = [64, 34, 25, 12, 22, 11, 90]
+    
+    print("정렬 전:", arr)
+    
+    # 퀵소트 호출 (전체 리스트를 정렬)
+    quicksort(arr, 0, len(arr) - 1)
+    
+    print("정렬 후:", arr)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+1. **`quicksort(arr, low, high)`**:  
+   - `arr`: 정렬할 리스트  
+   - `low`: 정렬 범위의 시작 인덱스  
+   - `high`: 정렬 범위의 끝 인덱스  
+   - 재귀적으로 배열을 나누고 정렬
+
+2. **`if low < high:`**  
+   - 정렬할 요소가 2개 이상일 때만 실행 (1개 이하일 경우 이미 정렬된 상태)
+
+3. **`pivot_index = partition(...)`**  
+   - `partition` 함수를 호출하여 피벗을 기준으로 배열을 나누고, 피벗의 최종 위치를 얻음
+
+4. **`quicksort(..., low, pivot_index - 1)`**  
+   - 피벗 왼쪽 부분 재귀 정렬
+
+5. **`quicksort(..., pivot_index + 1, high)`**  
+   - 피벗 오른쪽 부분 재귀 정렬
+
+6. **`partition` 함수**:  
+   - 피벗 선택 → 배열 분할 → 피벗 위치 반환
+
+7. **`pivot = arr[high]`**  
+   - 피벗으로 마지막 요소를 선택 (단순화를 위해)
+
+8. **`i = low - 1`**  
+   - 피벗보다 작은 요소들을 모을 위치를 초기화
+
+9. **`for j in range(low, high):`**  
+   - 피벗을 제외한 모든 요소를 탐색
+
+10. **`arr[i], arr[j] = arr[j], arr[i]`**  
+    - `arr[j]`가 피벗보다 작거나 같으면, `i` 위치의 요소와 교환
+
+11. **`arr[i + 1], arr[high] = arr[high], arr[i + 1]`**  
+    - 피벗을 올바른 위치로 이동 (피벗보다 작은 요소들 뒤에)
+
+12. **`return i + 1`**  
+    - 피벗의 최종 인덱스를 반환
+
+---
+
+### ✅ 실행 결과 예시:
+```
+정렬 전: [64, 34, 25, 12, 22, 11, 90]
+정렬 후: [11, 12, 22, 25, 34, 64, 90]
+```
+
+필요하시면 **기본적으로 리스트만 전달하는 버전**이나 **랜덤 피벗 선택**, **최악의 경우 개선** 등도 도와드릴 수 있어요!

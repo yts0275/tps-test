@@ -1,0 +1,20 @@
+아래는 Python으로 구현한 퀵소트 예제입니다. 각 코드 줄마다 주석을 달아 동작을 설명했습니다.
+
+```python
+def quicksort(arr):  # quicksort 함수 정의, 리스트 arr을 받아 정렬된 새 리스트를 반환
+    if len(arr) <= 1:  # 리스트 길이가 0 또는 1이면 이미 정렬되어 있음
+        return arr  # 그대로 반환
+    pivot = arr[len(arr) // 2]  # 피벗으로 리스트 중앙 요소 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들을 모아 left 리스트 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들을 모아 middle 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 모아 right 리스트 생성
+    return quicksort(left) + middle + quicksort(right)  # 좌우를 재귀 정렬한 후 합쳐서 반환
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 코드 실행
+    sample = [3, 6, 8, 10, 1, 2, 1]  # 예시 입력 리스트 선언
+    print("원본:", sample)  # 원본 리스트 출력
+    sorted_sample = quicksort(sample)  # quicksort 호출하여 정렬된 리스트 받기
+    print("정렬:", sorted_sample)  # 정렬 결과 출력
+```
+
+원하시면 in-place(제자리) 퀵소트나 평균/최악 시간복잡도, 안정성(stability)에 대한 설명도 덧붙여 드리겠습니다. 어느 구현을 더 원하시나요?

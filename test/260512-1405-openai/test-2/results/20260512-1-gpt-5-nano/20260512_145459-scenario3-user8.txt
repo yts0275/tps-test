@@ -1,0 +1,34 @@
+다음은 파이썬으로 작성한 퀵소트 구현이며, 각 줄마다 주석을 달아 두었습니다.
+
+```python
+def quicksort(arr):  # 시작 함수: 배열을 제자리에서 퀵소트 수행
+    _quicksort(arr, 0, len(arr) - 1)  # 전체 구간에 대해 재귀 호출 시작
+
+def _quicksort(arr, low, high):  # 보조 함수: 구간 [low, high]를 정렬
+    if low < high:  # 구간에 최소 두 원소가 있으면
+        p = partition(arr, low, high)  # 피벗 분할로 분할 인덱스 얻기
+        _quicksort(arr, low, p)  # 왼쪽 부분구간 재귀 정렬
+        _quicksort(arr, p + 1, high)  # 오른쪽 부분구간 재귀 정렬
+
+def partition(arr, low, high):  # 분할 함수: Hoare 파티션 사용
+    pivot = arr[(low + high) // 2]  # 피벗으로 중간 값을 선택
+    i = low  # 왼쪽 커서 초기화
+    j = high  # 오른쪽 커서 초기화
+    while True:  # 무한 루프 시작
+        while arr[i] < pivot:  # 피벗보다 작은 값 찾기
+            i += 1  # 왼쪽으로 커서 이동
+        while arr[j] > pivot:  # 피벗보다 큰 값 찾기
+            j -= 1  # 오른쪽으로 커서 이동
+        if i >= j:  # 커서가 교차하면 분할 종료
+            return j  # 분할 인덱스 반환
+        arr[i], arr[j] = arr[j], arr[i]  # 교환 수행
+        i += 1  # 교환 후 왼쪽 커서 증가
+        j -= 1  # 교환 후 오른쪽 커서 감소
+
+if __name__ == "__main__":  # 실행 진입점
+    arr = [9, 3, 7, 1, 5, 4, 8, 2, 6]  # 테스트 배열
+    quicksort(arr)  # 배열을 제자리에서 정렬
+    print(arr)  # 정렬 결과 출력
+```
+
+필요하면 다른 언어 버전도 제공해 드릴게요.

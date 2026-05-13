@@ -1,0 +1,49 @@
+아래는 Python 으로 구현한 퀵소트(Quick Sort) 알고리즘 예시입니다.  
+각 코드 라인마다 무엇을 하는지 설명하는 주석을 한 줄씩 달아두었습니다.  
+
+```python
+def quick_sort(arr: list) -> list:                     # quick_sort 함수 정의, 정렬할 리스트 arr를 매개변수로 받는다.
+    """                                                # 함수 설명(문서 문자열) 시작
+    퀵소트를 이용해 배열을 오름차순으로 정렬하고 새로운 리스트를 반환합니다.
+    """                                                # 함수 설명(문서 문자열) 종료
+
+    # 1. 배열이 비어 있거나 원소가 하나만 있으면 이미 정렬된 것이므로 그대로 반환한다.
+    if len(arr) <= 1:                                 # 리스트 길이가 1 이하인지 확인
+        return arr                                    # 정렬할 필요가 없으니 그대로 반환
+
+    # 2. 피벗(pivot) 선택 – 여기서는 리스트의 마지막 요소를 피벗으로 사용한다.
+    pivot = arr[-1]                                    # 피벗은 마지막 원소
+
+    # 3. 피벗보다 작은 요소들, 피벗과 같은 요소들, 피벗보다 큰 요소들을 각각 나눈다.
+    less = []                                          # 피벗보다 작은 값들을 담을 리스트
+    equal = []                                         # 피벗과 같은 값들을 담을 리스트
+    greater = []                                       # 피벗보다 큰 값들을 담을 리스트
+
+    # 4. 원본 배열을 한 번 순회하면서 세 개의 리스트에 요소를 분배한다.
+    for x in arr:                                      # 원본 리스트의 각 원소 x에 대해
+        if x < pivot:                                  # x가 피벗보다 작으면
+            less.append(x)                             # less 리스트에 추가
+        elif x == pivot:                               # x가 피벗과 같으면
+            equal.append(x)                            # equal 리스트에 추가
+        else:                                          # x가 피벗보다 크면
+            greater.append(x)                          # greater 리스트에 추가
+
+    # 5. 재귀적으로 less와 greater 리스트를 정렬한다.
+    sorted_less = quick_sort(less)                     # less 리스트에 대해 재귀 호출
+    sorted_greater = quick_sort(greater)               # greater 리스트에 대해 재귀 호출
+
+    # 6. 정렬된 결과를 합쳐서 최종 결과 리스트를 만든다.
+    return sorted_less + equal + sorted_greater         # 병합하여 반환
+```
+
+### 사용 예시
+```python
+if __name__ == "__main__":                # 스크립트가 직접 실행될 때만 아래 코드를 실행
+    unsorted = [33, 10, 55, 71, 29, 3, 18]  # 정렬되지 않은 리스트
+    print("원본:", unsorted)               # 원본 리스트 출력
+    sorted_list = quick_sort(unsorted)     # 퀵소트 함수 호출
+    print("정렬 후:", sorted_list)         # 정렬된 리스트 출력
+```
+
+이 구현은 **O(N log N)** 평균 시간 복잡도와 **O(N)** 추가 메모리(각 재귀 단계마다 새로운 리스트를 만들기 때문)를 가집니다.  
+피벗 선택 방법을 바꾸면 최악의 경우 **O(N²)** 를 피할 수 있도록 개선할 수 있습니다. (예: 무작위 피벗, 중앙값 피벗 등)  

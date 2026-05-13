@@ -1,0 +1,116 @@
+아래 이미지는 “SoftwareEngineer”를 중심으로 여러 하위 작업(Node)들이 루프/분기 형태로 연결된 워크플로우를 보여줍니다. 화살표의 점선/실선은 흐름의 “진행(continue)·완료(done)·전환(편집/분석)” 같은 상태를 표현하는 것으로 읽히며, 전체적으로 **코드 분석 → 코드 편집/수정 → 테스트 → 다시 분석**(또는 계속 진행)이라는 반복 사이클이 핵심입니다. 또한 가운데 “SoftwareEngineer”가 여러 경로로 분기된 작업들을 조정(또는 재진입)하는 허브 역할을 합니다.
+
+---
+
+## 1) 전체 시작~중앙 진입
+
+1. **start**
+2. **SoftwareEngineer 노드**로 진입  
+   - start에서 내려오는 실선 화살표가 “SoftwareEngineer”를 실행하게 만듭니다.
+
+3. “SoftwareEngineer”에서 여러 하위 작업으로 흐름이 분기됩니다.  
+   - 동시에 그림은 “SoftwareEngineer”와 하위 노드들 사이에 **되돌아오는 루프**가 존재함을 보여줍니다.
+   - 즉, 한 번 작업을 끝내고 나면 다시 SoftwareEngineer로 돌아가 다음 단계(다음 수정/다음 테스트/다음 분석)를 결정하는 구조입니다.
+
+---
+
+## 2) CodeAnalyzer 경로(코드 분석 루프)
+
+### 2-1. SoftwareEngineer → CodeAnalyzer
+- “SoftwareEngineer”에서 **CodeAnalyzer**로 향하는 화살표가 있습니다.
+- 라벨로 보이는 흐름은 **analyze_code**라는 이벤트/명령 성격의 전이가 “CodeAnalyzer” 쪽으로 연결됩니다.
+
+### 2-2. CodeAnalyzer 내부 작업(도구 호출)
+- **CodeAnalyzer**에서 아래쪽의 도구 노드 **code_analysis_tool**로 흐름이 이어집니다.
+- 이는 “CodeAnalyzer가 실제 코드 정적 분석(또는 규칙 기반 분석)을 수행하기 위해 code_analysis_tool을 호출한다”는 의미로 읽힙니다.
+
+### 2-3. code_analysis_tool 실행 결과 → CodeAnalyzer → done
+- **code_analysis_tool**에서 다시 **CodeAnalyzer**로 돌아오는 흐름이 있고, 그 위에 **done**이 표시됩니다.
+- 즉,
+  1) code_analysis_tool이 분석을 수행  
+  2) 분석 결과가 정리되어 CodeAnalyzer가 “done” 상태가 됨  
+  3) 그 완료 신호가 상위로 보고됨
+  의 순서를 가집니다.
+
+### 2-4. done 이후의 분기: continue 또는 다시 중앙 복귀
+- CodeAnalyzer에서 **continue**로 표시된 점선 흐름이 보입니다. 이는 “분석이 충분하면 다음 단계로 진행” 또는 “추가 분석/다른 도구/다음 단계로 넘어감”을 의미합니다.
+- 동시에 CodeAnalyzer에서 “SoftwareEngineer”로 **done** 상태가 올라가는 연결이 있습니다.
+  - 따라서 보통은 **CodeAnalyzer 완료 → SoftwareEngineer로 복귀**하여 다음 결정을 내리고, 그 다음 작업(편집 또는 종료/계속)을 선택합니다.
+
+---
+
+## 3) Editor 경로(코드 편집/수정 루프)
+
+### 3-1. SoftwareEngineer → Editor
+- SoftwareEngineer에서 **Editor**로 향하는 화살표가 있습니다.
+- 라벨로 **edit_file**(파일 편집/수정)이 Editor 쪽으로 연결되어 보입니다.
+- 즉, 분석 결과나 요구사항에 따라 코드 수정이 필요하면 Editor를 실행합니다.
+
+### 3-2. Editor 내부 작업(도구 호출)
+- **Editor** 아래에는 도구 노드 **code_edit_tool**이 있습니다.
+- Editor가 code_edit_tool을 호출하여 실제 소스코드를 변경합니다.
+
+### 3-3. code_edit_tool 실행 결과 → Editor → done
+- code_edit_tool에서 나온 결과가 Editor로 되돌아오며, Editor에서 **done** 표기가 보입니다.
+- 이는 편집 단계가 완료되었음을 의미합니다.
+
+### 3-4. done 이후 분기: continue 또는 다음 사이클
+- Editor에서 **continue**가 표시된 점선 흐름이 있습니다.
+- 또한 Editor가 완료되면 **SoftwareEngineer로 done이 보고**되고, SoftwareEngineer는 그 다음 단계로 넘어갑니다.
+- 일반적으로는 “편집이 되었으니 테스트를 수행”하는 방향으로 이어지며, 그림의 다른 하위 노드 흐름(테스트 도구 호출)과 결합됩니다.
+
+---
+
+## 4) test_tool 경로(테스트/검증 루프)
+
+### 4-1. Editor → test_tool
+- Editor 아래에는 **test tool** 노드가 있고,
+- Editor에서 test tool로 이어지는 화살표가 그려져 있습니다.
+- 즉 편집이 끝나면 테스트가 수행됩니다.
+
+### 4-2. test tool 실행 → Editor 또는 중앙 복귀
+- 테스트 수행 후 흐름이 다시 상위로 되돌아가는 구조가 나타납니다.
+- 그림상 “SoftwareEngineer”로 다시 연결되는 루프가 있어, 테스트 결과가 나면 중앙이 판단합니다.
+
+### 4-3. 결과 반영: continue 또는 end/종료
+- 테스트가 통과/조건 충족이면 “continue” 쪽으로 진행하거나, 더 이상 작업이 필요 없으면 “end”로 가는 경로가 열립니다.
+- 반대로 테스트 실패/결함 발견이면 다시 분석→편집으로 반복될 수 있습니다(아래에서 SoftwareEngineer가 여러 하위 노드를 다시 호출하는 구조 때문).
+
+---
+
+## 5) swoe_tool(추가 작업 도구) 및 종료 흐름
+
+### 5-1. SoftwareEngineer → swe_tool
+- 오른쪽 아래에 **swe_tool** 노드가 존재합니다.
+- 화살표가 SoftwareEngineer에서 swe_tool로 향하며, swe_tool에서 나온 결과가 다시 돌아오거나(점선/곡선 흐름), 또는 종료 조건에 영향을 주는 것으로 보입니다.
+- “swe_tool”은 보통 “SWE(Software Engineering) 보조 도구”: 생성/변환/추가 액션 등 더 상위 레벨의 도구 실행을 의미하는 형태로 해석할 수 있습니다.
+
+### 5-2. swe_tool → end (또는 continue 후 end)
+- 그림 오른쪽에 **end** 노드가 별도로 있고, swe_tool 및 SoftwareEngineer에서 점선 곡선 형태로 end로 가는 연결이 보입니다.
+- 즉, 특정 조건(예: 모든 작업 완료, 추가 수정 불필요, 테스트/분석 결과 만족)이 만족되면 **end로 종료**합니다.
+
+---
+
+## 6) 핵심 반복 구조(허브: SoftwareEngineer)
+
+정리하면 이 워크플로우는 다음과 같은 “반복 루프”를 갖습니다.
+
+1. **SoftwareEngineer**가 시작점 역할을 하며,
+2. 필요에 따라
+   - **CodeAnalyzer (code_analysis_tool)**로 코드 상태를 분석하고,
+   - 필요하면 **Editor (code_edit_tool)**로 코드를 수정한 뒤,
+   - 이어서 **test tool**로 검증합니다.
+3. 각각의 단계는 **done**으로 완료 상태를 만들고 다시 **SoftwareEngineer로 복귀**하여,
+4. SoftwareEngineer가 “계속할지(continue) / 종료할지(end)”를 결정합니다.
+
+---
+
+## 7) “continue / done / end”의 의미를 흐름 관점에서 해석
+
+- **done**: 하위 작업(분석/편집/도구 실행 등)이 끝났다는 완료 신호로, 상위(SoftwareEngineer)로 결과가 반영될 준비가 되었음을 의미.
+- **continue**: 완료 후에도 추가 작업이 필요하여 다음 단계(또는 같은 종류의 단계)를 수행하도록 이어지는 신호.
+- **end**: SoftwareEngineer가 더 이상의 반복이 필요 없다고 판단해 워크플로우를 종료하는 신호.
+
+---
+
+원하시면, 제가 **(1) 화살표 라벨 기준으로 완전한 “스텝-바이-스텝 실행 시퀀스”**를 “분기 포함해서” 다시 써드리거나, **(2) 테스트 실패 시 어떤 경로로 다시 분석/편집으로 되돌아가는지**를 그림에서 보이는 연결만 근거로 더 엄밀하게 정리해드릴 수 있어요. 어느 쪽으로 더 자세히 원하시나요?

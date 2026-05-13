@@ -1,0 +1,66 @@
+<think>
+Okay, I need to write a quicksort implementation in Python with comments on each line. Let me start by recalling how quicksort works. Quicksort is a divide-and-conquer algorithm that selects a 'pivot' element from the array and partitions the other elements into two sub-arrays, according to whether they are less than or greater than the pivot. The sub-arrays are then recursively sorted.
+
+First, I should define the quicksort function. The base case is when the list has zero or one element, which is already sorted. Then, I need to choose a pivot. Common choices are the first element, last element, or middle element. For simplicity, I'll use the middle element here.
+
+Next, partition the list into elements less than the pivot, equal to the pivot, and greater than the pivot. Then, recursively apply quicksort to the left and right partitions.
+
+Wait, but in the code, I need to make sure that each line has a comment explaining what it does. Let me structure the code step by step.
+
+The function will take a list as input. The base case: if the length is less than or equal to 1, return the list. Then, choose the pivot. Maybe using list.pop(mid) to remove the pivot from the list. Then, create three lists: left, middle, and right. Iterate through the remaining elements, adding them to left, middle, or right based on comparison with the pivot.
+
+After partitioning, recursively call quicksort on left and right, then concatenate the results. The middle list is already sorted (all elements equal to the pivot), so just add it in the middle.
+
+Now, I need to write this in Python with comments on each line. Let me make sure the comments are clear and explain each step. Also, test the code with an example to ensure it works. Maybe include an example usage at the end with a sample list and print the sorted result.
+</think>
+
+```python
+# 퀵소트 알고리즘 구현 (Python)
+# 주어진 리스트를 오름차순으로 정렬하는 함수
+
+def quicksort(arr):
+    # 기본 조건: 리스트의 길이가 0 또는 1일 경우 이미 정렬된 상태
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 선택 (리스트의 중앙 요소)
+    mid = len(arr) // 2
+    pivot = arr[mid]
+    
+    # 피벗을 제외한 나머지 요소를 분할
+    # left: 피벗보다 작은 요소
+    # middle: 피벗과 같은 요소
+    # right: 피벗보다 큰 요소
+    left = []
+    middle = []
+    right = []
+    
+    # 요소를 분할하는 반복문
+    for num in arr:
+        if num < pivot:
+            left.append(num)
+        elif num == pivot:
+            middle.append(num)
+        else:
+            right.append(num)
+    
+    # 재귀적 호출: left와 right 리스트에 대해 퀵소트 수행
+    # middle 리스트는 이미 정렬되어 있으므로 그대로 합침
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 사용
+if __name__ == "__main__":
+    sample = [5, 3, 8, 4, 2, 7, 1, 6]
+    print("정렬 전:", sample)
+    sorted_list = quicksort(sample)
+    print("정렬 후:", sorted_list)
+```
+
+### 주석 설명
+1. **함수 정의**: `quicksort` 함수는 정렬할 리스트를 입력으로 받습니다.
+2. **기본 조건**: 리스트의 길이가 0 또는 1일 경우 이미 정렬된 상태이므로 그대로 반환합니다.
+3. **피벗 선택**: 리스트의 중앙 요소를 피벗으로 선택합니다.
+4. **분할 리스트**: 피벗보다 작은, 같은, 큰 요소를 각각 `left`, `middle`, `right` 리스트에 저장합니다.
+5. **재귀적 정렬**: `left`와 `right` 리스트에 대해 다시 `quicksort`를 호출합니다.
+6. **결과 조합**: 정렬된 `left`, `middle`, `right` 리스트를 순서대로 합쳐 최종 결과를 반환합니다.
+7. **예시 사용**: `sample` 리스트를 정렬하여 출력합니다.

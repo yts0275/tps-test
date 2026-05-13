@@ -1,0 +1,94 @@
+<think>
+Okay, the user wants a quicksort implementation with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I need to write the main function. The base case is when the array has zero or one element, which is already sorted. Then, I'll choose a pivot. The user didn't specify the pivot selection method, so I'll go with the middle element as a common choice. 
+
+Next, the partitioning step. I'll need two pointers, one starting at the left end and the other at the right end. I'll move the left pointer until it finds an element greater than the pivot, and the right pointer until it finds an element smaller than the pivot. When they cross, I'll swap the pivot into place. Wait, no, the standard approach is to swap the elements at the left and right pointers when they cross. Then, place the pivot in its correct position.
+
+Wait, let me think again. The partition function usually takes the array, low, and high indices. The pivot is selected, then elements are rearranged so that elements less than the pivot are on the left, and greater on the right. The pivot's final position is the partition index. Then, quicksort is called recursively on the left and right subarrays.
+
+I need to make sure the comments explain each step clearly. Let me structure the code with functions: quicksort and partition. The main function will call quicksort with the array and indices. Each line should have a comment explaining what it's doing.
+
+Wait, the user said "each line" so every line of code needs a comment. That might be a bit verbose, but it's necessary for clarity. Also, I should mention the time complexity, O(n log n) average case, but O(n²) in worst case. But the user didn't ask for that, just the code with comments.
+
+Let me draft the code step by step. First, the quicksort function with base case. Then, selecting the pivot. Then, partitioning. Then, recursive calls. For the partition function, initializing variables, swapping elements, and returning the pivot index.
+
+I need to make sure the comments are concise but informative. For example, in the partition function, the loop where left and right pointers move, the swapping steps, and the final pivot placement. Each line of code should have a comment explaining its purpose.
+
+Also, the user is probably a student or someone learning algorithms, so the comments should be educational. Maybe mention the purpose of each part of the algorithm, like the partitioning step, the recursive calls, and the base case.
+
+I should test the code in my mind. Let's say an array like [3, 6, 8, 10, 1, 2, 1]. The pivot is selected as the middle element. Then the partitioning would rearrange elements around the pivot. Then the left and right subarrays are sorted recursively.
+
+Wait, but in the code, the pivot is chosen as the middle element. Let me check the indices. If the array is from low to high, the middle index is (low + high) // 2. Then, the pivot value is arr[pivot_index], and the pivot element is placed at the end temporarily. Wait, no, in the code, the pivot is stored, and then the array is partitioned with elements less than the pivot on the left and greater on the right. Then the pivot is placed in the correct position.
+
+I think that's the standard approach. So the code should be correct. Now, adding comments to each line. For example:
+
+# Base case: if the array has 0 or 1 elements, it's already sorted
+if low >= high:
+    return
+
+Then, selecting the pivot, swapping it with the last element, etc.
+
+I need to make sure all steps are covered with comments. Alright, I think that's it. Let me write the code with detailed comments now.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 코드입니다. 각 줄에 주석을 달아 설명을 제공했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우 이미 정렬되어 있음
+    if low >= high:
+        return
+
+    # 피벗(pivot) 선택: 배열의 중앙 요소 선택
+    pivot_index = (low + high) // 2
+    pivot = arr[pivot_index]
+
+    # 피벗을 배열의 끝으로 이동 (임시로)
+    arr[pivot_index], arr[high] = arr[high], arr[pivot_index]
+
+    # 왼쪽 포인터와 오른쪽 포인터 초기화
+    left = low
+    right = high - 1
+
+    # 배열을 피벗을 기준으로 분할
+    while left <= right:
+        # 왼쪽 포인터: 피벗보다 큰 값을 찾음
+        while left <= right and arr[left] < pivot:
+            left += 1
+        # 오른쪽 포인터: 피벗보다 작은 값을 찾음
+        while left <= right and arr[right] > pivot:
+            right -= 1
+
+        # 두 포인터가 교차하지 않았다면 요소 교환
+        if left <= right:
+            arr[left], arr[right] = arr[right], arr[left]
+            left += 1
+            right -= 1
+
+    # 피벗을 올바른 위치로 이동
+    arr[left], arr[high] = arr[high], arr[left]
+
+    # 왼쪽 부분 배열과 오른쪽 부분 배열에 대해 재귀적으로 퀵소트 실행
+    quicksort(arr, low, left - 1)
+    quicksort(arr, left + 1, high)
+
+# 예제 배열 정의
+arr = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 실행
+quicksort(arr, 0, len(arr) - 1)
+
+# 정렬된 배열 출력
+print("정렬된 배열:", arr)
+```
+
+### 설명:
+- **기저 조건**: 배열의 길이가 0 또는 1일 경우 정렬이 필요 없음.
+- **피벗 선택**: 배열의 중앙 요소를 피벗으로 선택 (다른 선택법도 가능).
+- **분할**: 배열을 피벗보다 작은 값과 큰 값으로 나눔.
+- **재귀**: 분할된 왼쪽과 오른쪽 배열에 대해 다시 퀵소트 실행.
+
+### 시간 복잡도:
+- **평균**: O(n log n) (n은 배열의 크기)
+- **최악**: O(n²) (피벗이 항상 최대/최소일 때 발생, 그러나 이 구현에서는 피벗 선택을 중앙으로 해 최악을 줄임)

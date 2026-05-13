@@ -1,0 +1,78 @@
+아래 예시는 **Python 3** 로 작성한 퀵소트(Quick Sort) 구현입니다.  
+각 줄마다 한글 주석을 달아, 어떤 역할을 하는지 명확히 표기했습니다.
+
+```python
+def quick_sort(arr, left, right):
+    """
+    주어진 배열 arr의 [left, right] 구간을 제곱하여 정렬합니다.
+    """
+    # 구간이 1개 이하이면 이미 정렬이 됨
+    if left >= right:
+        return
+
+    # 피벗(교환 기준 요소) 선택 – 여기서는 가장 오른쪽 원소를 사용
+    pivot = arr[right]
+    # pivotIdx는 pivot보다 작은 (또는 같은) 값들 왼쪽에 놓이게 될 인덱스
+    pivotIdx = left
+
+    # pivotIdx(= pivot이 가질 최종 위치)보다 왼쪽에서 시작함
+    for i in range(left, right):
+        # arr[i]가 pivot보다 작으면, pivotIdx가 가리키는 위치와 교환
+        if arr[i] <= pivot:
+            arr[i], arr[pivotIdx] = arr[pivotIdx], arr[i]
+            pivotIdx += 1  # pivotIdx를 한 칸 오른쪽으로 이동
+
+    # pivotIdx에 pivot 요소 위치를 맞추기 위해 교환
+    arr[pivotIdx], arr[right] = arr[right], arr[pivotIdx]
+
+    # 재귀: pivot을 기준으로 왼쪽/오른쪽 구간을 각각 정렬
+    quick_sort(arr, left, pivotIdx - 1)
+    quick_sort(arr, pivotIdx + 1, right)
+
+
+# ----------------------------------------------------------------------
+# 아래 예시를 통해 사용법을 확인하세요.
+# ----------------------------------------------------------------------
+if __name__ == "__main__":
+    # 예시 배열
+    numbers = [35, 23, 1, 7, 55, 12, 78, 24, 44]
+    print("정렬 전:", numbers)
+
+    # 전체 배열을 정렬
+    quick_sort(numbers, 0, len(numbers) - 1)
+
+    print("정렬 후 :", numbers)
+```
+
+### 주석 해설
+
+| 줄 번호 | 주석문 | 내용 요약 |
+|----------|--------|----------|
+| 1 | `def quick_sort(arr, left, right):` | 퀵소트 함수 정의: 배열 `arr`, 시작 인덱스 `left`, 끝 인덱스 `right` |
+| 4 | `if left >= right:` | 구간이 0 또는 1 원소일 경우 바로 리턴 |
+| 7 | `pivot = arr[right]` | 피벗(배열 끝 원소)을 저장 |
+| 9 | `pivotIdx = left` | 피벗보다 작은 원소가 모일 위치를 인덱스로 초기화 |
+| 12 | `for i in range(left, right):` | 피벗을 제외한 구간 전체 탐색 |
+| 14 | `if arr[i] <= pivot:` | 현재 원소가 피벗보다 작거나 같음 |
+| 15 | `arr[i], arr[pivotIdx] = arr[pivotIdx], arr[i]` | 작은 원소를 왼쪽 영역으로 이동 |
+| 16 | `pivotIdx += 1` | 피벗이 놓일 위치 한 칸 옆으로 이동 |
+| 20 | `arr[pivotIdx], arr[right] = arr[right], arr[pivotIdx]` | 피벗을 최종 위치에 정착 |
+| 23 | `quick_sort(arr, left, pivotIdx - 1)` | 피벗 왼쪽 구간 재귀 정렬 |
+| 24 | `quick_sort(arr, pivotIdx + 1, right)` | 피벗 오른쪽 구간 재귀 정렬 |
+| 33 | `if __name__ == "__main__":` | 직접 실행 시 예시 동작 부호 |
+| 36 | `numbers = [...]` | 테스트용 배열 선언 |
+| 39 | `quick_sort(numbers, 0, len(numbers) - 1)` | 전체 배열 정렬 호출 |
+
+**핵심 포인트**  
+- 피벗 선택 기준은 오른쪽 끝 원소를 사용했지만, 중간값 등 다른 전략도 가능합니다.  
+- `pivotIdx`는 피벗이 최종적으로 놓일 인덱스를 가리킵니다.  
+- 재귀를 통해 피벗을 기준으로 하위 구간을 계속 나누어 정렬합니다.  
+
+위 코드를 그대로 실행하면 다음과 같은 결과가 나옵니다:
+
+```
+정렬 전: [35, 23, 1, 7, 55, 12, 78, 24, 44]
+정렬 후 : [1, 7, 12, 23, 24, 35, 44, 55, 78]
+```
+
+필요에 따라 피벗 선택 방법이나 반복 연산을 루프 대신 재귀 없이 구현해도 좋습니다. 🎉

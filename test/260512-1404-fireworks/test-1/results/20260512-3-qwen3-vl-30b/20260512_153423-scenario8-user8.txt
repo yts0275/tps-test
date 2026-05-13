@@ -1,0 +1,115 @@
+물론입니다. 아래는 주어진 워크플로우 다이어그램의 모든 노드와 그间的 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **1. 개요**
+이 워크플로우는 소프트웨어 엔지니어의 작업 흐름을 시각화한 것으로, 주요 작업 단계를 **Node** (노드)와 **Edge** (화살표)로 표현하고 있습니다. 노드는 각각의 작업 또는 역할을 나타내며, 화살표는 작업 간의 흐름과 상태 전이를 나타냅니다. 노드 간의 연결은 실선과 점선으로 구분되며, 점선은 반복적 또는 조건부 흐름을 의미할 수 있습니다.
+
+---
+
+### **2. 노드 및 흐름 상세 설명**
+
+#### **(1) `start` 노드**
+- **역할**: 워크플로우의 시작점을 나타냅니다.
+- **특징**: 원형 노드로, 단일 진입점입니다.
+- **흐름**: `start` 노드에서 단 하나의 실선 화살표가 `SoftwareEngineer` 노드로 향합니다.
+- **의미**: 워크플로우는 이 시점에서 `SoftwareEngineer`라는 역할 또는 프로세스에 의해 시작됩니다.
+
+---
+
+#### **(2) `SoftwareEngineer` 노드**
+- **역할**: 워크플로우의 중심 역할. 소프트웨어 엔지니어가 수행하는 작업을 조정하는 역할을 합니다.
+- **특징**: 사각형 노드로, 여러 작업으로의 분기점이 되며, 여러 작업의 결과를 수렴하는 역할도 합니다.
+- **흐름**:
+  - **→ `CodeAnalyzer`**: `analyze_code` 이벤트 또는 명령에 의해 `CodeAnalyzer`로 이동합니다.
+  - **→ `Editor`**: `edit_file` 이벤트 또는 명령에 의해 `Editor`로 이동합니다.
+  - **→ `swe_tool`**: `SoftwareEngineer`가 직접 `swe_tool`을 호출할 수 있습니다.
+  - **← `CodeAnalyzer`**: `CodeAnalyzer`가 작업을 마치면 `done` 상태로 `SoftwareEngineer`로 돌아옵니다.
+  - **← `Editor`**: `Editor`가 작업을 마치면 `done` 상태로 `SoftwareEngineer`로 돌아옵니다.
+  - **← `swe_tool`**: `swe_tool`이 완료되면 `SoftwareEngineer`로 돌아오지 않으며, `end`로 연결됩니다.
+  - **← `SoftwareEngineer` (자기 자신)**: `continue` 라벨이 붙은 점선 화살표로, `SoftwareEngineer`가 자신의 작업을 반복하거나 재진행하는 것을 의미합니다. 이는 반복적인 작업 흐름(예: 코드 분석 후 수정 후 다시 분석)을 나타냅니다.
+
+---
+
+#### **(3) `CodeAnalyzer` 노드**
+- **역할**: 코드 분석을 수행하는 도구 또는 프로세스.
+- **특징**: 사각형 노드. `SoftwareEngineer`의 `analyze_code` 요청을 받습니다.
+- **흐름**:
+  - **← `SoftwareEngineer`**: `analyze_code` 이벤트로 시작됩니다.
+  - **→ `code_analysis_tool`**: `CodeAnalyzer`가 `code_analysis_tool`을 사용하여 실제 분석을 수행합니다.
+  - **← `code_analysis_tool`**: 분석 결과를 받아들입니다.
+  - **→ `SoftwareEngineer`**: `done` 상태로 작업 완료를 알리며, `SoftwareEngineer`로 돌아갑니다.
+  - **← `SoftwareEngineer`**: `continue` 라벨이 붙은 점선 화살표로, `SoftwareEngineer`가 다시 `CodeAnalyzer`로 이동하여 반복 분석을 수행할 수 있음을 의미합니다. 예: 분석 결과를 바탕으로 수정 후 다시 분석.
+
+---
+
+#### **(4) `Editor` 노드**
+- **역할**: 파일 편집을 수행하는 도구 또는 프로세스.
+- **특징**: 사각형 노드. `SoftwareEngineer`의 `edit_file` 요청을 받습니다.
+- **흐름**:
+  - **← `SoftwareEngineer`**: `edit_file` 이벤트로 시작됩니다.
+  - **→ `code_edit_tool`**: `code_edit_tool`을 사용하여 코드를 편집합니다.
+  - **→ `test_tool`**: 편집 후 테스트를 수행하기 위해 `test_tool`을 호출합니다.
+  - **← `code_edit_tool`**: 편집 결과를 받아들입니다.
+  - **← `test_tool`**: 테스트 결과를 받아들입니다.
+  - **→ `SoftwareEngineer`**: `done` 상태로 작업 완료를 알리며, `SoftwareEngineer`로 돌아갑니다.
+  - **← `SoftwareEngineer`**: `continue` 라벨이 붙은 점선 화살표로, `SoftwareEngineer`가 다시 `Editor`로 이동하여 반복 편집을 수행할 수 있음을 의미합니다. 예: 테스트 실패 후 수정 후 다시 편집.
+
+---
+
+#### **(5) `code_analysis_tool` 노드**
+- **역할**: 코드 분석을 위한 도구.
+- **특징**: 사각형 노드. `CodeAnalyzer`의 하위 도구로, 실제 분석 작업을 수행합니다.
+- **흐름**:
+  - **← `CodeAnalyzer`**: `CodeAnalyzer`에서 호출됩니다.
+  - **→ `CodeAnalyzer`**: 분석 결과를 `CodeAnalyzer`로 반환합니다.
+  - **(단독 실행)**: 이 노드는 `CodeAnalyzer`와 연결된 하위 도구로, 독립적으로 실행되지 않으며, `CodeAnalyzer`의 요청에 따라 작동합니다.
+
+---
+
+#### **(6) `code_edit_tool` 노드**
+- **역할**: 코드 편집을 위한 도구.
+- **특징**: 사각형 노드. `Editor`의 하위 도구로, 실제 편집 작업을 수행합니다.
+- **흐름**:
+  - **← `Editor`**: `Editor`에서 호출됩니다.
+  - **→ `Editor`**: 편집 결과를 `Editor`로 반환합니다.
+  - **(단독 실행)**: 독립적으로 실행되지 않으며, `Editor`의 요청에 따라 작동합니다.
+
+---
+
+#### **(7) `test_tool` 노드**
+- **역할**: 코드 테스트를 수행하는 도구.
+- **특징**: 사각형 노드. `Editor`의 하위 도구로, 테스트 작업을 수행합니다.
+- **흐름**:
+  - **← `Editor`**: `Editor`에서 호출됩니다.
+  - **→ `Editor`**: 테스트 결과를 `Editor`로 반환합니다.
+  - **(단독 실행)**: 독립적으로 실행되지 않으며, `Editor`의 요청에 따라 작동합니다.
+
+---
+
+#### **(8) `swe_tool` 노드**
+- **역할**: 소프트웨어 엔지니어 도구. `SoftwareEngineer`가 직접 사용하는 도구 또는 시스템.
+- **특징**: 사각형 노드. `SoftwareEngineer`의 작업 중 하나로, `SoftwareEngineer`에서 호출됩니다.
+- **흐름**:
+  - **← `SoftwareEngineer`**: `SoftwareEngineer`가 `swe_tool`을 호출합니다.
+  - **→ `end`**: `swe_tool`이 완료되면 `end` 노드로 연결됩니다. 이는 워크플로우의 종료를 의미합니다.
+  - **(특이점)**: `swe_tool`에서 `SoftwareEngineer`로 돌아가는 경로가 없습니다. 즉, 이 작업은 **최종 작업**이며, 이후 흐름이 종료됩니다.
+
+---
+
+#### **(9) `end` 노드**
+- **역할**: 워크플로우의 종료점을 나타냅니다.
+- **특징**: 원형 노드로, 단일 종료점입니다.
+- **흐름**:
+  - **← `swe_tool`**: `swe_tool`의 작업 완료 후 이 노드로 이동합니다.
+  - **(종료)**: 이 노드에 도달하면 워크플로우가 종료됩니다.
+
+---
+
+### **3. 흐름의 특징 요약**
+
+| 흐름 유형 | 설명 | 예시 |
+|----------|------|------|
+| **실선 화살표** | 직접적인 작업 흐름 또는 명령 전달 | `start` → `SoftwareEngineer` |
+| **점선 화살표** | 반복적 또는 조건부 흐름 | `SoftwareEngineer` ↔ `CodeAnalyzer` (continue) |
+| **`done`** | 작업 완료 신호 | `

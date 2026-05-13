@@ -1,0 +1,17 @@
+```python
+def quick_sort(arr):  # 1️⃣ 배열을 인자로 받아 재귀적으로 정렬하는 함수 정의
+    if len(arr) <= 1:  # 2️⃣ 배열 길이가 0 또는 1이면 이미 정렬이 끝난 상태이므로 그대로 반환
+        return arr  # 3️⃣ 정렬할 필요가 없으므로 배열 그대로 반환
+    pivot = arr[-1]  # 4️⃣ 피벗 값은 배열 마지막 요소로 정하고, 비교 기준으로 사용
+    left = []  # 5️⃣ 피벗보다 작거나 같은 요소들을 담을 리스트 초기화
+    right = []  # 6️⃣ 피벗보다 큰 요소들을 담을 리스트 초기화
+    for x in arr[:-1]:  # 7️⃣ 피벗을 제외한 모든 요소를 순회
+        if x <= pivot:  # 8️⃣ 현재 요소가 피벗보다 작거나 같다면
+            left.append(x)  # 9️⃣ left 리스트에 추가
+        else:  # 🔟 그렇지 않다면
+            right.append(x)  # 1️⃣1️⃣ right 리스트에 추가
+    return quick_sort(left) + [pivot] + quick_sort(right)  # 1️⃣2️⃣ 재귀적으로 정렬된 left와 right를 결합하여 최종 정렬 결과 반환
+
+# 예시 입력과 실행
+print(quick_sort([3, 6, 8, 10, 1, 2, 1]))  # 1️⃣3️⃣ 예시 배열을 정렬한 결과를 출력
+```

@@ -1,0 +1,3 @@
+Product, Order, InventoryManager 클래스를 정의하여 제품 속성 보관, 재고 증감(update_stock), 주문 항목 추가와 영수증(print_invoice) 출력 기능을 제공한다.
+run_system 함수는 초기 제품을 등록하고 정상 주문과 재고 부족 시나리오를 처리하며 중간중간 재고 현황을 출력한다.
+마지막으로 남은 재고의 총 자산(가격×수량)을 계산해 리포트로 출력하며 주문 시각은 datetime으로 기록한다.

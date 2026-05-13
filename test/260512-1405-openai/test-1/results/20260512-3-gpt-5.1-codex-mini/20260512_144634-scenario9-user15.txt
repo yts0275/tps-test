@@ -1,0 +1,33 @@
+이 Workflow는 시작(Start)부터 종료(End)까지 소프트웨어 엔지니어의 활동을 다양한 도구들과 연계하여 모델링한 흐름입니다. 각 노드가 어떤 작업을 나타내며, 화살표와 라벨을 통해 어떤 조건에서 다음 노드로 넘어가는지를 순차적으로 상세히 설명하면 다음과 같습니다.
+
+1. **Start → SoftwareEngineer:**  
+   Workflow는 `start` 노드에서 `SoftwareEngineer` 노드로 연결되며, 이는 소프트웨어 엔지니어가 개발 업무를 시작하는 출발점을 의미합니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (analyze_code):**  
+   엔지니어는 코드 분석을 위해 `CodeAnalyzer`로 이동합니다. 이 흐름에는 `analyze_code`라는 라벨이 붙어 있어, 분석 작업을 수행하는 단계임을 가리킵니다. 코드 분석을 위해 `SoftwareEngineer`는 `CodeAnalyzer`를 호출하거나 상호작용합니다.
+
+3. **CodeAnalyzer → code_analysis_tool:**  
+   `CodeAnalyzer`는 구체적인 분석 작업을 수행하기 위해 `code_analysis_tool`로 연결됩니다. 이는 실제 분석 도구(예: 정적 분석기나 린터)를 사용하여 코드를 검사하는 세부 subprocess를 나타냅니다.
+
+4. **CodeAnalyzer → SoftwareEngineer (done):**  
+   분석이 완료되면 `CodeAnalyzer`는 `done` 라벨과 함께 다시 `SoftwareEngineer`로 흐름을 반환합니다. 이는 분석 작업이 끝난 뒤 엔지니어가 결과를 확인하거나 다음 작업을 결정하는 단계입니다.
+
+5. **SoftwareEngineer → Editor (edit_file):**  
+   분석 결과를 바탕으로 코드 편집이 필요한 경우 `SoftwareEngineer`는 `Editor`로 흐릅니다. `edit_file` 라벨은 파일을 수정하는 작업이 시작됨을 의미합니다.
+
+6. **Editor → code_edit_tool:**  
+   편집 과정에서 실제 코드를 편집하기 위한 도구 `code_edit_tool`을 호출합니다. 이는 IDE, 텍스트 편집기 등의 실제 편집 환경을 상징합니다.
+
+7. **Editor → test_tool:**  
+   코드 편집 이후 `Editor`는 `test_tool`과도 연결되는데, 이는 편집된 코드를 테스트하는 단계입니다. 테스트 도구를 통해 단위 테스트나 기타 확인 작업이 진행되는 것을 의미합니다.
+
+8. **Editor → SoftwareEngineer (done):**  
+   편집과 필요한 도구 사용이 완료되면 `Editor`는 `done` 라벨을 통해 다시 `SoftwareEngineer`로 복귀합니다. 이 시점에서 엔지니어는 편집 결과를 평가하거나 다음 작업 단계로 넘어갈 준비를 합니다.
+
+9. **SoftwareEngineer → swe_tool:**  
+   엔지니어는 추가적으로 `swe_tool`로 이동할 수 있는데, 이 노드는 일반적인 소프트웨어 엔지니어링 도구(예: CI/CD, 배포 관리, 협업 도구 등)를 나타내며, 각종 부가 기능이나 자동화 도구를 호출하는 흐름입니다.
+
+10. **SoftwareEngineer → end:**  
+    모든 작업이 종료되면 `SoftwareEngineer`에서 `end` 노드로 흐름이 이어지며, 전체 워크플로우가 마무리됩니다.
+
+각 단계는 다시 돌아오는 흐름도 존재합니다 (`continue` 라벨로 표시된 회귀 화살표들). 예컨대, `SoftwareEngineer`에서 `CodeAnalyzer`, `Editor`, `swe_tool`로 계속 진행하다가 필요에 따라 다시 해당 도구들을 반복적으로 호출할 수 있음을 나타냅니다. 따라서 이 그래프는 분석 → 수정 → 테스트 → 보조 도구 활용 → 종료의 순환적 소프트웨어 개발 활동을 세밀하게 표현하고 있습니다.

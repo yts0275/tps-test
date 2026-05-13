@@ -1,0 +1,94 @@
+요청하신 다이어그램을 바탕으로 Workflow의 노드들(및 엣지들)이 어떻게 흐르는지 가능한 한 상세하게 서술합니다. 그림에는 화살표의 형태(실선/점선)와 라벨(예: analyze_code, edit_file, done, continue)이 있어 이를 기준으로 의미를 해석·정리했습니다. 일부 화살표의 의미가 모호한 부분은 그림의 표시(점선 = 도구 호출/비동기 호출 등)를 근거로 가정하고 설명합니다.
+
+요약(핵심 노드)
+- start: 워크플로우 시작점.
+- SoftwareEngineer: 중앙의 행위자(사람 또는 역할) 노드. 사용자가 결정을 내리고 다른 작업 노드로 분기한다.
+- CodeAnalyzer: 코드 분석을 수행하는 작업 노드.
+- code_analysis_tool: CodeAnalyzer가 내부적으로 호출·실행하는 도구(툴).
+- Editor: 코드 편집(수정)을 담당하는 작업 노드.
+- code_edit_tool: Editor가 호출하는 편집 도구.
+- test_tool: Editor가 편집 후 실행할 수 있는 테스트 도구(또는 편집 과정의 보조 도구).
+- swe_tool: SoftwareEngineer가 직접 호출할 수 있는 별도의 SWE(software engineering) 도구 노드.
+- end: 워크플로우 종료점.
+
+노드별 동작과 진입/종료 조건
+1) start → SoftwareEngineer
+- 워크플로우가 시작되면 SoftwareEngineer 노드로 흐른다. 이 노드에서 다음 행동(분기)을 결정한다.
+
+2) SoftwareEngineer에서의 선택(주요 분기)
+- analyze_code: SoftwareEngineer는 "analyze_code" 작업을 트리거하여 CodeAnalyzer로 이동한다.
+- edit_file: SoftwareEngineer는 "edit_file" 작업을 트리거하여 Editor로 이동한다.
+- (직접) swe_tool 호출: SoftwareEngineer는 직접 swe_tool을 호출할 수 있다(그림에서 SoftwareEngineer → swe_tool로 점선 화살표).
+- continue / end: SoftwareEngineer에서 직접 워크플로우를 종료하거나 다음 단계를 계속할 수 있는 선택지가 있다(그림에 'continue' 라벨이 보임).
+
+3) CodeAnalyzer 노드
+- 역할: 코드 분석을 수행.
+- 내부 동작: CodeAnalyzer는 code_analysis_tool을 호출(점선 연결)하여 실제 분석을 수행한다.
+- 출력/종료: 분석이 완료되면 CodeAnalyzer는 "done" 또는 "continue" 상태로 SoftwareEngineer에게 복귀하거나(화살표로 되돌아감), 다른 노드(예: Editor)로 이어질 수 있다(그림에 Editor와의 점선 연결이 표시되어 있어 분석 결과에 따라 편집으로 전환 가능).
+- 반복 가능성: 필요하면 분석 → 수정 → 재분석 같은 루프가 형성될 수 있다(SoftwareEngineer로 돌아와서 다시 편집 또는 분석을 선택).
+
+4) Editor 노드
+- 역할: 파일 편집 및 관련 작업 수행.
+- 내부 동작: Editor는 code_edit_tool(편집기/IDE 등)과 test_tool(테스트 실행 도구)을 점선으로 호출한다. test_tool은 편집 후 검증 목적으로 사용될 가능성이 높음.
+- 출력/종료: 편집이 완료되면 Editor는 "done" 또는 "continue" 라는 라벨로 SoftwareEngineer로 되돌아가며, 필요 시 다시 CodeAnalyzer를 호출하거나 추가 테스트/편집을 계속하도록 흐름이 이어질 수 있다.
+- 반복 가능성: 편집 → 테스트 → 수정의 반복 루프가 존재할 수 있다.
+
+5) swe_tool 노드
+- 역할: SoftwareEngineer가 호출할 수 있는 별도의 툴(예: 배포/빌드/CI 도구 등).
+- 흐름: SoftwareEngineer에서 직접 호출되며, 호출 후에는 작업이 완료되어 end로 가거나 SoftwareEngineer로 복귀할 수 있는 분기(그림에 'continue'가 연결되어 있음).
+
+6) end
+- 워크플로우의 종료. 보통 SoftwareEngineer 혹은 swe_tool 등에서 최종적으로 이 노드로 도달한다.
+
+엣지(전이) 목록(그림에서 확인 가능한 라벨 기반)
+- start → SoftwareEngineer (시작)
+- SoftwareEngineer → CodeAnalyzer (라벨: analyze_code)
+- SoftwareEngineer → Editor (라벨: edit_file)
+- SoftwareEngineer → swe_tool (점선, 라벨 없음 또는 continue 관련)
+- CodeAnalyzer → code_analysis_tool (점선: 내부 툴 호출)
+- Editor → code_edit_tool (점선: 편집 툴 호출)
+- Editor → test_tool (점선: 테스트 실행 도구 호출)
+- CodeAnalyzer → SoftwareEngineer (라벨: done 또는 continue; 분석 완료 후 복귀)
+- Editor → SoftwareEngineer (라벨: done 또는 continue; 편집 완료 후 복귀)
+- CodeAnalyzer ↔ Editor (점선/화살표로 상호 전환 가능성 표시: 분석 결과로 편집으로, 또는 편집 후 재분석으로)
+- SoftwareEngineer → end (점선으로 'continue' → end의 경로가 표시됨)
+
+가능한 실행 시나리오(예시)
+- 시나리오 A: 단순 분석 후 종료
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer: analyze_code 선택 → CodeAnalyzer로 이동
+  3. CodeAnalyzer가 code_analysis_tool 호출하여 분석 수행
+  4. 분석 완료(done) → SoftwareEngineer로 복귀
+  5. SoftwareEngineer가 추가 작업 없이 종료 선택 → end
+
+- 시나리오 B: 분석 → 편집 → 테스트 → 반복 → 종료
+  1. start → SoftwareEngineer
+  2. analyze_code → CodeAnalyzer → code_analysis_tool 실행
+  3. 분석 결과로 수정 필요 → SoftwareEngineer로 복귀
+  4. edit_file → Editor → code_edit_tool로 편집
+  5. Editor가 test_tool로 테스트 실행
+  6. 테스트 실패 → Editor 또는 SoftwareEngineer가 다시 편집/재분석을 선택(루프)
+  7. 모든 통과 시 SoftwareEngineer → swe_tool(선택) → end
+
+- 시나리오 C: 직접 도구 사용 후 종료
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer가 직접 swe_tool 호출(예: 빌드/배포)
+  3. swe_tool 완료 → SoftwareEngineer 또는 바로 end로 이동
+
+점선 vs 실선(그림 기반 해석)
+- 그림에서 점선(또는 점-실선)은 주로 "툴을 호출"하거나 "비동기/내부적 작업"을 나타내는 것으로 해석했습니다(예: CodeAnalyzer → code_analysis_tool).
+- 단일 실선(또는 굵은 화살표)은 상태 전이(워크플로우의 단계 이동)를 의미하는 것으로 보입니다(예: start → SoftwareEngineer).
+- 라벨(describe: analyze_code, edit_file, done, continue)은 트리거 이벤트나 결과 상태를 명시합니다.
+
+종합적 흐름 요약
+- 중앙의 SoftwareEngineer가 의사결정 지점이며, 분석(CodeAnalyzer), 편집(Editor), 또는 도구(swe_tool)를 선택해 작업을 수행한다.
+- CodeAnalyzer와 Editor는 각각 자신의 하위 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출해 실제 작업을 수행하고, 완료 시 SoftwareEngineer로 돌아가 다음 결정을 받는다.
+- 분석과 편집은 상호 보완적이며 반복될 수 있다(분석→편집→재분석 등).
+- 필요한 경우 swe_tool을 사용하고, 모든 작업이 끝나면 end로 종료된다.
+
+추가 참고/가정
+- 다이어그램이 점선/실선, 라벨로 의도를 어느 정도 표현하고 있으나 정확한 동작(예: 어떤 상황에서 Editor가 자동으로 호출되는가, continue의 정확한 의미 등)은 문맥 또는 워크플로우 정의서가 있어야 확정적 기술이 가능합니다. 모호한 부분은 위에서 합리적 가정을 두고 설명했습니다.
+
+원하시면
+- 각 엣지에 대한 상태 전이 조건(예: 분석 결과의 구체적 조건에 따라 Editor로 전환 등)을 더 엄밀하게 추정해 상태머신 표(state table)로 정리해 드리거나,
+- UML 액티비티 다이어그램 형식(조건/가드/병렬 등)을 적용해 재작성해 드릴 수 있습니다. 어느 방식으로 추가 정리를 원하시는지 알려 주세요.

@@ -1,0 +1,60 @@
+물론입니다! 아래는 Python을 사용한 퀵소트(QuickSort) 알고리즘 구현이며, 각 코드 라인에 대해 자세한 주석을 달아 설명하였습니다.
+
+---
+
+### 🧠 퀵소트란?
+퀵소트는 분할 정복( Divide and Conquer ) 방식으로 작동하는 재귀적 정렬 알고리즘입니다.  
+기준점(피벗, pivot)을 정하고, 피벗보다 작고 큰 요소들을 나눈 후, 각 영역에 대해 다시 퀵소트를 수행합니다.
+
+---
+
+### ✅ Python 퀵소트 구현 + 주석
+
+```python
+def quicksort(arr):
+    # 1. 만약 배열의 길이가 0 또는 1이면, 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 2. 피벗(pivot) 선택: 이 예제에서는 배열의 중앙 값을 피벗으로 선택
+    #    (단순한 방법은 맨 처음이나 마지막 값을 사용하는 것도 있음)
+    pivot = arr[len(arr) // 2]
+
+    # 3. 피벗보다 작은 요소들을 모은 왼쪽 배열
+    left = [x for x in arr if x < pivot]
+
+    # 4. 피벗과 같은 요소들을 모은 중간 배열
+    middle = [x for x in arr if x == pivot]
+
+    # 5. 피벗보다 큰 요소들을 모은 오른쪽 배열
+    right = [x for x in arr if x > pivot]
+
+    # 6. 재귀적으로 왼쪽과 오른쪽 배열을 퀵소트한 다음,
+    #    결과를 순서대로 결합하여 최종 정렬된 배열을 반환
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 실행
+numbers = [3, 6, 8, 10, 1, 2, 1]
+sorted_numbers = quicksort(numbers)
+print("정렬 결과:", sorted_numbers)
+```
+
+---
+
+### ✅ 예시 실행 결과
+
+```
+정렬 결과: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+### 📌 주요 장점
+
+- 평균적으로 **O(n log n)** 성능을 보임
+- 실제 사용 시 빠른 성능 때문에 유명
+- 불안정한 정렬 (stable: No)
+
+---
+
+필요하시면 in-place 퀵소트 구현이나 시간/공간 복잡도까지 같이 알려드릴게요! 😊

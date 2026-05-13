@@ -1,0 +1,56 @@
+물론입니다! 아래는 **파이썬**으로 구현한 퀵 소트(Quick Sort) 알고리즘입니다. 각 줄별로 주석을 자세히 달아 설명해드릴게요.
+
+---
+
+### 🚀 퀵소트(Quick Sort) 파이썬 구현
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):
+    # 배열 길이가 1 이하이면 재귀 종료 (기저 조건)
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗(pivot)을 선택합니다. 여기서는 가운데 요소를 선택
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗보다 작은 요소를 담을 리스트
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗과 같은 요소를 담을 리스트
+    middle = [x for x in arr if x == pivot]
+    
+    # 피벗보다 큰 요소를 담을 리스트
+    right = [x for x in arr if x > pivot]
+    
+    # 재귀적으로 왼쪽, 오른쪽 리스트 정렬한 후, 결합
+    return quick_sort(left) + middle + quick_sort(right)
+```
+
+---
+
+### ✅ 예제 실행
+
+```python
+# 정렬할 리스트
+unsorted_list = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 호출
+sorted_list = quick_sort(unsorted_list)
+
+# 결과 출력
+print("정렬 결과:", sorted_list)
+```
+
+---
+
+### 💡 설명
+
+- **기저 조건**: 배열 길이가 1 이하면 이미 정렬된 상태로 간주
+- **pivot**: 중간 요소를 선택해 불균형을 줄이는 데 사용
+- **재귀 호출**: left와 right 리스트를 다시 quick_sort로 정렬
+- **결합**: 정렬된 왼쪽 리스트 + 중앙(pivot) + 정렬된 오른쪽 리스트를 합침
+
+---
+
+필요하다면 다른 언어(예: Java, C++)로 구현도 해드릴 수 있어요! 알려주세요. 😊

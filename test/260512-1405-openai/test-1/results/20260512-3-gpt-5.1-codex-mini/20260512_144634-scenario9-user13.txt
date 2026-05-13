@@ -1,0 +1,40 @@
+이 Workflow는 소프트웨어 개발자의 활동 흐름을 추상화한 구조이며, 각 Node와 그 사이의 연결을 통해 작업이 어떻게 진행되는지를 보여줍니다. 아래에 각 Node들의 흐름을 가능한 한 상세히 설명합니다.
+
+1. **start → SoftwareEngineer**  
+   워크플로우는 `start` 노드에서 시작하여, 바로 `SoftwareEngineer` 노드로 이동합니다. 이는 작업이 소프트웨어 엔지니어의 활동으로 이어짐을 의미합니다.
+
+2. **SoftwareEngineer의 내부 흐름**  
+   `SoftwareEngineer`는 중앙 허브 역할을 하며, 다양한 활동(다른 노드로 이동)을 수행할 수 있습니다. 이후의 모든 작업은 이 엔지니어를 중심으로 분기됩니다.
+
+3. **SoftwareEngineer → CodeAnalyzer (analyze_code)**  
+   `SoftwareEngineer`는 `analyze_code` 흐름을 통해 `CodeAnalyzer`로 작업을 넘깁니다. 이는 코드 분석이 필요한 상황에서 분석 도구로 작업을 이동시키는 상황입니다.  
+   - `CodeAnalyzer`는 코드 분석에 특화된 노드이며, 내부적으로 `code_analysis_tool`을 사용합니다.  
+   - `CodeAnalyzer`에서 분석이 완료되면 `done` 상태로 다시 `SoftwareEngineer`로 결과를 반환합니다. 이는 분석 후 엔지니어가 결과를 검토하기 위한 흐름입니다.
+
+4. **CodeAnalyzer → code_analysis_tool**  
+   `CodeAnalyzer`는 하위 도구인 `code_analysis_tool`을 호출하여 실제 분석 작업을 실행합니다. 이는 구체적인 도구 레벨의 작업 흐름입니다.
+
+5. **SoftwareEngineer → Editor (edit_file)**  
+   엔지니어가 수정 작업을 수행해야 할 때 `edit_file` 경로를 통해 `Editor`로 이동합니다.  
+   - `Editor`는 코드를 직접 편집하거나 수정하는 인터페이스입니다.  
+   - `Editor`는 내부적으로 `code_edit_tool`과 `test_tool`을 참조하며, 각각 코드 편집과 테스트를 담당합니다.
+
+6. **Editor → code_edit_tool**  
+   `Editor`는 편집 작업을 위해 `code_edit_tool`을 호출하여 코드 편집 기능을 실행합니다.
+
+7. **Editor → test_tool**  
+   편집 후 테스트가 필요한 경우 `Editor`는 `test_tool`로 검증을 진행합니다. 이 흐름은 수정된 코드의 품질을 확인하기 위한 단계입니다.
+
+8. **Editor → SoftwareEngineer (done)**  
+   편집과 테스트가 완료되면 `Editor`는 `done` 상태로 다시 `SoftwareEngineer`에게 제어를 넘깁니다. 이는 피드백을 받고 다음 단계를 결정하기 위해 엔지니어에게 돌아간다는 의미입니다.
+
+9. **SoftwareEngineer → swe_tool (continue)**  
+   엔지니어는 다른 도구 또는 작업 흐름(예: 빌드, 배포 등)을 위해 `swe_tool`로 이동할 수 있습니다. 이는 `continue` 경로로 이어지며, 일반적인 후속 작업이나 자동화된 도구 실행을 의미할 수 있습니다.
+
+10. **swe_tool → end (continue)**  
+    `swe_tool`에서 수행된 추가 작업이 완료되면 `continue` 흐름을 통해 워크플로우는 `end` 노드로 들어갑니다. 이 지점에서 전체 작업이 종료됩니다.
+
+11. **SoftwareEngineer → end (continue)**  
+    혹은 `SoftwareEngineer`가 직접 `continue` 경로를 통해 `end`로 이동함으로써 작업을 종료할 수도 있습니다. 이는 추가 도구 호출 없이 흐름을 마무리짓는 경우를 의미합니다.
+
+전체적으로 이 워크플로우는 소프트웨어 엔지니어가 분석, 편집, 테스트와 같은 활동을 중심으로 다양한 도구들을 호출하며 다시 엔지니어로 피드백을 주고받은 뒤, 최종적으로 종료되거나 추가 도구(swe_tool)를 통해 확장된 후 끝나도록 설계되어 있습니다.

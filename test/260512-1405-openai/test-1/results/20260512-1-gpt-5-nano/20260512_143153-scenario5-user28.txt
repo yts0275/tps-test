@@ -1,0 +1,26 @@
+다음은 파이썬으로 작성한 퀵소트 예시이며, 각 줄마다 주석을 달았습니다.
+
+```python
+def quicksort(arr, low=0, high=None):  # 퀵소트를 제자리에서 수행하는 함수
+    if high is None:  # high의 기본값이 설정되지 않았다면
+        high = len(arr) - 1  # 배열의 끝 인덱스로 초기화
+    if low < high:  # 정렬할 구간이 남아있을 때에만 진행
+        pi = partition(arr, low, high)  # 피벗의 최종 위치를 얻어 분할
+        quicksort(arr, low, pi - 1)  # 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)  # 오른쪽 부분 배열 재귀적으로 정렬
+
+def partition(arr, low, high):  # Lomuto 분할 방식으로 피벗 위치 찾기
+    pivot = arr[high]  # 피벗으로 마지막 원소 선택
+    i = low - 1  # 작은 영역의 끝 인덱스 초기화
+    for j in range(low, high):  # low부터 high-1까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작거나 같으면
+            i += 1  # 작은 영역의 끝을 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 두 원소를 서로 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+if __name__ == "__main__":  # 스크립트로 직접 실행될 때만 작동
+    data = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 샘플 배열
+    quicksort(data)  # 배열을 제자리에서 정렬
+    print(data)  # 정렬 결과 출력
+```

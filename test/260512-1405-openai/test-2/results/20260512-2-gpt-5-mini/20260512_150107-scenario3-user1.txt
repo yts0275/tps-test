@@ -1,0 +1,36 @@
+아래는 Python으로 구현한 퀵소트이며, 코드의 모든 줄에 한 줄씩 한국어 주석을 달았습니다.
+
+```python
+def partition(arr, low, high):  # partition 함수 정의: 배열 arr에서 인덱스 low~high 범위를 피벗 기준으로 분할함
+    pivot = arr[high]  # 피벗을 현재 구간의 마지막 요소로 선택함
+    i = low - 1  # 작은 요소들의 경계 인덱스 i를 초기화함 (작은 그룹의 마지막 인덱스)
+    for j in range(low, high):  # low부터 high-1까지 순회하면서 요소들을 피벗과 비교함
+        if arr[j] <= pivot:  # 현재 요소가 피벗 이하이면 작은 그룹으로 이동시켜야 함
+            i += 1  # 작은 그룹의 경계를 하나 증가시킴
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소와 경계 오른쪽 요소를 교환함
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벧을 작은 그룹의 바로 다음 위치로 옮겨서 분할 완료함
+    return i + 1  # 피벗의 최종 인덱스를 반환함
+
+
+def quicksort(arr, low, high):  # 재귀적 퀵소트 함수 정의: arr의 low~high 구간을 정렬함
+    if low < high:  # 구간에 두 개 이상의 요소가 있을 때만 정렬 진행함
+        pi = partition(arr, low, high)  # partition을 실행해 피벗의 최종 위치(pi)를 얻음
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬함
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬함
+
+
+def quicksort_inplace(arr):  # 사용편의를 위한 래퍼 함수 정의: 전체 배열을 인플레이스로 정렬함
+    quicksort(arr, 0, len(arr) - 1)  # 내부 재귀 함수를 호출하여 전체 구간을 정렬함
+    return arr  # 정렬된 배열을 반환함
+
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래 예시 코드가 실행되도록 함
+    a = [3, 6, 8, 10, 1, 2, 1]  # 정렬할 예시 배열을 정의함
+    print("원본:", a)  # 정렬 전 배열을 출력함
+    sorted_a = quicksort_inplace(a)  # 인플레이스 퀵소트로 배열을 정렬함
+    print("정렬:", sorted_a)  # 정렬된 배열을 출력함
+```
+
+원하시면
+- 다른 퀵소트 변형(예: 무작위 피벗, 호어 파티션)으로도 구현해 드리거나,
+- 주석을 더 자세히(시간복잡도, 공간복잡도 설명 포함) 달아 드릴 수 있습니다. 어떤 방식으로 도와드릴까요?

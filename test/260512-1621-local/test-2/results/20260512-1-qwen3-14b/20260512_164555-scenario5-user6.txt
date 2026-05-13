@@ -1,0 +1,53 @@
+<think>
+Okay, the user wants me to implement QuickSort in Python with comments on each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the subarrays.
+
+First, I need to write the main function. The function will take a list and return a sorted list. I'll start by checking if the list has zero or one element, which is the base case. Then I'll choose a pivot. Usually, the middle element is a good choice to avoid worst-case scenarios, but sometimes people use the first or last element. For simplicity, I'll pick the middle element here.
+
+Next, I need to partition the list into elements less than the pivot and greater than the pivot. I'll loop through each element in the list, compare it with the pivot, and add it to the left or right list accordingly. Then, I'll recursively apply the same process to the left and right lists and combine them with the pivot in the middle.
+
+Now, adding comments to each line. The user wants comments for each line, so I need to make sure every line of code has a clear explanation. For example, the base case check, pivot selection, partitioning, and the recursive calls. I should also mention why the pivot is chosen as the middle element, maybe to avoid worst-case performance when the list is already sorted.
+
+Wait, but in Python, lists are mutable, so when I split the list into left and right, I need to make sure I'm not modifying the original list. Oh, right, because in the recursive calls, we're passing new lists. So the original list isn't modified, which is correct.
+
+Testing the code might be a good idea. Let me think of a sample input, like [5, 3, 8, 4, 2]. The sorted output should be [2, 3, 4, 5, 8]. Let me see if the code would handle that. The pivot would be 4, then the left list is [3, 2], right is [5, 8]. Then recursively sort those. That seems right.
+
+I should also note that this is a recursive implementation and that the time complexity is O(n log n) on average, but O(n²) in the worst case, which is why choosing a good pivot is important. But the user didn't ask for complexity analysis, just the code with comments.
+
+Okay, putting it all together. The function quicksort takes a list. Check if it's empty or has one element. Then select the pivot. Partition into left and right. Recursively sort and combine. Each step has a comment explaining what it does. That should meet the user's request.
+</think>
+
+```python
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우, 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 선택: 배열의 중앙 요소를 피벗으로 사용
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗보다 작은 요소를 담을 리스트
+    left = []
+    # 피벗보다 큰 요소를 담을 리스트
+    right = []
+    
+    # 배열의 요소를 피벗과 비교하여 left, right 리스트에 분할
+    for num in arr:
+        if num < pivot:
+            left.append(num)
+        else:
+            right.append(num)
+    
+    # 재귀적으로 left, right 리스트를 정렬하고, 피벗을 중앙에 삽입
+    return quicksort(left) + [pivot] + quicksort(right)
+```
+
+---
+
+### 설명:
+1. **기저 조건**: 배열의 길이가 0 또는 1일 경우, 이미 정렬된 상태이므로 그대로 반환합니다.
+2. **피벗 선택**: 배열의 중앙 요소를 피벗으로 선택합니다. 이는 최악의 경우(예: 이미 정렬된 배열)를 방지하기 위한 전략입니다.
+3. **분할**: 피벗보다 작은 요소는 `left` 리스트에, 큰 요소는 `right` 리스트에 분할합니다.
+4. **재귀적 정렬**: `left`와 `right` 리스트를 각각 `quicksort` 함수로 재귀적으로 정렬합니다.
+5. **결합**: 정렬된 `left` 리스트, 피벗, 정렬된 `right` 리스트를 결합하여 최종 결과를 반환합니다.
+
+이 알고리즘은 평균적으로 **O(n log n)**의 시간 복잡도를 가지며, 최악의 경우 **O(n²)**의 시간 복잡도를 가집니다. 피벗 선택 방식에 따라 성능이 달라집니다.

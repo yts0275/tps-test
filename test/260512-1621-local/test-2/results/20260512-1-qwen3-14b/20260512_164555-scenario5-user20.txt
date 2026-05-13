@@ -1,0 +1,84 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that selects a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write the partition function. The partition function will take the array, low and high indices. The pivot is usually chosen as the last element. I'll need to initialize a pivot index and a variable to track the position where elements less than the pivot go.
+
+Wait, the user mentioned adding comments to each line. So I need to make sure each line in the code has a comment explaining what it does. Let me structure the code step by step.
+
+The quicksort function will call the partition function and then recursively sort the left and right sub-arrays. The base case is when the low index is greater than or equal to the high index, which means the sub-array has one element or is empty.
+
+In the partition function, I'll loop through the array, comparing each element with the pivot. When an element is smaller than the pivot, I'll swap it with the element at the 'i' position and increment 'i'. After the loop, I'll swap the pivot with the element at 'i' to place the pivot in its correct position.
+
+I need to make sure the comments are clear. For example, in the partition function, explain the purpose of each variable and the steps taken during the loop.
+
+Wait, should I use the last element as the pivot? That's a common approach. Alternatively, maybe the middle element, but the user didn't specify, so the standard approach is okay.
+
+Let me write the code step by step, adding comments for each line. Also, the user might want to see the entire code with comments, so I'll make sure all parts are covered.
+
+Testing the code with an example array would be good, but the user didn't ask for that. Just the implementation with comments. Alright, I think that's all. Let me put it all together now.
+</think>
+
+다음은 퀵소트 알고리즘을 Python에서 구현한 코드입니다. 각 줄에 주석을 달아 설명해 드렸습니다:
+
+```python
+def quicksort(arr, low, high):
+    # base case: low >= high이면 종료 (1개 요소 또는 빈 배열)
+    if low >= high:
+        return
+
+    # 파티션을 수행하여 피벗의 위치를 찾고, 파티션을 기준으로 왼쪽과 오른쪽 배열로 분할
+    pivot_index = partition(arr, low, high)
+    
+    # 왼쪽 배열 재귀 호출 (low ~ pivot_index - 1)
+    quicksort(arr, low, pivot_index - 1)
+    
+    # 오른쪽 배열 재귀 호출 (pivot_index + 1 ~ high)
+    quicksort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+    # 피벗을 마지막 요소로 선택
+    pivot = arr[high]
+    
+    # i는 "작은 요소의 위치"를 추적하는 인덱스
+    i = low - 1  # 초기값은 low - 1로 설정 (작은 요소가 없음)
+    
+    # low부터 high-1까지 반복
+    for j in range(low, high):
+        # 현재 요소가 피벗보다 작으면
+        if arr[j] < pivot:
+            # i를 증가시키고, arr[i]와 arr[j]를 스왑
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 정확한 위치로 이동 (i+1)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 인덱스 반환
+    return i + 1
+
+# 예시 사용법
+if __name__ == "__main__":
+    sample_array = [10, 7, 8, 9, 1, 5]
+    print("정렬 전:", sample_array)
+    quicksort(sample_array, 0, len(sample_array) - 1)
+    print("정렬 후:", sample_array)
+```
+
+### 설명:
+1. **quicksort 함수**:
+   - `low`: 정렬할 배열의 시작 인덱스
+   - `high`: 정렬할 배열의 끝 인덱스
+   - `base case`: `low >= high`일 때 재귀 종료
+   - `partition` 함수를 호출하여 피벗 위치를 찾고, 왼쪽/오른쪽 배열로 재귀 호출
+
+2. **partition 함수**:
+   - `pivot`: 마지막 요소로 피벗 선택
+   - `i`: 피벗보다 작은 요소의 위치를 추적하는 인덱스
+   - `j`: 배열을 순회하는 인덱스
+   - `arr[j] < pivot`일 때 `i` 증가 및 요소 스왑
+   - 마지막으로 피벗을 정확한 위치로 이동
+
+3. **실행 예시**:
+   - `sample_array` 배열을 정렬 전/후로 출력
+
+이 코드는 O(n log n)의 평균 시간 복잡도를 가지며, 최악의 경우 O(n²)이지만, 일반적으로 빠른 성능을 보입니다.

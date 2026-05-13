@@ -1,0 +1,9 @@
+이 워크플로우는 시작(start)에서 ‘SoftwareEngineer’ 노드로 진입하면서 시작됩니다. ‘SoftwareEngineer’는 핵심 수행자이며, 다음과 같은 다양한 하위 활동으로 분기합니다.
+
+먼저, ‘analyze_code’라는 흐름을 통해 ‘SoftwareEngineer’는 ‘CodeAnalyzer’ 노드로 들어갑니다. ‘CodeAnalyzer’는 내부적으로 ‘code_analysis_tool’과 연결되어 있어 실제 코드 분석 도구를 활용하여 분석 작업을 수행합니다. 분석이 완료되면 ‘done’ 상태로 ‘SoftwareEngineer’에게 다시 되돌아갑니다. 이 단계에서 다시 ‘continue’ 과정을 통해 다른 도구나 작업으로 이어질 수 있습니다.
+
+두 번째 경로는 ‘edit_file’을 통해 ‘Editor’ 노드로 이동하는 흐름입니다. ‘Editor’ 역시 ‘code_edit_tool’과 ‘test_tool’이라는 보조 도구와 연결되어 있어 파일 수정 및 연관된 테스트를 수행합니다. ‘Editor’ 작업이 완료되면 ‘done’ 상태로 다시 ‘SoftwareEngineer’에게 반환되며, 이후 요구사항에 따라 ‘continue’하여 추가적인 수정이나 작업을 진행할 수 있습니다.
+
+세 번째 경로는 ‘continue’를 통해 ‘SoftwareEngineer’가 ‘swe_tool’ 노드로 진입하는 흐름으로, 여기서 소프트웨어 엔지니어링과 관련된 별도 도구를 사용하는 것으로 보입니다. 이 도구 역시 작업 완료 후 ‘SoftwareEngineer’로 되돌아오며, 이때 아마도 최종 상태로 ‘end’ 노드에 도달할 수 있습니다.
+
+결국, 이 워크플로우는 ‘SoftwareEngineer’가 코드 분석, 편집, 기타 도구 활용 등 여러 노드를 오가며 복수의 작업을 수행한 뒤, 필요 시 각 도구에서 ‘continue’ 되어 다시 엔지니어에게 복귀하고, 최종적으로 ‘swe_tool’을 거쳐 ‘end’에 도달하는 순환적인 흐름을 보여줍니다.

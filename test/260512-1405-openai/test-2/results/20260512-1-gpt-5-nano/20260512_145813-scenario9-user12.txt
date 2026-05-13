@@ -1,0 +1,100 @@
+다음 워크플로우는 시작점(start)에서 시작되어 SoftwareEngineer가 중앙 조정자로 작동하며, 코드 분석, 파일 편집, SWE 도구 사용의 세 가지 축으로 흐름이 분기되는 구조를 가집니다. 다만 그림의 간선 라벨이 다소 축약되어 있어 해석의 여지가 있으므로, 각 노드의 역할과 가능한 흐름을 최대한 자세히 설명하고, 대표적인 경로를 예시로 제시하겠습니다.
+
+1) 전체 구조 요약
+- 시작점: start
+- 중추 노드: SoftwareEngineer
+  - 소프트웨어 엔지니어가 전체 흐름을 제어하고, 다음 단계로 어떤 작업을 수행할지 선택/지시합니다.
+- 주요 하위 노드 및 역할
+  - CodeAnalyzer: 코드 분석을 담당하는 노드. analyze_code 신호에 의해 활성화됩니다.
+  - code_analysis_tool: 코드 분석의 구체적 도구/실행 단위. CodeAnalyzer의 작업 후 실행되는 세부 단계로 보입니다.
+  - Editor: 파일 편집/수정 작업을 수행하는 노드. edit_file 신호를 받아 편집 작업을 시작합니다.
+  - code_edit_tool: 편집 작업의 구체적 도구. Editor의 편집 실행 결과를 처리합니다.
+  - test_tool: 편집 후 테스트/검증 도구. Editor에서 추가적으로 호출될 수 있습니다.
+  - swe_tool: Software Engineering 측면의 보조 도구로, SoftwareEngineer의 또다른 분기에서 사용됩니다.
+  - end: 최종 종료 지점.
+- 간선의 특징
+  - 실선과 점선이 혼합되어 있으며, 점선은 “선택적/대안적 흐름” 또는 “계속/다음 단계로의 이동”의 의도로 해석됩니다.
+  - 라벨은 각 간선이 수행하는 작업의 힌트를 제공합니다. 예: analyze_code, edit_file, done, continue 등.
+
+2) 노드별 상세 역할 및 간선 해석
+- start → SoftwareEngineer
+  - 워크플로우의 시작점이며, 운영의 주축인 SoftwareEngineer으로 흐름이 전개됩니다.
+
+- SoftwareEngineer
+  - 핵심 역할: 전체 워크플로우의 흐름을 제어하고, 어떤 서브워크플로우를 수행할지 결정합니다.
+  - 주요 분기(가장 일반적인 해석):
+    - analyze_code: CodeAnalyzer로 전달하는 트리거로 보이는 간선
+    - edit_file: Editor로 전달하는 트리거로 보이는 간선
+    - (다른 대안 경로) swe_tool로의 continue/분기 간선
+    - end로의 도달 경로를 가능하게 하는 dashed/continue 간선
+  - 요약: SoftwareEngineer를 통해 코드 분석 흐름, 파일 편집 흐름, SWE 도구 흐름 중 하나를 선택하거나 순차적으로 실행합니다.
+
+- CodeAnalyzer
+  - 입력: SoftwareEngineer의 analyze_code 신호
+  - 역할: 코드 분석 작업을 수행
+  - 출력/다음 단계
+    - code_analysis_tool로의 전달 (done으로 표시)
+    - Editor로의 continue/다음 단계로의 전달(분기 가능)
+  - 해석 포인트: 분석이 끝난 후에 구체적인 도구 실행(code_analysis_tool)을 거치거나 편집 단계(Editor)로 넘어갈 수 있습니다. 즉, 분석 결과에 따라 후속 편집이 바로 필요할 수도 있고, 별도의 도구 실행이 먼저일 수도 있습니다.
+
+- code_analysis_tool
+  - 입력: CodeAnalyzer의 분석이 완료되었을 때 작동
+  - 역할: 실제 코드 분석 도구의 실행 단위
+  - 출력: 보통은 다음 단계로 돌아오거나(Editor) 상위 흐름으로 돌아갈 가능성도 있지만, 그림상 구체적 다음 노드가 명시적으로 보이지 않는 경우가 있어 일반적으로는 분석 후의 마무리 단계로 간주될 수 있습니다.
+
+- Editor
+  - 입력: SoftwareEngineer의 edit_file 신호 또는 CodeAnalyzer의 continue 신호
+  - 역할: 코드 파일 편집/수정 작업 수행
+  - 출력/다음 단계
+    - code_edit_tool로의 전달 (done/실행)
+    - test_tool로의 전달(continue)
+  - 해석 포인트: Editor는 편집 자체를 수행한 뒤, 추가적인 테스트(test_tool)나 더 깊은 편집(code_edit_tool)을 거칠 수 있습니다. 또한 편집 완료 후 SoftwareEngineer로 돌아가 재지시를 받는 경로도 있을 수 있습니다.
+
+- code_edit_tool
+  - 입력: Editor의 편집 작업이 시작되었을 때 작동
+  - 역할: 편집 작업의 구체적 실행 및 마무리 처리
+  - 출력: 일반적으로 Editor로의 재참여(다음 단계로의 흐름) 또는 상위 흐름으로의 종료 신호를 받습니다. 그림상으로는 code_edit_tool에서 바로 다음 노드가 명시되지 않지만, 편집 완료 후 Testing 등에 재연결될 여지가 있습니다.
+
+- test_tool
+  - 입력: Editor의 테스트 필요 신호
+  - 역할: 편집 결과의 테스트/검증 수행
+  - 출력: Editor로의 재진입을 통해 테스트 후 편집 상태를 확인하거나 반복 수행
+  - 해석 포인트: 테스트가 성공적으로 끝나면 Editor로 돌아가 다른 작업을 진행하길 기대하는 흐름으로 해석될 수 있습니다.
+
+- swe_tool
+  - 입력: SoftwareEngineer의 continue(또는 dashed) 신호
+  - 역할: SWE(Software Engineering) 관련 도구의 실행
+  - 출력: end로의 연결을 통해 전체 워크플로의 종료를 유도
+  - 해석 포인트: 이 경로는 주 흐름 외의 보조 경로로, 독립적으로 끝(end)로 이어지는 편성으로 보입니다. dashed 간선으로 표현된 점선은 “선택적/대안적 흐름”임을 시사합니다.
+
+- end
+  - 최종 종료 지점. swe_tool의 경로를 통해 또는 워크플로우의 다른 종료 경로를 거쳐 도달합니다.
+
+3) 대표적인 흐름(경로 예시)
+- 흐름 예시 1: 분석 중심 경로
+  - start → SoftwareEngineer → analyze_code (CodeAnalyzer 트리거) → CodeAnalyzer → (코드 분석 완료) → code_analysis_tool → (완료) → Editor → (편집 시작/완료) → code_edit_tool → (편집 완료) → test_tool → (테스트 완료) → Editor → SoftwareEngineer → end
+  - 해석: 코드 분석이 주 흐름이며, 분석 후 도구 실행과 편집, 테스트를 순차적으로 거쳐 최종 end에 이르는 표준 흐름으로 볼 수 있습니다.
+
+- 흐름 예시 2: 편집 중심 경로
+  - start → SoftwareEngineer → edit_file → Editor → (편집 완료) → code_edit_tool → (수정 실행) → Editor → test_tool → (테스트) → Editor → SoftwareEngineer → end
+  - 해석: 편집 작업이 핵심이고, 편집 뒤에 추가적인 도구 실행과 테스트를 거쳐 마무리하는 흐름.
+
+- 흐름 예시 3: 보조 경로(SWE 도구 경로)
+  - start → SoftwareEngineer → (continue/분기) swe_tool → end
+  - 해석: SWE 도구를 별도 흐름으로 사용하고, 끝까지 독립적으로 종료하는 경로.
+
+4) 간선 라벨의 의미와 해석 포인트
+- analyze_code, edit_file: 노드 간의 주 작업 흐름을 가리키는 명시적 트리거(실행 명령)로 해석됩니다.
+- done: 해당 단계가 완료되어 다음 단계로 넘어감을 나타내는 신호로 보입니다.
+- continue: 이전 단계의 결과를 바탕으로 다음 단계로 연결되며, 대체 흐름으로의 이동이나 연속 실행을 암시합니다.
+- dashed/점선 간선: 옵션적 흐름, 대안 흐름, 혹은 특정 조건에서만 수행되는 경로를 나타냅니다.
+- end: 전체 워크플로의 종료 지점.
+
+5) 요약
+- 이 워크플로우는 start에서 SoftwareEngineer가 중심 제어를 가지며, 코드 분석(CodeAnalyzer + code_analysis_tool), 파일 편집(Editor + code_edit_tool + test_tool), SWE 도구(swe_tool)의 세 축으로 흐름이 분기됩니다.
+- 각 축은 서로 독립적으로 작동할 수도 있고, 필요에 따라 서로 간섭/연계되며 재시작될 수 있습니다.
+- dashed 간선과 라벨은 사용 시나리오에 따라 흐름이 선택적으로 달라질 수 있음을 시사합니다.
+
+참고 및 주의점
+- 그림의 간선 라벨이 일부 겹쳐 보이고, CodeAnalyzer의 후속 연결(다음 노드)이나 Editor의 정확한 연결이 해석상 애매할 수 있습니다. 따라서 실제 구현에서의 의도는 도메인 문맥이나 추가 다이어그램 주석에 의존하는 것이 좋습니다.
+- 위 해석은 시각적 요소를 바탕으로 한 최대한의 추론입니다. 필요하면 원문의 흐름 다이어그램이나 간선의 라벨을 재확인해 더 구체적으로 매핑해 드리겠습니다.

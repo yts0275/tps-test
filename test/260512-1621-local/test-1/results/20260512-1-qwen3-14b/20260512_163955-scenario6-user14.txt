@@ -1,0 +1,13 @@
+<think>
+Okay, I need to analyze this Python code in three lines. Let me start by reading through the code to understand what it does.
+
+First, there are classes defined: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, and stock. It has methods to update stock and a string representation. The Order class handles creating orders, adding items, and printing invoices. The InventoryManager manages products and their inventory, allowing adding products and displaying inventory status.
+
+The run_system function initializes the inventory with some products, shows the inventory, creates two orders. The first order successfully adds items, while the second tries to order more than available stock, which is handled by checking the update_stock method. After processing orders, it shows the updated inventory and a total asset report.
+
+So the main purpose is managing a product inventory, processing orders with stock checks, and generating reports. The code simulates an inventory management system with order processing and stock updates. It also includes error handling for insufficient stock.
+</think>
+
+이 코드는 제품 재고 관리 시스템을 구현한 것으로, 제품 정보 관리, 주문 처리, 재고 업데이트 기능을 포함합니다.  
+`Product` 클래스는 제품 정보를 저장하고 재고 변경을 처리하며, `Order` 클래스는 주문 생성 및 인보이스 출력을 담당합니다.  
+`InventoryManager`는 제품 추가 및 재고 현황 조회를 통해 실제 상품 관리 기능을 제공하며, 주문 시 재고 부족 시 알림을 발생시킵니다.

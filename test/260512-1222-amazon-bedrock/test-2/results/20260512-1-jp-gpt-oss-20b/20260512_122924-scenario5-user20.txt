@@ -1,0 +1,24 @@
+```python
+# QuickSort 구현 (Python)
+
+def quicksort(arr, low, high):  # 재귀 함수로 배열을 정렬한다
+    if low < high:  # 구간에 두 개 이상의 요소가 있을 때만 실행
+        pi = partition(arr, low, high)  # 배열을 피벗을 기준으로 분할한다
+        quicksort(arr, low, pi-1)  # 피벗보다 작은 부분 배열을 재귀적으로 정렬
+        quicksort(arr, pi+1, high)  # 피벗보다 큰 부분 배열을 재귀적으로 정렬
+
+def partition(arr, low, high):  # 피벗을 기준으로 배열을 분할하는 함수
+    pivot = arr[high]  # 마지막 요소를 피벗으로 선택
+    i = low - 1  # i는 피벗보다 작은 요소의 가장 오른쪽 인덱스를 가리킨다
+    for j in range(low, high):  # 피벗 이전의 모든 요소를 순회한다
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # i를 한 칸 오른쪽으로 이동시킨다
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j 위치의 요소를 교환한다
+    arr[i+1], arr[high] = arr[high], arr[i+1]  # 피벗을 올바른 위치에 배치한다
+    return i + 1  # 피벗의 최종 인덱스를 반환한다
+
+if __name__ == "__main__":  # 스크립트가 직접 실행될 때만 실행
+    array = [10, 7, 8, 9, 1, 5]  # 정렬할 예제 배열
+    quicksort(array, 0, len(array) - 1)  # 배열 전체 정렬 호출
+    print("정렬된 배열:", array)  # 정렬 결과를 출력한다
+```

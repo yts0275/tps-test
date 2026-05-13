@@ -1,0 +1,84 @@
+아래는 그림으로 주어진 Workflow의 노드들과 노드 간 흐름을 가능한 한 상세히 해석·서술한 내용입니다. 그림의 선(실선/점선)과 라벨(예: analyze_code, done, continue 등)을 근거로 각 노드의 역할, 호출 관계, 제어 흐름(전이) 및 반복/루프 가능성을 정리했습니다.
+
+1) 전체 구조 개요
+- 시작 노드: start → SoftwareEngineer로 진입.
+- 중심 역할: SoftwareEngineer 노드가 사용자의(또는 작업자의) 행위를 대표하며, 여러 하위 도구/작업 노드(CodeAnalyzer, Editor, swe_tool)로 분기한다.
+- 종료 노드: end. SoftwareEngineer 쪽에서 직접 또는 간접 경로로 종료로 이어질 수 있다.
+
+2) 주요 노드와 하위(도구) 노드
+- SoftwareEngineer
+  - 워크플로우의 중심 의사결정자/행위자.
+  - 여러 방향으로 점선 전이가 존재: CodeAnalyzer, Editor, swe_tool, end 등으로 분기.
+  - 각 전이에는 라벨이 붙어 있어(예: analyze_code, edit_file, continue) 어떤 행위를 선택했는지를 나타냄.
+
+- CodeAnalyzer
+  - '코드 분석' 작업을 수행하는 노드.
+  - 하위에 code_analysis_tool 이라는 도구 노드(사각/둥근 상자)가 연결되어 있음. 해당 도구로의 연결은 그림상 실선(직접 호출/사용)을 나타냄.
+  - SoftwareEngineer ← CodeAnalyzer로 향하는 점선에는 'done'으로 라벨링 되어 있어, 분석이 끝나면(완료 신호) SoftwareEngineer로 제어가 돌아오는 흐름이 있음.
+  - CodeAnalyzer ↔ Editor간에도 점선 전이가 존재하고, 해당 전이들은 'continue'로 라벨링되어 있어 한 작업에서 다른 작업으로 이어지는(핸드오프 또는 다음 단계로의 이행) 가능성을 보여줌.
+
+- Editor
+  - '파일 편집' 작업을 수행하는 노드.
+  - 아래에 code_edit_tool(실선 연결) 및 test_tool(점선 연결로 보임) 같은 도구 노드들이 있음 — 즉 편집 작업에서 편집 도구나(그리고/또는) 테스트 도구를 호출할 수 있음.
+  - Editor에서 SoftwareEngineer로 되돌아오는 점선에는 'done'으로 라벨되어 있어 편집이 완료되면 제어가 SE로 복귀함.
+  - Editor에서도 CodeAnalyzer로 이어지는 'continue' 전이가 있어 편집 후 계속해서 분석 단계로 이어질 수 있음.
+
+- swe_tool
+  - SoftwareEngineer가 직접 호출할 수 있는 별도의 도구 노드(우측). SoftwareEngineer에서 점선 전이로 연결.
+  - swe_tool에서 end(종료)로 이어지는 점선(또는 SoftwareEngineer에서 바로 end로 가는 점선)이 있어, 이 도구 사용 이후 워크플로우가 종료될 수 있음을 시사.
+
+3) 전이(엣지)와 라벨 의미(그림으로부터의 해석)
+- 실선 연결:
+  - 주로 도구 호출을 나타냄 (예: CodeAnalyzer → code_analysis_tool, Editor → code_edit_tool).
+  - 실선은 '구체적인 도구 실행/작업'을 표현하는 것으로 보임.
+
+- 점선 연결:
+  - 제어 흐름(transition) 또는 상태 변화/행위 선택을 나타내는 것으로 해석됨.
+  - SoftwareEngineer → CodeAnalyzer: 라벨 "analyze_code" — SE가 코드 분석 행위를 선택하면 CodeAnalyzer로 전이.
+  - SoftwareEngineer → Editor: 라벨 "edit_file" — SE가 편집 행위를 선택하면 Editor로 전이.
+  - CodeAnalyzer → SoftwareEngineer: 라벨 "done" — 분석 완료 시 SE로 복귀.
+  - Editor → SoftwareEngineer: 라벨 "done" — 편집 완료 시 SE로 복귀.
+  - CodeAnalyzer ↔ Editor: 라벨 "continue" — 분석과 편집 사이에 반복적/순차적 전환이 가능 (예: 분석 → 편집 → 재분석 …).
+  - SoftwareEngineer → swe_tool: 라벨 "continue" — SE가 툴을 사용하고(또는 다른 흐름을 계속하고) 종료로 갈 수 있음.
+  - SoftwareEngineer → end: 라벨 "continue" — SE가 워크플로우를 종료하도록 선택 가능.
+
+4) 가능한 실행 시나리오(흐름 예시)
+- 시나리오 A (분석 → 편집 → 반복 → 종료)
+  1. start → SoftwareEngineer 진입.
+  2. SE가 analyze_code 선택 → CodeAnalyzer로 이동.
+  3. CodeAnalyzer는 내부적으로 code_analysis_tool을 호출(실선).
+  4. 분석 완료 시 CodeAnalyzer에서 'done'으로 SE로 반환되거나, 'continue'로 Editor로 전환될 수 있음.
+  5. Editor로 전환된 경우 code_edit_tool 또는 test_tool을 호출하여 편집/테스트 수행.
+  6. 편집 후 'continue'로 다시 CodeAnalyzer로 돌아가 추가 분석을 수행할 수 있음. 이 교환은 필요에 따라 반복 가능(루프).
+  7. 최종적으로 SE로 돌아와 'continue'를 선택하면 swe_tool을 사용하거나 바로 end로 종료.
+
+- 시나리오 B (편집만 수행 후 종료)
+  1. start → SE.
+  2. SE가 edit_file 선택 → Editor 진입.
+  3. code_edit_tool 호출, test_tool(필요 시) 호출.
+  4. 편집 완료 → 'done'으로 SE로 반환.
+  5. SE가 종료 선택 → end.
+
+- 시나리오 C (도구 직접 사용 후 종료)
+  1. start → SE.
+  2. SE가 swe_tool 사용 선택 → 직접 해당 툴 호출.
+  3. 툴 사용 후 'continue' → end(또는 SE로 복귀해 다른 동작 수행 후 종료).
+
+5) 루프 및 복귀 성질
+- CodeAnalyzer와 Editor 사이의 상호 'continue' 전이와 각 노드의 'done' → SoftwareEngineer 복귀 전이를 통해 반복(분석↔편집 반복), 검사→수정→재검사 같은 개발 사이클이 모델링 되어 있음.
+- SoftwareEngineer는 각 작업(분석, 편집, 툴 사용)을 선택하고, 각 작업이 끝나면 다시 SE로 돌아와 다음 행동을 결정하는 중앙 조정자 역할을 함.
+- 종료 경로는 SE에서 직접 end로 가거나, swe_tool 사용 이후 end로 이어질 수 있음.
+
+6) 그림상의 시각적 단서 요약(해석 근거)
+- 중앙 상자(SoftwareEngineer)에서 여러 점선 화살표가 퍼져 나가므로 제어 선택 지점임.
+- 하위 도구 노드(밑에 위치)는 실선으로 연결되어 있어 '로컬/구체적 도구 실행'을 나타냄.
+- 점선(화살표) 라벨( analyze_code, edit_file, done, continue )이 각 전이의 의미(어떤 행위로 이동하는지, 완료 신호인지, 계속 진행인지)를 설명함.
+- 양방향 또는 상호 전이가 존재하는 경우 → 반복/사이클을 허용함.
+
+7) 요약(핵심)
+- SoftwareEngineer가 출발점이며, analyze_code 또는 edit_file 같은 명령으로 각각 CodeAnalyzer와 Editor로 이동.
+- 각 작업 노드는 내부 도구(code_analysis_tool, code_edit_tool, test_tool)를 호출해 실제 작업을 수행.
+- 작업 완료(done)는 SoftwareEngineer로 복귀시키고, continue 라벨은 작업 간(또는 도구 사용 후) 다음 단계로 넘기는 흐름을 표현 — 특히 CodeAnalyzer ↔ Editor 간의 continue는 반복적인 분석·수정 사이클을 허용.
+- swe_tool은 SE가 바로 호출 가능한 도구로, 이 사용이 끝나면 워크플로우를 종료(end)할 수 있음.
+
+원하시면 이 흐름을 상태도(state machine)나 의사결정 트리로 더 엄밀하게 정리(각 전이를 조건문으로 분해, 가능한 상태 전이 표로 작성)해 드리겠습니다.

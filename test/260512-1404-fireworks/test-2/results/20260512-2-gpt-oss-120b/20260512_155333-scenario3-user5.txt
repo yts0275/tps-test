@@ -1,0 +1,32 @@
+아래는 파이썬(Python)으로 구현한 퀵소트(Quick Sort) 예제입니다.  
+각 코드 라인마다 동작을 설명하는 주석을 한 줄씩 달아두었습니다.
+
+```python
+def quicksort(arr):                                      # 퀵소트를 수행할 함수를 정의한다. 입력은 정렬할 리스트 arr
+    if len(arr) <= 1:                                    # 리스트 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr                                        # 그대로 반환한다.
+    
+    pivot = arr[len(arr) // 2]                           # 피벗(pivot) 값을 리스트 중앙 요소로 선택한다.
+    left = []                                             # 피벗보다 작은 요소들을 담을 리스트 left 초기화
+    middle = []                                           # 피벗과 같은 요소들을 담을 리스트 middle 초기화
+    right = []                                            # 피벗보다 큰 요소들을 담을 리스트 right 초기화
+    
+    for x in arr:                                         # 리스트의 모든 요소 x에 대해 순회한다.
+        if x < pivot:                                     # x가 피벗보다 작으면
+            left.append(x)                                # left 리스트에 추가한다.
+        elif x == pivot:                                  # x가 피벗과 같으면
+            middle.append(x)                              # middle 리스트에 추가한다.
+        else:                                             # x가 피벗보다 크면
+            right.append(x)                               # right 리스트에 추가한다.
+    
+    # 재귀적으로 left와 right 부분을 정렬하고, middle은 이미 정렬된 상태이므로 그대로 이어 붙인다.
+    return quicksort(left) + middle + quicksort(right)    # 정렬된 left, middle, right를 차례대로 합쳐 반환한다.
+
+# -------------------------
+# 사용 예시
+if __name__ == "__main__":                               # 이 파일이 직접 실행될 때만 아래 코드를 실행한다.
+    unsorted = [33, 10, 55, 71, 29, 3, 18, 42]            # 정렬되지 않은 리스트 예시
+    sorted_list = quicksort(unsorted)                    # 퀵소트 함수 호출하여 정렬 수행
+    print("정렬 전:", unsorted)                          # 정렬 전 리스트 출력
+    print("정렬 후:", sorted_list)                       # 정렬 후 리스트 출력
+```

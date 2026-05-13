@@ -1,0 +1,25 @@
+다음은 파이썬으로 구현한 퀵소트 예제이며, 각 줄마다 주석을 달았습니다.
+
+```python
+def partition(arr, low, high):  # 분할 함수: 피벗 기준으로 배열 분리
+    pivot = arr[high]  # 피벗으로 배열의 마지막 원소 선택
+    i = low - 1  # 작은 요소의 경계 인덱스 초기화
+    for j in range(low, high):  # 시작 인덱스부터 피벗 직전까지 순회
+        if arr[j] <= pivot:  # 현재 원소가 피벗보다 작으면
+            i += 1  # 경계 왼쪽으로 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]  # 원소 교환으로 순서 정렬
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 올바른 위치로 이동
+    return i + 1  # 피벗의 최종 인덱스 반환
+
+def quicksort(arr, low, high):  # 퀵소트 주 함수
+    if low < high:  # 범위가 1개 이상인 경우에만 진행
+        pi = partition(arr, low, high)  # 피벗 인덱스 얻기
+        quicksort(arr, low, pi - 1)  # 좌측 부분 배열 재귀 정렬
+        quicksort(arr, pi + 1, high)  # 우측 부분 배열 재귀 정렬
+
+if __name__ == "__main__":  # 모듈이 직접 실행될 때만 수행
+    data = [10, 7, 8, 9, 1, 5]  # 정렬 대상 배열 선언
+    print("원본:", data)  # 원본 배열 출력
+    quicksort(data, 0, len(data) - 1)  # 퀵소트 실행
+    print("정렬 후:", data)  # 정렬 결과 출력
+```

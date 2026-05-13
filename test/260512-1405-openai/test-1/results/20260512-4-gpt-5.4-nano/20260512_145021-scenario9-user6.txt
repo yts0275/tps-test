@@ -1,0 +1,131 @@
+아래 이미지는 “SoftwareEngineer”를 중심으로 여러 워크플로우 Node가 **분기→분석/수정/테스트→다시 SoftwareEngineer로 회귀**하는 형태를 보여줍니다. 흐름을 노드 단위로 최대한 상세히 풀어쓰면 다음과 같습니다.
+
+---
+
+## 1) 시작 지점: `start`
+- 워크플로우는 상단의 원형 노드 **start**에서 출발합니다.
+- start에서 아래로 화살표가 내려가 **`SoftwareEngineer`** 노드로 진입합니다.
+
+---
+
+## 2) 중앙 제어 노드: `SoftwareEngineer`
+- **`SoftwareEngineer`**는 이 워크플로우의 “오케스트레이터/중앙 처리자” 역할을 합니다.
+- 이미지에서 SoftwareEngineer는 여러 경로를 가지고 있으며, 주요 특징은 다음과 같습니다.
+  - SoftwareEngineer에서 **세부 작업 노드(CodeAnalyzer, Editor, swe_tool)**로 작업 지시/진입이 이루어지고,
+  - 각 작업이 끝나면 다시 **done/continue 신호**를 통해 SoftwareEngineer(또는 그 인접 노드)로 결과가 복귀합니다.
+  - 마지막에 **end**로 종료됩니다.
+
+즉, 구조적으로는
+1) SoftwareEngineer가 “다음 작업이 무엇인지”를 결정하거나  
+2) 작업 수행 노드의 결과를 받아 “다음 단계로 넘어갈지(continue) / 종료할지(end)”를 결정하는 루프 형태입니다.
+
+---
+
+## 3) 1단계 축(분석): `CodeAnalyzer` 및 `code_analysis_tool`
+### (1) SoftwareEngineer → CodeAnalyzer
+- SoftwareEngineer에서 왼쪽으로 향하는 점선/화살표 흐름이 보이며, 그 대상이 **`CodeAnalyzer`**입니다.
+- 그림에서 CodeAnalyzer로의 진입은 “analysis” 축을 수행하기 위한 분기입니다.
+
+### (2) CodeAnalyzer → 코드 분석 도구 실행: `code_analysis_tool`
+- **`CodeAnalyzer`** 아래에는 **`code_analysis_tool`**이라는 노드(실제 분석 도구)가 있습니다.
+- CodeAnalyzer가 실행되면 `code_analysis_tool`을 호출/사용하여:
+  - 코드의 문제 지점 탐색
+  - 잠재 버그/스타일/구조적 결함 분석
+  - 수정이 필요한 범위 파악  
+  같은 “코드 이해 및 진단”을 수행하는 흐름으로 해석할 수 있습니다.
+
+### (3) code_analysis_tool → CodeAnalyzer 결과: `analyze_code` / `done`
+- 이미지에는 `analyze_code`라는 라벨이 있고, 화살표가 CodeAnalyzer 쪽으로 연결됩니다.
+- 또한 `done` 라벨이 있어, 분석 도구가 끝나면 CodeAnalyzer가 결과를 받습니다.
+- 요지는:
+  - 분석 수행(코드 진단)
+  - 완료 신호(donedone)
+  - 다음 단계로 진행(continue) 또는 수정 단계로 넘어감
+
+### (4) CodeAnalyzer → 다음 단계 복귀
+- 분석이 끝난 뒤 **CodeAnalyzer에서 다시 SoftwareEngineer로 이어지는 루프**가 존재합니다.
+- 그림상 `continue` 라벨이 있어, 결과에 기반해 “계속해서 다른 작업(예: 수정, 테스트)”을 진행합니다.
+
+---
+
+## 4) 2단계 축(수정/편집): `Editor` 및 `code_edit_tool`
+### (1) SoftwareEngineer → Editor
+- SoftwareEngineer에서 중앙 아래쪽으로 내려가는 흐름이 있으며, 그 대상이 **`Editor`**입니다.
+- 이 분기는 “분석 결과를 바탕으로 코드 변경이 필요한 경우”에 해당합니다.
+
+### (2) Editor → 코드 수정 도구 실행: `code_edit_tool`
+- **`Editor`** 아래에는 **`code_edit_tool`** 노드가 연결되어 있습니다.
+- Editor는 실제로 파일을 수정/업데이트하는 역할을 하고,
+- `code_edit_tool`을 통해:
+  - 코드 변경(리팩토링/버그 수정/로직 수정)
+  - 파일/모듈 단위 편집
+  - 필요한 경우 특정 라인/함수 단위 patch 적용  
+  같은 “편집 작업”을 수행합니다.
+
+### (3) 편집 시그널: `edit_file` 및 완료: `done`
+- 이미지에 **`edit_file`** 라벨이 보입니다.
+- 이는 Editor가 파일을 “편집”하도록 지시하거나,
+- 혹은 편집 도구가 파일 변경을 수행하며 그 액션을 표시하는 단계로 볼 수 있습니다.
+- 또한 **`done`** 라벨이 있어 편집 작업이 완료되면 Editor가 결과를 확정하고 다음 단계로 진행합니다.
+
+### (4) Editor → SoftwareEngineer 복귀 / 계속 처리
+- Editor 완료 후에는 다시 **SoftwareEngineer로 돌아오거나**, 다음 단계(테스트)로 넘어갑니다.
+- 그림에는 `continue` 라벨이 있어 “수정이 끝났으니 검증 단계로 계속 진행”하는 흐름이 포함됩니다.
+
+---
+
+## 5) 3단계 축(테스트/검증): `test_tool` 및 Editor/SoftwareEngineer 루프
+### (1) Editor → test_tool
+- Editor 노드에서 아래로 연결된 **`test_tool`**이 있습니다.
+- 이는 수정된 코드가 정상 동작하는지 확인하기 위한 검증 단계입니다.
+
+### (2) 테스트 실행 후 완료: `done` / `continue`
+- 테스트 도구는 통상:
+  - 단위 테스트/통합 테스트/정적 검사 등
+  - 실패 여부 확인
+  - 로그/결과 리포트 생성  
+  등을 수행합니다.
+- 이미지에서 테스트 이후에도 `continue`/`done` 신호가 존재하여,
+  - 테스트가 성공하면 다음 단계로 넘어가거나,
+  - 실패하면 다시 Editor 또는 CodeAnalyzer로 되돌아가 “수정-재검증 반복”을 할 수 있는 구조임을 시사합니다.
+
+---
+
+## 6) 대체/추가 처리 축: `swe_tool`와 종료: `end`
+### (1) SoftwareEngineer → swe_tool
+- 오른쪽에 **`swe_tool`** 노드가 있습니다.
+- 이 노드는 “SoftwareEngineer가 추가적인 도구 기반 작업을 수행”하거나,
+  - 예: 전체적으로 소프트웨어 엔지니어링 보조 기능(문서 생성, 종속성 처리, 리포팅, 추가 명령 수행 등)
+  - 또는 외부 통합 도구  
+  같은 성격으로 해석될 수 있습니다.
+
+### (2) swe_tool → end 또는 SoftwareEngineer로 복귀
+- 이미지 오른쪽 끝에는 **`end`** 노드(보라색)가 있고,
+- `swe_tool`에서 `end`로 이어지는 경로가 점선으로 표시됩니다.
+- 또한 SoftwareEngineer에서 end로 가는 경로도 함께 있어,
+  - 특정 조건에서 “더 작업 없이 종료”하거나
+  - swe_tool 결과를 토대로 “종료 결정”을 내리는 제어 흐름이 존재합니다.
+
+---
+
+## 7) 전체를 한 문장으로 요약한 “루프 구조”
+이 워크플로우는 기본적으로 아래 반복 사이클을 가집니다.
+
+1. **SoftwareEngineer가 분기**
+2. **CodeAnalyzer**가 `code_analysis_tool`로 문제/요구를 분석  
+3. 결과를 바탕으로 **Editor**가 `code_edit_tool`로 코드를 수정( `edit_file` )  
+4. 수정된 코드는 **test_tool**로 검증  
+5. 필요 시 다시 분석/수정 루프( `continue` )  
+6. 완료 조건이 충족되면 **swe_tool** 또는 SoftwareEngineer를 통해 **end로 종료**
+
+---
+
+## 8) 이미지에서 보이는 라벨(`done`, `continue`, `analyze_code`, `edit_file`)의 의미적 역할
+- **`done`**: 해당 단계(분석/편집/테스트)가 완료되어 다음 단계로 넘어갈 준비가 되었음을 의미.
+- **`continue`**: 워크플로우가 “다음 작업을 계속 진행”한다는 신호(종료가 아닌 반복/진행).
+- **`analyze_code`**: CodeAnalyzer가 실제 분석을 수행하는 액션 이름/흐름 라벨.
+- **`edit_file`**: Editor가 코드 파일을 변경하는 액션 이름/흐름 라벨.
+
+---
+
+원하시면, 제가 위 흐름을 **(1) 노드 간 실제 화살표 방향을 기준으로 한 순서도 형태**(예: `start → SoftwareEngineer → CodeAnalyzer → ... → end`)로도 다시 “엄밀한 타임라인”처럼 재구성해드릴 수 있어요. 이미지에서 화살표가 겹쳐 보이는 부분이 있어, 확인하고 싶은 우선순위(예: “반복 루프가 정확히 어디서 돌아가는지”)가 있으면 말씀해주세요.

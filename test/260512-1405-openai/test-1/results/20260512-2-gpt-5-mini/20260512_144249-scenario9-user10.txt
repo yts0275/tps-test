@@ -1,0 +1,108 @@
+아래 이미지는 중앙의 역할자(SoftwareEngineer)를 중심으로 코드 분석/편집/테스트 도구들과 상호작용하며 반복(iterate)하고 최종적으로 작업을 마무리하는 워크플로우입니다. 각 노드의 역할과 노드들 사이 흐름(화살표, 라벨된 이벤트, 반복 경로)을 가능한 한 상세히 풀어 설명하겠습니다.
+
+1) 노드(요소) 요약
+- start (시작): 워크플로우 시작점.
+- SoftwareEngineer (역할자, 사람): 워크플로우를 실행·결정하는 중심 엔티티. 여러 작업(분석·편집·도구 사용)을 트리거하고 완료 상태를 수신한다.
+- CodeAnalyzer (작업/서브프로세스): 코드 분석을 수행하는 단계(또는 서비스).
+- Editor (작업/서브프로세스): 코드 편집(수정) 및 테스트 트리거를 담당하는 단계.
+- swe_tool (툴): SoftwareEngineer가 직접 호출할 수 있는 외부/별도 도구(예: 배포/검증 도구).
+- code_analysis_tool, code_edit_tool, test_tool (실제 도구(서비스/프로그램) 노드): 각각 CodeAnalyzer 나 Editor 가 내부적으로 호출해 사용하는 구체적 도구들.
+- end (종료): 워크플로우 종료점.
+
+2) 화살표 유형과 라벨의 의미(일반 해석)
+- 시작 화살표(start -> SoftwareEngineer): 워크플로우가 SoftwareEngineer로 시작됨.
+- SoftwareEngineer → CodeAnalyzer (라벨: analyze_code): 엔지니어가 코드 분석 작업을 요청/트리거함.
+- CodeAnalyzer → SoftwareEngineer (라벨: done): 분석이 완료되어 엔지니어에게 완료 신호 또는 결과가 돌아옴.
+- SoftwareEngineer → Editor (라벨: edit_file): 엔지니어가 편집 작업을 요청/시작함.
+- Editor → SoftwareEngineer (라벨: done): 편집(및 편집 관련 작업)이 끝나 엔지니어에게 완료 보고.
+- CodeAnalyzer ↔ Editor (라벨: continue 등): 분석과 편집 단계 사이에 반복(계속) 흐름이 존재 — 분석 결과로 편집을 이어가거나, 편집 후 다시 분석으로 돌아가는 루프 가능.
+- SoftwareEngineer → swe_tool (라벨: continue): 엔지니어가 swe_tool(특정 도구)을 실행하는 흐름. 그 뒤에 end로 가는 흐름이 보임(도구 사용 후 종료).
+- SoftwareEngineer → end (라벨: continue): 엔지니어가 바로 워크플로우를 종료하는 경로(또는 특정 조건에서 종료).
+
+- CodeAnalyzer → code_analysis_tool (도구 호출): 분석 단계에서 실제로 code_analysis_tool을 호출(내부 액션).
+- Editor → code_edit_tool, Editor → test_tool (도구 호출): 편집 단계에서 편집 도구와 테스트 도구를 호출.
+- 일부 도구들에서 다시 상위 노드로 되돌아오는 점선/화살표: 도구 실행 결과가 상위 작업(예: CodeAnalyzer, Editor)로 피드백됨.
+
+3) 노드별 상세 흐름(출발점부터 가능한 모든 경로)
+- 1단계: 시작
+  - start → SoftwareEngineer. (워크플로우 시작)
+
+- 2단계: SoftwareEngineer의 선택/트리거
+  SoftwareEngineer는 다음 중 하나(또는 조합)를 수행/트리거할 수 있다:
+  a) analyze_code (SoftwareEngineer → CodeAnalyzer)
+     - 엔지니어가 코드 분석을 요청.
+     - CodeAnalyzer는 내부적으로 code_analysis_tool을 호출해(혹은 연동해) 분석을 수행.
+     - 분석이 끝나면 CodeAnalyzer → SoftwareEngineer (라벨: done)로 결과/완료를 보고.
+     - 추가로 CodeAnalyzer → Editor 로의 "continue" 경로가 있어, 분석 결과에 따라 편집 단계로 이어질 수 있다(자동/수동 전환).
+  b) edit_file (SoftwareEngineer → Editor)
+     - 엔지니어가 편집을 시작.
+     - Editor는 code_edit_tool(편집툴)을 호출하여 변경을 적용하고, 필요시 test_tool(테스트툴)을 호출해 변경을 검증할 수 있다.
+     - 편집/테스트가 끝나면 Editor → SoftwareEngineer (라벨: done)로 완료보고.
+     - Editor에서 CodeAnalyzer로 돌아가는 "continue" 경로가 있어 편집 후 재분석 루프가 가능하다.
+  c) continue → swe_tool
+     - 엔지니어가 특정 SWE 도구(swe_tool)를 직접 실행하는 경로. 이 도구 사용은 (그림상) 엔지니어의 다른 활동과 병행되거나 작업 마무리 단계로 이어질 수 있다.
+  d) continue → end
+     - 조건이 맞으면(예: 모든 작업 완료, 중단 등) SoftwareEngineer가 워크플로우를 종료한다.
+
+- 3단계: CodeAnalyzer 내부 흐름
+  - 입력: analyze_code 호출.
+  - 동작: code_analysis_tool을 호출하여 코드 분석 수행.
+  - 출력:
+    - 완료: CodeAnalyzer → SoftwareEngineer (done).
+    - 계속: CodeAnalyzer → Editor (continue) — 분석결과에 따라 편집으로 자연스럽게 이어짐.
+    - (다른 루프) CodeAnalyzer 내 혹은 도구에서 생긴 정보가 Editor 혹은 다시 CodeAnalyzer로 되돌아갈 수 있음(점선으로 상호 연결 표시).
+
+- 4단계: Editor 내부 흐름
+  - 입력: edit_file 호출 또는 CodeAnalyzer의 continue로 진입.
+  - 동작:
+    - code_edit_tool로 실제 편집 수행.
+    - 필요시 test_tool로 테스트/검증 수행.
+  - 출력:
+    - 완료: Editor → SoftwareEngineer (done).
+    - 계속: Editor → CodeAnalyzer (continue) — 편집 후 재분석을 위해 분석 단계로 돌아감.
+    - 경우에 따라 Editor → swe_tool 또는 바로 엔지니어가 끝내는 흐름으로 이어질 수 있음(그림에서 점선으로 연결된 복수 경로 존재).
+
+- 5단계: 반복(Iterative) 사이클
+  - 전형적 패턴: SoftwareEngineer → analyze_code → CodeAnalyzer → (done) → SoftwareEngineer → edit_file → Editor → (done) → SoftwareEngineer → (다시 analyze_code로) 반복.
+  - 또는 CodeAnalyzer → Editor → CodeAnalyzer 형태의 직접적인 continue 루프도 있어 "분석→편집→재분석"의 반복 사이클이 명확히 모델링돼 있음.
+  - 라벨 "continue"는 더 작업이 필요함(완료 아님)을 의미하므로 루프가 이어짐.
+
+- 6단계: 종료 흐름
+  - 어떤 시점에서 SoftwareEngineer가 계속할 필요가 없다고 판단하면 swe_tool을 호출하거나 바로 end로 가서 워크플로우를 종료.
+  - swe_tool 사용 후에도 엔지니어로 돌아오거나 곧바로 종료로 이어질 수 있다(그림상 swe_tool에서 end로 이어지는 점선이 있음).
+
+4) 흐름의 의미(실무적 해석)
+- SoftwareEngineer가 중앙에서 의사결정(분석 시작, 편집 시작, 도구 사용, 종료)을 한다.
+- CodeAnalyzer와 Editor는 각각 전형적인 개발 사이클의 '분석'과 '편집+테스트' 책임을 지며, 각각 구체적 도구(code_analysis_tool, code_edit_tool, test_tool)를 호출해 실제 작업을 수행한다.
+- continue 라벨과 양방향 점선들은 반복적 개발(분석→수정→검증→다시 분석)의 루프로 워크플로우가 종료되기 전까지 여러 번 순환될 수 있음을 나타낸다.
+- swe_tool은 별도의 보조 도구(예: 빌드/배포/정적검사/CI 등)로, 엔지니어가 직접 호출하여 추가 작업을 수행하거나 최종화하는 데 쓰인다.
+- done 라벨은 특정 서브단계(분석/편집)가 완료되어 결과를 상위 역할자에게 반환했음을 나타낸다.
+
+5) 가능한 시나리오 예시(순차적 사례)
+- 시나리오 A(전형적 반복)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer (analyze_code) → CodeAnalyzer
+  3. CodeAnalyzer → code_analysis_tool 실행 → 분석 완료 → CodeAnalyzer (done) → SoftwareEngineer
+  4. SoftwareEngineer (edit_file) → Editor
+  5. Editor → code_edit_tool로 수정, → test_tool로 테스트 → Editor (done) → SoftwareEngineer
+  6. SoftwareEngineer 판단: 아직 문제 있음 → 다시 analyze_code로 되돌아가 2~5 반복
+  7. 반복 끝난 뒤 SoftwareEngineer → swe_tool (continue) → 후처리 → end
+
+- 시나리오 B(즉시 종료)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer 판단: 추가 작업 불필요 → continue → end
+
+- 시나리오 C(도구 중심)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer → CodeAnalyzer → 분석 후 바로 Editor로 continue → Editor에서 테스트 → Editor → CodeAnalyzer로 다시 continue … 이런 식의 서브프로세스 간 직접 루프도 가능.
+
+6) 시각적 표기에서 유의점
+- 점선/파선 화살표: 그림에서 많은 연결이 점선으로 표현되어 있는데, 이는 동기/비동기 호출, 의존성/피드백, 선택적 흐름 등을 암시한다(정확한 의미는 모델 정의에 따라 달라질 수 있으나 일반적으로 '명시적 호출/응답'과 '흐름(결정) 연결'을 구분해서 표현한 것).
+- 라벨( analyze_code, edit_file, done, continue ): 각 전이의 트리거(명령)나 상태(완료/계속)를 명시.
+
+요약
+- 워크플로우는 SoftwareEngineer가 중심이 되어 CodeAnalyzer(분석), Editor(편집/테스트), 여러 도구들을 호출하며 반복적으로 작업을 수행한다.
+- 각 서브노드는 구체적 툴을 호출하고 완료(done)를 보고하며, 분석↔편집 간 continue 루프를 통해 반복 개선을 수행한다.
+- 최종적으로 swe_tool 사용 또는 직접 end로 가서 워크플로우를 종료한다.
+
+원하시면 이 흐름을 상태 머신(state machine) 형태로 전환한 표(상태, 입력, 출력, 다음 상태)나 특정 경로(예: 분석-수정-테스트를 2회 반복 후 종료)를 시간순으로 더 자세히 서술해 드리겠습니다. 어떤 형태로 더 정리해 드릴까요?

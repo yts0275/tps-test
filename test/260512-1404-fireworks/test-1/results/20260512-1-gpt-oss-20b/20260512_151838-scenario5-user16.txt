@@ -1,0 +1,57 @@
+아래는 **Python**으로 작성한 퀵소트(QuickSort) 구현 예시입니다.  
+코드의 **모든 줄에 한 줄씩 주석**을 달아 구현 과정을 쉽게 따라가 보세요.
+
+```python
+# 퀵소트 함수: 전체 리스트를 정렬합니다.
+def quick_sort(arr):
+    # 재귀 호출을 위해 내부 정적 함수 정의
+    def _quicksort(low, high):
+        # base case: sub‑array 크기가 1 이하이면 리턴
+        if low < high:
+            pi = partition(low, high)  # 현재 서브배열을 pivot 기준으로 분할
+            _quicksort(low, pi - 1)    # 왼쪽 부분배열(저위치) 재귀 정렬
+            _quicksort(pi + 1, high)   # 오른쪽 부분배열(고위치) 재귀 정렬
+
+    # partition(피벗 기준 분할) 함수 정의
+    def partition(low, high):
+        pivot = arr[high]          # 가장 오른쪽 원소를 pivot 으로 선택
+        i = low - 1                # i는 pivot 보다 작은 값이 있을 수 있는 가장 높은 인덱스
+        # low 부터 high-1 까지 탐색하며 pivot 이하인 값을 앞쪽으로 모음
+        for j in range(low, high):
+            if arr[j] <= pivot:    # 현재 원소가 pivot 이하이면
+                i += 1             # i를 한 칸 앞으로 이동
+                arr[i], arr[j] = arr[j], arr[i]   # i와 j 사이 원소 교환
+        # 마지막으로 pivot 원소를 올바른 위치에 두기
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        return i + 1                # pivot 으로 분리된 인덱스 반환
+
+    # 전체 배열에 대해 재귀 정렬 시작
+    _quicksort(0, len(arr) - 1)
+
+# ----------------- 사용 예시 -----------------
+if __name__ == "__main__":
+    sample = [3, 6, 8, 10, 1, 2, 1]     # 정렬할 예시 리스트
+    print("정렬 전:", sample)           # 정렬 전 출력
+    quick_sort(sample)                  # quick_sort 호출
+    print("정렬 후:", sample)           # 정렬 후 출력
+```
+
+**코드 한 줄 한 줄 주석 요약**
+
+- `def quick_sort(arr):` → 퀵소트 메인 함수 정의
+- `def _quicksort(low, high):` → 재귀 정렬을 수행하는 내부 함수
+- `if low < high:` → 정렬이 필요한지 확인
+- `pi = partition(low, high)` → 피벗 기준으로 분할
+- `def partition(low, high):` → 피벗을 기준으로 리스트를 분할
+- `pivot = arr[high]` → 피벗 선택
+- `i = low - 1` → 피벗 이하 원소의 최종 인덱스 초기화
+- `for j in range(low, high):` → 피벗 이전 원소들 검사
+- `if arr[j] <= pivot:` → 피벗 이하 원소 여부 확인
+- `i += 1` → 인덱스 증가
+- `arr[i], arr[j] = arr[j], arr[i]` → 원소 교환
+- `arr[i + 1], arr[high] = arr[high], arr[i + 1]` → 피벗을 올바른 위치에 둠
+- `return i + 1` → 피벗 위치 반환
+- `_quicksort(0, len(arr) - 1)` → 전체 리스트에 재귀 정렬 호출
+
+이렇게 구현하면 재귀와 분할정복 방식으로 배열을 정렬할 수 있습니다.  
+필요에 따라 `pivot` 선택 방식을 바꾸거나, **알고리즘을 비재귀 버전**으로 바꾸는 등 변형이 가능합니다.

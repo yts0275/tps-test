@@ -1,0 +1,127 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 모든 노드와 그间的 흐름을 최대한 상세히 설명한 내용입니다.
+
+---
+
+### **1. 전체적인 개요**
+
+이 워크플로우는 **소프트웨어 엔지니어**가 코드를 분석하고 편집하는 작업을 자동화하는 시스템을 나타냅니다. 이는 여러 도구를 활용하여 코드를 분석하고, 수정하고, 테스트하는 반복적인 프로세스를 포함하며, 각 단계는 특정 조건에 따라 다음 단계로 이동하거나 현재 단계를 반복할 수 있습니다. 전체 흐름은 `start`에서 시작하여 `end`로 종료됩니다.
+
+---
+
+### **2. 노드 및 흐름 상세 설명**
+
+#### **2.1. `start` (시작 노드)**
+- **역할**: 워크플로우의 시작점.
+- **흐름**: `start` 노드에서 단 하나의 화살표가 `SoftwareEngineer` 노드로 향합니다.
+- **설명**: 워크플로우는 이 지점에서 시작되며, 초기 상태에서 `SoftwareEngineer` 역할을 수행하는 주체로 전환됩니다.
+
+---
+
+#### **2.2. `SoftwareEngineer` (주체 노드)**
+- **역할**: 워크플로우의 중심 역할. 이 노드는 코드 분석, 편집, 테스트 등의 작업을 조정하고 실행합니다.
+- **흐름**:
+  - **시작**: `start` → `SoftwareEngineer`
+  - **분석 요청**: `SoftwareEngineer` → `CodeAnalyzer` (라벨: `analyze_code`)
+  - **편집 요청**: `SoftwareEngineer` → `Editor` (라벨: `edit_file`)
+  - **도구 실행**: `SoftwareEngineer` → `swe_tool` (직접 연결)
+  - **종료**: `SoftwareEngineer` → `end` (직접 연결)
+
+- **상세 설명**:
+  - `SoftwareEngineer`는 `CodeAnalyzer`와 `Editor` 노드를 각각 호출하여 코드 분석 및 편집 작업을 수행합니다.
+  - `swe_tool`은 `SoftwareEngineer`가 직접 실행하는 도구로, 분석과 편집 외의 추가 작업을 수행할 수 있습니다.
+  - `end` 노드로의 연결은 `SoftwareEngineer`가 작업을 완료한 후 워크플로우를 종료할 수 있음을 나타냅니다.
+
+---
+
+#### **2.3. `CodeAnalyzer` (코드 분석 노드)**
+- **역할**: 코드를 분석하여 문제점을 찾아내거나 개선점을 제안합니다.
+- **흐름**:
+  - **시작**: `SoftwareEngineer` → `CodeAnalyzer` (라벨: `analyze_code`)
+  - **완료**: `CodeAnalyzer` → `SoftwareEngineer` (라벨: `done`)
+  - **반복**: `CodeAnalyzer` → `CodeAnalyzer` (라벨: `continue`) → `code_analysis_tool` → `CodeAnalyzer`
+  - **도구 사용**: `code_analysis_tool` → `CodeAnalyzer`
+
+- **상세 설명**:
+  - `SoftwareEngineer`가 `analyze_code` 명령을 보내면 `CodeAnalyzer`가 동작합니다.
+  - 분석이 완료되면 `done` 라벨의 화살표를 통해 `SoftwareEngineer`로 제어권을 돌려줍니다.
+  - `continue` 라벨의 화살표는 `CodeAnalyzer`가 반복적으로 작업을 수행할 수 있음을 의미합니다. 예를 들어, 분석 결과에 따라 다시 분석을 수행하거나, `code_analysis_tool`을 사용하여 추가 분석을 수행할 수 있습니다.
+  - `code_analysis_tool`은 `CodeAnalyzer`에 입력을 제공하는 도구로, 분석을 위한 외부 도구일 수 있습니다.
+
+---
+
+#### **2.4. `Editor` (편집 노드)**
+- **역할**: 코드를 편집하거나 수정하는 작업을 수행합니다.
+- **흐름**:
+  - **시작**: `SoftwareEngineer` → `Editor` (라벨: `edit_file`)
+  - **완료**: `Editor` → `SoftwareEngineer` (라벨: `done`)
+  - **반복**: `Editor` → `Editor` (라벨: `continue`) → `code_edit_tool` → `Editor`
+  - **도구 사용**: `code_edit_tool` → `Editor`, `test_tool` → `Editor`
+
+- **상세 설명**:
+  - `SoftwareEngineer`가 `edit_file` 명령을 보내면 `Editor`가 코드 편집 작업을 시작합니다.
+  - 편집이 완료되면 `done` 라벨의 화살표를 통해 `SoftwareEngineer`로 제어권을 돌려줍니다.
+  - `continue` 라벨의 화살표는 `Editor`가 반복적으로 편집 작업을 수행할 수 있음을 의미합니다. 예를 들어, 수정 후 다시 확인하거나, `code_edit_tool`을 사용하여 추가 편집을 수행할 수 있습니다.
+  - `code_edit_tool`은 `Editor`에 입력을 제공하는 도구로, 코드 편집을 위한 외부 도구일 수 있습니다.
+  - `test_tool`은 `Editor`가 편집 후 테스트를 수행할 수 있도록 도와주는 도구로, 편집 결과를 검증하는 데 사용됩니다.
+
+---
+
+#### **2.5. `code_analysis_tool` (코드 분석 도구)**
+- **역할**: `CodeAnalyzer`가 사용하는 외부 도구로, 코드 분석을 수행합니다.
+- **흐름**:
+  - **사용**: `code_analysis_tool` → `CodeAnalyzer` (직접 연결)
+
+- **상세 설명**:
+  - `code_analysis_tool`은 `CodeAnalyzer`의 하위 도구로, `CodeAnalyzer`가 분석 작업을 수행할 때 필요한 기능을 제공합니다.
+  - 이 도구는 `CodeAnalyzer`에만 연결되어 있으며, `SoftwareEngineer`나 `Editor`와 직접 연결되지 않습니다.
+
+---
+
+#### **2.6. `code_edit_tool` (코드 편집 도구)**
+- **역할**: `Editor`가 사용하는 외부 도구로, 코드 편집을 수행합니다.
+- **흐름**:
+  - **사용**: `code_edit_tool` → `Editor` (직접 연결)
+
+- **상세 설명**:
+  - `code_edit_tool`은 `Editor`의 하위 도구로, `Editor`가 편집 작업을 수행할 때 필요한 기능을 제공합니다.
+  - 이 도구는 `Editor`에만 연결되어 있으며, 다른 노드와 직접 연결되지 않습니다.
+
+---
+
+#### **2.7. `test_tool` (테스트 도구)**
+- **역할**: `Editor`가 사용하는 외부 도구로, 코드 편집 후 테스트를 수행합니다.
+- **흐름**:
+  - **사용**: `test_tool` → `Editor` (직접 연결)
+
+- **상세 설명**:
+  - `test_tool`은 `Editor`의 하위 도구로, `Editor`가 편집 작업 후 테스트를 수행할 때 필요한 기능을 제공합니다.
+  - 이 도구는 `Editor`에만 연결되어 있으며, 다른 노드와 직접 연결되지 않습니다.
+
+---
+
+#### **2.8. `swe_tool` (소프트웨어 엔지니어링 도구)**
+- **역할**: `SoftwareEngineer`가 직접 사용하는 도구로, 분석과 편집 외의 추가 작업을 수행합니다.
+- **흐름**:
+  - **사용**: `SoftwareEngineer` → `swe_tool` (직접 연결)
+  - **종료**: `swe_tool` → `end` (직접 연결)
+
+- **상세 설명**:
+  - `swe_tool`은 `SoftwareEngineer`가 직접 실행하는 도구로, 분석과 편집 외의 작업을 수행할 수 있습니다.
+  - 이 도구는 `end` 노드로 연결되어 있으며, `swe_tool`이 완료되면 워크플로우가 종료됩니다.
+
+---
+
+#### **2.9. `end` (종료 노드)**
+- **역할**: 워크플로우의 종료점.
+- **흐름**:
+  - `SoftwareEngineer` → `end` (직접 연결)
+  - `swe_tool` → `end` (직접 연결)
+
+- **상세 설명**:
+  - 워크플로우는 `SoftwareEngineer`가 작업을 완료하거나 `swe_tool`이 완료된 후 `end` 노드로 이동하여 종료됩니다.
+
+---
+
+### **3. 전체 흐름 요약**
+
+1. **시작**: `start` → `Software

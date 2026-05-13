@@ -1,0 +1,78 @@
+다음 Workflow는 하나의 소프트웨어 엔지니어링 작업 흐름을 노드 단위로 표현한 다이어그램입니다. 주된 흐름은 Start → SoftwareEngineer를 거쳐 코드 분석, 편집, 테스트 등의 순환 루프를 거치고 최종 End에 도달하는 구조이고, 필요에 따라 SWE 도구를 별도 경로로 실행하는 옵션도 포함되어 있습니다. 아래에 노드별 역할과 흐름을 최대한 상세히 풀어 설명합니다.
+
+1) 노드 및 역할 요약
+- start: 워크플로의 시작 지점. 아래의 SoftwareEngineer 노드로 제어를 넘깁니다.
+- SoftwareEngineer: 흐름의 중앙 조정자(오케스트레이터). 이 노드는 코드 분석, 편집, 테스트 도구를 호출하거나 SWE 도구를 실행하는 등 다양한 하위 작업으로 흐름을 이끕니다.
+  - 주요 입력: start로부터의 진입
+  - 주요 출력: CodeAnalyzer(분석), Editor(편집), swe_tool(소프트웨어 엔지니어링 도구 실행), end(종료)로의 분기
+- CodeAnalyzer: 코드 분석을 담당하는 노드. analyze_code 동작을 트리거하고, 분석 결과를 코드 분석 도구로 넘깁니다.
+- code_analysis_tool: CodeAnalyzer에서 수행된 분석의 구체적 실행을 담당하는 도구 노드. 실행이 끝나면 Editor 등으로 흐름을 전달합니다.
+- Editor: 코드 편집 인터페이스를 담당하는 노드. edit_file 동작을 트리거하고, 편집된 파일의 수정을 코드 편집 도구(code_edit_tool)로 넘겨 실제 수정 작업을 수행합니다. 또한 필요 시 재분석이나 추가 테스트를 위한 흐름으로 재진입하는 경로를 제공할 수 있습니다.
+- code_edit_tool: 실제 코드 수정 작업을 수행하는 도구 노드. 편집 작업이 끝나고 나면 Editor로 제어가 되돌아오거나, 다음 단계(테스트)로 진행합니다.
+- test_tool: 편집 이후의 테스트를 수행하는 도구 노드. 테스트 완료 후 필요 시 재편집/재분석으로 돌아가거나 최종적으로 종료로 넘어갈 수 있습니다.
+- swe_tool: Software Engineer Tool로, SoftwareEngineer가 선택적으로 호출하는 보조 도구 노드. 주된 흐름에서 독립적이거나 선택적 경로로 사용되며, 완료 후 End로 흐름이 마무리됩니다.
+- end: 워크플로의 최종 지점. Swe Tool 경로를 통해서 끝나거나, SoftwareEngineer의 직접 Continue 경로를 통해 종료될 수 있습니다.
+
+2) 노드 간 흐름의 상세 흐름 설명
+- 시작/진입
+  - start → SoftwareEngineer: 워크플로가 시작되면 가장 먼저 SoftwareEngineer가 제어를 받아 전체 흐름을 운영합니다.
+
+- 주 흐름(코드 분석 → 편집 → 테스트의 루프)
+  1) SoftwareEngineer → CodeAnalyzer (analyze_code)
+     - SoftwareEngineer가 코드 분석을 지시합니다. 이때 analyze_code 라벨이 붙은 흐름으로 CodeAnalyzer에 요청이 들어갑니다.
+  2) CodeAnalyzer → code_analysis_tool (실행)
+     - CodeAnalyzer가 보고 준비한 분석 작업을 code_analysis_tool에 넘겨 실제 분석을 수행합니다.
+     - 이 단계는 분석이 완료되었음을 나타내는 "done" 신호가 따라붙을 수 있습니다.
+  3) code_analysis_tool → Editor (경로에서는 "continue" 혹은 연결된 흐름으로 편집 대기로 넘어갈 수 있음)
+     - 코드 분석 결과를 바탕으로 편집이 필요하면 Editor로 흐름이 넘어갑니다. 이때 Editor에서 edit_file 작업이 시작됩니다.
+  4) Editor ← SoftwareEngineer (edit_file)
+     - Editor는 SoftwareEngineer가 지시한 편집 파일 수정 요청을 받아 edit_file 작업을 수행합니다.
+  5) Editor → code_edit_tool (실제 편집 수행)
+     - 편집 작업이 완료되면 Editor가 code_edit_tool을 호출하여 수정 내용을 반영합니다.
+  6) code_edit_tool → Editor (편집 완료)
+     - 편집이 끝나면 다시 Editor로 돌아가 후속 처리를 대기합니다(재편집 여부, 편집 검토 등).
+  7) Editor → test_tool (테스트 수행)
+     - 편집 이후 코드의 동작을 검증하기 위해 test_tool로 넘어가 테스트를 실행합니다.
+  8) test_tool → Editor (테스트 결과에 따른 재작업 루프)
+     - 테스트 결과에 따라 필요하면 Editor로 돌아가 재편집(edit_file)이나 재시험을 수행합니다. 이 역시 "continue" 또는 "done" 신호로 제어됩니다.
+  9) Editor → CodeAnalyzer (재분석 필요 시)
+     - 필요 시 편집 및 테스트 이후 다시 코드 분석(CodeAnalyzer)으로 돌아가 전체 품질 검토를 반복합니다. 이는 루프를 만들어 더 나은 품질 확보를 위한 재작업 경로입니다.
+  10) CodeAnalyzer → ... (반복 루프)
+     - 다시 분석이 수행되고, 그 결과는 다시 code_analysis_tool로 전달되어 루프가 계속될 수 있습니다.
+  11) 최종적으로 End로의 도달
+     - 루프를 만족스러운 상태로 마무리하면, SoftwareEngineer가 swe_tool을 거치지 않고도 End 또는 swe_tool 경로를 통해 End로 도달합니다. End에 도달하는 경로는 두 가지가 보일 수 있습니다:
+       - SoftwareEngineer → end: SoftwareEngineer의 흐름에서 직접 End로 연결되는 경로
+       - SoftwareEngineer → swe_tool → end: swe_tool 경유 후 End로 종료되는 경로
+     - End는 최종 상태를 나타냅니다.
+
+- 보조 경로(SWE 도구)
+  - SoftwareEngineer → swe_tool (continue): SoftwareEngineer가 필요 시 swe_tool을 호출합니다. 이 도구는 특정 보조 작업이나 부가적인 산출물을 생성한 뒤 End로 흐름을 종료합니다.
+  - swe_tool → end: swe_tool의 작업이 완료되면 End로 종료됩니다.
+  - 주 흐름에서 swe_tool은 선택적 경로로 간주되며, 특정 상황에서만 호출됩니다. 따라서 전체 흐름의 주축은 CodeAnalyzer/Editor/Test의 루프이며, swe_tool은 보너스 기능으로 분리되어 있습니다.
+
+3) 엣지 구분의 의미
+- solid(실선) 엣지: 실제 실행 흐름을 나타냅니다. 한 노드에서 다른 노드로의 직접적인 작업 수행 흐름을 뜻합니다.
+- dashed(점선) 엣지: 보조, 선택적, 재시도 가능성 등을 나타냅니다. 예를 들어 재작업(continue) 또는 재분석(continue/done)과 같은 루프 흐름이 여기에 해당합니다.
+- 라벨들
+  - analyze_code, edit_file: 해당 노드에서 수행되는 구체 작업의 의도된 액션을 나타냅니다.
+  - done: 해당 작업이 완료되어 다음 단계로 넘어갈 준비가 되었다는 신호.
+  - continue: 다음 단계로의 진행 또는 루프의 재개를 나타내는 신호.
+
+4) 한 예시의 실행 시나리오(대표적 경로)
+- 시작 → SoftwareEngineer
+- SoftwareEngineer가 CodeAnalyzer를 호출해 analyze_code 수행
+- CodeAnalyzer가 code_analysis_tool로 분석 실행
+- 분석 결과에 따라 Editor로 넘어가서 edit_file로 편집 시작
+- Editor가 code_edit_tool로 실제 수정 수행
+- 수정 완료 후 Editor로 돌아와 test_tool로 테스트 실행
+- 테스트 결과에 따라 필요하면 재편집/재분석 루프 반복
+- 재작업이 충분히 만족스러워지면 SoftwareEngineer가 swe_tool을 호출하지 않고 End로 종료하거나, 필요 시 swe_tool을 거쳐 End로 종료
+
+5) 요약된 의도 및 설계 포인트
+- 이 Workflow는 코드 분석 → 편집 → 테스트의 순환 루프를 명확히 보여주되, 필요 시 재분석/재작업으로 다시 돌아갈 수 있는 피드백 루프를 포함합니다.
+- dashed 엣지는 재작업 가능성, 추가 검토, 또는 선택적 경로를 표현합니다. 예를 들어, 분석/편집/테스트가 끝난 뒤에도 품질 기준에 미치지 못하면 루프를 돌 수 있습니다.
+- swe_tool은 주 흐름과는 분리된 보조 도구로, 선택적으로 End로 향하는 독립적 종료 경로를 제공합니다.
+- End는 최종 출력이며, End에 도달하는 경로는 swe_tool 경유 여부에 따라 달라질 수 있습니다.
+
+참고 사항
+- 그래프가 다소 작고 엣지 라벨이 겹쳐 보일 수 있어, 위 설명은 논리적 흐름과 노드 간 기대 동작에 기반한 해석입니다. 실제 도메인에선 CodeAnalyzer/Editor/Tool 간의 구체적인 입력/출력 형태나 재진입 조건이 더 명확히 정의되어 있을 수 있습니다. 필요하면 구체적인 엣지의 위치(예: CodeAnalyzer→Editor의 exact 라벨)까지 재확인해 정밀 매핑해 드리겠습니다.

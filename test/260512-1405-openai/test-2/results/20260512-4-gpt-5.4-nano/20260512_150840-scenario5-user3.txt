@@ -1,0 +1,28 @@
+아래는 **퀵소트(Quick Sort) 구현** 예시입니다. 요청하신 대로 **각 줄마다 주석**을 달았습니다. (Python 버전)
+
+```python
+def quicksort(arr):  # 퀵소트를 수행할 함수를 정의함 (입력: 리스트 arr)
+    if len(arr) <= 1:  # 배열 길이가 0 또는 1이면 정렬이 이미 끝났으므로
+        return arr  # 배열을 그대로 반환함
+
+    pivot = arr[len(arr) // 2]  # 가운데 원소를 피벗(pivot)으로 선택함
+    left = []  # 피벗보다 작은 값들을 담을 리스트를 준비함
+    right = []  # 피벗보다 큰 값들을 담을 리스트를 준비함
+    equal = []  # 피벗과 같은 값들을 담을 리스트를 준비함
+
+    for x in arr:  # 배열의 각 원소 x에 대해 반복함
+        if x < pivot:  # x가 피벗보다 작으면
+            left.append(x)  # left 리스트에 x를 추가함
+        elif x > pivot:  # x가 피벗보다 크면
+            right.append(x)  # right 리스트에 x를 추가함
+        else:  # x가 피벗과 같으면
+            equal.append(x)  # equal 리스트에 x를 추가함
+
+    return quicksort(left) + equal + quicksort(right)  # 왼쪽(정렬) + 같은 값 + 오른쪽(정렬)을 합쳐 반환함
+
+# 예시 실행 코드: 아래는 실제로 테스트하기 위한 부분임
+data = [5, 2, 9, 1, 5, 6]  # 예시로 사용할 입력 배열을 정의함
+print(quicksort(data))  # 퀵소트를 수행한 결과를 출력함
+```
+
+원하시면 **(1) in-place(배열 내부에서 교환) 퀵소트** 버전이나, **(2) C/C++/Java 버전**으로도 각 줄 주석 달아서 만들어드릴까요?

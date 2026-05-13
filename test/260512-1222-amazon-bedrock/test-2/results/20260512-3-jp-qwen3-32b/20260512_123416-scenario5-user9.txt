@@ -1,0 +1,51 @@
+물론입니다! 아래는 **파이썬**에서 **퀵소트**(QuickSort) 알고리즘을 구현한 코드입니다. 각 줄에 대해 자세한 주석을 달아 설명하겠습니다.
+
+```python
+# 퀵소트를 위한 partition 함수 정의
+def partition(arr, low, high):
+    i = low - 1          # 작을 요소들을 위치시킬 인덱스
+    pivot = arr[high]    # 피벗 값 (여기서는 마지막 요소를 피벗으로 사용)
+
+    # 요소들을 피벗보다 작거나 큰 수로 분할
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]  # 작은 수를 왼쪽으로 이동
+
+    # 피벗을 올바른 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1  # 피벗의 인덱스를 반환
+
+# 퀵소트 재귀 함수 정의
+def quicksort(arr, low, high):
+    if low < high:
+        # 파티션 수행 후 피벗 인덱스 pi를 받아옴
+        pi = partition(arr, low, high)
+
+        # 왼쪽과 오른쪽 서브 배열에 대해 재귀적으로 퀵소트 수행
+        quicksort(arr, low, pi - 1)  # 피벗 왼쪽의 요소 정렬
+        quicksort(arr, pi + 1, high)  # 피벗 오른쪽의 요소 정렬
+
+# 예시 입력 및 실행
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+
+print("정렬 전:", arr)
+quicksort(arr, 0, n - 1)
+print("정렬 후:", arr)
+```
+
+---
+
+### 🔍 설명:
+
+- **`partition()`**: 배열에서 피벗 값을 선택하고, 피벗보다 작거나 같은 요소는 왼쪽으로, 큰 요소는 오른쪽으로 분류합니다. 그리고 피벗의 최종 위치를 반환합니다.
+- **`quicksort()`**: 재귀적으로 퀵소트 알고리즘을 수행합니다. 피벗을 기준으로 왼쪽, 오른쪽 부분배열에 대해 각각 정렬을 시행합니다.
+- **시간복잡도**:
+  - 평균: **O(n log n)**
+  - 최악: **O(n²)** (배열이 이미 정렬되어 있을 때)
+- **공간복잡도**: 최악의 경우 **O(n)**, 평균적으로는 **O(log n)** (재귀 스택 때문)
+
+---
+
+필요하다면 Java, C++, Python3 중 다른 버전도 작성해 드릴 수 있어요!

@@ -1,0 +1,14 @@
+아래는 각 줄마다 주석을 단 퀵소트 구현입니다.
+
+```python
+def quicksort(arr):  # 배열을 정렬하는 함수 정의
+    if len(arr) <= 1:  # 배열 길이가 1 이하이면 이미 정렬된 상태이므로
+        return arr  # 입력 배열을 그대로 반환합니다
+    pivot = arr[len(arr) // 2]  # 배열 중앙 값을 피벗으로 선택합니다
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 값들을 모읍니다
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 값들을 모읍니다
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 값들을 모읍니다
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽과 오른쪽을 재귀 정렬하여 합칩니다
+```
+
+필요하시면 예제 실행도 도와드릴게요.

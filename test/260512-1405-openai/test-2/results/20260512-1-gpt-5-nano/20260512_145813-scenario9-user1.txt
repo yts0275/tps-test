@@ -1,0 +1,99 @@
+다음 Workflow 의 노드들 간 흐름을 가능한 한 자세히 해설합니다. 그림의 노드 이름은 각각의 기능 단위로 해석했고, 점선으로 표시된 연결은 보조/반복 흐름이나 대체 경로를 뜻하는 것으로 설명합니다.
+
+1) 전체 구조 개요
+- 시작점(start)에서 흐름이 열립니다.
+- 중심 축은 SoftwareEngineer 노드로, 프로젝트를 조정하고 여러 하위 도구/노드를 호출합니다.
+- 주요 수행 단위는 CodeAnalyzer, Editor 그리고 각종 도구(code_analysis_tool, code_edit_tool, test_tool)가 포함됩니다.
+- 보조 경로로 swe_tool이 있으며, end로 연결되는 종료 경로가 존재합니다.
+- 노드 간 연결 라벨은 실행 명령이나 상태를 나타냅니다(예: analyze_code, edit_file, done, continue).
+
+2) 각 노드의 역할과 흐름 상세
+
+- start
+  - 흐름의 진입점으로, 시스템이 동작을 시작합니다.
+  - 다음으로 SoftwareEngineer 노드로 직접 연결됩니다.
+
+- SoftwareEngineer
+  - Workflow의 조정자이자 두 가지 핵심 작업을 시작하는 노드로 보입니다.
+  - 두 개의 주요 실행 경로가 분기합니다.
+    - 분석 경로: analyze_code 라벨이 붙은 간선으로 CodeAnalyzer로 연결됩니다.
+    - 파일 수정 경로: edit_file 라벨이 붙은 간선으로 Editor로 연결됩니다.
+  - 또한 다수의 점선 경로가 존재하는데, 이는 선택적/보조 흐름(후속 스텝으로의 이동이나 대체 경로)을 뜻합니다.
+  - swe_tool 또는 end로 가는 보조 경로도 점선으로 표현되어 있어, 필요 시 추가 도구를 활용하고 종료로 이어질 수 있음을 시사합니다.
+
+- CodeAnalyzer
+  - 소스 코드의 분석을 담당하는 핵심 노드입니다.
+  - 입력: SoftwareEngineer로부터 analyze_code 명령을 받습니다.
+  - 하위 도구 실행: code_analysis_tool로 실제 분석을 수행합니다.
+    - code_analysis_tool: CodeAnalyzer가 의뢰한 분석 작업을 수행하는 실무 도구 노드입니다.
+  - 완료 신호: 분석이 끝나면 “done” 같은 상태를 CodeAnalyzer로 되돌리거나(여기서는 흐름상 CodeAnalyzer에서 Editor로 이어지는 경로가 제시됨) Editor로 넘어가도록 연결됩니다.
+  - 다음 흐름: 분석 완료 후 Editor로 이어지는 continue 경로가 보이며, 이는 분석 종료 후 수정 작업으로 넘어가는 일반적인 흐름을 나타냅니다.
+
+- Editor
+  - 코드 편집 업무를 담당하는 노드로, CodeAnalyzer의 분석 결과를 바탕으로 수정 작업을 수행합니다.
+  - 두 가지 주요 실행 경로가 보입니다.
+    - 파일 편집 경로: edit_file 라벨이 붙은 간선으로 Editor에서 바로 code_edit_tool로 연결될 가능성을 시사합니다. 실제 편집은 code_edit_tool에서 수행됩니다.
+    - 테스트 경로: Editor에서 test_tool로 연결되어 수정된 코드의 동작과 품질을 검증합니다.
+  - 코드 편집 도구: code_edit_tool
+    - Editor가 편집 작업을 지시하면 code_edit_tool이 실제 편집을 실행합니다.
+    - 편집 완료 후 다시 Editor로 돌아오는 흐름(downstream의 done)을 통해 수정 사이클이 재개될 수 있습니다.
+  - 테스트 도구: test_tool
+    - Editor가 수정된 코드를 테스트합니다.
+    - 테스트 완료 후의 흐름은 보통 Editor로 돌아가 재수정 여부를 판단하거나, 특정 조건 하에 다음 단계로 진행합니다.
+  - 주의: Editor 노드의 흐름은 반복(루프) 가능성을 내포합니다. 즉, 편집-테스트-재편집의 사이클이 필요에 따라 여러 차례 반복될 수 있습니다.
+
+- code_analysis_tool
+  - CodeAnalyzer로부터 받아 실제 코드 분석 작업을 수행하는 세부 도구입니다.
+  - 분석 결과가 완료되면 Editor로의 흐름(continue)으로 넘어가서 수정 작업으로 연결될 가능성을 제공합니다.
+  - 이 토폴로지는 코드 분석이 끝났음을 나타내는 “done” 신호로 다음 단계(Editor)로 연결됩니다.
+
+- code_edit_tool
+  - Editor의 편집 작업을 실제로 수행하는 세부 도구입니다.
+  - Editor에서 편집 지시를 받으면 동작하고, 완료 후에는 Editor로 결과를 넘겨 재검토(테스트 또는 재수정)로 진행됩니다.
+
+- test_tool
+  - 수정된 코드의 기능/동작을 검증하는 테스트 도구입니다.
+  - 테스트가 끝나면 Editor로 돌아가 재수정 여부를 판단하거나, 테스트가 성공적으로 끝나면 흐름을 종료 경로(end)로 이어가게 하는 역할을 할 수 있습니다.
+
+- swe_tool
+  - Software Engineer가 사용할 수 있는 추가 도구 노드입니다(명시적으로 소프트웨어 엔지니어의 보조 도구로 보임).
+  - SoftwareEngineer에서 swe_tool로의 경로가 존재하고, 이 도구를 수행한 뒤 end 노드로 연결되는 흐름이 있습니다.
+  - 이 경로는 주 흐름(analyze/edit/test)과는 별개로, 보조 작업 또는 추가 검토를 위한 경로로 해석할 수 있습니다.
+  - 흐름의 방향은 swe_tool에서 end로 이어지는 연결이 명시되어 있으며, 필요 시 최종 종료를 수행합니다.
+
+- end
+  - Workflow의 최종 상태 또는 종료 지점입니다.
+  - SoftwareEngineer의 보조 경로나 swe_tool의 수행 종료 이후 이 엔드로 연결됩니다.
+  - 전체 프로세스를 마무리하는 노드로 작동합니다.
+
+3) 흐름의 해석적 요약
+
+- 기본 경로(주 흐름)
+  - start -> SoftwareEngineer
+  - SoftwareEngineer → CodeAnalyzer (analyze_code)
+  - CodeAnalyzer → code_analysis_tool (실행)
+  - 분석 완료 후 Editor로 연결(continue)
+  - Editor → code_edit_tool (실제 편집)
+  - code_edit_tool → Editor (편집 완료)
+  - Editor → test_tool (테스트)
+  - test_tool → Editor (테스트 완료)
+  - 필요 시 Editor ↔ CodeAnalyzer/Editor 간 재루프: 분석 결과에 따른 재수정/재테스트 사이클이 가능
+  - 최종적으로 end로 종료(또는 필요한 경우 swe_tool 경로를 거쳐 End에 도달)
+
+- 보조 경로(swe_tool 포함)
+  - start → SoftwareEngineer → swe_tool (continue)
+  - swe_tool → end
+  - 이는 주 흐름과 무관하게 추가 작업 후 종료하는 대체 경로로 보임
+
+4) 흐름의 특징과 운영 시나리오 포인트
+
+- 병렬성 가능성
+  - SoftwareEngineer 단에서 analyze_code와 edit_file로의 분기가 보이는 구조이므로, 실제 실행 시 두 작업이 병렬로 수행될 가능성을 염두에 둘 수 있습니다. 즉, 코드 분석과 파일 편집이 동시에 시작될 수 있습니다.
+
+- 반복/재작업 루프
+  - Editor와 CodeAnalyzer 간, Editor와 test_tool 간의 상호작용에서 done/continue 라벨이 반복적으로 등장하는 것으로 보아, 수정-테스트-재수정의 루프가 가능함을 시사합니다.
+
+- 예외/대체 흐름
+  - 점선(dashed)으로 표시된 경로들은 선택적 또는 예외/대체 흐름일 가능성이 큽니다. 예를 들어 분석 후 바로 편집으로 넘어가지 않고, 특정 조건에서 재분석이나 추가 도구 실행으로 이어질 수 있습니다.
+
+정리하면, 이 Workflow 는 SoftwareEngineer가 주도하는 분석-편집-테스트의 순환 사이클을 중심으로 구성되며, 필요 시 보조 도구(swe_tool)로 종료하는 구조를 가지고 있습니다. 주요 실행 흐름은 CodeAnalyzer의 분석 → Editor의 편집/테스트 사이클이며, 반복적으로 품질 개선이 이루어질 수 있도록 설계된 것으로 보입니다.

@@ -1,0 +1,71 @@
+<think>
+Okay, the user wants a quicksort implementation with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I need to write the quicksort function. The base case is when the array has zero or one element, which is already sorted. Then, I'll choose a pivot. Usually, people pick the middle element, first, or last. Maybe I'll go with the middle to avoid worst-case scenarios with already sorted arrays.
+
+Next, the partitioning step. I need to create two arrays: one for elements less than the pivot and one for elements greater. Then combine them with the pivot in the middle. Wait, but in the standard quicksort, the partitioning is done in-place, but for simplicity, maybe using list comprehensions is easier here, even though it's not in-place. The user didn't specify in-place, so this approach is acceptable.
+
+I should add comments for each line explaining what's happening. For example, the base case check, selecting the pivot, partitioning the array, and the recursive calls. Also, mention that this is a non-in-place version, which is simpler to understand.
+
+Wait, the user said "각 줄마다 주석을 달라" which means "add comments to each line." So every line of code should have a comment. That's important. Let me make sure each line has a clear explanation.
+
+Let me draft the code. The function will take an array. Check if the array length is less than or equal to 1, return it. Then select the pivot. Then split into left and right arrays. Then recursively call quicksort on left and right, and concatenate them.
+
+Wait, but the standard quicksort uses a pivot and partitions around it. The way I'm splitting into left and right arrays here is more like a simple implementation, not the in-place version. But for clarity, this might be better. Let me make sure the comments explain each step clearly.
+
+Also, the user might not be familiar with list comprehensions, so the comments should explain that. For example, [x for x in arr if x < pivot] is creating a list of elements less than the pivot.
+
+Testing the code with an example array would be good, but the user didn't ask for that. They just want the implementation with comments. So I'll focus on the code and comments.
+
+I need to make sure the comments are in Korean, as per the initial instruction. So each line's comment should be in Korean, explaining the purpose of that line.
+
+Okay, putting it all together now. Write the function, add comments line by line. Check for any possible errors, like handling empty arrays, but the base case handles that. Alright, this should meet the user's request.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘을 Python에서 구현한 코드입니다. 각 줄마다 주석을 달아 설명을 제공했습니다.
+
+```python
+def quicksort(arr):
+    # 배열의 길이가 0 또는 1일 경우, 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot)을 선택합니다. 여기서는 배열의 중앙 요소를 피벗으로 사용
+    pivot = arr[len(arr) // 2]
+
+    # 피벗보다 작은 요소들로 이루어진 배열을 생성
+    left = [x for x in arr if x < pivot]
+
+    # 피벗보다 큰 요소들로 이루어진 배열을 생성
+    right = [x for x in arr if x > pivot]
+
+    # 피벗을 포함한 왼쪽, 오른쪽 배열을 재귀적으로 정렬하고, 결과를 결합
+    return quicksort(left) + [pivot] + quicksort(right)
+```
+
+### 설명:
+1. `def quicksort(arr):`  
+   - `quicksort` 함수 정의. 정렬할 배열 `arr`을 인자로 받습니다.
+
+2. `if len(arr) <= 1:`  
+   - 배열의 길이가 0 또는 1이면, 이미 정렬된 상태이므로 그대로 반환합니다.
+
+3. `pivot = arr[len(arr) // 2]`  
+   - 배열의 중앙 요소를 피벗(pivot)으로 선택합니다. 이는 배열이 이미 정렬되어 있을 경우에도 최악의 성능을 피하기 위한 방법입니다.
+
+4. `left = [x for x in arr if x < pivot]`  
+   - 피벗보다 작은 요소들을 포함한 새로운 배열 `left`을 생성합니다.
+
+5. `right = [x for x in arr if x > pivot]`  
+   - 피벗보다 큰 요소들을 포함한 새로운 배열 `right`을 생성합니다.
+
+6. `return quicksort(left) + [pivot] + quicksort(right)`  
+   - `left` 배열과 `right` 배열을 재귀적으로 `quicksort` 함수로 정렬한 뒤, 피벗을 중간에 넣어 최종 정렬된 배열을 반환합니다.
+
+### 예시:
+```python
+print(quicksort([3, 6, 8, 10, 1, 2, 1])) 
+# 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+이 구현은 **비인플레이스**(non-in-place) 방식으로, 새로운 배열을 생성하며 정렬합니다. 이는 코드가 간단하게 작성되지만, 메모리 사용량이 더 많습니다.

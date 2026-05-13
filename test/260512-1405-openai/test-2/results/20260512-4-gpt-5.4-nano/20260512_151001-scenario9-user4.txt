@@ -1,0 +1,109 @@
+아래 그림은 하나의 **Workflow(자동화/오케스트레이션 흐름도)**에서, 중앙의 **SoftwareEngineer** 역할(상태/오케스트레이터)을 중심으로 여러 Node가 상호작용하는 과정을 보여줍니다. (그림에 표시된 화살표의 라벨: `start`, `done`, `continue`, `edit_file`, `analyze_code` 등)
+
+---
+
+## 1) 시작(start) → SoftwareEngineer 진입
+1. 맨 위의 **start** Node에서 프로세스가 시작됩니다.
+2. 이어서 화살표가 **SoftwareEngineer** Node로 내려오며, 즉시 “소프트웨어 엔지니어 작업(코딩/분석/테스트/수정)”을 수행하는 오케스트레이션 상태로 들어갑니다.
+
+---
+
+## 2) SoftwareEngineer의 병렬/순차 분기 개념(여러 경로로 작업 전개)
+그림에서 **SoftwareEngineer** 박스 주변으로 여러 개의 점선/실선 화살표가 뻗어나가며, 이는 다음과 같은 의미로 해석됩니다.
+
+- SoftwareEngineer가 전체 작업의 “지시자” 역할을 하고,
+- 상황에 따라 **CodeAnalysis(CodeAnalyzer)**, **Editor(Editor)**, **swe_tool** 같은 작업 도구/노드로 분기하거나,
+- 각 노드의 결과에 따라 다시 SoftwareEngineer로 돌아와 다음 단계를 진행합니다.
+
+즉, 기본 패턴은 대체로:
+- **SoftwareEngineer → (작업 노드)**  
+- **작업 노드 → done/continue 신호로 SoftwareEngineer에 피드백**  
+- **필요 시 다시 다른 작업 노드로 이동**  
+처럼 반복됩니다.
+
+---
+
+## 3) 첫 번째 핵심 루트: CodeAnalyzer → code_analysis_tool → SoftwareEngineer
+### (1) SoftwareEngineer → CodeAnalyzer(분석 요청)
+- 좌측에 있는 **CodeAnalyzer** Node로 향하는 화살표가 존재합니다.
+- 이 경로는 보통 “코드를 분석해 문제를 찾는다”는 흐름이며, 그림에는 **`analyze_code`** 라벨이 표시된 것으로 보입니다.
+  - 즉, SoftwareEngineer가 CodeAnalyzer에게 **analyze_code** 작업을 요청합니다.
+
+### (2) CodeAnalyzer 내부의 도구 실행: code_analysis_tool
+- **CodeAnalyzer** Node에서 아래쪽으로 **`code_analysis_tool`** Node가 연결되어 있습니다.
+- 이는 CodeAnalyzer가 실제 분석을 수행하기 위해 **code_analysis_tool**을 호출/사용한다는 뜻입니다.
+- 분석 도구가 어떤 정적 분석, 메트릭 확인, 오류/패턴 탐지 등을 수행했을 가능성이 큽니다.
+
+### (3) 결과 회수 및 분기: done / continue
+- 분석이 끝나면 **CodeAnalyzer → SoftwareEngineer**로 돌아오는 라인이 보이고, 그 근처에 **`done`** 라벨이 표시되어 있습니다.
+- 또한 **`continue`** 라벨이 점선 형태로 나타나는데, 이는:
+  - 분석 결과가 만족스러우면 다음 단계로 넘어가거나,
+  - 혹은 추가 분석/재분석이 필요해 다시 흐름이 이어질 수 있음을 시사합니다.
+
+---
+
+## 4) 두 번째 핵심 루트: Editor → code_edit_tool/test_tool → SoftwareEngineer
+가운데에 있는 **Editor** Node가 두 번째 큰 축입니다. 그림상 Editor는 “수정(편집)”과 “테스트”를 함께 품고 있습니다.
+
+### (1) SoftwareEngineer → Editor(수정 요청)
+- SoftwareEngineer에서 Editor로 향하는 화살표에 **`edit_file`** 라벨이 보입니다.
+- 이는 SoftwareEngineer가 “파일을 수정해야 한다”는 판단 하에 Editor에게 **edit_file**을 요청한다는 흐름입니다.
+
+### (2) Editor 내부의 수정 도구: code_edit_tool
+- **Editor** Node에서 아래쪽 왼편으로 **`code_edit_tool`**이 연결됩니다.
+- Editor가 실제로 코드를 변경(리팩토링, 버그 수정, 로직 교체 등)할 때 사용하는 편집 도구로 볼 수 있습니다.
+
+### (3) Editor 내부의 검증 도구: test_tool
+- 또한 **Editor** Node에서 아래쪽에 **`test_tool`**이 연결되어 있습니다.
+- 이는 코드 수정 이후 곧바로 **테스트(유닛 테스트/통합 테스트/검증 스크립트 실행 등)**를 수행한다는 의미입니다.
+
+### (4) 완료 피드백: done / continue
+- 테스트 완료 후 Editor에서 SoftwareEngineer로 되돌아오는 라인이 있고,
+- 그림에는 **`done`** 또는 **`continue`** 같은 라벨이 보입니다.
+- 해석하면:
+  - 테스트가 통과되면(또는 수정이 성공하면) **done** 상태로 SoftwareEngineer가 다음 단계로 넘어갑니다.
+  - 테스트가 실패하면 **continue** 상태로 다시 수정/분석 루프(예: CodeAnalyzer로 재분기)로 들어갈 수 있습니다.
+
+---
+
+## 5) 세 번째 축: swe_tool 경로 및 최종화(end)
+그림 오른쪽에는 **swe_tool** Node와 **end** Node가 배치되어 있습니다.
+
+### (1) SoftwareEngineer → swe_tool
+- SoftwareEngineer에서 우측의 **swe_tool**로 향하는 화살표가 있습니다.
+- 이 경로에는 **continue** 라벨이 붙어 있어, 일반적으로 다음을 의미합니다:
+  - SoftwareEngineer가 작업을 “실제로 실행/적용/마무리”해야 하는 경우,
+  - swe_tool을 통해 해당 작업을 수행하고,
+
+### (2) swe_tool → end
+- **swe_tool**에서 **end**로 이어지는 흐름이 표시되어 있습니다.
+- 즉, swe_tool 작업이 끝나면 전체 Workflow가 종료되는 것으로 이해할 수 있습니다.
+
+---
+
+## 6) 전체를 관통하는 “반복 루프”의 의미
+그림에서 `done`, `continue`, 그리고 CodeAnalyzer/Editor 사이를 오가는 점선 화살표들이 존재합니다. 이를 종합하면 Workflow는 단순 1회 실행이 아니라, 다음과 같은 반복 구조일 가능성이 큽니다.
+
+1. **분석(CodeAnalyzer / code_analysis_tool)**  
+2. 분석 결과 기반의 **수정(Editor / code_edit_tool)**  
+3. 수정 후 **검증(Editor / test_tool)**  
+4. 결과가 만족하면 **swe_tool로 마무리** 후 **end**  
+5. 만족하지 않으면 **continue** 신호로 다시 분석/수정 루프로 복귀
+
+즉, SoftwareEngineer가 상태를 보고 “계속(continue)할지/완료(don e)하고 다음 단계로 갈지”를 결정하며 흐름을 제어하는 형태입니다.
+
+---
+
+## 요약(노드별 역할)
+- **SoftwareEngineer**: 전체 흐름의 오케스트레이터(지시/판단/다음 단계 결정)
+- **CodeAnalyzer**: 코드 문제 파악을 위한 분석 단계
+- **code_analysis_tool**: CodeAnalyzer가 실제 분석을 수행하는 도구
+- **Editor**: 코드 수정 및 결과 검증 단계의 중심
+- **code_edit_tool**: 코드 변경을 실행하는 도구
+- **test_tool**: 수정 결과의 테스트/검증을 수행하는 도구
+- **swe_tool**: 작업의 적용/최종 수행(혹은 마무리 실행) 도구
+- **end**: 워크플로우 종료
+
+---
+
+원하시면, 제가 **(1) 화살표 라벨 기준으로 “정확한 순환 경로(그래프 관점)”**를 더 엄밀하게 정리하거나, **(2) “continue/done이 어떤 조건에서 갈리는지”**를 그림만 기반으로 가능한 경우를 나눠 가정해 더 구체화해서 작성해 드릴 수도 있어요.

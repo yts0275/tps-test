@@ -1,0 +1,68 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the subarrays.
+
+First, I need to write the main function. The function should take an array and its start and end indices. Then, I need a partition function that rearranges the elements around the pivot. The pivot can be chosen in various ways, like the last element, which is common for simplicity.
+
+Wait, the user might want a clear explanation in comments. So each line of the code should have a comment explaining what it does. Let me outline the steps: the partition function selects the pivot, initializes a pointer for the greater element, then loops through the array, swapping elements when necessary. The pivot is placed in the correct position, and the function returns the index.
+
+In the quicksort function, the base case is when the start is less than the end. Then, partition the array, and recursively sort the left and right subarrays. I should make sure the comments explain each part, like the partitioning process, the recursive calls, and the base cases.
+
+Let me check for possible errors. Oh right, the partition function's parameters need to be adjusted. The pivot is usually the last element, so the loop runs from start to end-1. The comments should clarify that the pivot is the last element, and the variable 'i' is the index of the smaller element.
+
+Also, the user might not be familiar with the partitioning logic, so the comments need to be detailed. For example, when the current element is less than the pivot, swap it with the element at index 'i' and increment 'i'. Then, after the loop, swap the pivot with the element at 'i+1'.
+
+Testing the code with a sample array would be good, but the user didn't ask for that. Just the implementation with comments. I'll make sure the comments are concise but informative, explaining each step of the algorithm.
+
+Alright, putting it all together now. The code will have the quicksort function calling the partition function, which handles the actual partitioning. Each line has a comment, making it easy to follow for someone learning the algorithm.
+</think>
+
+```python
+def quicksort(arr, start, end):
+    # 기저 조건: start가 end보다 작을 때만 실행
+    if start < end:
+        # 파티션을 실행하여 pivot의 위치를 결정하고, pivot_index를 반환
+        pivot_index = partition(arr, start, end)
+        # pivot을 기준으로 왼쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, start, pivot_index - 1)
+        # pivot을 기준으로 오른쪽 부분 배열 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, end)
+
+def partition(arr, start, end):
+    # pivot을 배열의 마지막 요소로 선택
+    pivot = arr[end]
+    # pivot보다 작은 요소의 위치를 추적하는 인덱스
+    i = start - 1
+    # 배열의 start부터 end-1까지 반복
+    for j in range(start, end):
+        # 현재 요소가 pivot보다 작으면 i를 증가시키고 요소를 교환
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    # pivot을 적절한 위치로 이동
+    arr[i + 1], arr[end] = arr[end], arr[i + 1]
+    # pivot의 최종 위치 반환
+    return i + 1
+
+# 예시 배열
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+# 정렬 실행
+quicksort(arr, 0, n - 1)
+# 결과 출력
+print("정렬된 배열:", arr)
+```
+
+### 설명
+1. **`quicksort` 함수**:
+   - 배열의 일부 범위(`start`~`end`)를 정렬합니다.
+   - `start`가 `end`보다 작을 때만 실행 (기저 조건).
+   - `partition` 함수를 호출하여 pivot의 위치를 결정하고, 그 위치를 기준으로 좌우로 재귀적으로 정렬합니다.
+
+2. **`partition` 함수**:
+   - 배열의 마지막 요소를 pivot으로 선택합니다.
+   - `i`는 pivot보다 작은 요소의 위치를 추적하는 인덱스입니다.
+   - 배열의 요소를 순회하며 pivot보다 작은 요소를 `i`의 위치로 이동시킵니다.
+   - 최종적으로 pivot을 적절한 위치(`i+1`)로 이동시키고, 그 위치를 반환합니다.
+
+3. **예시 실행**:
+   - 배열 `[10, 7, 8, 9, 1, 5]`를 정렬한 결과는 `[1, 5, 7, 8, 9, 10]`입니다.

@@ -1,0 +1,83 @@
+물론이에요! 아래는 **퀵소트(Quick Sort)** 알고리즘을 구현한 Python 코드이며, 각 줄에 상세한 주석을 달아드렸습니다. 퀵소트는 분할 정복(divide and conquer) 방식을 사용하여 배열을 정렬하는 알고리즘입니다.
+
+```python
+# 퀵소트 함수 정의
+def quicksort(arr):
+    # 배열의 길이가 1 이하이면 이미 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 배열의 중간 인덱스를 기준으로 피벗 선택 (여기선 중간값을 피벗으로 사용)
+    pivot = arr[len(arr) // 2]
+    
+    # 피벗보다 작은 요소들을 담을 리스트
+    left = [x for x in arr if x < pivot]
+    
+    # 피벗과 같은 요소들을 담을 리스트
+    middle = [x for x in arr if x == pivot]
+    
+    # 피벗보다 큰 요소들을 담을 리스트
+    right = [x for x in arr if x > pivot]
+    
+    # 재귀적으로 왼쪽, 오른쪽을 정렬하고, 중간 요소와 합쳐서 반환
+    return quicksort(left) + middle + quicksort(right)
+
+
+# 예시 사용법
+if __name__ == "__main__":
+    # 정렬할 배열
+    arr = [64, 34, 25, 12, 22, 11, 90]
+    
+    # 퀵소트를 이용해 정렬
+    sorted_arr = quicksort(arr)
+    
+    # 결과 출력
+    print("정렬된 배열:", sorted_arr)
+```
+
+---
+
+### 🔍 주석 설명 요약:
+
+1. `def quicksort(arr):`  
+   - 퀵소트 함수를 정의합니다. 매개변수 `arr`는 정렬할 배열입니다.
+
+2. `if len(arr) <= 1:`  
+   - 배열의 길이가 1 이하라면 정렬할 필요가 없으므로 그대로 반환합니다.
+
+3. `pivot = arr[len(arr) // 2]`  
+   - 피벗(pivot)을 배열의 중간값으로 선택합니다. (분할 기준)
+
+4. `left = [x for x in arr if x < pivot]`  
+   - 피벗보다 작은 수들을 모은 리스트입니다.
+
+5. `middle = [x for x in arr if x == pivot]`  
+   - 피벗과 같은 수들을 모은 리스트입니다.
+
+6. `right = [x for x in arr if x > pivot]`  
+   - 피벗보다 큰 수들을 모은 리스트입니다.
+
+7. `return quicksort(left) + middle + quicksort(right)`  
+   - 왼쪽, 오른쪽을 재귀적으로 정렬하고, 중간 요소를 합쳐서 반환합니다.
+
+8. `if __name__ == "__main__":`  
+   - 이 스크립트가 직접 실행되었을 때만 아래 코드를 실행합니다.
+
+9. `arr = [64, 34, 25, 12, 22, 11, 90]`  
+   - 정렬할 예제 배열입니다.
+
+10. `sorted_arr = quicksort(arr)`  
+    - 퀵소트 함수를 호출하여 정렬된 배열을 얻습니다.
+
+11. `print("정렬된 배열:", sorted_arr)`  
+    - 정렬된 결과를 출력합니다.
+
+---
+
+### ✅ 실행 결과 예시:
+```
+정렬된 배열: [11, 12, 22, 25, 34, 64, 90]
+```
+
+이 구현은 **재귀적**이고, 평균 시간 복잡도는 **O(n log n)**, 최악의 경우는 **O(n²)** 입니다.  
+피벗 선택 방식에 따라 성능이 달라질 수 있으므로, 랜덤 피벗 선택 등 최적화를 추가할 수도 있습니다.

@@ -1,0 +1,14 @@
+물론이죠! 아래는 각 줄마다 주석을 단 퀵소트 구현 예시입니다.
+
+```python
+def quicksort(arr):  # 리스트를 받아서 정렬된 새로운 리스트를 반환하는 함수 정의
+    if len(arr) <= 1:  # 리스트 길이가 1 이하이면 이미 정렬되어 있으므로
+        return arr  # 그대로 반환
+    pivot = arr[len(arr) // 2]  # 리스트의 가운데 값을 피벗으로 선택
+    left = [x for x in arr if x < pivot]  # 피벗보다 작은 요소들로 이루어진 왼쪽 리스트 생성
+    middle = [x for x in arr if x == pivot]  # 피벗과 같은 요소들로 이루어진 중간 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들로 이루어진 오른쪽 리스트 생성
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 정렬한 왼쪽, 중간, 오른쪽 리스트를 합쳐 반환
+```
+
+필요하시면 삽입정렬이나 병합정렬도 설명드릴 수 있어요.

@@ -1,0 +1,32 @@
+아래는 파이썬으로 작성한 인플레이스 퀵소트 구현이며, 코드의 각 줄마다 한국어 주석을 달았습니다.
+
+```python
+def partition(arr, low, high):  # partition 함수 정의: 배열과 구간의 시작/끝 인덱스를 받음
+    pivot = arr[high]  # 피벗으로 구간의 마지막 요소를 선택함
+    i = low - 1  # 작은 요소들의 마지막 인덱스를 나타내는 포인터를 초기화함
+    for j in range(low, high):  # low부터 high-1까지 반복하며 현재 요소들을 검사함
+        if arr[j] <= pivot:  # 현재 요소가 피벗보다 작거나 같으면
+            i += 1  # 작은 요소 영역의 끝을 한 칸 확장함
+            arr[i], arr[j] = arr[j], arr[i]  # 현재 요소를 작은 요소 영역의 끝으로 스왑함
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 요소들의 바로 다음 위치로 이동시킴
+    return i + 1  # 피벗의 최종 위치 인덱스를 반환함
+
+
+def quicksort(arr, low=0, high=None):  # quicksort 함수 정의: 배열과 선택적 구간 인덱스를 받음
+    if high is None:  # high가 지정되지 않았으면
+        high = len(arr) - 1  # 배열 전체를 대상으로 하기 위해 high를 마지막 인덱스로 설정함
+    if low < high:  # 구간에 두 개 이상의 요소가 있을 때만 정렬을 진행함
+        p = partition(arr, low, high)  # 피벗을 기준으로 분할하고 피벗 위치 인덱스를 얻음
+        quicksort(arr, low, p - 1)  # 피벗 왼쪽 부분을 재귀적으로 정렬함
+        quicksort(arr, p + 1, high)  # 피벗 오른쪽 부분을 재귀적으로 정렬함
+    return arr  # 정렬된(혹은 부분적으로 정렬된) 배열을 반환함
+
+
+if __name__ == "__main__":  # 이 파일을 직접 실행할 때만 아래를 수행하도록 함
+    data = [3, 6, 8, 10, 1, 2, 1]  # 예시로 사용할 정수 리스트를 정의함
+    print("정렬 전:", data)  # 정렬 전 리스트를 출력함
+    sorted_data = quicksort(data)  # 인플레이스 정렬을 수행하고 반환값을 저장함
+    print("정렬 후:", sorted_data)  # 정렬 결과를 출력함
+```
+
+원하면 다른 피벗 선택 방식(예: 랜덤 피벗), 안정성(stable) 보장 방법, 또는 병렬화/비재귀 구현 예시도 제공해 드리겠습니다.

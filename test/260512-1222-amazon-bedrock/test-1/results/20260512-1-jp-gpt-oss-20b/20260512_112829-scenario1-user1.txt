@@ -1,0 +1,47 @@
+아래는 파이썬으로 구현한 퀵소트(Quick Sort) 알고리즘입니다.  
+코드의 각 줄마다 한글 주석을 달아, 단계별로 무엇을 하고 있는지 설명했습니다.
+
+```python
+# 파이썬 표준 입력/출력 모듈을 임포트 (예시용, 실제 주석의 문장 수가 많아짐)
+import random  # 무작위 테스트용 리스트를 만들 때 사용
+
+# 리스트를 인수로 받아 왼쪽에서 오른쪽까지 구간을 정렬하는 빠른 정렬 함수
+def quicksort(arr, low, high):
+    # base case: 구간 안에 0개 혹은 1개 항목만 있으면 이미 정렬이 완료됨
+    if low < high:
+        # 배열을 분할하고 피벗을 기준으로 왼쪽에 작은 값, 오른쪽에 큰 값을 배치
+        pivot_index = partition(arr, low, high)
+        # 피벗보다 왼쪽에 있는 부분과 오른쪽에 있는 부분을 각각 재귀 호출
+        quicksort(arr, low, pivot_index - 1)
+        quicksort(arr, pivot_index + 1, high)
+
+# partition 함수: 맨 오른쪽값을 피벗으로 선택하고 피벗을 기준으로 배열을 재배열
+def partition(arr, low, high):
+    # 피벗(역전 기준)으로 사용할 항목을 가장 오른쪽에 있는 값으로 정의
+    pivot = arr[high]
+    # 작은 값이 들어갈 인덱스(더 작은 값들이 arr[low]~arr[i-1]에 존재)
+    i = low - 1
+    # lower~high-1까지 모든 항목을 비교
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            # 작은 값 (pivot보다 작거나 같은 값)은 i 다음 위치에 캔다
+            i += 1
+            # i와 j를 교환 (i가 가리키는 위치가 아직 작은 값으로 채워지지 않은 부분)
+            arr[i], arr[j] = arr[j], arr[i]
+    # 피벗은 i+1번째 자리 (i+1~high-1이 모두 큰 값)로 옮긴다
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # 피벗의 최종 인덱스를 반환
+    return i + 1
+
+# 예시 사용법
+if __name__ == "__main__":
+    # 무작위 정수 리스트를 생성 (길이 10)
+    sample_list = [random.randint(1, 100) for _ in range(10)]
+    print("정렬 전 리스트:", sample_list)
+
+    # quicksort 호출 (전체 범위: 0에서 len-1)
+    quicksort(sample_list, 0, len(sample_list) - 1)
+
+    # 정렬된 결과 확인
+    print("정렬 후 리스트:", sample_list)
+```

@@ -1,0 +1,24 @@
+이 워크플로우는 “start” 노드에서 출발하여 SoftwareEngineer 역할을 중심으로 여러 도구와 활동을 순환하면서 최종 “end”까지 이어지는 흐름을 갖고 있습니다. 각 Node 간 관계를 최대한 상세하게 서술하면 다음과 같습니다.
+
+1. **Start → SoftwareEngineer**  
+   흐름은 가장 상단의 “start” 노드에서 시작해서 SoftwareEngineer 노드로 바로 들어옵니다. 이 지점은 개발자가 활동을 시작하는 관문이며, 이후 다양한 도구와 하위 활동으로 갈라집니다.
+
+2. **SoftwareEngineer에서의 분기**  
+   SoftwareEngineer 노드는 다양한 하위 도구와 작업으로 이어지는 중심 허브입니다. SoftwareEngineer는 아래와 같은 흐름으로 나뉩니다.  
+   a. **CodeAnalyzer**: SoftwareEngineer는 “analyze_code” 작업을 수행하기 위해 CodeAnalyzer로 연결됩니다. 이 흐름은 코드 분석이 필요할 때 주요하게 작동합니다. CodeAnalyzer는 다시 “code_analysis_tool”로 흐름을 보내어 분석 도구와 상호작용하고, 분석이 끝나면 “done” 상태로 되돌아와 다시 SoftwareEngineer로 상승하는 경로가 있습니다.  
+   b. **Editor**: SoftwareEngineer가 “edit_file” 상태로 전환되면 편집기(Editor)로 이동합니다. Editor는 실제 코드 편집 활동을 수행하며, 내부적으로 “code_edit_tool”과 “test_tool”을 호출하는 하위 노드들과 연결되어 있습니다. 두 하위 도구 모두 Editor의 활동을 보조하며, “continue” 상태로 다시 Editor와 상위 흐름으로 연결됩니다. 최종적으로 편집이 완료되면 “done”을 통해 다시 SoftwareEngineer로 돌아옵니다.  
+   c. **swe_tool**: 별도의 도구인 “swe_tool”로도 SoftwareEngineer가 직접 연결되어 있습니다. 이 노드는 특정 소프트웨어 엔지니어링 도구 체인을 의미하는 것으로 보이며, 작업 수행 후 “continue” 플로우를 통해 SoftwareEngineer로 다시 복귀하거나, 마무리 조건에서는 “end” 노드로 직접 이어질 수도 있습니다.
+
+3. **CodeAnalyzer 내부 흐름**  
+   CodeAnalyzer는 "analyze_code" 작업 흐름 중에 등장하며, 구체적으로는 “code_analysis_tool”이라는 하위 도구로 연결되어 실제 분석 작업을 수행합니다. 분석을 마치면 “done” 상태로 SoftwareEngineer에게 결과를 반환하거나, 다시 Editor나 다른 도구로 이어질 수 있도록 “continue” 경로를 통해 가변적으로 흐릅니다.
+
+4. **Editor 내부 흐름**  
+   Editor는 “code_edit_tool”과 “test_tool”이라는 두 개의 도구와 연결됩니다.  
+   - “code_edit_tool”은 코드 편집 기능을 제공하는 도구로서, Editor가 편집을 수행하는 동안 반복적으로 호출됩니다. 완료 후에는 “continue”를 통해 Editor로 되돌아가 다음 작업을 결정합니다.  
+   - “test_tool”은 편집된 코드에 대해 테스트를 실행하는 도구입니다. 테스트 전환 후 다시 Editor로 “continue”하게 되어, 반복적인 편집-테스트 사이클을 지원합니다.  
+   Editor가 모든 편집 작업을 마치면 “done”이라고 표시하고 SoftwareEngineer로 다시 되돌아갑니다.
+
+5. **SoftwareEngineer → End**  
+   SoftwareEngineer는 여러 하위 도구로 흐름을 보내고 다시 받아들이는 반복 작업을 수행한 이후, 최종적으로 모든 작업이 완료되면 “end” 노드로 이어집니다. 일부 경로에서는 “swe_tool”을 직접 거쳐서 “end”로 바로 도달하는 흐름도 있으며, 이 때는 추가적인 반복 없이 종료되는 경우입니다.
+
+요약하면 이 워크플로우는 SoftwareEngineer를 중심으로 CodeAnalyzer, Editor, swe_tool이라는 세 갈래의 활동을 병렬적으로 반복하며 필요한 도구들을 호출하고, 각각의 하위 도구(code_analysis_tool, code_edit_tool, test_tool)와 연동하여 분석, 편집, 테스트의 사이클을 구성한 뒤 마지막에 “end”로 종료됩니다.

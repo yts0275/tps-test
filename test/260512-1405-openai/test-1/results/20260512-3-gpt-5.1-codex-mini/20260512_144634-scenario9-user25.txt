@@ -1,0 +1,36 @@
+이 Workflow는 크게 중앙에 위치한 `SoftwareEngineer` 노드를 중심으로 다양한 도구와 서브노드들이 연결되어 있고, `start`에서 `end`까지의 흐름은 여러 가지 분기와 반복을 포함하고 있습니다. 각 노드 간의 흐름을 가능한 한 상세히 설명하겠습니다.
+
+1. `start` → `SoftwareEngineer`:
+   - 워크플로의 시작점인 `start`에서 `SoftwareEngineer` 노드로 직접 연결됩니다. 이는 엔지니어가 작업을 시작하여 코드 분석, 편집, 테스트 등의 활동을 수행하기 위한 출발 지점입니다.
+
+2. `SoftwareEngineer`에서 파생된 흐름:
+   - `SoftwareEngineer` 노드는 여러 방향으로 분기합니다.
+   - 첫째, `SoftwareEngineer`에서 `CodeAnalyzer`로 직접 연결되며, 해당 화살표 위에 `analyze_code`라는 작업명이 있습니다. 이 단계는 엔지니어가 코드 분석을 수행하기 위해 분석 도구를 호출하는 과정입니다.
+   - 둘째, `SoftwareEngineer`에서 `Editor` 노드로 연결되며 그 위에는 `edit_file`이라는 명시적 작업명이 있습니다. 이 흐름은 엔지니어가 편집기로 이동해 실제 코드 편집 작업을 수행하는 흐름입니다.
+   - 셋째, `SoftwareEngineer`에서 `swe_tool`이라는 도구 노드로 연결되며 `continue`라는 라벨이 있습니다. 이는 스크립트나 기타 개발 도구에서 추가 작업을 수행하거나 도구 실행을 통해 의사결정을 진행하는 흐름을 의미합니다.
+   - 마지막으로 `SoftwareEngineer`에서 `end`로도 직접 `continue` 명시된 화살표로 연결되어 있어, 필요한 작업이 완료되면 바로 종료할 수도 있는 선택적 종료 경로가 존재합니다.
+
+3. `CodeAnalyzer` 관련 흐름:
+   - `CodeAnalyzer`는 위에서 `SoftwareEngineer`가 `analyze_code`를 호출하여 진입한 후 실제 분석 도구인 `code_analysis_tool`로 이어지는 흐름을 가집니다. 이는 `CodeAnalyzer` 내부에서 코드 분석을 수행하는 외부 도구(또는 모듈)를 호출하는 과정을 나타냅니다.
+   - `CodeAnalyzer`에서 다시 `SoftwareEngineer`로 `done`이라는 라벨을 붙인 화살표가 돌아옵니다. 이는 분석 결과가 종료되면 엔지니어에게 다시 제어가 넘어가는 복귀 경로입니다.
+   - 또한, `CodeAnalyzer`에서 `Editor`로 연결되는 가지가 존재하며, 이 연결도 `continue`로 표시되어 있습니다. 분석 중 발견된 사항을 수정하기 위해 바로 편집기로 이동하는 흐름을 의미합니다.
+   - `CodeAnalyzer`에서 `code_edit_tool`로 직접 연결되는 화살표도 존재하는데, 라벨은 없습니다. 이것은 상세 분석 후 필요한 수정 도구로 들어가는 내부 작업 흐름입니다.
+   - `CodeAnalyzer`에서 다시 `SoftwareEngineer`로 돌아가는 것 외에도, `CodeAnalyzer` → `Editor` → `SoftwareEngineer`로 이어지는 경로가 있을 수 있다는 점에서, 전반적으로 반복적인 분석-편집 사이클이 가능하게 구성되어 있습니다.
+
+4. `Editor` 관련 흐름:
+   - `Editor`는 `SoftwareEngineer`로부터 `edit_file` 작업으로 진입합니다.
+   - 이후 `Editor`는 `code_edit_tool`, `test_tool`, `CodeAnalyzer` 등 다양한 도구와 연결됩니다.
+   - `Editor` → `code_edit_tool` 흐름은 편집 중에 실제 파일 수정을 위한 실질적인 편집 도구를 사용하는 과정을 의미합니다.
+   - `Editor` → `test_tool` 흐름은 편집한 내용을 테스트할 필요가 있을 때 테스트 도구로 이동하는 흐름입니다. 이 과정은 수동으로 테스트를 실행하거나 자동화된 테스트로 넘기는 것을 의미할 수 있습니다.
+   - `Editor`에서 `SoftwareEngineer`로 다시 `done` 라벨이 붙은 화살표가 있어서 수정 작업을 완료한 후 다시 엔지니어에게 제어가 돌아오게 됩니다.
+   - `Editor`에서 `CodeAnalyzer`로 `continue` 라벨을 가진 연결도 존재합니다. 이는 편집 후 다시 분석을 실행해야 하는 경우, 예를 들어 코드 품질 점검을 위해 분석으로 되돌아가는 반복적인 흐름입니다.
+   - `Editor`는 아예 `SoftwareEngineer`로 `done`을 통해 복귀하면서 최종적으로 엔지니어를 중심 노드로 되돌려 최종 의사결정을 내리도록 설계되어 있습니다.
+
+5. `swe_tool` 흐름:
+   - `SoftwareEngineer`에서 직접 `swe_tool`로 `continue` 라벨을 달린 흐름이 있으므로, 엔지니어는 작업 중 언제든지 특정 SWE(Software Engineering) 도구를 호출할 수 있고, 다시 `SoftwareEngineer`로 돌아오는 복귀 경로도 존재합니다. 이 도구는 프로젝트 일정, 빌드 시스템, 버전 관리 등 다양할 수 있습니다.
+   - `swe_tool`에서 나오는 연결은 `SoftwareEngineer`로 돌아오는 하나의 화살표뿐이며, 그 흐름을 통해 도구에서의 처리가 완료된 후 다시 엔지니어가 중심 역할을 수행합니다.
+
+6. 종료 흐름:
+   - `SoftwareEngineer`에서 `end`로 `continue` 라벨이 붙은 화살표가 있고, 이는 해당 작업이 모두 마무리되었을 때 워크플로를 종료하는 흐름입니다. 이 종료는 분석, 편집, 테스트, 도구 사용 등 모든 필요 작업이 완료된 후의 최종 목적지입니다.
+
+전체적으로 볼 때, 이 Workflow는 반복되는 분석-편집-분석 사이클을 중심으로 하고 있으며, `CodeAnalyzer`, `Editor`, 각종 도구(analysis, edit, test, swe_tool)들이 `SoftwareEngineer`를 중심으로 다중 경로로 연결되어 있습니다. 이러한 구성은 실제 소프트웨어 개발 과정에서 코드 분석 및 편집, 테스트, 도구 사용, 상태 갱신 등이 순환적으로 발생하며, 작업 완료 시 `end`로 종료되는 현실적인 프로세스를 반영합니다.

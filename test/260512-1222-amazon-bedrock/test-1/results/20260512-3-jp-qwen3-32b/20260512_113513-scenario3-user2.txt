@@ -1,0 +1,60 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort)를 구현한 코드입니다. 각 줄마다 자세한 주석을 달아 설명드릴게요.
+
+---
+
+### 🧠 퀵소트(Quick Sort)란?
+
+퀵소트는 하나의 원소를 기준으로 작고 큰 원소로 나누어 재귀적으로 정렬하는 알고리즘입니다. 평균적으로 O(n log n)의 시간 복잡도를 보입니다.
+
+---
+
+### ✅ Python으로 퀵소트 구현 (재귀 방법)
+
+```python
+def quick_sort(arr):
+    # 1. 리스트가 비어 있거나 하나의 원소만 있다면(기저 조건) 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 2. 피벗(pivot)을 선택합니다. 여기서는 첫 번째 원소를 사용 (Pivot Strategy: 첫 번째 값)
+    pivot = arr[0]
+
+    # 3. 피벗 보다 작거나 같은 원소들을 모을 리스트
+    less_than_pivot = []
+
+    # 4. 피벗 보다 큰 원소들을 모을 리스트
+    greater_than_pivot = []
+
+    # 5. 리스트에 있는 나머지 원소들을 순회하며 왼쪽/오른쪽 그룹으로 나눕니다
+    for value in arr[1:]:
+        if value <= pivot:          # 6. 작거나 같은 경우
+            less_than_pivot.append(value)
+        else:                       # 7. 큰 경우
+            greater_than_pivot.append(value)
+
+    # 8. 재귀적으로 왼쪽 그룹을 정렬한 후, 피벗을 추가하고, 오른쪽 그룹을 다시 정렬합니다
+    return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+```
+
+---
+
+### 💡 사용 예시:
+
+```python
+arr = [3, 6, 8, 10, 1, 2, 1]
+sorted_arr = quick_sort(arr)
+print(sorted_arr)  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+### 🧩 주석 정리 간단 요약:
+
+- **pivot**: 기준점으로 작고 큰 원소를 나누는 값
+- **재귀적 호출**: 리스트의 일부만 정렬하고 전체를 합치는 방식
+- **기저 조건**: 원소가 1개 이하일 때 종료
+- **시간 복잡도**: 평균 O(n log n), 최악 O(n²) (피벗 선택에 따라 다름)
+
+---
+
+필요하시면 공간 효율이 더 높은 '인-플레이스 퀵소트' (in-place) 방식도 만들어 드릴 수 있어요!

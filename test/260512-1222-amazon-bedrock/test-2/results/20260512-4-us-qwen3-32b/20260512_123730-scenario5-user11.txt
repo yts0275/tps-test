@@ -1,0 +1,52 @@
+물론입니다! 아래는 퀵소트(QuickSort) 알고리즘을 Python으로 구현한 코드입니다. 각 줄에 주석을 달아 설명을 추가하였습니다.
+
+---
+
+### 💾 퀵소트 (QuickSort) 구현 및 주석
+
+```python
+# 퀵소트 실행 함수
+def quick_sort(arr):
+    # 기저 조건: 배열의 길이가 1 이하이면 정렬된 상태이므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 피벗 선택: 여기서는 리스트의 마지막 원소를 피벗으로 선택
+    pivot = arr[-1]
+    
+    # 피벗 기준으로 작은 값, 큰 값, 같은 값을 담을 왼쪽, 오른쪽 리스트
+    left = []  # 피벗보다 작은 수
+    right = [] # 피벗보다 큰 수
+    same = []  # 피벗과 같은 수 (중복을 처리하기 위해)
+    
+    # 배열의 모든 요소에 대해 분류
+    for num in arr:
+        if num < pivot:    # 피벗보다 작은 수는 왼쪽 리스트에
+            left.append(num)
+        elif num > pivot:  # 피벗보다 큰 수는 오른쪽 리스트에
+            right.append(num)
+        else:              # 피벗과 같은 수는 same 리스트에
+            same.append(num)
+    
+    # 왼쪽과 오른쪽 리스트를 재귀적으로 정렬하고, 결과를 결합하여 반환
+    return quick_sort(left) + same + quick_sort(right)
+
+# 테스트 코드
+if __name__ == "__main__":
+    unsorted_list = [3, 6, 8, 10, 1, 2, 1]
+    sorted_list = quick_sort(unsorted_list)
+    print("정렬된 리스트:", sorted_list)
+```
+
+---
+
+### 📌 설명 정리
+- **기저 조건**: 리스트의 길이가 1 이하면 정렬이 필요 없기 때문에 바로 반환.
+- **피벗 선택**: 여기서는 마지막 원소를 피벗으로 선택했습니다.
+- **분할 (Partitioning)**: 피벗을 기준으로 작은 수는 `left`, 큰 수는 `right`, 같은 수는 `same`에 저장.
+- **재귀**: `left`와 `right` 리스트를 다시 `quick_sort` 함수에 넘겨 재귀적으로 정렬.
+- **결합 (Combining)**: 정렬된 왼쪽, 중간, 오른쪽 부분을 합쳐 최종 결과를 리턴.
+
+---
+
+필요하면 C/C++ 또는 Java 등의 다른 언어로도 퀵소트를 구현해 드릴 수 있습니다.

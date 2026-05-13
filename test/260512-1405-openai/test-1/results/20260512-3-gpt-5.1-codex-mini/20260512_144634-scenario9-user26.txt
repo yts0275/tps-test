@@ -1,0 +1,19 @@
+이 워크플로우는 전체적으로 하나의 엔티티인 **SoftwareEngineer**를 중심으로 여러 작업 도구와 노드들이 서로 연결되며 진행됩니다. 각 노드 간 흐름을 최대한 상세히 서술하면 다음과 같습니다.
+
+1. **start → SoftwareEngineer**: 워크플로우는 시작 지점인 `start`에서 출발하여 `SoftwareEngineer` 노드로 진입합니다. 즉, 모든 행위의 주체인 소프트웨어 엔지니어가 이 시점부터 본격적으로 각 작업을 수행하게 됩니다.
+
+2. **SoftwareEngineer → CodeAnalyzer (analyze_code)**: 엔지니어는 코드 분석을 요구할 때 `analyze_code`라는 라벨이 붙은 연결을 통해 `CodeAnalyzer` 노드로 이동합니다. 이 연결은 엔지니어가 분석 작업을 지시하는 과정이며, 분석을 위해 필요한 후속 툴을 거치는 전 단계입니다.
+
+3. **CodeAnalyzer ↔ code_analysis_tool**: `CodeAnalyzer`는 분석을 수행하기 위해 `code_analysis_tool`과 연결되어 있습니다. 이 툴과의 상호작용을 통해 실제 분석 실행이 이루어지며, 데이터를 처리하고 결과를 도출합니다.
+
+4. **CodeAnalyzer → SoftwareEngineer (done/continue)**: 분석이 완료되면 `CodeAnalyzer`는 두 개의 흐름으로 다시 엔지니어에게 되돌아갑니다. 하나는 `done`이라는 라벨을 가진 직선(또는 실선)으로, 분석이 끝났음을 알리고 엔지니어가 다음 단계로 넘어갈 수 있도록 합니다. 다른 하나는 `continue` 라벨이 붙은 점선으로, 분석 결과 기반의 후속 작업을 이어가기 위한 지시입니다. 이 때 엔지니어는 필요에 따라 다시 다른 노드로 분기합니다.
+
+5. **SoftwareEngineer → Editor (edit_file)**: 엔지니어는 코드 수정을 위해 `edit_file`이라는 라벨로 `Editor` 노드로 이동합니다. 이 흐름은 분석 이후 또는 바로 코드 수정이 필요한 상황에서 이루어지며, 에디터가 핵심 역할을 맡습니다.
+
+6. **Editor ↔ code_edit_tool / test_tool**: `Editor`는 실제 편집 작업을 위해 `code_edit_tool`과 연결됩니다. 또한 편집 후 정상 작동을 확인하기 위해 `test_tool`과도 연결되어 테스트 절차를 진행합니다. 두 툴 모두 에디터의 기능을 확장시켜주는 서브 시스템 역할을 합니다.
+
+7. **Editor → SoftwareEngineer (continue/done)**: `Editor`도 마무리 단계에서 엔지니어로 되돌아가는 흐름을 갖습니다. `continue` 라벨이 붙은 흐름은 수정이 계속 필요할 수 있음을 의미하며, `done` 라벨은 해당 편집이 끝났음을 나타냅니다. 엔지니어는 이 피드백을 바탕으로 다음 단계(예: 추가 분석, 툴 활용 등)를 결정합니다.
+
+8. **SoftwareEngineer → swe_tool / end (continue)**: 최종적으로 엔지니어는 `swe_tool`이라는 툴과 상호작용하거나, 더 이상 필요한 작업이 없을 경우 `end`로 흐름을 연결합니다. `swe_tool`로의 연결은 아마도 소프트웨어 엔지니어링 작업을 자동화하거나 지원하는 툴을 의미하며, 이 툴과의 상호작용 후 `continue` 라벨을 따라 `end`로 종료됩니다.
+
+9. **노드 간 흐름 요약**: 정리하면, `SoftwareEngineer`는 시작 이후 `CodeAnalyzer`와 `Editor`를 번갈아가며 사용하고, 각 노드는 관련 전문 툴(`code_analysis_tool`, `code_edit_tool`, `test_tool`)과 연결되어 특정 업무를 수행합니다. 모든 작업이 완료되면 `swe_tool`을 잠시 거친 뒤 `end`로 진행하며 워크플로우가 종료됩니다. dotted line(점선)과 solid line(실선)은 각각 계속 흐름을 이어가기 위한 연결과 작업 완료를 표시하고 있습니다.

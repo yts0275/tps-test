@@ -1,0 +1,31 @@
+다음은 파이썬으로 구현한 퀵소트입니다. 각 줄마다 주석을 달았습니다.
+
+def quicksort(arr, left, right):  # 범위 [left, right]에서 퀵소트를 실행한다
+    if left >= right:  # 부분 배열의 크기가 1 이하이면 이미 정렬된 상태다
+        return  # 더 이상 분해하지 않고 리턴한다
+    pivot_index = (left + right) // 2  # 피벗의 인덱스를 중간으로 선택한다
+    pivot = arr[pivot_index]  # 피벗 값을 저장한다
+    i, j = left, right  # 왼쪽 포인터 i와 오른쪽 포인터 j를 초기화한다
+    while i <= j:  # 포인터가 서로 교차하기 전까지 반복한다
+        while arr[i] < pivot:  # 피벗보다 큰 값을 만나기 전까지 i를 오른쪽으로 이동한다
+            i += 1  # 포인터 i를 한 칸 이동한다
+        while arr[j] > pivot:  # 피벗보다 작은 값을 만나기 전까지 j를 왼쪽으로 이동한다
+            j -= 1  # 포인터 j를 한 칸 이동한다
+        if i <= j:  # i와 j가 여전히 교차하지 않았다면 원소를 교환한다
+            arr[i], arr[j] = arr[j], arr[i]  # arr[i]와 arr[j]를 서로 바꾼다
+            i += 1  # 왼쪽 포인터를 오른쪽으로 한 칸 이동한다
+            j -= 1  # 오른쪽 포인터를 왼쪽으로 한 칸 이동한다
+    if left < j:  # 왼쪽 부분배열에 대해 재귀적으로 퀵소트를 수행한다
+        quicksort(arr, left, j)  # 왼쪽 부분배열을 재귀적으로 정렬한다
+    if i < right:  # 오른쪽 부분배열에 대해 재귀적으로 퀵소트를 수행한다
+        quicksort(arr, i, right)  # 오른쪽 부분배열을 재귀적으로 정렬한다
+
+def quicksort_wrapper(arr):  # 배열 전체를 정렬하기 위한 편의 함수
+    if not arr:  # 빈 배열인 경우 즉시 반환한다
+        return  # 아무 작업도 하지 않고 반환한다
+    quicksort(arr, 0, len(arr) - 1)  # 배열 전체 구간에 대해 퀵소트를 시작한다
+
+# 사용 예시(참고용)
+# a = [3, 6, 8, 10, 1, 2, 1]
+# quicksort_wrapper(a)
+# print(a)  # 출력: [1, 1, 2, 3, 6, 8, 10]

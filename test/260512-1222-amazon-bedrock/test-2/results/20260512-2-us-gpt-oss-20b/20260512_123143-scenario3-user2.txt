@@ -1,0 +1,26 @@
+```python
+def quicksort(arr, low, high):                     # 리스트와 시작 인덱스, 끝 인덱스를 파라미터로 받는 재귀 함수 정의
+    if low < high:                                # 아직 정렬이 필요한 부분이 존재하면
+        pivot_index = partition(arr, low, high)   # 피벗을 기준으로 배열을 나누어 피벗이 위치할 인덱스를 반환
+        quicksort(arr, low, pivot_index - 1)      # 피벗 왼쪽 부분을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)     # 피벗 오른쪽 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):                    # 피벗 기준으로 배열을 나누는 함수
+    pivot = arr[high]                            # 가장 오른쪽 원소를 피벗으로 선택
+    i = low - 1                                  # i는 피벗보다 작은 원소가 존재할 위치를 가리킴
+    for j in range(low, high):                   # low부터 high-1까지 원소를 순회
+        if arr[j] <= pivot:                      # 현재 원소가 피벗보다 작거나 같으면
+            i += 1                              # i를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]     # i와 j 위치의 원소를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]# 피벗을 올바른 위치에 삽입
+    return i + 1                                 # 피벗이 최종 위치한 인덱스 반환
+
+# 예시 사용법
+if __name__ == "__main__":                       # 직접 실행될 때만 아래 코드를 실행
+    data = [34, 7, 23, 32, 5, 62]                # 정렬할 예시 리스트 정의
+    quicksort(data, 0, len(data) - 1)            # 전체 리스트를 정렬
+    print("정렬된 결과:", data)                 # 정렬 결과 출력
+```
+
+위 코드는 리스트를 재귀적으로 분할하며 **in‑place**로 정렬합니다.  
+각 줄에 한글 주석을 달아 로직을 명확히 이해하도록 하였습니다.

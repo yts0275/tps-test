@@ -1,0 +1,35 @@
+아래는 **퀵소트(Quick Sort)** 구현 예시입니다. **각 줄마다 주석**을 달았습니다.
+
+```python
+def quicksort(arr, low=0, high=None):                 # 퀵소트 함수 정의 (배열, 시작 인덱스, 끝 인덱스)
+    if high is None:                                   # high 값이 주어지지 않으면
+        high = len(arr) - 1                           # 배열의 마지막 인덱스로 설정
+
+    if low < high:                                     # 정렬 범위가 유효할 때만(원소가 2개 이상일 때)
+        pivot = partition(arr, low, high)             # partition 함수로 피벗을 기준으로 분할하고 피벗 최종 위치를 받음
+        quicksort(arr, low, pivot - 1)                # 왼쪽 부분(피벗보다 작은 값들)을 재귀적으로 정렬
+        quicksort(arr, pivot + 1, high)               # 오른쪽 부분(피벗보다 큰 값들)을 재귀적으로 정렬
+
+    return arr                                         # 정렬된 배열 반환
+
+
+def partition(arr, low, high):                        # 분할(partition) 함수 정의
+    pivot = arr[high]                                 # 피벗을 맨 오른쪽 원소로 선택
+    i = low - 1                                        # pivot보다 작은 값이 끝나는 위치를 가리키는 인덱스(i) 초기화
+
+    for j in range(low, high):                        # low부터 high-1까지 순회
+        if arr[j] <= pivot:                           # 현재 원소가 pivot 이하이면
+            i += 1                                    # i를 1 증가 (작은 영역 확장)
+            arr[i], arr[j] = arr[j], arr[i]          # i와 j 위치 값을 스왑(작은 값들을 앞으로)
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]     # 피벗을 올바른 위치(i+1)에 스왑
+    return i + 1                                       # 피벗의 최종 위치 반환
+
+
+# 사용 예시
+data = [3, 6, 8, 10, 1, 2, 1]                          # 예시 배열 선언
+sorted_data = quicksort(data)                           # 퀵소트로 정렬 수행
+print(sorted_data)                                     # 정렬 결과 출력
+```
+
+원하시면 **(1) 파이썬 말고 C/C++/자바 버전**, 또는 **(2) 난수 피벗(중앙 피벗) 사용**, **(3) 반복문 기반(재귀 제거)** 같은 형태로도 바꿔드릴게요. 어떤 언어/방식으로 원하세요?

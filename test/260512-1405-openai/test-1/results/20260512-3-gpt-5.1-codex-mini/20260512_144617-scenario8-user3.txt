@@ -1,0 +1,12 @@
+이 Workflow는 `start` 노드에서 출발하여 `SoftwareEngineer` 노드로 흐르면서 시작됩니다. 이후 `SoftwareEngineer`는 여러 하위 도구들과 연동하는 분기 흐름을 보여줍니다.
+
+1. **SoftwareEngineer → CodeAnalyzer (analyze_code)**  
+   소프트웨어 엔지니어는 코드 분석 작업(`analyze_code`)을 수행하기 위해 `CodeAnalyzer` 노드로 이동합니다. 이 흐름이 시작되면 내부적으로 `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 실제 분석을 진행합니다. 분석이 완료되면 `done` 이벤트가 발생하여 `CodeAnalyzer`에서 다시 `SoftwareEngineer`로 되돌아오거나, 계속 `continue` 흐름을 통해 후속 작업으로 연결됩니다.
+
+2. **SoftwareEngineer → Editor (edit_file)**  
+   코드 수정을 위해 `SoftwareEngineer`는 `Editor` 노드로 이동합니다. `Editor`는 내부적으로 `code_edit_tool`을 통해 코드를 편집하고, 필요한 경우 `test_tool`에 연결되어 편집된 코드에 대한 테스트를 수행할 수 있습니다. 에디팅 작업이 끝나면 `done` 이벤트로 다시 `SoftwareEngineer`에게 돌아가거나 `continue`를 통해 다른 흐름으로 넘어갑니다.
+
+3. **SoftwareEngineer → swe_tool / end (continue)**  
+   `SoftwareEngineer`는 추가적인 툴(`swe_tool`)을 호출하여 특정 작업이나 자동화 도구를 사용할 수 있으며, 모든 작업이 완료되면 `continue` 흐름을 따라 `end` 노드로 이동하여 프로세스를 종료합니다.
+
+전체적으로 각 주요 노드는 다시 `SoftwareEngineer`로 되돌아올 수 있게 구성되어 있으며, 함께 연결된 하위 도구(`code_analysis_tool`, `code_edit_tool`, `test_tool`)를 통해 실제 작업을 수행하고 결과를 반영하여 다음 단계로 이어지는 반복적이고 순환적인 구조를 가지고 있습니다.

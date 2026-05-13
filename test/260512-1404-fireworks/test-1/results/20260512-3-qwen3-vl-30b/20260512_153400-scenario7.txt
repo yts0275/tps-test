@@ -1,0 +1,113 @@
+물론입니다. 아래는 제공된 워크플로우(Workflow) 다이어그램의 각 노드와 그间的 흐름을 최대한 상세하게 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+
+이 워크플로우는 **소프트웨어 엔지니어**(Software Engineer)라는 주체가 코드를 분석하고, 수정하며, 테스트하는 과정을 자동화된 시스템으로 표현한 것입니다. 이 시스템은 여러 도구를 활용하여 반복적인 작업을 수행하며, 주요 흐름은 `start`에서 시작하여 `end`로 종료됩니다. 주요 노드는 `SoftwareEngineer`, `CodeAnalyzer`, `Editor`, `swc_tool`, `code_analysis_tool`, `code_edit_tool`, `test_tool` 등으로 구성되어 있으며, 각 노드는 특정 작업을 수행하고, 결과에 따라 다음 노드로 이동합니다.
+
+---
+
+### **1. 시작 노드: `start`**
+
+- **역할**: 워크플로우의 시작점을 나타냅니다.
+- **흐름**: `start` 노드는 단방향으로 `SoftwareEngineer` 노드로 연결됩니다. 이는 워크플로우가 **SoftwareEngineer**라는 주체의 활동으로 시작됨을 의미합니다.
+- **특징**: 시작 노드는 단순한 제어 흐름을 나타내며, 실제로 어떤 작업도 수행하지 않습니다.
+
+---
+
+### **2. 주요 엔티티: `SoftwareEngineer`**
+
+- **역할**: 워크플로우의 중심 주체입니다. 이 노드는 **소프트웨어 엔지니어**가 수행하는 작업을 대표하며, 여러 하위 도구와 상호작용합니다.
+- **흐름**:
+  - **`start` → `SoftwareEngineer`**: 워크플로우의 시작점에서 이 노드로 진입합니다.
+  - **`SoftwareEngineer` → `CodeAnalyzer`**: `analyze_code` 이벤트를 발생시켜 코드 분석을 시작합니다.
+  - **`SoftwareEngineer` → `Editor`**: `edit_file` 이벤트를 발생시켜 파일 편집을 시작합니다.
+  - **`SoftwareEngineer` → `swc_tool`**: `swc_tool`이라는 도구를 통해 어떤 작업을 수행할 수 있음을 나타냅니다. (이 도구는 `SoftwareEngineer`의 직접적인 작업이 아니라, 도구로서의 역할)
+  - **`SoftwareEngineer` → `end`**: 워크플로우를 종료할 수 있는 경로입니다. 이는 소프트웨어 엔지니어가 작업을 완료한 후, 시스템이 종료될 수 있음을 의미합니다.
+  - **반환 경로**:
+    - `CodeAnalyzer` → `SoftwareEngineer` (label: `done`)
+    - `Editor` → `SoftwareEngineer` (label: `done`)
+    - `swc_tool` → `SoftwareEngineer` (label: `continue`)
+    - 이는 각 하위 도구가 작업을 완료하거나 계속 진행할 수 있음을 의미합니다.
+
+- **특징**:
+  - `SoftwareEngineer`는 **작업의 중앙 제어자** 역할을 하며, 다른 도구들과의 상호작용을 조정합니다.
+  - `done`과 `continue`라는 라벨은 각 도구가 작업을 완료했는지, 아니면 계속 진행할 수 있는지를 나타냅니다.
+
+---
+
+### **3. 코드 분석 단계: `CodeAnalyzer`**
+
+- **역할**: 코드를 분석하는 도구 또는 프로세스를 나타냅니다.
+- **흐름**:
+  - **`SoftwareEngineer` → `CodeAnalyzer`**: `analyze_code` 이벤트로 시작됩니다.
+  - **`CodeAnalyzer` → `code_analysis_tool`**: `CodeAnalyzer`는 `code_analysis_tool`이라는 외부 도구를 사용하여 코드 분석을 수행합니다. 이는 분석 작업을 외부 도구에 위임하는 것을 의미합니다.
+  - **`code_analysis_tool` → `CodeAnalyzer`**: 분석 결과가 돌아오면 `CodeAnalyzer`로 돌아옵니다. (이때 `continue` 또는 `done` 라벨이 붙을 수 있음)
+  - **`CodeAnalyzer` → `SoftwareEngineer`**: 분석이 완료되면 `done` 이벤트를 발생시켜 `SoftwareEngineer`로 제어를 넘깁니다.
+
+- **특징**:
+  - `CodeAnalyzer`는 `code_analysis_tool`과의 상호작용을 통해 코드 분석을 수행합니다.
+  - `continue` 경로는 분석이 완료되었지만, 추가 작업이 필요할 수 있음을 의미합니다. 예: 오류가 발견되었을 때, `SoftwareEngineer`가 다시 작업을 시작할 수 있음.
+
+---
+
+### **4. 코드 편집 단계: `Editor`**
+
+- **역할**: 코드를 편집하는 도구 또는 프로세스를 나타냅니다.
+- **흐름**:
+  - **`SoftwareEngineer` → `Editor`**: `edit_file` 이벤트로 시작됩니다.
+  - **`Editor` → `code_edit_tool`**: `Editor`는 `code_edit_tool`이라는 외부 도구를 사용하여 코드를 편집합니다.
+  - **`Editor` → `test_tool`**: `Editor`는 편집 후 `test_tool`을 통해 코드 테스트를 수행할 수 있습니다.
+  - **`code_edit_tool` → `Editor`**: 편집 도구가 작업을 완료하면 결과를 `Editor`로 반환합니다.
+  - **`test_tool` → `Editor`**: 테스트 결과가 돌아오면 `Editor`로 돌아옵니다.
+  - **`Editor` → `SoftwareEngineer`**: 편집 및 테스트가 완료되면 `done` 이벤트를 발생시켜 `SoftwareEngineer`로 제어를 넘깁니다.
+
+- **특징**:
+  - `Editor`는 **편집**과 **테스트**를 동시에 수행할 수 있는 중간 조절자 역할을 합니다.
+  - `code_edit_tool`과 `test_tool`은 `Editor`의 하위 도구이며, `Editor`가 제어합니다.
+
+---
+
+### **5. 보조 도구 노드들**
+
+#### **5.1 `code_analysis_tool`**
+
+- **역할**: 코드 분석을 수행하는 도구.
+- **흐름**:
+  - **`CodeAnalyzer` → `code_analysis_tool`**: 분석 요청을 받음.
+  - **`code_analysis_tool` → `CodeAnalyzer`**: 분석 결과를 반환.
+- **특징**: 단순한 도구로서, `CodeAnalyzer`의 작업을 돕는 역할.
+
+#### **5.2 `code_edit_tool`**
+
+- **역할**: 코드 편집을 수행하는 도구.
+- **흐름**:
+  - **`Editor` → `code_edit_tool`**: 편집 요청을 받음.
+  - **`code_edit_tool` → `Editor`**: 편집 결과를 반환.
+- **특징**: `Editor`가 사용하는 도구이며, 실제 편집 작업을 수행.
+
+#### **5.3 `test_tool`**
+
+- **역할**: 코드 테스트를 수행하는 도구.
+- **흐름**:
+  - **`Editor` → `test_tool`**: 테스트 요청을 받음.
+  - **`test_tool` → `Editor`**: 테스트 결과를 반환.
+- **특징**: `Editor`가 편집 후 테스트를 수행할 수 있도록 지원.
+
+#### **5.4 `swc_tool`**
+
+- **역할**: `SoftwareEngineer`가 직접 사용할 수 있는 도구. 이름에서 `swc`는 **Swc (a fast TypeScript/JavaScript compiler)** 를 의미할 수 있음.
+- **흐름**:
+  - **`SoftwareEngineer` → `swc_tool`**: `SoftwareEngineer`가 `swc_tool`을 호출.
+  - **`swc_tool` → `SoftwareEngineer`**: `continue` 라벨로 돌아옴. 이는 `swc_tool`이 작업을 완료했지만, `SoftwareEngineer`가 계속 작업을 할 수 있음을 의미합니다.
+- **특징**: `swc_tool`은 `SoftwareEngineer`와 직접 상호작용하며, `done`이 아닌 `continue`로 돌아감. 이는 `swc_tool`이 단순한 도구이지만, 지속적인 작업 흐름을 유지해야 함을 의미합니다.
+
+---
+
+### **6. 종료 노드: `end`**
+
+- **역할**: 워크플로우의 종료점을 나타냅니다.
+- **흐름**:
+  - **`SoftwareEngineer` → `end`**: `SoftwareEngineer`가 모든 작업을 완료한 후, 워크플로우를 종료합니다.
+- **특징**: 단일 진입점이며, 이 노

@@ -1,0 +1,49 @@
+물론입니다! 아래는 Python에서 퀵소트(Quick Sort) 알고리즘을 구현한 코드입니다. 각 줄마다 간단한 주석도 추가했습니다.
+
+```python
+# 퀵소트 기능 정의
+def quicksort(arr):
+    """
+    재귀적으로 퀵소트를 수행하는 함수
+    :param arr: 정렬할 배열
+    :return: 정렬된 배열
+    """
+    
+    # 배열 길이가 1 이하이면 정렬이 필요 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 기준값(pivot)을 선택합니다 - 여기서는 중간값을 선택
+    pivot = arr[len(arr) // 2]
+    
+    # pivot보다 작거나 같은 요소들을 왼쪽에 모음
+    left = [x for x in arr if x < pivot]
+    
+    # pivot과 같은 요소들을 중간에 담음 (중복값 처리)
+    middle = [x for x in arr if x == pivot]
+    
+    # pivot보다 큰 요소들을 오른쪽에 모음
+    right = [x for x in arr if x > pivot]
+    
+    # 왼쪽, pivot이 있는 middle, 오른쪽을 재귀적으로 정렬한 후 이어붙임
+    return quicksort(left) + middle + quicksort(right)
+
+# 예시 배열 정의
+example = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 호출 후 결과 출력
+sorted_example = quicksort(example)
+print("정렬 결과:", sorted_example)
+```
+
+---
+
+### 💡 설명:
+
+- **pivot 선택**: 이 예제에서는 배열의 **중앙 값**을 기준값으로 사용합니다.
+- **3개 리스트 분할**: 퀵소트는 배열을 **작은 요소들**, **pivot 요소들**, **큰 요소들**로 나눠서 재귀적으로 정렬합니다.
+- **재귀 처리**: 각 부분에 대해서도 동일한 방식으로 재귀함수를 호출하여 정렬합니다.
+
+---
+
+필요하다면 C++, Java, JavaScript 등 다른 언어로도 변환해드릴 수 있습니다!

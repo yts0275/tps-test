@@ -1,0 +1,14 @@
+```python
+def quicksort(arr):  # 재귀적으로 리스트를 정렬하는 퀵소트 함수
+    if len(arr) <= 1:  # 리스트가 0개 또는 1개 요소인 경우 그대로 반환
+        return arr  # 이미 정렬된 상태이므로 그대로 반환
+    pivot = arr[len(arr) // 2]  # 리스트의 중간값을 피벗으로 선택
+    less = [x for x in arr if x < pivot]  # 피벗보다 작은 값들만 추출
+    equal = [x for x in arr if x == pivot]  # 피벗과 같은 값들 추출
+    greater = [x for x in arr if x > pivot]  # 피벗보다 큰 값들만 추출
+    return quicksort(less) + equal + quicksort(greater)  # 재귀 호출 결과를 합쳐서 정렬된 리스트 반환
+
+if __name__ == "__main__":  # 이 파일이 직접 실행될 때만 아래 코드를 실행
+    test_arr = [3, 6, 8, 10, 1, 2, 1]  # 테스트를 위한 정수 리스트
+    print(quicksort(test_arr))  # 퀵소트 결과를 출력
+```

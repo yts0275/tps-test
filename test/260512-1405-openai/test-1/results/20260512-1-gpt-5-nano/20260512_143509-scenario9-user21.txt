@@ -1,0 +1,105 @@
+다음 그림은 하나의 중앙 컨트롤러(SoftwareEngineer)가 여러 하위 도구/노드를 조합하여 순차 또는 병렬로 작업을 수행하는 워크플로우를 보여줍니다. 주요 구분은 실선 화살표가 주요 순서를 이끌고, 점선(대시-라인) 화살표가 연속/다음 단계로의 흐름이나 선택적 흐름을 나타낸다는 점입니다. 또한 각 노드는 서로 데이터를 주고받으며, 최종적으로 end로 수렴합니다.
+
+노드별 역할과 흐름 설명
+
+1) start
+- 역할: 워크플로우의 시작점으로, 초기 진입 신호를 제공합니다.
+-Inbound: 없음
+-Outbound: SoftwareEngineer로 직접 연결(실선 화살표)
+
+2) SoftwareEngineer
+- 역할: 이 워크플로우의 중앙 컨트롤러이자 조정자. 입력을 받아 다음 실행 경로를 결정하고, 필요한 경우 여러 하위 도구를 병렬로 트리거합니다.
+-Inbound: start
+-Outbound: 
+  - CodeAnalyzer로의 분석 트리거 (analyze_code 라벨이 달린 실선/다수의 연결)
+  - Editor로의 파일 편집 트리거 (edit_file 라벨이 달린 실선)
+  - swe_tool로의 추가 도구 호출(대시선/continue 라벨이 달린 연결)
+  - 필요 시 end로의 최종 경로도 고려 가능(주로 swe_tool 경로를 통해 종료되는 흐름이 많음)
+-해석 포인트: SoftwareEngineer는 서로 다른 작업 흐름(analyze_code, edit_file, swe_tool)을 병렬로 시작시킬 수 있으며, 각 흐름은 후속 노드로 결과를 넘겨받아 다음 단계로 진행합니다.
+
+3) CodeAnalyzer
+- 역할: 코드 분석 작업을 담당. 코드 품질/정적 분석 등의 분석기능을 수행하는 진입점 역할.
+-Inbound: SoftwareEngineer(analyze_code)
+-Outbound:
+  - code_analysis_tool로의 분석 실행(실선)
+  - Editor로의 연계(continue/다음 단계로의 흐름, dashed 또는 labeled 연결)
+-연결 포인트:
+  - code_analysis_tool: 실제 분석 도구를 호출하여 분석 작업 수행
+  - Editor로의 continue: 분석 완료 후 편집 단계로 넘어가려는 흐름이 있으며, 필요에 따라 Editor가 편집을 시작하게 됨
+-해석 포인트: 분석 도구의 실행 결과는 CodeAnalyzer를 통해 후속 처리에 사용되거나 Editor로 편집 단계로 연결되는 흐름이 있습니다.
+
+4) code_analysis_tool
+- 역할: CodeAnalyzer가 호출하는 실제 분석 도구. 코드 품질 검사, 정적 분석 등을 수행하는 실행 도구.
+-Inbound: CodeAnalyzer(analyze_code)
+-Outbound: CodeAnalyzer로의 결과 되돌림(반환 경로)
+-해석 포인트: 분석이 끝나면 CodeAnalyzer로 결과가 돌아오며, 필요 시 추가 분석/수정 경로로 흐름이 이어집니다.
+
+5) Editor
+- 역할: 코드 편집/수정 작업을 담당. 편집과 관련된 구체 도구들(code_edit_tool, test_tool 등)을 조합해 실제 수정 과정을 수행합니다.
+-Inbound:
+  - SoftwareEngineer(edit_file): 파일 편집 요청
+  - CodeAnalyzer(Editor로의 continue를 통한 간접 흐름)
+-Outbound:
+  - code_edit_tool로의 편집 실행(continue/done)
+  - test_tool로의 테스트 실행(필요 시)
+-해석 포인트: Editor는 실제 코드 편집의 진입점이며, 편집이 끝나면 코드 수정 도구(code_edit_tool)를 거쳐 파일 수정 결과를 테스트 도구(t est_tool)나 다른 피드백 경로로 보냅니다.
+
+6) code_edit_tool
+- 역할: Editor가 수행하는 구체적 코드 수정 도구. 수정 작업의 실제 실행 엔진.
+-Inbound: Editor(edit_file)
+-Outbound: Editor로의 피드백
+-해석 포인트: 수정 결과를 Editor로 되돌려보내고, 이후 테스트나 추가 편집으로 흐름이 이어질 수 있습니다.
+
+7) test_tool
+- 역할: Editor의 편집 결과를 확인하기 위한 테스트 실행 도구. 단위/통합 테스트 등을 수행.
+-Inbound: Editor(수정 완료 후) 혹은 Editor에서의 continue 흐름
+-Outbound: Editor로의 피드백(테스트 결과를 바탕으로 재편집 필요 여부 등)
+-해석 포인트: 테스트가 성공하면 흐름이 종료 또는 다음 단계로 넘어가고, 실패 시 재편집 흐름으로 되돌아갈 수 있는 피드백 루프를 형성합니다.
+
+8) swe_tool
+- 역할: 소프트웨어 엔지니어(SWE) 관점에서의 보조 도구. 특정 보조 작업이나 품질 관리, 보완 작업 등을 수행하는 도구.
+-Inbound: SoftwareEngineer(continue 라벨이 달린 흐름)
+-Outbound: end로의 종료 흐름 또는 다른 경로로의 재진입 가능성
+-해석 포인트: 이 도구는 여러 흐름 중 하나로 선택적으로 사용되며, 완료 후 최종 종료(end)로 연결되는 경로를 제공합니다.
+
+9) end
+- 역할: 워크플로우의 종료 지점.
+-Inbound: swe_tool의 흐름 또는 다른 경로에서의 종료 신호
+-Outbound: 없음
+-해석 포인트: 모든 주 흐름이 끝나거나, swe_tool 경로를 통해 종료되는 포인트로 수렴합니다.
+
+흐름의 특징 요약
+
+- 기본 구성: start → SoftwareEngineer에서 시작해, 분석 경로(analyze_code), 편집 경로(edit_file), 보조 도구 경로(swe_tool) 등으로 분기될 수 있습니다. 각 분기는 하위 도구로 이어져 최종적으로 end로 수렴합니다.
+- 흐름의 관계성:
+  - analyze_code 경로: SoftwareEngineer → CodeAnalyzer → code_analysis_tool → CodeAnalyzer(결과 수신) → Editor(continue) → code_edit_tool 및/또는 test_tool 등 후속 단계로 연결되며 필요 시 다시 분석/편집 루프를 형성할 수 있습니다.
+  - edit_file 경로: SoftwareEngineer → Editor → code_edit_tool → Editor → test_tool(또는 다른 편집 후속 단계를 거쳐 다시 흐름)
+  - swe_tool 경로: SoftwareEngineer → swe_tool → end(또는 추가 흐름으로 확장 가능)
+- 흐름의 표시 기호 해석:
+  - 실선 화살표: 주 실행 흐름이나 연속적 의존 관계를 나타냄.
+  - 점선/continue 라벨: 다음 단계로의 연속/후속 흐름, 필요 시 루프나 재진입 가능성을 시사.
+  - done 라벨: 해당 작업의 완료 신호를 나타내고, 다음 단계로의 진행 포인트를 표시.
+- 동시성/병렬성 가능성: SoftwareEngineer가 동시에 analyze_code, edit_file, swe_tool을 트리거할 수 있으므로 일부 노드는 병렬로 수행될 수 있습니다. 각 경로의 완료 여부에 따라 후속의 Editor, CodeAnalyzer, 또는 end로 흐름이 수렴합니다.
+
+실무적 해석 예시
+
+- 예시 1: 코드 품질 강화 워크플로
+  - start → SoftwareEngineer
+  - SoftwareEngineer → CodeAnalyzer (analyze_code)
+  - CodeAnalyzer → code_analysis_tool(정적 분석 실행)
+  - 분석 완료로 CodeAnalyzer 복귀 → Editor로 continue(편집 준비)
+  - Editor → code_edit_tool(수정 반영)
+  - code_edit_tool → Editor(수정 반영 피드백)
+  - Editor → test_tool(수행 테스트)
+  - test_tool → Editor(테스트 결과 피드백)
+  - (조건부) 테스트가 성공하면 end, 실패 시 다시 Editor에서 수정 재실행
+  - 또 다른 병행 경로로 SoftwareEngineer → swe_tool를 통해 보완 작업 수행 후 end로 수렴
+
+- 예시 2: 병렬 작업 조합
+  - start → SoftwareEngineer
+  - SoftwareEngineer가 analyze_code, edit_file, swe_tool을 거의 동시에 트리거
+  - 각 경로는 자신만의 하위 도구를 실행하고 완료 신호를 SoftwareEngineer로 되돌림
+  - 모든 병렬 경로의 결과를 종합해 최종 end로 수렴
+
+마무리
+- 이 워크플로우는 하나의 중앙 컨트롤러(SoftwareEngineer)가 여러 도구를 조합해 다양한 작업 흐름을 구성하는 구조입니다. 핵심은 분석/편집/테스트 등의 루프를 통해 코드 품질을 점검하고 수정하며, 필요 시 보조 도구(swe_tool)를 활용해 끝마무리하는 방식으로 이해하면 됩니다. 필요 시 특정 도구 간의 구체적인 입력/출력 형식이나 데이터 흐름을 더 자세히 매핑해 드릴 수 있습니다.

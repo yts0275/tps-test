@@ -1,0 +1,97 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that selects a pivot element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I need to write a function. The standard approach is to have a partition function and a quicksort function. Wait, but sometimes the quicksort function can handle the partitioning directly. Let me think. The user might expect a standard implementation, so I'll use the common approach with a helper function.
+
+Let me outline the steps. The quicksort function will take the array, start and end indices. The base case is when start is greater than or equal to end, return. Then select a pivot. Usually, the middle element is chosen, but sometimes the first or last. For simplicity, I'll pick the middle element.
+
+Then, the partition function. It needs to rearrange the array so that elements less than the pivot come before, and greater after. The pivot is placed at the correct position. The partition function will return the index of the pivot.
+
+Wait, but in some implementations, the pivot is selected and then swapped with the end element. Let me make sure I get that right. Oh right, in the Lomuto partition scheme, the pivot is usually the last element. But the user didn't specify, so I can choose any method.
+
+Alternatively, the Hoare partition is another method. Hmm. But for simplicity, maybe the Lomuto method is easier to explain with comments. Let me go with that.
+
+So, the partition function will take the array, start, and end. Select the pivot as the last element. Initialize a pointer i to start -1. Then loop through the array from start to end-1. If the current element is less than the pivot, increment i and swap elements at i and current. Finally, swap the pivot with i+1 and return i+1 as the pivot index.
+
+Then, in the quicksort function, after partitioning, recursively call quicksort on the left and right subarrays.
+
+Wait, but the user wants comments on each line. So each line of code needs a comment explaining what it does. Let me structure the code with comments line by line.
+
+Let me draft the code. First, the partition function. Then the quicksort function. Then an example usage.
+
+Wait, the user might want the code in a specific programming language. Since they didn't specify, I'll assume Python, as it's common and easy to read. But I should check if there's any language preference. Since not specified, Python is safe.
+
+So, in Python, the quicksort can be implemented with a helper function. Let me write the code step by step with comments.
+
+Wait, but in Python, lists are mutable, so passing them around is straightforward. Let me make sure the code is correct. Also, the partition function needs to modify the array in place. So the function will return the pivot index, and then the quicksort function will split the array based on that index.
+
+Let me test the logic. Suppose the array is [3, 6, 8, 10, 1, 2, 1]. Choosing the last element as pivot (1). Partitioning would move all elements less than 1 to the left, but since there are none, the pivot is placed at index 0. Then quicksort on the right side, which is the rest of the array.
+
+Wait, maybe I should use the middle element as pivot for better performance. Let me adjust that. For example, in the quicksort function, select the middle element as pivot, then swap it with the end element to proceed with the partition.
+
+Alternatively, the standard approach is to select the pivot, then partition around it. Let me make sure the code is correct with proper comments.
+
+I think I have a plan. Now, I'll write the code with detailed comments for each line, explaining what each part does. Then provide an example usage.
+</think>
+
+다음은 퀵소트(Quick Sort) 알고리즘의 파이썬 구현입니다. 각 줄에 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 배열이 정렬되어야 할 범위가 유효하지 않을 경우 종료
+    if low < high:
+        # 파티션을 나누고, 피벗의 인덱스를 반환
+        pi = partition(arr, low, high)
+        
+        # 피벗을 기준으로 왼쪽 배열 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # 피벗을 기준으로 오른쪽 배열 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # 피벗으로 사용할 요소를 선택 (마지막 요소)
+    pivot = arr[high]
+    
+    # 피벗보다 작은 값을 가진 요소의 위치를 추적
+    i = low - 1  # 작은 요소의 인덱스
+    
+    # 배열을 순회하며 피벗보다 작은 요소를 왼쪽으로 이동
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            # 작은 요소를 i+1 위치로 이동
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    
+    # 피벗을 올바른 위치로 이동
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    
+    # 피벗의 최종 위치를 반환
+    return i + 1
+
+# 예제 사용
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+quicksort(arr, 0, n - 1)
+print("정렬된 배열:", arr)
+```
+
+### 설명:
+1. **`quicksort` 함수**:  
+   - `low`: 배열의 시작 인덱스  
+   - `high`: 배열의 끝 인덱스  
+   - `low < high` 조건이 참일 때만 정렬 진행  
+   - `partition` 함수를 호출하여 피벗의 위치를 결정  
+   - 피벗을 기준으로 왼쪽/오른쪽 배열 재귀적으로 정렬
+
+2. **`partition` 함수**:  
+   - `pivot`: 배열의 마지막 요소를 피벗으로 선택  
+   - `i`: 피벗보다 작은 값을 가진 요소의 위치 추적  
+   - `for` 루프: 배열을 순회하며 피벗보다 작은 값을 가진 요소를 왼쪽으로 이동  
+   - 피벗을 올바른 위치로 이동 후, 해당 인덱스 반환
+
+3. **예제 실행**:  
+   - 배열 `[10, 7, 8, 9, 1, 5]`을 퀵소트로 정렬  
+   - 결과: `[1, 5, 7, 8, 9, 10]` 출력
+
+이 구현은 퀵소트의 기초적인 방식을 사용하며, 피벗을 배열의 마지막 요소로 선택했습니다. 필요에 따라 피벗 선택 방법을 변경할 수 있습니다.

@@ -1,0 +1,99 @@
+아래는 그림에 나타난 Workflow 노드들과 그들 사이의 흐름을 가능한 한 상세히 기술한 설명입니다. 그림의 화살표와 라벨(예: analyze_code, edit_file, done, continue 등)을 기준으로 각 노드의 역할과 전이(transition) 경로를 단계별·경로별로 정리했습니다.
+
+요약(한눈에)
+- 시작: start → SoftwareEngineer
+- SoftwareEngineer는 여러 액션(분석, 편집, 툴 실행, 종료) 중 하나를 선택하여 다음 노드로 보냄.
+- CodeAnalyzer와 Editor는 각각 하위 실행(실제 툴들: code_analysis_tool, code_edit_tool, test_tool)을 호출하고, 완료/계속 신호를 보내며 SoftwareEngineer로 되돌아오거나 다른 노드로 이동한다.
+- 최종적으로 swe_tool 사용 후 또는 적절한 조건에서 end로 종료.
+
+세부 흐름 및 노드별 역할
+
+1) 시작
+- 노드: start
+- 동작: 워크플로우 시작 지점. 곧바로 SoftwareEngineer 노드로 흐름을 보냄.
+
+2) 중심 행위자: SoftwareEngineer
+- 노드: SoftwareEngineer
+- 역할: 워크플로우의 의사결정자(액션 선택자). 다음과 같은 경로로 흐름을 보낼 수 있음(화살표 라벨로 구분):
+  - analyze_code → CodeAnalyzer 실행
+  - edit_file → Editor 실행
+  - continue → swe_tool 실행
+  - continue → end (직접 종료)
+- 또한 CodeAnalyzer나 Editor로부터 돌아오는 신호(done 등)을 받아 다음 액션을 다시 선택할 수 있음(즉 반복·루프 허용).
+
+3) 코드 분석 단계: CodeAnalyzer
+- 노드: CodeAnalyzer
+- 유입: SoftwareEngineer에서 analyze_code 라벨로 진입.
+- 역할: 코드 분석 작업을 수행하는 중간 노드(실제 도구를 호출).
+- 하위/구현 툴: code_analysis_tool (CodeAnalyzer 아래의 하위 노드)
+  - CodeAnalyzer는 실제 분석작업을 수행하기 위해 code_analysis_tool을 호출(또는 연동).
+- 출력/전이:
+  - done → SoftwareEngineer로 완료 신호를 보냄(분석이 끝나면 엔지니어가 다음 단계 결정).
+  - continue → (그림상) Editor 쪽으로도 흐름을 보낼 수 있음. 즉 분석 결과에 따라 바로 편집으로 이어질 수 있음.
+  - 또한 CodeAnalyzer에서 반복적으로 code_analysis_tool을 재호출하거나 추가 분석을 할 수 있음(내부 루프).
+
+4) 편집 단계: Editor
+- 노드: Editor
+- 유입: SoftwareEngineer에서 edit_file 라벨로 진입, 또는 CodeAnalyzer에서 continue로 진입 가능.
+- 역할: 코드 편집/수정 작업 수행.
+- 하위/구현 툴:
+  - code_edit_tool: 편집(수정) 작업을 수행하는 도구.
+  - test_tool: 편집 후 테스트를 실행하는 도구(Editor에서 호출).
+- 출력/전이:
+  - done → SoftwareEngineer로 완료 신호를 보냄(편집/수정이 완료되면 엔지니어가 판단).
+  - continue → Editor에서 바로 swe_tool로 이어지거나(그림상 Editor가 continue를 통해 swe_tool 또는 다른 흐름으로 보낼 수 있음), 혹은 추가 편집/테스트 사이클을 반복할 수 있음.
+- 편집-테스트 사이클: Editor는 code_edit_tool로 수정하고, 필요 시 test_tool을 호출해 검증한 뒤 결과에 따라 다시 편집하거나(루프) 완료(done)를 보고한다.
+
+5) SWE 전용 툴: swe_tool
+- 노드: swe_tool
+- 유입: SoftwareEngineer에서 continue로 직접 진입하거나 Editor의 continue를 통해 진입 가능.
+- 역할: 소프트웨어 엔지니어링 툴(빌드/통합/배포/자동화 등)로 해석될 수 있음. 그림상 단일 노드로 처리되는 단계.
+- 출력/전이:
+  - swe_tool에서 끝난 뒤 다시 SoftwareEngineer로 돌아오거나(그림에 따라), 또는 바로 end로 연결될 수 있음(그림의 점선 흐름 참조).
+
+6) 종료
+- 노드: end
+- 유입: SoftwareEngineer의 continue, 또는 swe_tool의 완료 등 여러 경로에서 도달.
+- 역할: 워크플로우의 종료 지점.
+
+가능한 대표적 실행 시나리오(경로 예시)
+- 시나리오 A (분석 후 편집 후 종료)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer: analyze_code → CodeAnalyzer
+  3. CodeAnalyzer → code_analysis_tool 실행 → (분석 완료) continue → Editor
+  4. Editor → code_edit_tool로 편집 → test_tool로 테스트 → done → SoftwareEngineer
+  5. SoftwareEngineer: continue → swe_tool (선택적) → 완료 → end
+
+- 시나리오 B (직접 편집 루프)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer: edit_file → Editor
+  3. Editor: 편집 → 테스트 실패 → 다시 편집(내부 루프)
+  4. 테스트 통과 → Editor done → SoftwareEngineer
+  5. SoftwareEngineer: continue → end
+
+- 시나리오 C (분석만 수행 후 바로 종료)
+  1. start → SoftwareEngineer
+  2. SoftwareEngineer: analyze_code → CodeAnalyzer
+  3. CodeAnalyzer done → SoftwareEngineer
+  4. SoftwareEngineer: continue → end
+
+루프와 비결정적(분기) 성격
+- SoftwareEngineer 노드는 여러 라벨(분기)을 통해 다음 행동을 선택할 수 있으므로 비결정적이다. 즉 조건(분석 결과, 테스트 성공 여부, 정책 등)에 따라 서로 다른 노드로 보내진다.
+- CodeAnalyzer와 Editor 내부에서도 툴 호출 → 결과 확인 → 재호출(루프) → 완료 신호 전송의 패턴이 반복될 수 있다.
+- 모든 화살표가 점선/파선 형태로 표시되어 있어, 각 전이는 동적인 호출 또는 비동기적 이벤트(사용자 결정/툴 완료 이벤트)에 의해 발생한다고 해석할 수 있다.
+
+화살표 라벨의 의미 정리
+- analyze_code: SoftwareEngineer가 코드 분석을 요청하여 CodeAnalyzer로 보냄.
+- edit_file: SoftwareEngineer가 편집 작업을 요청하여 Editor로 보냄.
+- done: 해당 작업 노드(예: CodeAnalyzer, Editor)가 완료되었음을 SoftwareEngineer에게 알림(되돌아감).
+- continue: 계속 진행(다음 단계) 신호 — 보통 한 노드에서 다음 특정 툴/단계로 연속적으로 넘어갈 때 사용됨(예: Editor → swe_tool, SoftwareEngineer → end 등).
+
+결론(운영 관점)
+- 이 워크플로우는 SoftwareEngineer를 중심으로 한 반복적(분기·루프) 작업 흐름을 모델링한다.
+- CodeAnalyzer와 Editor는 각각 분석/편집 책임을 지며 내부적으로 각각의 툴(code_analysis_tool, code_edit_tool, test_tool)을 호출한다.
+- 완료(done) 신호는 주로 SoftwareEngineer에게 돌아가 다음 의사결정을 하게 하고, continue는 직렬로 다음 단계(예: swe_tool 또는 end)로 이어지게 한다.
+- 따라서 전형적인 작업 패턴은: (분석 → 편집 → 테스트) 반복 → swe_tool로 통합/다음 단계 → 종료, 또는 간단히 분석 또는 편집만 하고 종료하는 경우 등 다양한 경로를 허용한다.
+
+추가로 원하시면
+- 각 전이에서의 구체적 조건(예: 테스트 실패 시 무조건 Editor로 재진입 등)을 현재 그림의 라벨·화살표를 근거로 더 엄밀히 정의해 드리겠습니다.
+- 혹은 이 다이어그램을 상태 머신 형식(상태, 이벤트, 조건, 행동)으로 정리해 드릴 수도 있습니다. 어떤 형태로 정리할지 알려 주세요.

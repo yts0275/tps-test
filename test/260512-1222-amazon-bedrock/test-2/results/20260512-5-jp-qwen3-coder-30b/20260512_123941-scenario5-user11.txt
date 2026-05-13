@@ -1,0 +1,65 @@
+물론입니다! 아래는 퀵소트(QuickSort) 알고리즘의 파이썬 구현 코드입니다. 각 줄에 주석을 달아 설명을 추가했습니다.
+
+```python
+def quicksort(arr, low, high):
+    # 재귀적으로 퀵소트를 실행하는 함수
+    # arr: 정렬할 배열, low: 시작 인덱스, high: 끝 인덱스
+
+    if low < high:
+        # 만약 시작 인덱스가 끝 인덱스보다 작다면 정렬을 진행
+        pi = partition(arr, low, high)
+        # pivot 인덱스를 partition 함수를 통해 구함
+
+        quicksort(arr, low, pi - 1)
+        # pivot의 왼쪽 부분을 재귀적으로 정렬
+
+        quicksort(arr, pi + 1, high)
+        # pivot의 오른쪽 부분을 재귀적으로 정렬
+
+def partition(arr, low, high):
+    # 주어진 범위에서 pivot을 기준으로 배열을 분할하는 함수
+    # arr: 정렬할 배열, low: 시작 인덱스, high: 끝 인덱스
+
+    pivot = arr[high]
+    # 마지막 요소를 pivot으로 선택
+
+    i = (low - 1)
+    # i는 작은 요소들을 가리키는 인덱스
+
+    for j in range(low, high):
+        # j는 현재 비교할 요소의 인덱스
+
+        if arr[j] <= pivot:
+            # 현재 요소가 pivot보다 작거나 같으면
+            i += 1
+            # i를 증가시킴
+            arr[i], arr[j] = arr[j], arr[i]
+            # i와 j의 위치를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    # pivot을 올바른 위치로 이동
+
+    return (i + 1)
+    # pivot의 최종 위치를 반환
+
+# 예제 사용법
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+quicksort(arr, 0, n - 1)
+print("정렬된 배열:", arr)
+```
+
+### 설명:
+
+- `quicksort`: 재귀적으로 퀵소트를 실행합니다.
+- `partition`: 피봇을 기준으로 배열을 두 부분으로 나누는 함수입니다.
+- `pivot`: 선택된 기준 요소입니다.
+- `i`: 작은 요소들을 배치할 위치를 추적합니다.
+- `j`: 현재 살펴볼 요소의 위치입니다.
+
+예제 실행 결과는 다음과 같습니다:
+```
+정렬된 배열: [1, 5, 7, 8, 9, 10]
+```
+
+필요하다면 다른 언어 버전도 제공해 드릴 수 있어요!

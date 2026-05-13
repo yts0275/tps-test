@@ -1,0 +1,56 @@
+물론입니다! 아래는 Python을 사용한 퀵소트(Quick Sort)의 간단한 구현입니다. 각 줄에 필요한 주석을 함께 추가해 설명해드리겠습니다.
+
+---
+
+### ✅ 퀵소트(Quick Sort) – Python 구현 및 주석
+
+```python
+def quick_sort(arr):
+    # 재귀 종료 조건: 배열 길이가 1 이하면 정렬할 필요가 없으므로 그대로 반환
+    if len(arr) <= 1:
+        return arr
+
+    # 피벗(pivot) 선택 (이 예제는 첫 번째 요소를 선택)
+    pivot = arr[0]
+
+    # 피벗보다 작은 요소들을 모을 왼쪽 리스트
+    left = []
+
+    # 피벗보다 큰 요소들을 모을 오른쪽 리스트
+    right = []
+
+    # 두 번째 요소부터 시작해서 피벗과 비교하며 왼쪽, 오른쪽 리스트에 분류
+    for i in range(1, len(arr)):
+        if arr[i] < pivot:
+            left.append(arr[i])  # 피벗보다 작으면 왼쪽으로
+        else:
+            right.append(arr[i]) # 피벗보다 크거나 같으면 오른쪽으로
+
+    # 재귀적으로 왼쪽과 오른쪽을 퀵소트 하고, 피벗을 중간에 배치하여 최종 배열 구성
+    return quick_sort(left) + [pivot] + quick_sort(right)
+```
+
+---
+
+### 🚀 예제 실행
+
+```python
+# 예시 배열
+example_list = [5, 3, 8, 4, 2]
+
+# 퀵소트 실행
+sorted_list = quick_sort(example_list)
+
+print("정렬된 배열:", sorted_list)
+```
+
+---
+
+### ✨ 퀵소트의 장점
+- 평균 시간복잡도: **O(n log n)**
+- 인-place 정렬이 가능하도록 최적화되면 메모리 효율도 좋음
+- 실용적이면서도 전통적인 분할 정복 알고리즘
+
+---
+
+필요하시면 파이썬 외에도 다른 언어(예: C++, Java 등)로 구현하거나 인-플레이스 버전도 도와드릴 수 있어요 😊

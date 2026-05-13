@@ -1,0 +1,61 @@
+<think>
+Okay, I need to help the user implement QuickSort in Python with comments for each line. Let me start by recalling how QuickSort works. It's a divide-and-conquer algorithm that selects a 'pivot' element and partitions the array into elements less than the pivot and greater than the pivot. Then it recursively sorts the sub-arrays.
+
+First, I'll outline the steps. The main function will be quicksort, which takes a list. Then there's a helper function, partition, to rearrange the elements around the pivot. The pivot selection here is the last element, which is a common approach.
+
+I need to make sure each line has a comment explaining what it does. Let me write the code step by step. The base case for the quicksort function is when the list has zero or one element, so return it as is. Then, the partition function: select the pivot, initialize a pointer, and loop through the elements. For each element, if it's less than the pivot, swap it with the element at the pointer position and increment the pointer. After the loop, swap the pivot into its correct position. Then, recursively sort the left and right partitions.
+
+Wait, in Python, lists are mutable, so the partition function needs to modify the list in place. But maybe using list comprehensions or slicing would be easier. However, the traditional approach uses indices. Let me think about that. Alternatively, using slicing can make the code cleaner, but I need to make sure the comments are clear.
+
+Let me structure the code with the partition function. The quicksort function will call itself on the left and right partitions. Each line needs a comment. For example, the pivot selection, the loop, the swaps, and the recursive calls. Also, the partition function returns the index of the pivot, which helps in splitting the array.
+
+I should test the code with an example. Let's take [3,6,8,10,1,2,1] and see if it sorts correctly. Also, ensure that the comments are concise and explain each step without being too verbose. Make sure that the user can follow the logic with the comments. Alright, putting it all together now.
+</think>
+
+```python
+# 퀵소트(QuickSort) 알고리즘을 구현합니다.
+# 이 알고리즘은 분할 정복(Divide and Conquer) 기법을 사용하여 배열을 정렬합니다.
+
+def quicksort(arr):
+    # 기저 조건: 배열의 길이가 0 또는 1일 경우, 배열을 그대로 반환합니다.
+    if len(arr) <= 1:
+        return arr
+
+    # 피봇(pivot)을 선택합니다. 여기서는 마지막 요소를 피봇으로 사용합니다.
+    pivot = arr[-1]
+    # 피봇보다 작은 요소들을 저장할 리스트
+    left = []
+    # 피봇보다 큰 요소들을 저장할 리스트
+    right = []
+
+    # 배열의 요소를 피봇을 기준으로 좌우 두 부분으로 분할합니다.
+    for i in range(len(arr) - 1):
+        if arr[i] < pivot:
+            left.append(arr[i])  # 피봇보다 작으면 왼쪽 그룹에 추가
+        else:
+            right.append(arr[i])  # 피봇보다 크거나 같으면 오른쪽 그룹에 추가
+
+    # 분할된 왼쪽, 피봇, 오른쪽을 재귀적으로 정렬하고 합칩니다.
+    return quicksort(left) + [pivot] + quicksort(right)
+
+# 예시 배열
+arr = [3, 6, 8, 10, 1, 2, 1]
+# 퀵소트 실행
+sorted_arr = quicksort(arr)
+# 정렬된 결과 출력
+print("정렬된 배열:", sorted_arr)
+```
+
+### 주석 설명:
+1. **`quicksort` 함수**: 배열을 정렬하는 메인 함수입니다.
+   - **기저 조건**: 배열의 길이가 0 또는 1일 경우, 배열을 그대로 반환합니다.
+   - **피봇 선택**: 배열의 마지막 요소를 피봇으로 선택합니다.
+   - **분할**: 피봇을 기준으로 배열을 두 부분으로 나눕니다.
+     - 왼쪽 그룹: 피봇보다 작은 요소들
+     - 오른쪽 그룹: 피봇보다 큰 요소들
+   - **재귀적 정렬**: 분할된 왼쪽, 피봇, 오른쪽을 각각 재귀적으로 정렬하고 합칩니다.
+
+2. **예시 배열**: `[3, 6, 8, 10, 1, 2, 1]`를 정렬합니다.
+3. **결과 출력**: 정렬된 배열을 화면에 표시합니다.
+
+이 코드는 간단한 구현 방식으로, 분할과 재귀를 통해 정렬을 수행합니다.

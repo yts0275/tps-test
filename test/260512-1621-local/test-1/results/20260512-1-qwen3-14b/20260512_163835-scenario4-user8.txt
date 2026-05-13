@@ -1,0 +1,17 @@
+<think>
+Okay, let me try to figure out what this code does. So, first, there are three classes: Product, Order, and InventoryManager. The Product class has attributes like product_id, name, price, and stock. It also has a method to update the stock, which checks if adding a quantity would make it negative. If so, it returns False, otherwise updates the stock. The __str__ method formats the product info.
+
+Then there's the Order class. It has an order ID, customer name, items, total amount, and order date. The add_item method tries to decrease the product's stock by the quantity. If that's successful, it adds the item to the order and updates the total amount. The print_invoice method formats and prints the invoice details, including the items and total.
+
+The InventoryManager class manages a dictionary of products. It can add products and show the inventory by printing each product's details.
+
+The run_system function sets up initial products, shows the inventory, creates two orders. The first order successfully adds items, the second tries to order more than available stock, which fails. Then it shows the inventory again and calculates the total asset value.
+
+So, putting this together, the code is a simple inventory and order management system. It handles adding products, processing orders with stock checks, generating invoices, and reporting inventory value. The main purpose is to manage product stock, process orders, and track inventory levels and total asset value.
+</think>
+
+이 코드는 제품 재고 관리 및 주문 처리 시스템을 구현한 것으로, 다음을 수행합니다:  
+1. **제품 관리**: `Product` 클래스로 제품 정보(아이디, 이름, 가격, 재고)를 저장하고 재고 조정 기능을 제공합니다.  
+2. **주문 처리**: `Order` 클래스로 주문 생성, 재고 감소 처리, 영수증 출력을 수행하며 재고 부족 시 주문 거부를 처리합니다.  
+3. **재고 및 자산 관리**: `InventoryManager` 클래스로 제품 목록 관리 및 재고 현황, 총 자산 가치 보고를 제공합니다.  
+4. **시뮬레이션**: 초기 제품 설정, 주문 시나리오(성공/실패), 재고 및 자산 리포트를 통해 시스템 동작을 시각화합니다.

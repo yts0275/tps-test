@@ -1,0 +1,44 @@
+아래는 **퀵소트(Quick Sort) 구현** 예시와 **각 줄(실제로 실행되는 모든 라인)에 주석**을 달아둔 코드입니다. (자바)
+
+```java
+import java.util.*; // 배열/리스트에서 필요한 기본 유틸을 쓰기 위해 import
+
+public class QuickSort { // 퀵소트 클래스를 정의
+
+    public static void quickSort(int[] arr, int low, int high) { // 배열 arr에서 low~high 구간을 퀵정렬하는 메서드
+        if (low >= high) { // 원소가 0개 또는 1개면 정렬할 필요가 없으므로 종료
+            return; // 재귀 종료
+        }
+
+        int pivot = arr[high]; // 피벗을 구간의 맨 끝 원소로 선택
+        int i = low - 1; // i는 피벗보다 작은 값들의 마지막 인덱스를 가리키기 위한 변수
+
+        for (int j = low; j < high; j++) { // j를 low부터 high-1까지 훑으며 비교
+            if (arr[j] < pivot) { // 현재 값이 피벗보다 작으면
+                i++; // 작은 값 영역을 한 칸 확장
+                int temp = arr[i]; // 교환을 위한 임시 변수
+                arr[i] = arr[j]; // arr[i]에 arr[j]를 넣어 작은 값들을 앞으로 모음
+                arr[j] = temp; // arr[j] 자리에 기존 arr[i] 값을 되돌려 교환 완료
+            }
+        }
+
+        int temp = arr[i + 1]; // 피벗을 놓을 위치(i+1)의 값을 임시로 저장
+        arr[i + 1] = arr[high]; // 피벗을 i+1 위치로 옮김
+        arr[high] = temp; // 피벗 교환 과정 완료(원래 i+1 값이 high로 감)
+
+        int pivotIndex = i + 1; // 분할 후 피벗이 최종 위치한 인덱스 저장
+
+        quickSort(arr, low, pivotIndex - 1); // 피벗 왼쪽 부분을 재귀적으로 정렬
+        quickSort(arr, pivotIndex + 1, high); // 피벗 오른쪽 부분을 재귀적으로 정렬
+    }
+
+    public static void main(String[] args) { // 프로그램 시작점
+        int[] arr = {5, 3, 8, 4, 2, 7, 1, 10}; // 예시 배열 준비
+        quickSort(arr, 0, arr.length - 1); // 배열 전체를 퀵정렬 수행
+
+        System.out.println(Arrays.toString(arr)); // 정렬 결과 출력
+    }
+}
+```
+
+원하시면 **(1) C/C++ 버전**, **(2) Lomuto 말고 Hoare 분할 방식**, **(3) “반드시 각 줄마다 주석”을 더 촘촘히(공백/중괄호 포함 수준으로)** 같은 형태로도 다시 작성해드릴게요. 어떤 언어로 해드릴까요?

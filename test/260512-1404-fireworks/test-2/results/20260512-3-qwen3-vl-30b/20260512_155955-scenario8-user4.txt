@@ -1,0 +1,124 @@
+물론입니다. 아래는 제공된 워크플로우 다이어그램의 각 노드와 그间的 흐름을 최대한 상세히 설명한 내용입니다.
+
+---
+
+### **워크플로우 개요**
+이 워크플로우는 소프트웨어 엔지니어가 코드를 분석하고 편집하며 테스트하는 과정을 자동화하거나 지시하는 시스템을 나타냅니다. 주요 역할은 **SoftwareEngineer**라는 주체가 중심이 되어, 다양한 도구와 도구 간의 상호작용을 통해 작업을 수행하고, 필요한 경우 반복하거나 종료하는 것입니다.
+
+---
+
+### **노드 및 흐름 상세 설명**
+
+#### **1. `start` 노드**
+- **형태**: 원형 (시작점)
+- **역할**: 워크플로우의 시작을 나타냅니다.
+- **흐름**: `start` 노드는 단 하나의 화살표를 통해 `SoftwareEngineer` 노드로 연결됩니다. 이는 워크플로우가 `SoftwareEngineer`라는 주체의 활동으로 시작됨을 의미합니다.
+
+---
+
+#### **2. `SoftwareEngineer` 노드**
+- **형태**: 사각형 (주체/역할)
+- **역할**: 워크플로우의 중심 주체입니다. 이 노드는 코드 분석, 편집, 테스트 등의 작업을 수행하거나 지시하는 역할을 합니다.
+- **흐름**:
+  - **시작**: `start` 노드에서 들어옵니다.
+  - **다중 분기**: `SoftwareEngineer` 노드에서 세 가지 주요 경로로 나뉩니다:
+    1. `CodeAnalyzer`로 향하는 `analyze_code` 경로
+    2. `Editor`로 향하는 `edit_file` 경로
+    3. `swe_tool`로 향하는 일반적인 흐름 (직접 이동)
+  - **반복/재귀**: `SoftwareEngineer` 노드는 `CodeAnalyzer`, `Editor` 노드에서 `done` 또는 `continue` 신호를 받을 수 있으며, 이는 다시 `SoftwareEngineer`로 돌아가는 경로를 의미합니다. 즉, 작업이 완료되었거나 계속될 수 있는 상태에서 다시 `SoftwareEngineer`가 판단하거나 다음 작업을 결정합니다.
+  - **종료**: `swe_tool` 노드에서 `end`로 연결되며, 이는 워크플로우의 종료를 의미합니다.
+
+---
+
+#### **3. `CodeAnalyzer` 노드**
+- **형태**: 사각형 (작업 단위)
+- **역할**: 코드를 분석하는 도구 또는 작업을 수행합니다. 예를 들어, 정적 분석, 보안 취약점 검사, 코드 품질 평가 등을 수행할 수 있습니다.
+- **흐름**:
+  - **진입**: `SoftwareEngineer` 노드에서 `analyze_code` 이벤트를 받으며 시작됩니다.
+  - **작업 수행**: `code_analysis_tool` 노드를 통해 실제 분석 작업을 수행합니다. `code_analysis_tool`은 `CodeAnalyzer`의 하위 도구 또는 서브프로세스로 간주됩니다.
+  - **완료 신호**: 분석이 완료되면 `done` 신호를 `SoftwareEngineer` 노드로 전달합니다.
+  - **반복**: `continue` 신호를 `SoftwareEngineer` 노드로 보내며, `SoftwareEngineer`가 다음 단계를 결정하도록 합니다. 이는 분석 결과에 따라 추가 작업이 필요할 수 있음을 의미합니다.
+
+---
+
+#### **4. `Editor` 노드**
+- **형태**: 사각형 (작업 단위)
+- **역할**: 파일을 편집하는 도구 또는 작업을 수행합니다. 예를 들어, 코드 수정, 구조 변경, 주석 추가 등을 수행할 수 있습니다.
+- **흐름**:
+  - **진입**: `SoftwareEngineer` 노드에서 `edit_file` 이벤트를 받으며 시작됩니다.
+  - **작업 수행**: `code_edit_tool`과 `test_tool`을 통해 실제 편집 및 테스트 작업을 수행합니다. `code_edit_tool`은 코드 편집 도구, `test_tool`은 테스트 실행 도구로 간주됩니다.
+  - **완료 신호**: 편집 및 테스트가 완료되면 `done` 신호를 `SoftwareEngineer` 노드로 전달합니다.
+  - **반복**: `continue` 신호를 `SoftwareEngineer` 노드로 보내며, `SoftwareEngineer`가 다음 작업을 결정하도록 합니다. 이는 편집 후 추가 검토나 수정이 필요할 수 있음을 의미합니다.
+
+---
+
+#### **5. `code_analysis_tool` 노드**
+- **형태**: 사각형 (하위 도구)
+- **역할**: `CodeAnalyzer` 노드가 사용하는 실제 코드 분석 도구입니다. 예를 들어, ESLint, SonarQube, Pylint 등이 이에 해당할 수 있습니다.
+- **흐름**:
+  - **진입**: `CodeAnalyzer` 노드에서 호출됩니다.
+  - **작업 수행**: 코드 분석을 수행합니다.
+  - **완료**: 분석 결과를 `CodeAnalyzer` 노드로 반환하며, `CodeAnalyzer`가 그 결과를 처리합니다.
+
+---
+
+#### **6. `code_edit_tool` 노드**
+- **형태**: 사각형 (하위 도구)
+- **역할**: `Editor` 노드가 사용하는 실제 코드 편집 도구입니다. 예를 들어, VS Code, Vim, IntelliJ 등이 이에 해당할 수 있습니다.
+- **흐름**:
+  - **진입**: `Editor` 노드에서 호출됩니다.
+  - **작업 수행**: 코드를 편집합니다.
+  - **완료**: 편집 결과를 `Editor` 노드로 반환합니다.
+
+---
+
+#### **7. `test_tool` 노드**
+- **형태**: 사각형 (하위 도구)
+- **역할**: `Editor` 노드가 사용하는 테스트 실행 도구입니다. 예를 들어, Jest, PyTest, JUnit 등이 이에 해당할 수 있습니다.
+- **흐름**:
+  - **진입**: `Editor` 노드에서 호출됩니다.
+  - **작업 수행**: 테스트를 실행합니다.
+  - **완료**: 테스트 결과를 `Editor` 노드로 반환합니다.
+
+---
+
+#### **8. `swe_tool` 노드**
+- **형태**: 사각형 (보조 도구)
+- **역할**: `SoftwareEngineer`가 사용하는 추가적인 도구 또는 시스템입니다. 예를 들어, CI/CD 도구, 버전 관리 시스템, 문서 생성 도구 등이 이에 해당할 수 있습니다.
+- **흐름**:
+  - **진입**: `SoftwareEngineer` 노드에서 직접 호출됩니다.
+  - **작업 수행**: `SoftwareEngineer`의 요청에 따라 특정 작업을 수행합니다.
+  - **완료**: 작업이 완료되면 `end` 노드로 연결됩니다. 이는 워크플로우의 최종 종료를 의미합니다.
+
+---
+
+#### **9. `end` 노드**
+- **형태**: 원형 (종료점)
+- **역할**: 워크플로우의 종료를 나타냅니다.
+- **흐름**: `swe_tool` 노드에서 `end`로 연결됩니다. 이는 `swe_tool`이 모든 작업을 완료한 후 워크플로우가 종료됨을 의미합니다.
+
+---
+
+### **전체 흐름 요약**
+
+1. **시작**: `start` → `SoftwareEngineer`
+2. **분석 경로**:
+   - `SoftwareEngineer` → `CodeAnalyzer` (`analyze_code`)
+   - `CodeAnalyzer` → `code_analysis_tool` (분석 수행)
+   - `code_analysis_tool` → `CodeAnalyzer` (결과 반환)
+   - `CodeAnalyzer` → `SoftwareEngineer` (`done` 또는 `continue`)
+3. **편집 경로**:
+   - `SoftwareEngineer` → `Editor` (`edit_file`)
+   - `Editor` → `code_edit_tool` (편집 수행)
+   - `Editor` → `test_tool` (테스트 수행)
+   - `test_tool` → `Editor` (결과 반환)
+   - `Editor` → `SoftwareEngineer` (`done` 또는 `continue`)
+4. **보조 도구 경로**:
+   - `SoftwareEngineer` → `swe_tool` (추가 작업)
+   - `swe_tool` → `end` (워크플로우 종료)
+
+---
+
+### **반복 및 조건부 흐름**
+- `done` 신호: 작업이 완료되었으며, `SoftwareEngineer`가 다음 작업을 결정할 수 있음을 의미합니다.
+- `continue` 신호: 작업이 완료되었지만, 추가 작업이 필요하거나 반복이 필요함을 의미합니다.

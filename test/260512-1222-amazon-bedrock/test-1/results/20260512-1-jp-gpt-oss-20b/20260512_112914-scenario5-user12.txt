@@ -1,0 +1,36 @@
+아래는 파이썬으로 구현한 **퀵소트(In‑place QuickSort)** 입니다.  
+코드의 각 줄마다 주석이 달려 있어 이해를 쉽게 도와줄 겁니다.
+
+```python
+import random                          # 랜덤 모듈을 불러옵니다. (편의상 랜덤 피봇 사용)
+
+def quicksort(arr, low, high):          # 배열 arr, 정렬 범위 low~high를 입력받는 함수
+    if low < high:                      # 범위가 1개 이상(정방태)일 때만 재귀 호출
+        pivot_index = partition(arr, low, high)  # 피봇을 기준으로 파티션 수행
+        quicksort(arr, low, pivot_index - 1)     # 피봇 왼쪽 서브배열 정렬
+        quicksort(arr, pivot_index + 1, high)    # 피봇 오른쪽 서브배열 정렬
+
+def partition(arr, low, high):           # 피봇을 기준으로 배열을 분할하는 함수
+    pivot_index = random.randint(low, high)  # low~high 범위에서 랜덤 피봇 선택
+    arr[high], arr[pivot_index] = arr[pivot_index], arr[high]  # 피봇을 마지막 위치로 이동
+    pivot = arr[high]                     # 피봇 값을 저장
+    i = low - 1                           # i는 작은 값이 있을 위치를 가리킴
+    for j in range(low, high):            # low ~ high-1 범위에서 각 원소를 탐색
+        if arr[j] < pivot:                # 현재 원소가 피봇보다 작으면
+            i += 1                        # i를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # i와 j에 있는 원소를 교환
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피봇을 올바른 위치(작은 수 뒤)에 배치
+    return i + 1                         # 피봇의 최종 인덱스를 반환
+
+if __name__ == "__main__":               # 스크립트가 직접 실행될 때만 아래 실행
+    sample = [3, 6, 8, 10, 1, 2, 1]     # 정렬 예시 배열
+    quicksort(sample, 0, len(sample) - 1)  # 퀵소트 실행
+    print(sample)                        # 정렬된 결과 출력
+```
+
+### 주요 포인트
+- **배열을 직접 수정**(in‑place)하므로 추가 메모리 사용이 최소화됩니다.  
+- 피봇을 **랜덤으로 선택**하므로 최악의 경우(이미 정렬된 배열) 발생하는 O(n²) 성능을 방지합니다.  
+- 재귀 호출로 분할 및 정렬이 이루어지며, 재귀 깊이는 평균적으로 O(log n)입니다.  
+
+이상으로, 각 줄마다 해설이 포함된 퀵소트 구현이 완성되었습니다. 필요에 따라 `partition`에서 피봇을 확정하거나 정렬 방식을 바꾸면 됩니다.

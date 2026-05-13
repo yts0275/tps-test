@@ -1,0 +1,68 @@
+이 Workflow는 시작부터 종료까지 `SoftwareEngineer`(이하 SEng) 노드를 중심으로 여러 도구와 기능 노드들이 서로 연결되는 형태로 구성되어 있습니다. 각 노드 간 흐름을 최대한 상세히 풀어보면 다음과 같습니다.
+
+---
+
+### 1. 시작 - `start` 노드
+- 워크플로우는 `start` 노드에서 출발합니다.
+- 이 노드는 연결되는 다음 단계인 `SoftwareEngineer` 노드로 흐름을 전달합니다.
+
+---
+
+### 2. 핵심 역할 노드 - `SoftwareEngineer`
+- `start` 이후에는 `SoftwareEngineer` 노드가 등장하며, 이 노드가 워크플로우 내에서 여러 작업 흐름을 분기하는 중심 역할을 합니다.
+- `SoftwareEngineer`는 다음 네 개의 방향으로 연결됩니다:
+  1. **`CodeAnalyzer` 노드** (라벨: `analyze_code`)
+  2. **`Editor` 노드** (라벨: `edit_file`)
+  3. **`swe_tool` 노드**
+  4. **`end` 노드** (라벨: `continue`)
+
+#### a. `SoftwareEngineer` → `CodeAnalyzer` (`analyze_code`)
+- SEng가 `analyze_code` 작업을 수행할 때, 흐름은 `CodeAnalyzer`로 이어집니다.
+- 이후 `CodeAnalyzer`는 `code_analysis_tool`과 연결되며, 실제 분석 도구를 활용한 작업이 진행됩니다.
+
+#### b. `SoftwareEngineer` → `Editor` (`edit_file`)
+- SEng가 파일을 수정하는 과정에서는 `Editor` 노드로 흐름이 이동합니다.
+- 이 편집 과정에서 `Editor`는 `code_edit_tool` 및 `test_tool`과 연결되어 실제 편집과 테스트 작업을 수행합니다.
+
+#### c. `SoftwareEngineer` → `swe_tool`
+- 특정 소프트웨어 엔지니어링 도구 (`swe_tool`)를 이용하는 경우에도 흐름이 분기됩니다.
+- `swe_tool` 노드는 자체적인 표현이 없는 단일 노드로, SEng가 도구를 활용하는 단계라고 볼 수 있습니다.
+
+#### d. `SoftwareEngineer` → `end` (`continue`)
+- `SoftwareEngineer`에서 `continue` 라벨로 `end` 노드에 직접 연결되어 있으며, 이는 모든 작업이 마무리되어 종료되는 흐름입니다.
+
+---
+
+### 3. `CodeAnalyzer` 노드와 하위 도구 흐름
+- `CodeAnalyzer`는 `analyze_code` 흐름을 통해 `SoftwareEngineer`로부터 입력을 받고, 내부적으로 `code_analysis_tool` 사용 흐름을 포함합니다.
+- `CodeAnalyzer`가 `done` 상태에 이를 경우 다시 `SoftwareEngineer`로 되돌아가는 흡입선이 존재합니다 (즉, 분석 완료 후 SEng로 복귀).
+- 동시에 `CodeAnalyzer`는 `continue` 라벨을 걸쳐 `Editor` 쪽으로도 흐름을 이어줄 수 있으며, 이를 통해 분석 후 편집 단계로 넘어갑니다.
+
+---
+
+### 4. `Editor` 노드와 하위 도구 흐름
+- `Editor` 노드는 `edit_file` 흐름을 통해 `SoftwareEngineer`와 연결되어 있으며, 실제 편집 활동이 이뤄지는 부분입니다.
+- 내부적으로 `Editor`는 `code_edit_tool`과 `test_tool`을 활용합니다.
+- `Editor`가 작업을 마치면 `done` 라벨로 다시 `SoftwareEngineer`에게 복귀하는 흐름이 있으며, 완료 이후 계속 작업이 필요하다면 `continue`라벨을 따라 다른 노드(예: 테스트 또는 다시 `CodeAnalyzer`)로 연결될 수 있습니다.
+
+---
+
+### 5. `swe_tool` 노드
+- `SoftwareEngineer` 노드에서 `continue` 라벨로 `swe_tool`에 연결되며, 이 노드는 일반적인 도구 사용을 의미합니다.
+- `swe_tool` 이후에는 다시 `SoftwareEngineer`로 `continue` 흐름을 통해 연결됩니다. 즉, 도구 활용 후 SEng로 되돌아가 다음 작업을 이어갑니다.
+
+---
+
+### 6. 종료 - `end` 노드
+- SEng가 모든 준비 작업을 끝냈거나 루프를 종료할 경우 `continue` 흐름을 따라 `end`로 도달합니다.
+- 워크플로우의 마무리 지점이며, 여기서 활동이 완료됩니다.
+
+---
+
+### 종합 흐름 요약
+1. `start` → `SoftwareEngineer`
+2. `SoftwareEngineer`는 분석(`CodeAnalyzer`), 편집(`Editor`), 도구(`swe_tool`), 종료(`end`) 등 여러 방향으로 흐름을 분기한다.
+3. `CodeAnalyzer`, `Editor`, `swe_tool` 각각 작업 이후에는 `SoftwareEngineer`로 되돌아오는 루프가 존재하며, 필요에 따라 서로 연결되기도 한다 (예: `CodeAnalyzer` → `Editor`).
+4. 최종적으로 `SoftwareEngineer`가 `end`로 이어지면서 워크플로우가 종료된다.
+
+이처럼 각 노드는 `SoftwareEngineer`를 중심으로 상호 연결되며, 작업 상태에 따라 반복적이면서도 순환적인 흐름을 갖는 구조입니다.

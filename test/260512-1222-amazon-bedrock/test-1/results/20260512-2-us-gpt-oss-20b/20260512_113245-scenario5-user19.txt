@@ -1,0 +1,27 @@
+아래는 파이썬으로 구현한 퀵소트(quick sort) 알고리즘입니다.  
+**모든 실행 줄에 한국어 주석을 달아**, 각 줄이 수행하는 역할을 명확히 설명했습니다.
+
+```python
+# 퀵소트 함수 정의
+def quick_sort(arr):                       # 함수 이름: quick_sort, 매개변수로 배열 arr을 받음
+    if len(arr) <= 1:                      # 배열이 0개 혹은 1개일 때는 이미 정렬 완료
+        return arr                         # 그대로 배열 반환
+    pivot = arr[0]                         # 첫 번째 원소를 피벗(pivot)으로 선택
+    less = [x for x in arr[1:] if x <= pivot]   # 피벗보다 작거나 같은 원소들로 새로운 리스트를 만듬
+    greater = [x for x in arr[1:] if x > pivot]  # 피벗보다 큰 원소들로 새로운 리스트를 만듬
+    return quick_sort(less) + [pivot] + quick_sort(greater)  # 재귀 호출로 정렬 후 결합
+
+# 프로그램 실행 예시
+if __name__ == "__main__":                # 모듈이 직접 실행될 때만 아래 코드를 실행
+    unsorted = [3, 6, 8, 10, 1, 2, 1]      # 정렬할 원시 배열
+    sorted_list = quick_sort(unsorted)      # quick_sort 함수 호출
+    print("정렬 전:", unsorted)             # 원본 배열 출력
+    print("정렬 후:", sorted_list)         # 정렬된 결과 출력
+```
+
+**주요 포인트**  
+1. **피벗 선택**: 이 예제에서는 첫 번째 원소를 피벗으로 사용했습니다.  
+2. **리스트 컴프리헨션**: 피벗보다 작거나 같은 원소(`less`)와 큰 원소(`greater`)를 한 줄로 만들어 재귀 호출에 전달합니다.  
+3. **재귀 종료 조건**: 배열 길이가 1 이하일 때 반복을 멈추고 그대로 반환합니다.  
+
+이 코드를 그대로 실행하면, `unsorted` 리스트가 오름차순으로 정렬된 결과를 확인할 수 있습니다.

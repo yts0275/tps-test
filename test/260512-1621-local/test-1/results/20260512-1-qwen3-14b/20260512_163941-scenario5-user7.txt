@@ -1,0 +1,84 @@
+<think>
+Okay, the user wants me to implement quicksort with comments on each line. Let me start by recalling how quicksort works. It's a divide-and-conquer algorithm that picks a pivot element and partitions the array into elements less than the pivot and greater than the pivot, then recursively sorts the sub-arrays.
+
+First, I need to write the partition function. The partition function should take the array, low and high indices. The pivot is usually chosen as the last element. Then, we need two pointers: one starting at low and another at high. We move the left pointer until we find an element greater than the pivot, and the right pointer until we find an element less than the pivot. When they cross, we swap the pivot into place.
+
+Wait, the user wants comments on each line. So each line of code must have a comment explaining what it does. Let me structure the code step by step.
+
+First, the quicksort function. It checks if low is less than high. If not, return. Then, it finds the partition index and recursively calls quicksort on the left and right subarrays.
+
+For the partition function, I need to initialize the pivot, then the left and right pointers. Then, loop while left is less than right. Inside the loop, move left while arr[left] <= pivot. Then move right while arr[right] >= pivot. If left is less than right, swap the elements. After the loop, swap the pivot into its correct position.
+
+Wait, but in some implementations, the pivot is placed at the end. So after the loop, the pivot is placed at the correct position. Then return the partition index.
+
+I should make sure that the comments explain each step clearly. For example, in the partition function, explaining why we use the last element as pivot, how the pointers move, and the swapping process.
+
+Also, the user might be a student learning algorithms, so clarity is key. Each line's comment should be straightforward, avoiding jargon where possible. Let me write the code with these comments, ensuring that each line is explained properly.
+</think>
+
+아래는 퀵소트(Quick Sort) 알고리즘을 Python으로 구현한 예시입니다. 각 줄에 주석을 달아 설명을 추가했습니다:
+
+```python
+def quicksort(arr, low, high):
+    # base case: low가 high보다 크거나 같으면 종료
+    if low < high:
+        # 파티션을 생성하고 pivot의 위치를 반환
+        pi = partition(arr, low, high)
+        
+        # pivot 기준으로 좌측 배열을 재귀적으로 정렬
+        quicksort(arr, low, pi - 1)
+        
+        # pivot 기준으로 우측 배열을 재귀적으로 정렬
+        quicksort(arr, pi + 1, high)
+
+def partition(arr, low, high):
+    # pivot을 배열의 마지막 요소로 설정
+    pivot = arr[high]
+    
+    # 왼쪽 포인터 초기화 (작은 값 탐색)
+    left = low
+    
+    # 오른쪽 포인터 초기화 (큰 값 탐색)
+    right = high - 1
+    
+    # 포인터가 교차할 때까지 반복
+    while left <= right:
+        # 왼쪽 포인터가 pivot보다 작거나 같을 때까지 이동
+        while arr[left] <= pivot:
+            left += 1
+        
+        # 오른쪽 포인터가 pivot보다 크거나 같을 때까지 이동
+        while arr[right] >= pivot:
+            right -= 1
+        
+        # left < right일 때만 교환
+        if left < right:
+            arr[left], arr[right] = arr[right], arr[left]
+    
+    # pivot을 적절한 위치로 이동
+    arr[left], arr[high] = arr[high], arr[left]
+    
+    # pivot의 최종 인덱스 반환
+    return left
+
+# 테스트
+arr = [10, 7, 8, 9, 1, 5]
+quicksort(arr, 0, len(arr) - 1)
+print("정렬된 배열:", arr)
+```
+
+### 주요 로직 설명:
+1. **`quicksort()`**:
+   - 배열의 범위(`low`, `high`)가 유효할 때만 실행
+   - 파티션을 생성한 후 좌우 배열을 재귀적으로 정렬
+
+2. **`partition()`**:
+   - pivot을 선택하고 배열을 두 그룹으로 나눔
+   - 왼쪽 포인터는 pivot보다 큰 값을 찾고, 오른쪽 포인터는 pivot보다 작은 값을 찾음
+   - 교차된 포인터 위치에 pivot을 배치
+
+3. **시간 복잡도**:
+   - 평균: O(n log n)
+   - 최악: O(n²) (이미 정렬된 배열일 때)
+
+이 코드는 배열을 in-place로 정렬하며, 재귀적 구조를 사용합니다. 테스트용 배열 `[10, 7, 8, 9, 1, 5]`을 실행하면 `[1, 5, 7, 8, 9, 10]`으로 정렬됩니다.

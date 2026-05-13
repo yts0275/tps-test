@@ -1,0 +1,3 @@
+1) `Product`, `Order`, `InventoryManager` 클래스를 만들어 상품 재고 관리와 주문 생성/검증(재고 부족 시 실패)을 수행합니다.  
+2) `Order.add_item()`에서 `product.update_stock(-quantity)`로 재고를 차감하고, 성공 시 주문 항목과 총 결제액을 누적합니다.  
+3) `run_system()`이 초기 상품을 등록한 뒤 주문 2건을 처리하고, 각 단계마다 인보이스와 최종 재고, 총 자산 가치(가격×재고)를 출력합니다.

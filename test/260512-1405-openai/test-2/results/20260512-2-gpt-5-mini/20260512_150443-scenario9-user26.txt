@@ -1,0 +1,69 @@
+아래 설명은 그림에 보이는 노드(사각형)와 화살표(연결선, 레이블 포함)를 가능한 한 세부적으로 풀어 쓴 것이다. 각 노드의 역할, 노드 간 전이(이동) 조건(화살표 레이블), 도구(하위 툴) 호출 흐름, 반복/종료 시나리오를 모두 다룬다.
+
+1) 노드(역할) 요약
+- start : 워크플로우 시작 지점.
+- SoftwareEngineer : 중앙 의사결정/액터 노드. 실제로 "무엇을 할지" 선택하고 다른 노드를 호출하는 주체.
+- CodeAnalyzer : 코드 분석을 담당하는 단계(정적 분석, 린트 등). SoftwareEngineer가 "analyze_code" 동작을 선택하면 진입.
+- Editor : 코드 편집/수정 단계를 담당. SoftwareEngineer가 "edit_file" 동작을 선택하면 진입.
+- swe_tool : SoftwareEngineer가 최종적으로 계속(continue)할 수 있는 외부/별도 툴 또는 후처리 단계(예: 배포/통합 도구).
+- code_analysis_tool, code_edit_tool, test_tool : CodeAnalyzer나 Editor가 실제 작업을 위임해서 실행하는 하위 툴(서브프로세스). 각각 분석, 편집(편집 지원), 테스트를 수행한다.
+- end : 워크플로우 종료 지점.
+
+2) 주요 전이(화살표)와 레이블 의미
+- start -> SoftwareEngineer : 워크플로우 시작.
+- SoftwareEngineer -> CodeAnalyzer (레이블: analyze_code) : 엔지니어가 코드 분석을 선택하면 CodeAnalyzer로 이동.
+- SoftwareEngineer -> Editor (레이블: edit_file) : 엔지니어가 편집을 선택하면 Editor로 이동.
+- SoftwareEngineer -> swe_tool (레이블: continue) : 엔지니어가 다른 툴/다음 단계로 진행하면 swe_tool로 이동.
+- SoftwareEngineer -> end (여러 점선으로 이어짐) : 특정 조건에서 엔지니어가 바로 종료할 수 있음(continue로 연결된 루트 통해 최종 종료).
+- CodeAnalyzer -> code_analysis_tool : 분석 단계가 실제 분석 툴을 호출(위임)하여 작업 수행.
+- code_analysis_tool -> CodeAnalyzer : 분석 툴의 결과(리포트/문제 목록 등)를 받아 CodeAnalyzer가 처리(상태 반환).
+- CodeAnalyzer -> SoftwareEngineer (레이블: done) : 분석이 완료되면 'done' 상태로 결과를 엔지니어에게 반환.
+- CodeAnalyzer -> (다른 경로들, 레이블: continue) : 분석 결과에 따라 다음 단계(예: 편집으로 이동하거나 swe_tool로 이어지는 선택)가 가능함을 나타내는 계속 경로가 존재.
+- Editor -> code_edit_tool : 편집 단계가 실제 편집 툴(에디터, IDE 기능)을 호출.
+- Editor -> test_tool : 편집 후 또는 편집 과정에서 테스트 도구를 호출하여 검증 수행.
+- code_edit_tool/test_tool -> Editor : 해당 도구들이 결과를 반환하면 Editor가 이를 받아 처리.
+- Editor -> SoftwareEngineer (레이블: done) : 편집/테스트가 끝나면 'done' 상태로 엔지니어에게 결과 반환.
+- Editor -> (continue) 및 기타 continue 화살표들 : 편집 이후에도 계속(다음 단계로 이동)할 수 있는 선택지들을 나타냄(예: 다시 분석으로, swe_tool로, 또는 종료로).
+
+3) 가능한 흐름(시나리오별 상세)
+- 간단 종료 경로:
+  1. start -> SoftwareEngineer
+  2. SoftwareEngineer 선택: continue -> swe_tool
+  3. swe_tool 처리 -> end
+  (즉, 엔지니어가 별도 분석/편집 없이 툴로 바로 진행해서 종료)
+
+- 분석 우선 후 편집 경로 (일반적인 버그 수정 시나리오):
+  1. start -> SoftwareEngineer
+  2. SoftwareEngineer -> CodeAnalyzer (analyze_code)
+  3. CodeAnalyzer -> code_analysis_tool (실제 분석 실행)
+  4. code_analysis_tool 결과 -> CodeAnalyzer
+  5. CodeAnalyzer -> SoftwareEngineer (done, 분석 결과 보고)
+  6. SoftwareEngineer -> Editor (edit_file) — 분석 결과를 받아 수정을 결정
+  7. Editor -> code_edit_tool (편집 수행)
+  8. 필요시 Editor -> test_tool (수정 후 테스트)
+  9. test_tool 결과 -> Editor
+ 10. Editor -> SoftwareEngineer (done, 편집 및 테스트 완료)
+ 11. 이후 SoftwareEngineer가 swe_tool로 continue 하거나 end로 종료
+
+- 반복(반복적인 분석-편집) 루프:
+  - CodeAnalyzer 또는 Editor가 완료(done)을 SoftwareEngineer에게 반환하면 엔지니어는 다시 분석을 지시하거나 편집을 지시할 수 있다. 이는 버그가 완전히 해결될 때까지 여러 번 반복 가능.
+  - 내부 도구들(code_analysis_tool, code_edit_tool, test_tool)은 해당 노드로 돌아와서 결과를 갱신하고, 다시 SoftwareEngineer가 판단한다.
+
+- 도구 위임/콜백 흐름:
+  - CodeAnalyzer와 Editor는 각각 하위 툴을 호출하고(직접 실행 또는 외부 서비스), 그 툴들이 결과를 반환하면 원래 노드로 돌아와 결과를 취합한 뒤 SoftwareEngineer에게 'done' 또는 다음 단계(continue)를 신호한다.
+
+4) 레이블의 의도(해석)
+- analyze_code : SoftwareEngineer가 분석 동작을 요청하는 액션명.
+- edit_file : 편집을 요청하는 액션명.
+- done : 해당 노드(분석/편집)가 작업을 완료했고 결과를 엔지니어에게 반환함을 의미. 이 시점에서 엔지니어는 결과를 검토하고 다음 행동을 선택.
+- continue : 단계를 계속 진행(다음 툴 호출 또는 워크플로우의 다음 단계로 이동)함을 의미. 종종 다른 노드나 엔드로 연결되는 선택지들을 나타냄.
+
+5) 제어 흐름/의사결정 포인트 요약
+- SoftwareEngineer 노드가 중심 의사결정자이다. 모든 주요 분기(분석 시작 / 편집 시작 / 외부 툴로 계속 / 종료) 결정은 여기에서 이루어짐.
+- CodeAnalyzer와 Editor는 작업(분석·수정)을 수행하고, 필요 시 하위 툴을 호출하여 결과를 얻은 뒤 엔지니어에게 상태(완료/계속)를 보고한다.
+- 반복 루프가 가능하므로 워크플로우는 선형 한 번의 흐름이 아니라 여러 번의 분석/편집/테스트 반복 후 최종 툴로 계속하거나 종료하는 형태로 동작한다.
+
+6) 예시 전체 경로(가장 포괄적인 예)
+start -> SoftwareEngineer -> (analyze_code) CodeAnalyzer -> code_analysis_tool -> CodeAnalyzer -> (done) SoftwareEngineer -> (edit_file) Editor -> code_edit_tool -> Editor -> test_tool -> Editor -> (done) SoftwareEngineer -> (continue) swe_tool -> end
+
+결론적으로 이 다이어그램은 "중앙의 SoftwareEngineer가 분석 또는 편집을 선택해 각각의 전문 노드(CodeAnalyzer/Editor)를 호출하고, 이들 노드는 내부 툴을 사용해 작업을 실행한 뒤 결과를 엔지니어에게 돌려주며, 엔지니어는 필요에 따라 반복하거나 최종적으로 swe_tool로 진행해 종료한다"는 흐름을 표현하고 있다.

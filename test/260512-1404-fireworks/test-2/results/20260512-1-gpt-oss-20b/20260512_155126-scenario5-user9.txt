@@ -1,0 +1,38 @@
+아래는 파이썬으로 구현한 퀵소트(QuickSort) 알고리즘입니다.  
+**모든 코드 줄마다 주석을 달아** 이해를 돕도록 했습니다.  
+
+```python
+# 퀵소트 함수 정의: arr 리스트를 완전히 정렬된 리스트로 반환한다
+def quick_sort(arr):  
+    # 입력 리스트가 비었거나 원소가 하나뿐이면 그대로 반환
+    if len(arr) <= 1:
+        return arr
+    
+    # 파티션 기준이 될 피벗 element을 리스트의 마지막 요소로 선택
+    pivot = arr[-1]
+    
+    # 피벗보다 작은 값들로 이루어진 리스트 생성
+    left = [x for x in arr[:-1] if x <= pivot]
+    
+    # 피벗보다 큰 값들로 이루어진 리스트 생성
+    right = [x for x in arr[:-1] if x > pivot]
+    
+    # 왼쪽, 피벗, 오른쪽 순서로 재귀적으로 정렬된 결과를 합쳐 반환
+    return quick_sort(left) + [pivot] + quick_sort(right)
+```
+
+#### 사용 예시
+
+```python
+# 예시 입력 리스트
+numbers = [3, 6, 8, 10, 1, 2, 1]
+
+# 퀵소트 함수 호출
+sorted_numbers = quick_sort(numbers)
+
+# 결과 출력
+print(sorted_numbers)  # 출력: [1, 1, 2, 3, 6, 8, 10]
+```
+
+위 코드에서 `quick_sort` 함수는 재귀적으로 호출되면서 피벗을 기준으로 리스트를 분할하고, 왼쪽과 오른쪽 부분을 각각 정렬한 뒤 다시 합치는 방식을 사용합니다.  
+주석을 통해 각 줄의 역할을 명확히 설명했으니, 이해에 도움이 되셨길 바랍니다.
