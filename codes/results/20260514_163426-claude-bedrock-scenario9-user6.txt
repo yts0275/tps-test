@@ -1,0 +1,111 @@
+이미지에 나타난 LangGraph 워크플로우의 노드와 흐름을 상세히 설명합니다.
+
+---
+
+## 노드 구성
+
+### 에이전트 노드 (Agent Nodes)
+| 노드 | 역할 |
+|------|------|
+| `SoftwareEngineer` | 중앙 오케스트레이터. 작업 분류 및 라우팅 담당 |
+| `CodeAnalyzer` | 코드 분석 전담 에이전트 |
+| `Editor` | 코드 편집 및 테스트 전담 에이전트 |
+
+### 도구 노드 (Tool Nodes)
+| 노드 | 역할 |
+|------|------|
+| `swe_tool` | SoftwareEngineer가 직접 호출하는 범용 SWE 도구 |
+| `code_analysis_tool` | CodeAnalyzer가 호출하는 정적 분석 도구 |
+| `code_edit_tool` | Editor가 호출하는 파일 편집 도구 |
+| `test_tool` | Editor가 호출하는 테스트 실행 도구 |
+
+### 상태 노드
+- `start` — 진입점
+- `end` — 종료점
+
+---
+
+## 엣지 흐름 상세
+
+### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 항상 `SoftwareEngineer`로 진입합니다.
+
+---
+
+### 2. SoftwareEngineer의 라우팅 (조건부 분기)
+
+`SoftwareEngineer`는 작업 내용을 판단하여 4가지 경로 중 하나를 선택합니다:
+
+| 조건 | 엣지 레이블 | 목적지 |
+|------|------------|--------|
+| 코드 분석이 필요할 때 | `analyze_code` | `CodeAnalyzer` |
+| 파일 편집이 필요할 때 | `edit_file` | `Editor` |
+| 범용 도구 사용이 필요할 때 | (직접 호출) | `swe_tool` |
+| 모든 작업이 완료됐을 때 | (종료) | `end` |
+
+---
+
+### 3. CodeAnalyzer 서브그래프
+
+```
+CodeAnalyzer ⇄ code_analysis_tool  (dashed: 반복 도구 호출)
+CodeAnalyzer --done--> SoftwareEngineer
+CodeAnalyzer <--continue-- Editor
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 **반복적으로** 호출(점선)하며 분석을 수행합니다.
+- 분석 완료 시 `done` 엣지를 통해 `SoftwareEngineer`로 결과를 반환합니다.
+- `Editor`가 편집 중 추가 분석이 필요하다고 판단하면 `continue` 엣지로 `CodeAnalyzer`에 작업을 위임할 수 있습니다.
+
+---
+
+### 4. Editor 서브그래프
+
+```
+Editor ⇄ code_edit_tool  (dashed: 파일 편집 도구 호출)
+Editor ⇄ test_tool       (dashed: 테스트 실행 도구 호출)
+Editor --done--> SoftwareEngineer
+Editor --continue--> CodeAnalyzer
+```
+
+- `Editor`는 `code_edit_tool`과 `test_tool`을 **반복적으로** 호출하며 편집-테스트 사이클을 수행합니다.
+- 편집/테스트 완료 시 `done` 엣지로 `SoftwareEngineer`에 결과를 반환합니다.
+- 편집 중 추가 코드 분석이 필요한 경우 `continue` 엣지로 `CodeAnalyzer`를 호출합니다.
+
+---
+
+### 5. swe_tool 흐름
+
+```
+SoftwareEngineer --> swe_tool --continue--> SoftwareEngineer
+```
+
+- `swe_tool`은 호출 후 `continue` 엣지로 다시 `SoftwareEngineer`로 제어를 반환합니다.
+
+---
+
+## 전체 흐름 요약
+
+```
+start
+  └─► SoftwareEngineer ◄──────────────────────────┐
+           │                                        │
+           ├─[analyze_code]─► CodeAnalyzer ⇄ code_analysis_tool
+           │                      │ [done] ─────────┤
+           │                      ▲                 │
+           │                   [continue]            │
+           │                      │                 │
+           ├─[edit_file]────► Editor ⇄ code_edit_tool
+           │                       ⇄ test_tool      │
+           │                      │ [done] ─────────┘
+           │
+           ├─────────────────► swe_tool
+           │                      │ [continue] ─────┘
+           │
+           └─────────────────► end
+```
+
+**핵심 패턴:** `SoftwareEngineer`가 중앙 오케스트레이터로서 작업을 전문 에이전트에 위임하고, 각 에이전트는 완료 후 반드시 `SoftwareEngineer`로 제어를 반환하는 **Hub-and-Spoke** 구조입니다. `Editor`↔`CodeAnalyzer` 간 직접 위임도 가능하여 오케스트레이터를 거치지 않는 에이전트 간 협업이 일부 허용됩니다.

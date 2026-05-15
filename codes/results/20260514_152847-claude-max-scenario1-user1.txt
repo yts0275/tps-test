@@ -1,0 +1,36 @@
+파일 저장 권한이 필요합니다. 코드를 먼저 보여드리겠습니다.
+
+```python
+def quicksort(arr):                                      # 퀵소트 함수 정의: 정렬할 리스트를 인자로 받는다
+    if len(arr) <= 1:                                    # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                                       # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                          # 피벗: 리스트 중간 인덱스의 값을 선택
+    left = [x for x in arr if x < pivot]               # 왼쪽: 피벗보다 작은 모든 원소를 모은다
+    middle = [x for x in arr if x == pivot]            # 중간: 피벗과 같은 모든 원소를 모은다 (중복 처리)
+    right = [x for x in arr if x > pivot]              # 오른쪽: 피벗보다 큰 모든 원소를 모은다
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽/오른쪽을 재귀 정렬 후 middle과 합쳐 반환
+
+
+if __name__ == "__main__":                              # 이 파일을 직접 실행할 때만 아래 코드 동작
+    sample = [3, 6, 8, 10, 1, 2, 1]                   # 정렬할 예시 리스트 정의
+    print("정렬 전:", sample)                           # 정렬 전 리스트 출력
+    result = quicksort(sample)                          # 퀵소트 함수 호출
+    print("정렬 후:", result)                           # 정렬된 결과 출력
+```
+
+**동작 원리:**
+
+1. **피벗 선택** — 중간 인덱스 원소를 피벗으로 사용
+2. **분할** — 피벗 기준으로 작은 값(`left`), 같은 값(`middle`), 큰 값(`right`) 세 그룹으로 나눔
+3. **재귀** — `left`와 `right`에 퀵소트를 재귀 호출 후 합산
+4. **종료 조건** — 길이 1 이하이면 재귀 중단
+
+**실행 결과:**
+```
+정렬 전: [3, 6, 8, 10, 1, 2, 1]
+정렬 후: [1, 1, 2, 3, 6, 8, 10]
+```
+
+파일로 저장하려면 권한을 승인해 주세요.

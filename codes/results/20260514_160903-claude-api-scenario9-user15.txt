@@ -1,0 +1,114 @@
+이미지를 분석해 워크플로우의 노드와 흐름을 상세히 설명하겠습니다.
+
+---
+
+## LangGraph 워크플로우 상세 설명
+
+### 노드 구성
+
+| 노드 | 역할 |
+|---|---|
+| `SoftwareEngineer` | 오케스트레이터 (중앙 의사결정) |
+| `CodeAnalyzer` | 코드 분석 전담 에이전트 |
+| `Editor` | 코드 편집 전담 에이전트 |
+| `swe_tool` | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Editor/CodeAnalyzer 공유 편집 도구 |
+| `test_tool` | Editor 전용 테스트 도구 |
+
+---
+
+### 흐름 상세 서술
+
+#### 1. 진입점: `start` → `SoftwareEngineer`
+워크플로우가 시작되면 항상 `SoftwareEngineer` 노드로 진입한다. 이 노드가 전체 흐름의 **중앙 오케스트레이터** 역할을 한다.
+
+---
+
+#### 2. `SoftwareEngineer`의 라우팅 (4가지 경로)
+
+`SoftwareEngineer`는 현재 상태를 판단해 다음 4가지 중 하나를 선택한다:
+
+**경로 A: `analyze_code` → `CodeAnalyzer`**
+- 코드 분석이 필요하다고 판단할 때 `CodeAnalyzer` 노드로 위임한다.
+- 점선 화살표로 표시 — 에이전트 간 핸드오프(delegation).
+
+**경로 B: `edit_file` → `Editor`**
+- 파일 수정이 필요하다고 판단할 때 `Editor` 노드로 위임한다.
+
+**경로 C: → `swe_tool`**
+- SoftwareEngineer가 직접 도구(`swe_tool`)를 호출한다.
+- 도구 실행 후 `continue` 레이블로 다시 `SoftwareEngineer`로 복귀한다.
+
+**경로 D: `continue` → `end`**
+- 모든 작업이 완료됐다고 판단하면 워크플로우를 종료한다.
+
+---
+
+#### 3. `CodeAnalyzer` 서브 루프
+
+`CodeAnalyzer`는 독립적인 루프를 가진다:
+
+```
+CodeAnalyzer
+  ├─► code_analysis_tool  (분석 도구 호출)
+  │       └─ continue ──► CodeAnalyzer  (결과 반환 후 재진입)
+  │
+  ├─► code_edit_tool  (분석 중 편집 필요 시)
+  │       └─ continue ──► CodeAnalyzer  (결과 반환 후 재진입)
+  │
+  └─► done ──► SoftwareEngineer  (분석 완료 후 오케스트레이터에 결과 반환)
+```
+
+- `code_analysis_tool`과 `code_edit_tool`을 반복 호출하며 분석을 수행한다.
+- 분석이 완료되면 `done` 레이블로 다시 `SoftwareEngineer`에 제어권을 반환한다.
+
+---
+
+#### 4. `Editor` 서브 루프
+
+`Editor`도 독립적인 루프를 가지며, `CodeAnalyzer`와의 협력 관계가 있다:
+
+```
+Editor
+  ├─► code_edit_tool  (편집 도구 호출)
+  │       └─ continue ──► Editor  (결과 반환 후 재진입)
+  │
+  ├─► test_tool  (편집 후 테스트 실행)
+  │       └─ continue ──► Editor  (테스트 결과 반환 후 재진입)
+  │
+  ├─► continue ──► CodeAnalyzer  (편집 후 재분석 위임 — 양방향 협력)
+  │
+  └─► done ──► SoftwareEngineer  (편집 완료 후 오케스트레이터에 결과 반환)
+```
+
+- `Editor`는 편집 → 테스트 → (필요시) 재분석 의뢰의 사이클을 가진다.
+- `Editor` → `CodeAnalyzer` 경로가 존재해, 편집 후 코드 검증을 `CodeAnalyzer`에 재위임할 수 있다.
+
+---
+
+### 전체 흐름 요약 (시나리오 예시)
+
+```
+start
+  → SoftwareEngineer  (작업 파악)
+      → CodeAnalyzer  (코드 분석 위임)
+          → code_analysis_tool  (정적 분석)
+          → CodeAnalyzer  (결과 수신)
+          → done → SoftwareEngineer  (분석 결과 보고)
+      → Editor  (수정 위임)
+          → code_edit_tool  (파일 수정)
+          → test_tool  (테스트 실행)
+          → Editor  (테스트 결과 확인)
+          → done → SoftwareEngineer  (수정 완료 보고)
+      → continue → end  (종료)
+```
+
+---
+
+### 핵심 설계 패턴
+
+1. **Supervisor 패턴**: `SoftwareEngineer`가 하위 에이전트들을 조율하는 중앙 오케스트레이터.
+2. **Tool-calling 루프**: 각 에이전트는 자신의 도구를 `continue` 루프로 반복 호출 가능.
+3. **양방향 협력**: `Editor` ↔ `CodeAnalyzer` 간 직접 위임이 가능해, `SoftwareEngineer`를 거치지 않고도 협력할 수 있음.
+4. **명확한 종료 조건**: `SoftwareEngineer`만이 `end`로 전환할 수 있어, 종료 권한이 오케스트레이터에 집중됨.

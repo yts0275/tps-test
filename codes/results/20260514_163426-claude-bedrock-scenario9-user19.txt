@@ -1,0 +1,116 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 유형 | 역할 |
+|------|------|------|
+| `SoftwareEngineer` | Agent (진입점) | 전체 작업 조율 및 라우팅 |
+| `CodeAnalyzer` | Agent | 코드 분석 담당 |
+| `Editor` | Agent | 코드 수정 담당 |
+| `swe_tool` | Tool | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Tool | CodeAnalyzer / Editor 공용 편집 도구 |
+| `test_tool` | Tool | Editor 전용 테스트 도구 |
+
+---
+
+### 엣지 유형
+
+- **실선 화살표**: 고정(unconditional) 전이 — 항상 실행
+- **점선 화살표**: 조건부(conditional) 전이 — Agent의 판단에 따라 분기
+
+---
+
+### 전체 흐름
+
+#### 1. 진입 (`start` → `SoftwareEngineer`)
+```
+start ──→ SoftwareEngineer
+```
+워크플로우가 시작되면 항상 `SoftwareEngineer` 노드로 진입한다.
+
+---
+
+#### 2. `SoftwareEngineer` 분기 (핵심 라우터)
+
+`SoftwareEngineer`는 현재 상태를 판단해 4가지 경로 중 하나를 선택한다:
+
+```
+SoftwareEngineer ──→ swe_tool          (도구 실행 필요 시)
+SoftwareEngineer --analyze_code--> CodeAnalyzer   (코드 분석 필요 시)
+SoftwareEngineer --edit_file-->    Editor          (파일 수정 필요 시)
+SoftwareEngineer --continue-->     end             (작업 완료 시)
+```
+
+- `swe_tool`: 실선 → 일반 도구 호출 후 `continue` 레이블로 `SoftwareEngineer`에 복귀
+- `analyze_code`: 코드를 읽고 이해해야 할 때 `CodeAnalyzer`로 위임
+- `edit_file`: 파일을 수정해야 할 때 `Editor`로 위임
+- `continue → end`: 모든 작업이 완료되었다고 판단 시 종료
+
+---
+
+#### 3. `CodeAnalyzer` 서브루프
+
+```
+CodeAnalyzer --→ code_analysis_tool   (코드 읽기/검색)
+CodeAnalyzer --→ code_edit_tool       (분석 중 편집 필요 시)
+code_analysis_tool --→ CodeAnalyzer   (결과 반환, 루프)
+code_edit_tool     --→ CodeAnalyzer   (결과 반환, 루프)
+CodeAnalyzer --done--> SoftwareEngineer  (분석 완료 시 복귀)
+```
+
+- `CodeAnalyzer`는 분석 작업에 필요한 도구를 반복 호출할 수 있다 (내부 루프)
+- `code_analysis_tool`과 `code_edit_tool` 양쪽 모두 사용 가능
+- 분석이 끝나면 `done` 엣지로 `SoftwareEngineer`에 결과를 반환
+
+---
+
+#### 4. `Editor` 서브루프
+
+```
+Editor --→ code_edit_tool   (파일 수정)
+Editor --→ test_tool        (수정 후 테스트 실행)
+code_edit_tool --→ Editor   (결과 반환, 루프)
+test_tool      --→ Editor   (테스트 결과 반환, 루프)
+Editor --done-->     SoftwareEngineer   (수정 완료 시 복귀)
+Editor --continue--> CodeAnalyzer      (추가 분석 필요 시 위임)
+```
+
+- `Editor`는 수정(`code_edit_tool`)과 검증(`test_tool`)을 반복할 수 있다
+- 수정 중 재분석이 필요하면 `continue` 엣지로 `CodeAnalyzer`에 위임 가능
+- 수정이 완료되면 `done`으로 `SoftwareEngineer`에 복귀
+
+---
+
+### 전체 시퀀스 예시
+
+```
+start
+  → SoftwareEngineer           # 작업 수신 및 판단
+    → analyze_code → CodeAnalyzer
+      → code_analysis_tool     # 코드 탐색
+      ← (결과 반환)
+      → code_analysis_tool     # 추가 탐색 (반복 가능)
+      ← (결과 반환)
+      → done → SoftwareEngineer
+    → edit_file → Editor
+      → code_edit_tool         # 파일 수정
+      ← (결과 반환)
+      → test_tool              # 테스트 실행
+      ← (테스트 실패)
+      → code_edit_tool         # 재수정 (반복 가능)
+      ← (결과 반환)
+      → done → SoftwareEngineer
+    → continue → end           # 최종 완료
+```
+
+---
+
+### 핵심 설계 특징
+
+1. **`SoftwareEngineer`가 중앙 오케스트레이터** 역할로, 모든 서브 에이전트의 작업 결과를 수렴하고 다음 액션을 결정한다.
+2. **각 Agent는 독립적인 내부 루프**를 가져 필요한 도구를 반복 호출할 수 있다.
+3. **`CodeAnalyzer` ↔ `Editor` 간 직접 전이** (`Editor --continue--> CodeAnalyzer`)가 존재해, `SoftwareEngineer`를 거치지 않고 분석-수정 사이클을 돌 수 있다.
+4. **종료 조건은 `SoftwareEngineer`만 판단** — `end` 노드로 가는 엣지는 `SoftwareEngineer`에서만 출발한다.

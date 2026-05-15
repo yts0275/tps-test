@@ -1,0 +1,118 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 | 작업 분배 및 제어 |
+| `CodeAnalyzer` | 전문 에이전트 | 코드 분석 담당 |
+| `Editor` | 전문 에이전트 | 파일 편집 및 테스트 담당 |
+| `swe_tool` | 도구 노드 | 범용 소프트웨어 엔지니어링 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 상세
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 항상 `SoftwareEngineer`로 진입한다.
+
+---
+
+#### 2. SoftwareEngineer (중앙 오케스트레이터)
+`SoftwareEngineer`는 조건부 라우팅으로 다음 4가지 경로 중 하나를 선택한다.
+
+| 조건 | 목적지 | 엣지 타입 |
+|------|--------|-----------|
+| `analyze_code` | `CodeAnalyzer` | 실선 |
+| `edit_file` | `Editor` | 실선 |
+| _(도구 사용 필요)_ | `swe_tool` | 실선 |
+| `continue` | `end` | 점선 |
+
+- **`analyze_code`** : 코드 분석이 필요하다고 판단 시 `CodeAnalyzer`로 위임
+- **`edit_file`** : 파일 수정이 필요하다고 판단 시 `Editor`로 위임
+- **`swe_tool`** : 직접 도구를 호출해야 할 때 `swe_tool`로 분기
+- **`continue` → `end`** : 모든 작업이 완료되었을 때 워크플로우 종료
+
+---
+
+#### 3. CodeAnalyzer 흐름
+
+```
+SoftwareEngineer --[analyze_code]--> CodeAnalyzer
+    ↓ (점선, 도구 호출)
+  code_analysis_tool  /  code_edit_tool
+    ↓
+  [continue] → 자기 자신 (CodeAnalyzer) 반복
+    ↓
+  [done] → SoftwareEngineer
+```
+
+- **`code_analysis_tool`** (점선): 코드 분석 도구를 호출하여 결과를 받아옴
+- **`code_edit_tool`** (점선): 분석 중 간단한 편집도 수행 가능
+- **`continue` (자기 루프)**: 분석이 아직 완료되지 않았을 때 스스로 반복 실행
+- **`done` → `SoftwareEngineer`**: 분석 완료 후 결과를 오케스트레이터에 반환
+
+---
+
+#### 4. Editor 흐름
+
+```
+SoftwareEngineer --[edit_file]--> Editor
+    ↓ (점선, 도구 호출)
+  code_edit_tool  /  test_tool
+    ↓
+  [continue] → 자기 자신 (Editor) 반복
+    ↓
+  [done] → SoftwareEngineer
+```
+
+- **`code_edit_tool`** (점선): 실제 파일 편집 도구 호출
+- **`test_tool`** (점선): 편집 후 테스트를 실행하여 검증
+- **`continue` (자기 루프)**: 편집/테스트가 아직 완료되지 않았을 때 반복 (예: 테스트 실패 시 재편집)
+- **`done` → `SoftwareEngineer`**: 편집 및 검증 완료 후 오케스트레이터에 반환
+
+---
+
+#### 5. swe_tool 흐름
+
+```
+SoftwareEngineer → swe_tool
+    ↓
+  [continue] → SoftwareEngineer
+```
+
+- 도구 실행 후 항상 `continue`를 통해 `SoftwareEngineer`로 결과를 반환한다.
+
+---
+
+### 전체 실행 시나리오 예시
+
+```
+start
+  → SoftwareEngineer (작업 파악)
+    → [analyze_code] CodeAnalyzer
+        → code_analysis_tool (코드 구조 분석)
+        → [continue] CodeAnalyzer (추가 분석)
+        → [done] SoftwareEngineer (분석 결과 수신)
+    → [edit_file] Editor
+        → code_edit_tool (코드 수정)
+        → test_tool (테스트 실행)
+        → [continue] Editor (테스트 실패 시 재수정)
+        → [done] SoftwareEngineer (수정 완료 수신)
+    → [continue] end (모든 작업 완료)
+```
+
+---
+
+### 설계 특징 요약
+
+1. **계층적 구조**: `SoftwareEngineer`가 중앙 오케스트레이터 역할로 전체 흐름을 제어
+2. **자기 루프 (Self-loop)**: `CodeAnalyzer`와 `Editor` 모두 `continue`를 통해 멀티스텝 작업을 반복 수행 가능
+3. **도구 분리**: 실선은 에이전트 간 전환, 점선은 도구 호출로 명확히 구분
+4. **반환 패턴**: 전문 에이전트(`CodeAnalyzer`, `Editor`, `swe_tool`)는 작업 완료 시 반드시 `SoftwareEngineer`로 제어권을 반환
+5. **단일 종료점**: 오직 `SoftwareEngineer`만 `end`로 이동 가능 — 종료 결정권이 오케스트레이터에 집중됨

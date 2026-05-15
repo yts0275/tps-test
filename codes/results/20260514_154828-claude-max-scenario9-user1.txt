@@ -1,0 +1,112 @@
+## LangGraph Workflow 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 역할 |
+|------|------|
+| `SoftwareEngineer` | 중앙 오케스트레이터 (라우터) |
+| `CodeAnalyzer` | 코드 분석 전담 에이전트 |
+| `Editor` | 코드 편집 및 테스트 전담 에이전트 |
+| `swe_tool` | SWE 범용 도구 노드 |
+| `code_analysis_tool` | CodeAnalyzer가 호출하는 도구 |
+| `code_edit_tool` | CodeAnalyzer/Editor가 호출하는 도구 |
+| `test_tool` | Editor가 호출하는 도구 |
+
+---
+
+### 흐름 상세 서술
+
+#### 1. 진입점
+```
+start → SoftwareEngineer
+```
+워크플로우는 항상 `SoftwareEngineer`에서 시작한다.
+
+---
+
+#### 2. SoftwareEngineer (중앙 라우터)
+
+`SoftwareEngineer`는 현재 상태를 판단하여 **4가지 경로** 중 하나로 분기한다:
+
+| 조건 | 목적지 | 엣지 레이블 |
+|------|--------|------------|
+| 코드 분석이 필요한 경우 | `CodeAnalyzer` | `analyze_code` |
+| 파일 편집이 필요한 경우 | `Editor` | `edit_file` |
+| 범용 SWE 도구 호출 필요 | `swe_tool` | (dashed) |
+| 작업 완료 | `end` | (dashed) |
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                        ↓ (dashed)
+                              code_analysis_tool  /  code_edit_tool
+                                        ↓
+                              continue (자기 자신으로 루프)
+                                        ↓
+                              done → SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`과 `code_edit_tool`을 반복 호출하며 분석을 수행한다.
+- 분석이 미완료인 경우 `continue`로 **자기 자신으로 루프백**하여 도구를 재호출한다.
+- 분석이 완료되면 `done`으로 `SoftwareEngineer`에 결과를 반환한다.
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+                                    ↓ (dashed)
+                        code_edit_tool  /  test_tool
+                                    ↓
+                              continue → CodeAnalyzer (추가 분석 필요 시)
+                                    ↓
+                              done → SoftwareEngineer
+```
+
+- `Editor`는 `code_edit_tool`로 코드를 수정하고 `test_tool`로 테스트를 실행한다.
+- 편집 후 추가 분석이 필요하면 `continue`로 **`CodeAnalyzer`에게 위임**한다.
+- 편집이 완료되면 `done`으로 `SoftwareEngineer`에 결과를 반환한다.
+
+---
+
+#### 5. swe_tool 노드
+
+```
+SoftwareEngineer → swe_tool
+                       ↓
+               continue → SoftwareEngineer
+```
+
+- 단순한 왕복 구조: 호출 후 결과를 `continue`로 `SoftwareEngineer`에 돌려준다.
+
+---
+
+#### 6. 종료
+
+`SoftwareEngineer`가 모든 작업이 완료됐다고 판단하면 `end`로 전이하여 워크플로우가 종료된다.
+
+---
+
+### 전체 실행 흐름 예시
+
+```
+start
+  → SoftwareEngineer (작업 파악)
+    → CodeAnalyzer (코드 읽기)
+      → code_analysis_tool (반복)
+      → done → SoftwareEngineer
+    → Editor (파일 수정)
+      → code_edit_tool
+      → test_tool (테스트 실행)
+      → continue → CodeAnalyzer (실패 시 재분석)
+      → done → SoftwareEngineer
+    → end
+```
+
+**핵심 설계 패턴:** `SoftwareEngineer`가 의사결정을 독점하고, 하위 에이전트(`CodeAnalyzer`, `Editor`)는 각자의 도구 루프를 완료한 뒤 반드시 `SoftwareEngineer`에게 제어권을 반환하는 **supervisor 패턴**이다.

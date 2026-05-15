@@ -1,0 +1,141 @@
+이미지를 분석하여 워크플로우를 상세히 설명하겠습니다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 상세 분석
+
+### 전체 구조 개요
+
+이 워크플로우는 **소프트웨어 엔지니어링 자동화 에이전트 시스템**으로, `SoftwareEngineer`를 중심 오케스트레이터로 두고 전문화된 서브 에이전트들이 작업을 분담하는 **계층형 멀티 에이전트 아키텍처**이다.
+
+---
+
+### 노드 목록
+
+| 노드 | 종류 | 역할 |
+|---|---|---|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 에이전트 | 작업 분석 및 라우팅 |
+| `CodeAnalyzer` | 서브 에이전트 | 코드 분석 전담 |
+| `Editor` | 서브 에이전트 | 파일 편집 및 테스트 전담 |
+| `swe_tool` | 툴 노드 | 직접 도구 실행 |
+| `code_analysis_tool` | 툴 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 툴 노드 | 코드 편집 도구 |
+| `test_tool` | 툴 노드 | 테스트 실행 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 단계별 흐름 상세 설명
+
+#### 1단계: 진입 (`start` → `SoftwareEngineer`)
+
+워크플로우가 시작되면 즉시 `SoftwareEngineer` 노드로 진입한다. 이 노드는 전체 작업의 **중앙 의사결정자**로, 사용자 요청을 파악하고 어떤 하위 에이전트에게 위임할지 판단한다.
+
+---
+
+#### 2단계: `SoftwareEngineer`의 라우팅 결정 (조건부 분기)
+
+`SoftwareEngineer`는 상황에 따라 **4가지 경로** 중 하나를 선택한다:
+
+**경로 A — `analyze_code` → `CodeAnalyzer`**
+- 코드의 구조, 버그, 품질 등을 **분석해야 할 때** 선택
+- `CodeAnalyzer` 서브 에이전트에게 분석 작업을 위임
+
+**경로 B — `edit_file` → `Editor`**
+- 실제 코드를 **수정하거나 새로 작성해야 할 때** 선택
+- `Editor` 서브 에이전트에게 편집 작업을 위임
+
+**경로 C — `swe_tool`**
+- 별도의 에이전트 위임 없이 **도구를 직접 실행**해야 할 때 선택
+- 실행 완료 후 `continue` 엣지를 통해 `SoftwareEngineer`로 복귀
+
+**경로 D → `end`**
+- 모든 작업이 완료되었다고 판단할 때 워크플로우 **종료**
+
+---
+
+#### 3단계-A: `CodeAnalyzer` 서브 루프
+
+`CodeAnalyzer`는 독립적인 **내부 루프**를 가진다:
+
+```
+CodeAnalyzer
+    ↓ (도구 호출, 점선)
+code_analysis_tool
+    ↑ (결과 반환, 점선)
+CodeAnalyzer
+    ↓ continue (추가 분석 필요 시 자기 자신으로 루프)
+CodeAnalyzer ...
+    ↓ done (분석 완료 시)
+SoftwareEngineer
+```
+
+- `code_analysis_tool`을 반복 호출하며 코드를 분석한다
+- 분석이 충분하지 않으면 `continue`로 **자기 자신에게 루프**를 돌며 심층 분석을 이어간다
+- 분석이 완료되면 `done` 엣지를 통해 `SoftwareEngineer`로 결과를 반환한다
+- 또한 분석 결과를 바탕으로 **직접 `Editor`로 넘어가는 경로**도 존재한다 (분석 후 즉시 수정이 필요한 경우)
+
+---
+
+#### 3단계-B: `Editor` 서브 루프
+
+`Editor` 역시 독립적인 **내부 루프**를 가진다:
+
+```
+Editor
+    ↓ (도구 호출, 점선)
+code_edit_tool / test_tool
+    ↑ (결과 반환, 점선)
+Editor
+    ↓ continue (수정/테스트 추가 필요 시 자기 자신으로 루프)
+Editor ...
+    ↓ done (편집 완료 시)
+SoftwareEngineer
+```
+
+- `code_edit_tool`로 코드를 수정하고, `test_tool`로 테스트를 실행하는 **Edit-Test 사이클**을 반복한다
+- 테스트가 실패하거나 추가 수정이 필요하면 `continue`로 **자기 자신에게 루프**를 돌며 수정을 이어간다
+- 편집이 완료되면 `done` 엣지를 통해 `SoftwareEngineer`로 결과를 반환한다
+
+---
+
+#### 4단계: 결과 통합 및 재판단 (`→ SoftwareEngineer`)
+
+`CodeAnalyzer`, `Editor`, `swe_tool` 모두 작업 완료 후 **`SoftwareEngineer`로 복귀**한다. `SoftwareEngineer`는 반환된 결과를 바탕으로:
+
+- 추가 분석이 필요하면 → 다시 `CodeAnalyzer`로 라우팅
+- 추가 수정이 필요하면 → 다시 `Editor`로 라우팅
+- 모든 작업이 완료되었으면 → `end`로 종료
+
+---
+
+### 엣지 유형 구분
+
+| 엣지 유형 | 표현 | 의미 |
+|---|---|---|
+| 실선 화살표 | → | 에이전트 간 명시적 전환 |
+| 점선 화살표 | ⇢ | 도구 호출/반환 (tool call) |
+
+---
+
+### 전체 흐름 요약
+
+```
+start
+  → SoftwareEngineer (오케스트레이터, 반복 판단)
+      ├─[analyze_code]→ CodeAnalyzer
+      │                   ↔ code_analysis_tool (반복)
+      │                   └─[done]→ SoftwareEngineer
+      │
+      ├─[edit_file]→ Editor
+      │               ↔ code_edit_tool / test_tool (반복)
+      │               └─[done]→ SoftwareEngineer
+      │
+      ├─→ swe_tool
+      │     └─[continue]→ SoftwareEngineer
+      │
+      └─→ end
+```
+
+이 구조의 핵심은 **`SoftwareEngineer`가 루프의 중심**에 있으며, 각 서브 에이전트가 자체 내부 루프를 통해 작업을 완전히 처리한 뒤 결과를 반환하는 **위임-확인-재판단** 패턴이다.

@@ -1,0 +1,36 @@
+파일 쓰기 권한이 필요합니다. 아래에 코드를 직접 보여드리겠습니다.
+
+```python
+def quicksort(arr):                                  # 퀵소트 함수 정의: 배열을 받아 정렬된 배열 반환
+    if len(arr) <= 1:                                # 배열 길이가 0 또는 1이면 이미 정렬된 상태
+        return arr                                   # 기저 조건: 그대로 반환
+
+    pivot = arr[len(arr) // 2]                       # 피벗 선택: 배열 중간 인덱스 요소
+    left = [x for x in arr if x < pivot]            # 왼쪽 부분 배열: 피벗보다 작은 요소들
+    middle = [x for x in arr if x == pivot]         # 중간 부분 배열: 피벗과 같은 요소들 (중복 처리)
+    right = [x for x in arr if x > pivot]           # 오른쪽 부분 배열: 피벗보다 큰 요소들
+
+    return quicksort(left) + middle + quicksort(right)  # 재귀 호출 후 세 부분을 합쳐서 반환
+
+
+if __name__ == "__main__":                           # 이 파일을 직접 실행할 때만 아래 코드 실행
+    sample = [3, 6, 8, 10, 1, 2, 1]                 # 테스트용 샘플 배열 정의
+    print("정렬 전:", sample)                         # 정렬 전 배열 출력
+    result = quicksort(sample)                       # 퀵소트 함수 호출
+    print("정렬 후:", result)                         # 정렬 후 배열 출력
+```
+
+**동작 방식:**
+
+1. **기저 조건** — 길이 0~1이면 즉시 반환 (재귀 종료)
+2. **분할** — 피벗 기준으로 `left` / `middle` / `right` 세 부분으로 나눔
+3. **재귀** — `left`와 `right`에 동일한 함수를 재귀 적용
+4. **합치기** — 정렬된 세 배열을 순서대로 연결
+
+**실행 결과:**
+```
+정렬 전: [3, 6, 8, 10, 1, 2, 1]
+정렬 후: [1, 1, 2, 3, 6, 8, 10]
+```
+
+파일로 저장을 원하시면 쓰기 권한을 허용해 주시면 `quicksort.py`로 생성해 드리겠습니다.

@@ -1,0 +1,5 @@
+1. **재고 관리 시스템**: `Product`, `Order`, `InventoryManager` 세 클래스로 구성된 네트워크 장비 재고 관리 프로그램으로, 상품 등록·재고 수량 변경·주문 처리를 담당한다.
+
+2. **주문 흐름**: 주문 생성 시 `add_item`이 `product.update_stock(-quantity)`를 호출해 재고를 즉시 차감하고, 재고가 부족하면 주문을 거부하는 간단한 검증 로직이 포함되어 있다.
+
+3. **출력 기능**: 현재 재고 현황(`show_inventory`), 주문 영수증(`print_invoice`), 창고 전체 자산 가치 합계(`price * stock`)를 콘솔에 포맷팅하여 출력한다.

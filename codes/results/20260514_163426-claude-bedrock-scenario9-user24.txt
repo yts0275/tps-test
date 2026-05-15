@@ -1,0 +1,98 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 노드 구성
+
+| 구분 | 노드 | 역할 |
+|------|------|------|
+| **Agent Node** | `SoftwareEngineer` | 오케스트레이터 (중앙 조율자) |
+| **Agent Node** | `CodeAnalyzer` | 코드 분석 전담 에이전트 |
+| **Agent Node** | `Editor` | 코드 편집 및 테스트 전담 에이전트 |
+| **Tool Node** | `code_analysis_tool` | 코드 분석 실행 도구 |
+| **Tool Node** | `code_edit_tool` | 코드 편집 실행 도구 |
+| **Tool Node** | `test_tool` | 테스트 실행 도구 |
+| **Tool Node** | `swe_tool` | 범용 소프트웨어 엔지니어링 도구 |
+| **Special** | `start` / `end` | 진입/종료 노드 |
+
+---
+
+### 전체 흐름
+
+#### 1. 진입 단계
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer`로 진입한다.
+
+---
+
+#### 2. SoftwareEngineer (중앙 오케스트레이터)
+
+`SoftwareEngineer`는 현재 상태를 판단하여 4가지 경로 중 하나를 선택한다.
+
+| 조건 (edge label) | 이동 대상 | 설명 |
+|------------------|-----------|------|
+| `analyze_code` | `CodeAnalyzer` | 코드 분석이 필요하다고 판단 |
+| `edit_file` | `Editor` | 파일 편집이 필요하다고 판단 |
+| (암묵적) | `swe_tool` | 범용 도구 직접 사용 필요 |
+| (암묵적) | `end` | 작업 완료, 종료 |
+
+---
+
+#### 3. CodeAnalyzer 서브 루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                       ↕ (dashed)
+                               code_analysis_tool
+                                       |
+                    continue ←---------+--------→ done
+                       ↓                            ↓
+                    Editor                  SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 분석 작업 중 `code_analysis_tool`을 반복 호출할 수 있다 (점선 = tool call loop).
+- 분석이 완료되면(`done`) → `SoftwareEngineer`로 결과 반환.
+- 분석 중 편집이 필요하다고 판단하면(`continue`) → `Editor`로 위임.
+
+---
+
+#### 4. Editor 서브 루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+                                   ↕ (dashed)
+                         code_edit_tool / test_tool
+                                   |
+                   continue ←------+-------→ done
+                      ↓                          ↓
+               CodeAnalyzer              SoftwareEngineer
+```
+
+- `Editor`는 편집(`code_edit_tool`) 및 테스트(`test_tool`)를 반복 호출 가능 (점선 = tool call loop).
+- 편집 완료 후 분석이 필요하면(`continue`) → `CodeAnalyzer`로 역위임 (양방향 협력).
+- 편집 완료(`done`) → `SoftwareEngineer`로 결과 반환.
+
+---
+
+#### 5. swe_tool 경로
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 범용 도구를 호출하는 단순 경로.
+- 도구 실행 후 `continue`로 다시 `SoftwareEngineer`로 복귀하여 다음 판단을 이어간다.
+
+---
+
+### 핵심 설계 패턴
+
+1. **Hub-and-Spoke 구조**: `SoftwareEngineer`가 허브 역할, 모든 서브 에이전트는 작업 후 반드시 허브로 복귀한다.
+
+2. **Tool Call Loop**: `CodeAnalyzer`와 `Editor`는 각각의 도구를 자체적으로 반복 호출 가능하며, `SoftwareEngineer`를 거치지 않고 내부에서 루프를 완결한다.
+
+3. **Cross-agent delegation**: `CodeAnalyzer ↔ Editor` 간 `continue` 엣지를 통해 분석-편집 사이클을 `SoftwareEngineer`를 거치지 않고 직접 협력 가능하다 (latency 최적화).
+
+4. **조건부 종료**: `SoftwareEngineer`가 모든 서브태스크 결과를 종합한 후 `end`로 보내는 시점을 결정한다.

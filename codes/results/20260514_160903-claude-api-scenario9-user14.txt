@@ -1,0 +1,122 @@
+이미지를 분석하여 Workflow 흐름을 상세히 설명하겠습니다.
+
+---
+
+## LangGraph Workflow 노드 흐름 분석
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `start` | Entry Point | 워크플로우 진입점 |
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터, 작업 분배 결정 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 에이전트 |
+| `Editor` | Agent Node | 파일 편집 전담 에이전트 |
+| `swe_tool` | Tool Node | 범용 소프트웨어 엔지니어링 도구 |
+| `code_analysis_tool` | Tool Node | 코드 분석 전용 도구 |
+| `code_edit_tool` | Tool Node | 코드 편집 전용 도구 |
+| `test_tool` | Tool Node | 테스트 실행 도구 |
+| `end` | Terminal Node | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 (실선 = 상태 전이, 점선 = 도구 호출)
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입. 이 노드가 전체 작업의 컨트롤 타워 역할을 수행.
+
+---
+
+#### 2. SoftwareEngineer의 분기 결정 (조건부 엣지)
+
+`SoftwareEngineer`는 현재 상태를 평가하여 다음 4가지 경로 중 하나를 선택:
+
+| 조건/라벨 | 다음 노드 | 의미 |
+|-----------|-----------|------|
+| `analyze_code` | `CodeAnalyzer` | 코드 분석이 필요한 경우 |
+| `edit_file` | `Editor` | 파일 편집이 필요한 경우 |
+| (무조건) | `swe_tool` | 일반 SWE 도구 실행이 필요한 경우 |
+| (완료 판단) | `end` | 작업이 완료된 경우 |
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+         CodeAnalyzer <--[continue]--> CodeAnalyzer  (자기 루프)
+         CodeAnalyzer <----[dashed]----> code_analysis_tool
+         CodeAnalyzer <----[dashed]----> code_edit_tool
+CodeAnalyzer --done--> SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 필요시 **`code_analysis_tool`** 또는 **`code_edit_tool`** 을 호출(점선)하여 결과를 받아옴
+- `continue` 레이블로 **자기 자신에게 루프**하며 분석을 반복할 수 있음
+- 분석이 완료되면 `done` 으로 `SoftwareEngineer`에 결과 반환
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+         Editor <--[continue]--> Editor  (자기 루프)
+         Editor <----[dashed]----> code_edit_tool
+         Editor <----[dashed]----> test_tool
+Editor --done--> SoftwareEngineer
+```
+
+- `Editor`는 **`code_edit_tool`** 로 실제 코드를 편집하고, **`test_tool`** 로 편집 결과를 검증
+- `continue` 루프로 편집→테스트→재편집 사이클을 반복 가능
+- 편집이 완료되면 `done` 으로 `SoftwareEngineer`에 반환
+
+---
+
+#### 5. swe_tool 흐름
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 범용 도구를 실행
+- 도구 실행 후 `continue` 레이블로 다시 `SoftwareEngineer`로 복귀하여 다음 판단 수행
+
+---
+
+### 전체 제어 흐름 요약
+
+```
+start
+  │
+  ▼
+SoftwareEngineer  ◄────────────────────────────────┐
+  │                                                 │
+  ├──analyze_code──► CodeAnalyzer ◄──continue──┐   │
+  │                      │  ↕ code_analysis_tool│   │
+  │                      │  ↕ code_edit_tool    │   │
+  │                      └──continue────────────┘   │
+  │                      └──done────────────────────┤
+  │                                                 │
+  ├──edit_file──────► Editor ◄──continue────────┐   │
+  │                      │  ↕ code_edit_tool    │   │
+  │                      │  ↕ test_tool         │   │
+  │                      └──continue────────────┘   │
+  │                      └──done────────────────────┤
+  │                                                 │
+  ├──────────────────► swe_tool                     │
+  │                      └──continue────────────────┘
+  │
+  └──────────────────► end
+```
+
+---
+
+### 설계 패턴 포인트
+
+1. **Hub-and-Spoke 구조**: `SoftwareEngineer`가 중앙 허브로서 모든 서브에이전트의 진입/복귀 지점
+2. **ReAct 루프**: `CodeAnalyzer`와 `Editor` 모두 `continue` 자기 루프로 도구 호출→결과 관찰→재시도의 ReAct 패턴 구현
+3. **관심사 분리**: 분석(`CodeAnalyzer`)과 편집(`Editor`)을 독립 노드로 분리하여 각자의 도구 세트를 보유
+4. **점선(dashed) = ToolNode 연결**: LangGraph에서 에이전트가 tool을 호출하면 ToolNode가 실행되고 결과를 에이전트로 돌려주는 표준 패턴

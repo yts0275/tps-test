@@ -1,0 +1,121 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+### 전체 구조 개요
+
+이 그래프는 **SoftwareEngineer** 를 중심 오케스트레이터로 하는 계층적 멀티 에이전트 시스템이다. 크게 세 가지 레이어로 구성된다:
+
+- **제어 레이어**: `SoftwareEngineer` (라우팅 결정)
+- **전문 에이전트 레이어**: `CodeAnalyzer`, `Editor`
+- **툴 레이어**: `code_analysis_tool`, `code_edit_tool`, `test_tool`, `swe_tool`
+
+---
+
+### 노드별 역할 및 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 그래프 진입점. 사용자 요청이 들어오면 무조건 `SoftwareEngineer` 노드로 전달된다.
+- `SoftwareEngineer`는 요청을 분석하고 다음 행동을 결정하는 **중앙 라우터** 역할을 한다.
+
+---
+
+#### 2. `SoftwareEngineer` — 분기 결정 (조건부 엣지 4가지)
+
+| 출력 엣지 | 목적지 | 조건 |
+|---|---|---|
+| `analyze_code` | `CodeAnalyzer` | 코드 분석이 필요할 때 |
+| `edit_file` | `Editor` | 파일 수정이 필요할 때 |
+| (직접 호출) | `swe_tool` | 범용 SWE 도구 실행이 필요할 때 |
+| (종료 판단) | `end` | 작업이 완전히 완료되었을 때 |
+
+`SoftwareEngineer`는 매 사이클마다 현재 상태를 평가하고, 위 4가지 중 하나를 선택한다.
+
+---
+
+#### 3. `CodeAnalyzer` 서브그래프 루프
+
+```
+SoftwareEngineer
+    ↓ (analyze_code)
+CodeAnalyzer ←──────────────────┐
+    ↓                           │ (continue)
+code_analysis_tool ─────────────┘
+    ↓ (done)
+SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 반복 호출할 수 있다.
+- 툴 실행 후 결과가 돌아오면 `continue` 엣지를 통해 `CodeAnalyzer`로 재진입한다.
+- 분석이 충분히 완료되었다고 판단하면 `done` 엣지를 통해 `SoftwareEngineer`로 결과를 반환한다.
+- **핵심**: `CodeAnalyzer` 레벨에서 자체적인 ReAct(Reason-Act) 루프를 구성한다.
+
+---
+
+#### 4. `Editor` 서브그래프 루프
+
+```
+SoftwareEngineer
+    ↓ (edit_file)
+Editor ←──────────────────────────┐
+    ↓              ↓              │ (continue)
+code_edit_tool  test_tool ────────┘
+         ↓ (done)
+    SoftwareEngineer
+```
+
+- `Editor`는 두 개의 툴을 선택적으로 사용한다:
+  - `code_edit_tool`: 실제 파일 수정 수행
+  - `test_tool`: 수정 후 테스트 실행 및 검증
+- 각 툴 실행 결과는 `continue` 엣지로 `Editor`에 피드백된다.
+- `Editor`는 수정 → 테스트 → 재수정 사이클을 자체적으로 반복할 수 있다.
+- 편집 작업이 완료되면 `done` 엣지로 `SoftwareEngineer`에 보고한다.
+
+---
+
+#### 5. `swe_tool` 단순 루프
+
+```
+SoftwareEngineer
+    ↓
+swe_tool
+    ↓ (continue)
+SoftwareEngineer
+```
+
+- `CodeAnalyzer`나 `Editor`를 거치지 않는 **직접 툴 호출** 경로다.
+- 간단한 작업(파일 탐색, 명령 실행 등)에 사용된다.
+- 실행 후 `continue` 엣지로 즉시 `SoftwareEngineer`로 복귀한다.
+
+---
+
+#### 6. `end` 종료
+
+- `SoftwareEngineer`가 모든 작업이 완료되었다고 판단할 때 `end` 노드로 라우팅한다.
+- 전체 그래프 실행이 종료된다.
+
+---
+
+### 전체 실행 흐름 예시 (버그 수정 시나리오)
+
+```
+start
+  → SoftwareEngineer (작업 파악)
+    → CodeAnalyzer (analyze_code)
+      → code_analysis_tool (버그 위치 탐색, continue)
+      → code_analysis_tool (의존성 확인, continue)
+      → SoftwareEngineer (done, 분석 결과 전달)
+    → Editor (edit_file)
+      → code_edit_tool (버그 수정, continue)
+      → test_tool (테스트 실행, continue)
+      → code_edit_tool (실패 시 재수정, continue)
+      → test_tool (재검증, continue)
+      → SoftwareEngineer (done, 수정 완료 보고)
+    → end (작업 완료)
+```
+
+---
+
+### 설계 특징 요약
+
+- **계층적 루프**: 최상위(`SoftwareEngineer`) + 하위(`CodeAnalyzer`, `Editor`) 각각 독립적인 ReAct 루프를 가진다.
+- **관심사 분리**: 분석과 편집을 별도 에이전트로 분리하여 각 에이전트가 전문화된 툴셋만 사용한다.
+- **탈출 조건**: 각 서브 에이전트는 `done` 엣지를 통해서만 상위로 제어권을 반환하므로, 작업 완료 전 조기 종료를 방지한다.

@@ -1,0 +1,122 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 서술하겠습니다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 분석
+
+### 노드 구성
+
+| 노드 | 종류 | 역할 |
+|---|---|---|
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 (의사결정) |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 |
+| `Editor` | Agent Node | 코드 편집 전담 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Tool Node | Editor 전용 편집 도구 |
+| `test_tool` | Tool Node | Editor 전용 테스트 도구 |
+
+---
+
+### 전체 흐름 상세 서술
+
+#### 1. 진입 (Entry Point)
+```
+start → SoftwareEngineer
+```
+그래프 실행 시 `start` 노드에서 `SoftwareEngineer` 노드로 진입한다. `SoftwareEngineer`는 전체 워크플로우의 **중앙 제어 허브** 역할을 한다.
+
+---
+
+#### 2. SoftwareEngineer의 라우팅 (조건부 분기)
+
+`SoftwareEngineer`는 현재 상태(State)와 목표를 판단하여 다음 4가지 경로 중 하나를 선택한다:
+
+| 엣지 레이블 | 이동 대상 | 조건 |
+|---|---|---|
+| `analyze_code` | `CodeAnalyzer` | 코드를 분석해야 할 때 |
+| `edit_file` | `Editor` | 파일을 수정해야 할 때 |
+| (tool call) | `swe_tool` | SE 자체 도구 사용 시 |
+| (terminal) | `end` | 작업 완료 시 |
+
+---
+
+#### 3. CodeAnalyzer 서브그래프 흐름
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                       ↕ (tool call loop)
+                                   code_analysis_tool
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 **반복 호출**할 수 있다 (양방향 루프).
+- 분석이 완료되면 두 가지 경로:
+  - `done` → `SoftwareEngineer`: 분석 결과를 SE에게 반환, SE가 다음 단계 결정
+  - `continue` → `Editor`: SE를 거치지 않고 **직접 Editor로 전환** (분석 후 즉시 편집이 필요한 경우)
+
+---
+
+#### 4. Editor 서브그래프 흐름
+
+```
+SoftwareEngineer --edit_file--> Editor
+                                   ↕ (tool call loop)
+                              code_edit_tool / test_tool
+```
+
+- `Editor`는 `code_edit_tool`(파일 편집)과 `test_tool`(테스트 실행) 두 가지 도구를 호출할 수 있다.
+- 편집/테스트 완료 후 두 가지 경로:
+  - `done` → `SoftwareEngineer`: 결과를 SE에게 반환
+  - `continue` → `CodeAnalyzer`: 편집 후 **재분석이 필요한 경우** 직접 CodeAnalyzer로 전환
+
+---
+
+#### 5. swe_tool 흐름
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 사용하는 전용 도구.
+- 도구 실행 후 `continue` 엣지를 통해 다시 `SoftwareEngineer`로 복귀 (루프).
+
+---
+
+#### 6. 종료 (End Point)
+
+```
+SoftwareEngineer → end
+```
+
+- 모든 작업이 완료되었다고 판단하면 `SoftwareEngineer`가 `end` 노드로 전환하여 워크플로우를 종료.
+
+---
+
+### 전체 흐름 요약도
+
+```
+start
+  └─► SoftwareEngineer ◄──────────────────────────┐
+           │                                        │
+           ├─[analyze_code]─► CodeAnalyzer ──[done]─┤
+           │                      │    ↕ code_analysis_tool
+           │                      └─[continue]──► Editor
+           │                                        │
+           ├─[edit_file]────────► Editor ───[done]──┘
+           │                      │    ↕ code_edit_tool
+           │                      │    ↕ test_tool
+           │                      └─[continue]──► CodeAnalyzer
+           │
+           ├─[tool call]────────► swe_tool ──[continue]──► (복귀)
+           │
+           └─[완료]─────────────► end
+```
+
+---
+
+### 핵심 설계 특징
+
+1. **ReAct 패턴**: 각 Agent 노드(SE, CodeAnalyzer, Editor)는 Tool을 반복 호출하며 추론-행동 루프를 수행한다.
+2. **관심사 분리**: 분석(`CodeAnalyzer`)과 편집(`Editor`)이 별도 노드로 분리되어 전문화된 역할을 수행한다.
+3. **유연한 전환**: `done` (SE 경유) 또는 `continue` (직접 전환) 두 경로를 통해 상황에 따라 효율적 흐름을 지원한다.
+4. **SE의 중앙 통제**: `SoftwareEngineer`가 항상 최상위 의사결정자로서 `end`로의 종료 여부를 판단한다.

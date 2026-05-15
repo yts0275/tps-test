@@ -1,0 +1,60 @@
+파일 쓰기 권한이 없으니 코드를 직접 보여드리겠습니다.
+
+---
+
+**두 가지 방식으로 구현**했습니다: 새 리스트 반환 방식과 제자리(in-place) 방식.
+
+```python
+def quicksort(arr):                                      # 퀵소트 함수 정의, arr은 정렬할 리스트
+    if len(arr) <= 1:                                    # 리스트 길이가 0 또는 1이면 이미 정렬됨
+        return arr                                       # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                          # 리스트 가운데 요소를 피벗으로 선택
+
+    left = [x for x in arr if x < pivot]               # 피벗보다 작은 요소들로 왼쪽 부분 리스트 생성
+    middle = [x for x in arr if x == pivot]            # 피벗과 같은 요소들로 중간 부분 리스트 생성
+    right = [x for x in arr if x > pivot]              # 피벗보다 큰 요소들로 오른쪽 부분 리스트 생성
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽/중간/오른쪽을 재귀 정렬 후 합쳐서 반환
+
+
+def quicksort_inplace(arr, low, high):                  # 제자리(in-place) 퀵소트 함수, 추가 메모리 없이 정렬
+    if low < high:                                       # 정렬 범위가 유효할 때만 실행 (low < high)
+        pivot_idx = partition(arr, low, high)            # 분할 수행 후 피벗의 최종 위치 인덱스를 받음
+        quicksort_inplace(arr, low, pivot_idx - 1)      # 피벗 왼쪽 부분 재귀 정렬
+        quicksort_inplace(arr, pivot_idx + 1, high)     # 피벗 오른쪽 부분 재귀 정렬
+
+
+def partition(arr, low, high):                          # 분할 함수: 피벗을 기준으로 배열을 두 구간으로 나눔
+    pivot = arr[high]                                    # 맨 오른쪽 요소를 피벗으로 선택
+    i = low - 1                                          # i는 피벗보다 작은 요소들의 경계 인덱스 (초기값: 범위 시작 - 1)
+
+    for j in range(low, high):                          # j를 low부터 high-1까지 순회
+        if arr[j] <= pivot:                             # 현재 요소가 피벗 이하이면
+            i += 1                                       # 경계 인덱스를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]            # 경계 위치와 현재 위치의 요소를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]      # 피벗을 경계 바로 오른쪽(최종 위치)으로 이동
+    return i + 1                                         # 피벗의 최종 인덱스 반환
+
+
+if __name__ == "__main__":                              # 스크립트를 직접 실행할 때만 아래 코드 동작
+    sample = [3, 6, 8, 10, 1, 2, 1]                    # 테스트용 입력 리스트 정의
+
+    result = quicksort(sample)                          # 새 리스트 반환 방식으로 정렬 수행
+    print("새 리스트 방식:", result)                    # 정렬 결과 출력
+
+    sample2 = [3, 6, 8, 10, 1, 2, 1]                   # 제자리 방식 테스트용 입력 리스트 정의
+    quicksort_inplace(sample2, 0, len(sample2) - 1)    # 제자리 방식으로 정렬 수행 (원본 리스트 수정)
+    print("제자리 방식:", sample2)                      # 정렬된 원본 리스트 출력
+```
+
+**두 방식의 차이:**
+
+| | 새 리스트 방식 | 제자리(in-place) 방식 |
+|---|---|---|
+| 메모리 | O(n) 추가 사용 | O(log n) 스택만 사용 |
+| 코드 | 간결하고 직관적 | 복잡하지만 효율적 |
+| 원본 보존 | 원본 유지 | 원본 수정됨 |
+
+평균 시간복잡도는 두 방식 모두 **O(n log n)** 입니다.

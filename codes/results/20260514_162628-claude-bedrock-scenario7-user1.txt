@@ -1,0 +1,140 @@
+## LangGraph 워크플로우 노드 흐름 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 유형 | 역할 |
+|------|------|------|
+| `start` | 진입점 (원형) | 그래프 시작 |
+| `SoftwareEngineer` | 에이전트 노드 | 최상위 오케스트레이터 |
+| `CodeAnalyzer` | 에이전트 노드 | 코드 분석 전담 |
+| `Editor` | 에이전트 노드 | 파일 편집 전담 |
+| `swe_tool` | 도구 노드 | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | 도구 노드 | 코드 편집 도구 (Editor/CodeAnalyzer 공유) |
+| `test_tool` | 도구 노드 | 테스트 실행 도구 |
+| `end` | 종료점 (원형) | 그래프 종료 |
+
+---
+
+### 흐름 상세
+
+#### 1. 진입: `start` → `SoftwareEngineer`
+그래프는 `SoftwareEngineer` 노드에서 시작한다. 이 노드가 전체 워크플로우의 **중앙 오케스트레이터** 역할을 한다.
+
+---
+
+#### 2. `SoftwareEngineer`의 라우팅 결정 (4가지 분기)
+
+```
+SoftwareEngineer
+    ├─[analyze_code]──→ CodeAnalyzer    # 코드 분석이 필요한 경우
+    ├─[edit_file]─────→ Editor          # 파일 수정이 필요한 경우
+    ├─[continue]──────→ swe_tool        # 자체 도구 직접 사용
+    └─[done/end]──────→ end             # 작업 완료, 그래프 종료
+```
+
+LLM이 현재 상황을 판단해 위 4가지 엣지 중 하나를 선택한다.
+
+---
+
+#### 3. `CodeAnalyzer` 서브루프
+
+```
+SoftwareEngineer ──[analyze_code]──→ CodeAnalyzer
+                                          │
+                        ┌─────────────────┤
+                        │                 │
+                        ▼                 ▼
+              code_analysis_tool    code_edit_tool
+                        │                 │
+                        └────────┬────────┘
+                                 ▼
+                           CodeAnalyzer (도구 결과 수신)
+                                 │
+                    ┌────────────┴──────────────┐
+                    │                           │
+                    ▼                           ▼
+              [continue]                     [done]
+                    │                           │
+                    ▼                           ▼
+                 Editor                 SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 호출해 정적 분석, AST 파싱 등을 수행한다.
+- 필요 시 `code_edit_tool`도 직접 사용할 수 있다.
+- 분석 후 **더 진행이 필요하면** `continue` → `Editor`로 넘긴다.
+- 분석이 충분히 완료되면 `done` → `SoftwareEngineer`로 결과를 반환한다.
+
+---
+
+#### 4. `Editor` 서브루프
+
+```
+SoftwareEngineer ──[edit_file]──→ Editor
+CodeAnalyzer     ──[continue]──→ Editor
+                                    │
+                 ┌──────────────────┤
+                 │                  │
+                 ▼                  ▼
+       code_edit_tool           test_tool
+                 │                  │
+                 └────────┬─────────┘
+                          ▼
+                       Editor (도구 결과 수신)
+                          │
+             ┌────────────┴──────────────┐
+             │                           │
+             ▼                           ▼
+        [continue]                    [done]
+             │                           │
+             ▼                           ▼
+        CodeAnalyzer             SoftwareEngineer
+```
+
+- `Editor`는 `code_edit_tool`로 실제 파일을 수정하고 `test_tool`로 테스트를 실행한다.
+- 수정 후 재검증이 필요하면 `continue` → `CodeAnalyzer`로 다시 분석을 요청한다.
+- 편집이 완료되면 `done` → `SoftwareEngineer`로 결과를 반환한다.
+
+---
+
+#### 5. `swe_tool` 루프
+
+```
+SoftwareEngineer ──[continue]──→ swe_tool
+                                     │
+                                [continue]
+                                     │
+                                     ▼
+                              SoftwareEngineer
+```
+
+`SoftwareEngineer`가 하위 에이전트를 거치지 않고 **직접 도구를 사용**해야 할 때 사용하는 단순 왕복 루프다.
+
+---
+
+### 전체 실행 흐름 시나리오 예시
+
+```
+start
+  → SoftwareEngineer (태스크 수신 및 분석)
+    → CodeAnalyzer (코드 구조 파악)
+      → code_analysis_tool (AST/정적분석)
+      → continue → Editor
+        → code_edit_tool (파일 수정)
+        → test_tool (테스트 실행)
+        → continue → CodeAnalyzer (수정 검증)
+          → code_analysis_tool (재검증)
+          → done → SoftwareEngineer
+    → done → end
+```
+
+---
+
+### 핵심 설계 특징
+
+1. **계층적 오케스트레이션**: `SoftwareEngineer`가 `CodeAnalyzer`와 `Editor`를 서브에이전트로 위임하는 supervisor 패턴
+2. **에이전트 간 핸드오프**: `CodeAnalyzer → Editor`, `Editor → CodeAnalyzer`의 양방향 `continue` 엣지로 분석-편집 사이클을 반복할 수 있다
+3. **도구-에이전트 분리**: 각 에이전트는 전용 도구를 보유하며, `code_edit_tool`은 두 에이전트가 공유한다
+4. **조건부 종료**: `SoftwareEngineer`가 충분하다고 판단할 때만 `end`로 라우팅하므로, 작업 완료 판단이 최상위 에이전트에 집중된다

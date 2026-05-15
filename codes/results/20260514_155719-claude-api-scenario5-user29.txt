@@ -1,0 +1,28 @@
+파일 저장 권한이 없어 코드를 직접 출력합니다.
+
+```python
+def quicksort(arr):                           # 퀵소트 함수 정의: 정렬할 배열을 인자로 받음
+    if len(arr) <= 1:                         # 배열 길이가 1 이하이면 이미 정렬된 상태
+        return arr                            # 그대로 반환 (재귀 기저 조건)
+
+    pivot = arr[len(arr) // 2]               # 피벗: 배열의 중간 요소를 선택
+    left = [x for x in arr if x < pivot]    # left: 피벗보다 작은 요소들만 모음
+    middle = [x for x in arr if x == pivot] # middle: 피벗과 같은 요소들만 모음
+    right = [x for x in arr if x > pivot]   # right: 피벗보다 큰 요소들만 모음
+
+    return quicksort(left) + middle + quicksort(right)  # 재귀적으로 left/right 정렬 후 합쳐서 반환
+
+
+if __name__ == "__main__":
+    sample = [3, 6, 8, 10, 1, 2, 1]         # 테스트용 예시 배열
+    print("정렬 전:", sample)                # 정렬 전 배열 출력
+    result = quicksort(sample)              # 퀵소트 실행
+    print("정렬 후:", result)               # 정렬 후 배열 출력
+```
+
+**동작 방식:**
+1. 피벗(중간값)을 기준으로 작은 값 / 같은 값 / 큰 값 세 그룹으로 분리
+2. 작은 값 그룹과 큰 값 그룹을 재귀적으로 다시 정렬
+3. `left + middle + right` 순서로 합쳐 반환
+
+실행 결과: `정렬 후: [1, 1, 2, 3, 6, 8, 10]`

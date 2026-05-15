@@ -1,0 +1,127 @@
+## LangGraph Workflow 노드 흐름 상세 설명
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer** 를 중앙 오케스트레이터로 하는 **계층형 멀티 에이전트 시스템**이다. 실선은 노드 간 상태 전이(state transition), 점선은 툴 호출(tool call)을 나타낸다.
+
+---
+
+### 노드 목록 및 역할
+
+| 노드 | 타입 | 역할 |
+|---|---|---|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 에이전트 | 작업 분석 및 하위 에이전트 라우팅 |
+| `CodeAnalyzer` | 서브 에이전트 | 코드 분석 전담 |
+| `Editor` | 서브 에이전트 | 코드 편집 및 테스트 전담 |
+| `swe_tool` | 툴 노드 | SWE 전용 도구 실행 |
+| `code_analysis_tool` | 툴 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 툴 노드 | 코드 편집 도구 |
+| `test_tool` | 툴 노드 | 테스트 실행 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 상태 전이 흐름 (실선)
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입한다.
+
+---
+
+#### 2. SoftwareEngineer → 분기 라우팅 (조건부 엣지)
+
+`SoftwareEngineer`는 현재 상태를 평가하여 4가지 경로 중 하나를 선택한다:
+
+| 조건 | 전이 대상 | 설명 |
+|---|---|---|
+| `analyze_code` | `CodeAnalyzer` | 코드 분석이 필요하다고 판단 시 |
+| `edit_file` | `Editor` | 파일 수정이 필요하다고 판단 시 |
+| (직접 라우팅) | `swe_tool` | SWE 도구를 직접 사용해야 할 때 |
+| `done` | `end` | 모든 작업 완료 시 |
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+        CodeAnalyzer --continue--> CodeAnalyzer  (자기 루프)
+        CodeAnalyzer --done--> SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 분석 작업이 완료되지 않으면 `continue` 엣지로 **자기 자신을 반복 호출**한다.
+- 분석이 완료되면 `done` 엣지로 결과를 `SoftwareEngineer`에 반환한다.
+- 내부적으로 `code_analysis_tool`을 점선(툴 호출)으로 활용한다.
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+        Editor --continue--> Editor  (자기 루프)
+        Editor --done--> SoftwareEngineer
+```
+
+- `Editor`는 편집/테스트 작업이 완료되지 않으면 `continue` 엣지로 **자기 자신을 반복 호출**한다.
+- 완료되면 `done` 엣지로 `SoftwareEngineer`에 반환한다.
+- 내부적으로 `code_edit_tool`과 `test_tool` 두 가지 툴을 점선으로 호출한다.
+
+---
+
+#### 5. swe_tool → 복귀
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `swe_tool` 실행 후 `continue` 엣지로 다시 `SoftwareEngineer`로 복귀한다.
+- 이후 `SoftwareEngineer`는 결과를 바탕으로 다시 라우팅 판단을 수행한다.
+
+---
+
+### 툴 호출 흐름 (점선)
+
+점선은 에이전트가 **도구를 호출하고 결과를 돌려받는 양방향 상호작용**이다.
+
+```
+CodeAnalyzer ⟺ code_analysis_tool
+Editor       ⟺ code_edit_tool
+Editor       ⟺ test_tool
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool` 하나만 사용한다.
+- `Editor`는 `code_edit_tool`(편집)과 `test_tool`(테스트) 두 가지를 모두 사용할 수 있다.
+
+---
+
+### 전체 실행 시나리오 예시
+
+```
+start
+  └→ SoftwareEngineer (작업 이해 및 계획)
+        └→ [analyze_code] → CodeAnalyzer
+                ↕ code_analysis_tool (반복 호출 가능)
+                └→ [done] → SoftwareEngineer (분석 결과 수신)
+        └→ [edit_file] → Editor
+                ↕ code_edit_tool
+                ↕ test_tool (테스트 통과할 때까지 continue 루프)
+                └→ [done] → SoftwareEngineer (편집 결과 수신)
+        └→ swe_tool → [continue] → SoftwareEngineer
+        └→ [done] → end
+```
+
+---
+
+### 핵심 설계 패턴 요약
+
+1. **Hub-and-Spoke**: `SoftwareEngineer`가 허브 역할을 하며 모든 결과가 이 노드로 집약된다.
+2. **서브루프(Self-loop)**: `CodeAnalyzer`와 `Editor` 모두 `continue` 엣지로 작업이 완료될 때까지 자기 자신을 반복할 수 있다.
+3. **툴 분리**: 각 에이전트는 자신에게 할당된 툴만 접근할 수 있어 책임이 명확히 분리된다.
+4. **단일 종료점**: 오직 `SoftwareEngineer`만이 `end`로 전이할 수 있어 종료 제어권이 오케스트레이터에 집중된다.

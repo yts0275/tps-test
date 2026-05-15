@@ -1,0 +1,5 @@
+1. **재고 관리 시스템** — `Product`, `Order`, `InventoryManager` 세 클래스로 IT 인프라 장비(서버 랙, 스위치, 케이블 등)의 재고를 관리하고 주문을 처리하는 콘솔 기반 프로그램이다.
+
+2. **핵심 로직** — 주문 시 `update_stock(-quantity)`로 재고를 차감하고, 재고가 부족하면 주문을 거부하는 재고 검증 로직이 `Product` → `Order` → `InventoryManager` 계층으로 연결되어 있다.
+
+3. **출력 기능** — 주문 인보이스(`print_invoice`)와 재고 현황(`show_inventory`), 창고 자산 총액 리포트를 포맷 문자열(`:<`, `:>`, `:,d`)로 정렬하여 출력한다.

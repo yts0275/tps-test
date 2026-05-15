@@ -1,0 +1,126 @@
+## LangGraph Workflow 노드 흐름 상세 설명
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer**가 중앙 오케스트레이터(Orchestrator) 역할을 하는 **멀티 에이전트 LangGraph 아키텍처**다. 조건부 라우팅(dashed edge)으로 작업 유형에 따라 전문 에이전트에 위임하고, 완료 시 다시 중앙으로 복귀하는 패턴이다.
+
+---
+
+### 노드 분류
+
+| 종류 | 노드 |
+|------|------|
+| 진입/종료 | `start`, `end` |
+| 에이전트 노드 | `SoftwareEngineer`, `CodeAnalyzer`, `Editor` |
+| 툴 노드 | `code_analysis_tool`, `code_edit_tool`, `test_tool`, `swe_tool` |
+
+---
+
+### 노드별 상세 설명
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우의 진입점. 사용자 요청이 들어오면 무조건 `SoftwareEngineer`로 라우팅된다 (solid edge).
+
+---
+
+#### 2. `SoftwareEngineer` (중앙 오케스트레이터)
+전체 흐름을 총괄하는 핵심 노드. 현재 상태를 평가하여 **조건부 엣지(dashed)**로 다음 목적지를 결정한다.
+
+**발신 경로:**
+
+| 조건 | 목적지 |
+|------|--------|
+| `analyze_code` | `CodeAnalyzer` |
+| `edit_file` | `Editor` |
+| (툴 호출 필요) | `swe_tool` |
+| (작업 완료) | `end` |
+
+---
+
+#### 3. `CodeAnalyzer` (코드 분석 에이전트)
+코드 구조, 버그, 패턴 등을 분석하는 전문 노드.
+
+**내부 흐름:**
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                        │
+                              ┌─────────┴──────────┐
+                              ▼                     ▼
+                    code_analysis_tool        (분석 완료 시)
+                              │                     │
+                    continue──┘              done──▶ SoftwareEngineer
+                    (자기 루프, 반복 분석)
+```
+
+- `code_analysis_tool` 호출 후 결과를 받아 추가 분석이 필요하면 **`continue`** (self-loop)로 자기 자신으로 돌아와 반복
+- 분석 완료 시 **`done`** 엣지로 `SoftwareEngineer`에 결과 반환
+
+---
+
+#### 4. `Editor` (코드 편집 에이전트)
+파일 수정 및 테스트 실행을 담당하는 전문 노드.
+
+**내부 흐름:**
+```
+SoftwareEngineer --edit_file--> Editor
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼               ▼
+           code_edit_tool      test_tool      (편집 완료 시)
+                    │              │               │
+                continue (자기 루프, 반복 수정)  done──▶ SoftwareEngineer
+```
+
+- `code_edit_tool`로 파일 편집, `test_tool`로 테스트 실행
+- 추가 수정이 필요하면 **`continue`** (self-loop)로 반복
+- 완료 시 **`done`**으로 `SoftwareEngineer`에 반환
+
+---
+
+#### 5. `swe_tool` (범용 소프트웨어 엔지니어링 툴)
+`CodeAnalyzer`/`Editor`로 분류되지 않는 일반 툴 호출을 처리.
+
+**흐름:**
+```
+SoftwareEngineer ──▶ swe_tool ──continue──▶ SoftwareEngineer
+```
+
+- 툴 실행 후 **`continue`**로 `SoftwareEngineer`에 결과 반환 (루프백)
+
+---
+
+#### 6. `end`
+- `SoftwareEngineer`가 모든 작업이 완료되었다고 판단할 때 도달하는 종료 노드.
+
+---
+
+### 전체 흐름 시나리오 예시
+
+```
+start
+  └─▶ SoftwareEngineer
+            │
+            ├─[analyze_code]──▶ CodeAnalyzer ──▶ code_analysis_tool
+            │                        │ (continue, 반복)
+            │                        └─[done]──▶ SoftwareEngineer
+            │
+            ├─[edit_file]────▶ Editor ──▶ code_edit_tool / test_tool
+            │                      │ (continue, 반복)
+            │                      └─[done]──▶ SoftwareEngineer
+            │
+            ├─────────────────▶ swe_tool
+            │                      └─[continue]──▶ SoftwareEngineer
+            │
+            └─────────────────▶ end
+```
+
+---
+
+### 핵심 설계 패턴 요약
+
+1. **Hub-and-Spoke**: `SoftwareEngineer`가 허브, 나머지 에이전트/툴이 스포크
+2. **Self-loop**: `CodeAnalyzer`와 `Editor`는 작업 완료 전까지 자기 루프로 반복 실행 가능
+3. **Tool Binding**: 각 에이전트 노드는 전용 툴 노드를 호출하며, 툴 결과를 받아 다음 상태 결정
+4. **Conditional Routing**: 모든 주요 분기는 dashed edge(조건부)로, 런타임 상태에 따라 동적으로 결정됨

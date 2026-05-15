@@ -1,0 +1,149 @@
+## LangGraph Workflow 상세 분석
+
+이미지의 워크플로우는 **소프트웨어 엔지니어링 멀티에이전트 시스템**으로, 중앙 오케스트레이터가 전문 에이전트들에게 작업을 위임하는 구조다.
+
+---
+
+### 노드 구성
+
+| 노드 | 종류 | 역할 |
+|---|---|---|
+| `start` | 진입점 (oval) | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 Agent | 전체 흐름 제어 및 라우팅 |
+| `CodeAnalyzer` | 분석 Agent | 코드 분석 담당 |
+| `Editor` | 편집 Agent | 파일 수정 및 테스트 담당 |
+| `swe_tool` | 도구 노드 | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | 도구 노드 | Editor 전용 편집 도구 |
+| `test_tool` | 도구 노드 | Editor 전용 테스트 도구 |
+| `end` | 종료점 (filled oval) | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 (Solid vs Dashed)
+
+- **Solid arrow**: 결정론적(무조건) 전이
+- **Dashed arrow**: 조건부(conditional) 전이
+
+---
+
+### 상세 흐름
+
+#### 1. 워크플로우 시작
+```
+start → SoftwareEngineer  (solid, 무조건 진입)
+```
+워크플로우가 시작되면 항상 `SoftwareEngineer`로 진입한다.
+
+---
+
+#### 2. SoftwareEngineer (중앙 오케스트레이터)
+
+`SoftwareEngineer`는 현재 상태를 판단하여 4가지 경로 중 하나를 선택한다:
+
+```
+SoftwareEngineer --[analyze_code]--> CodeAnalyzer   # 코드 분석이 필요할 때
+SoftwareEngineer --[edit_file]-----> Editor          # 파일 수정이 필요할 때
+SoftwareEngineer -------------------> swe_tool       # 자체 도구 사용이 필요할 때
+SoftwareEngineer --[done]-----------> end            # 작업 완료 시
+```
+
+이 노드가 워크플로우의 **두뇌** 역할을 한다. LLM이 다음 액션을 결정하며, 루프의 중심점이다.
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --[analyze_code]--> CodeAnalyzer
+                                          │
+                                          ├──[tool call]──> code_analysis_tool
+                                          │                       │
+                                          │<──[tool result]────────┘
+                                          │
+                                          ├──[continue]──> CodeAnalyzer (자기 루프)
+                                          │
+                                          └──[done]──> SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 호출하여 코드를 분석한다.
+- 분석이 충분하지 않으면 `continue`로 **자기 자신을 재호출**하며 반복한다.
+- 분석이 완료되면 `done`으로 결과를 `SoftwareEngineer`에게 반환한다.
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --[edit_file]--> Editor
+                                     │
+                                     ├──[tool call]──> code_edit_tool
+                                     │                      │
+                                     │<──[tool result]───────┘
+                                     │
+                                     ├──[tool call]──> test_tool
+                                     │                      │
+                                     │<──[tool result]───────┘
+                                     │
+                                     ├──[continue]──> CodeAnalyzer  # 재분석 필요 시
+                                     │
+                                     └──[done]──> SoftwareEngineer
+```
+
+- `Editor`는 `code_edit_tool`로 파일을 수정하고, `test_tool`로 테스트를 실행한다.
+- 수정 후 재분석이 필요하면 `continue`로 **CodeAnalyzer에게 위임**한다 (SoftwareEngineer를 거치지 않는 직접 경로).
+- 편집이 완료되면 `done`으로 `SoftwareEngineer`에게 반환한다.
+
+---
+
+#### 5. swe_tool 경로
+
+```
+SoftwareEngineer ──> swe_tool
+                          │
+                     [continue]
+                          │
+                          └──> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 사용하는 도구 노드다.
+- 실행 후 `continue`로 `SoftwareEngineer`로 되돌아와 다음 판단을 이어간다.
+
+---
+
+#### 6. 워크플로우 종료
+
+```
+SoftwareEngineer --[done]--> end
+```
+
+모든 작업이 완료되었다고 판단하면 `end`로 전이하며 워크플로우가 종료된다.
+
+---
+
+### 전체 실행 시나리오 예시
+
+```
+start
+  → SoftwareEngineer (작업 파악)
+    → [analyze_code] CodeAnalyzer
+        → code_analysis_tool (분석 실행)
+        → [continue] CodeAnalyzer (추가 분석)
+        → code_analysis_tool
+        → [done] SoftwareEngineer (분석 결과 반환)
+    → [edit_file] Editor
+        → code_edit_tool (파일 수정)
+        → test_tool (테스트 실행)
+        → [continue] CodeAnalyzer (수정 후 재검증)
+        → [done] SoftwareEngineer (편집 완료)
+    → [done] end
+```
+
+---
+
+### 아키텍처 특징 요약
+
+1. **SoftwareEngineer가 허브**: 모든 주요 결정이 이 노드에서 이루어지는 Supervisor 패턴
+2. **에이전트 내부 루프**: CodeAnalyzer와 Editor 모두 독립적인 tool-call 루프를 가짐
+3. **에이전트 간 직접 연결**: Editor → CodeAnalyzer 직접 경로로 SoftwareEngineer 우회 가능 (효율성)
+4. **도구 분리**: 각 에이전트가 전용 도구만 사용하여 역할 경계가 명확함

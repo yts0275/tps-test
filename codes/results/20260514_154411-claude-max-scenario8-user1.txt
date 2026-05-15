@@ -1,0 +1,116 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 서술합니다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 분석
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `start` | Entry Point | 워크플로우 진입점 |
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 담당 |
+| `Editor` | Agent Node | 코드 편집 담당 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Tool Node | Editor 전용 편집 도구 |
+| `test_tool` | Tool Node | Editor 전용 테스트 도구 |
+| `end` | Terminal Node | 워크플로우 종료점 |
+
+---
+
+### 전체 흐름
+
+```
+start
+  └─► SoftwareEngineer  ◄──────────────────────────────┐
+         │                                               │
+         ├─[analyze_code]──► CodeAnalyzer               │
+         │                      │  ↕ (tool call)         │
+         │                   code_analysis_tool          │
+         │                      │                        │
+         │                      ├─[done]──► SoftwareEngineer
+         │                      │
+         │                      └─[continue]──► Editor
+         │                                       │  ↕ (tool calls)
+         ├─[edit_file]──────► Editor          code_edit_tool
+         │                      │             test_tool
+         │                      └─[done]──────────────────┘
+         │
+         ├─────────────────► swe_tool
+         │                      └─[continue]──► SoftwareEngineer
+         │
+         └─[continue]──────► end
+```
+
+---
+
+### 각 노드별 상세 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우가 시작되면 **SoftwareEngineer**가 첫 번째로 실행됨
+- 전체 작업의 진입점이자 중앙 의사결정 허브
+
+---
+
+#### 2. `SoftwareEngineer` (중앙 오케스트레이터)
+작업 내용을 판단해 아래 4가지 경로 중 하나를 선택:
+
+| 조건 | 다음 노드 | 엣지 타입 |
+|------|----------|----------|
+| 코드 분석이 필요할 때 | `CodeAnalyzer` | `analyze_code` (점선) |
+| 파일 편집이 필요할 때 | `Editor` | `edit_file` (실선) |
+| 자체 도구 사용이 필요할 때 | `swe_tool` | 직접 호출 (실선) |
+| 작업이 완료됐을 때 | `end` | `continue` (점선) |
+
+---
+
+#### 3. `CodeAnalyzer` 서브그래프
+```
+CodeAnalyzer
+  ├─►  code_analysis_tool  (도구 호출)
+  │       └─► CodeAnalyzer (결과 반환)
+  │
+  ├─[done]──────► SoftwareEngineer   (분석 완료, 오케스트레이터에게 반환)
+  └─[continue]──► Editor             (분석 후 바로 편집으로 이어질 때)
+```
+- `code_analysis_tool`과의 **양방향 점선**은 ReAct 패턴의 반복적 도구 호출을 나타냄
+- 분석 결과에 따라 다시 `SoftwareEngineer`에게 제어권을 넘기거나, 직접 `Editor`로 전달
+
+---
+
+#### 4. `Editor` 서브그래프
+```
+Editor
+  ├─►  code_edit_tool   (파일 수정 도구 호출)
+  │       └─► Editor (결과 반환)
+  │
+  ├─►  test_tool        (테스트 실행 도구 호출)
+  │       └─► Editor (결과 반환)
+  │
+  └─[done]──────► SoftwareEngineer   (편집/테스트 완료 후 반환)
+```
+- `code_edit_tool`, `test_tool` 둘 다 **양방향 점선**으로 반복 호출 가능
+- 편집 → 테스트 → 재편집의 내부 루프가 가능한 구조
+- 완료 시 `done`으로 `SoftwareEngineer`에게 제어권 반환
+
+---
+
+#### 5. `swe_tool`
+```
+swe_tool
+  └─[continue]──► SoftwareEngineer  (도구 실행 후 결과 반환)
+```
+- `SoftwareEngineer`가 직접 사용하는 단일 도구
+- 실행 후 항상 `continue`로 `SoftwareEngineer`에게 복귀
+
+---
+
+### 핵심 패턴 요약
+
+1. **Hub-and-Spoke 구조**: `SoftwareEngineer`가 중앙 허브로서 모든 서브에이전트를 조율
+2. **ReAct 루프**: 각 Agent Node(`CodeAnalyzer`, `Editor`)는 Tool과 양방향 반복 호출 가능
+3. **다단계 위임**: `SoftwareEngineer` → `CodeAnalyzer` → `Editor` 순의 순차 위임도 가능 (`continue` 엣지)
+4. **조기 종료 방지**: 모든 서브에이전트는 작업 완료 후 반드시 `SoftwareEngineer`로 복귀하고, 최종 판단은 항상 `SoftwareEngineer`가 담당
+5. **단일 출구**: `end`로의 전환은 `SoftwareEngineer`만 수행 가능

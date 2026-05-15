@@ -1,0 +1,78 @@
+파일 쓰기 권한이 없어서, 코드를 직접 보여드립니다.
+
+---
+
+## 퀵소트 구현 (Python)
+
+### 방식 1 — 새 리스트 반환 (간결한 버전)
+
+```python
+def quicksort(arr):                                      # 퀵소트 함수 정의: 정렬할 리스트를 인자로 받음
+    if len(arr) <= 1:                                    # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                                       # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                           # 피벗: 리스트 중간 인덱스의 값 선택
+    left = [x for x in arr if x < pivot]                # 왼쪽 파티션: 피벗보다 작은 요소 모음
+    middle = [x for x in arr if x == pivot]             # 중간 파티션: 피벗과 같은 요소 모음 (중복 처리)
+    right = [x for x in arr if x > pivot]               # 오른쪽 파티션: 피벗보다 큰 요소 모음
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽 재귀정렬 + 피벗 + 오른쪽 재귀정렬 합쳐서 반환
+```
+
+---
+
+### 방식 2 — 제자리(In-place) 정렬 (메모리 효율 버전)
+
+```python
+def quicksort_inplace(arr, low, high):                   # 제자리 퀵소트: 추가 메모리 없이 원본 배열 정렬
+    if low < high:                                       # 정렬 범위가 유효할 때만 진행 (low >= high면 종료)
+        pivot_idx = partition(arr, low, high)            # 파티션 수행 후 피벗의 최종 위치(인덱스) 반환
+        quicksort_inplace(arr, low, pivot_idx - 1)       # 피벗 왼쪽 부분 배열 재귀 정렬
+        quicksort_inplace(arr, pivot_idx + 1, high)      # 피벗 오른쪽 부분 배열 재귀 정렬
+
+
+def partition(arr, low, high):                           # 파티션 함수: 피벗 기준으로 배열을 두 부분으로 나눔
+    pivot = arr[high]                                    # 피벗: 범위의 마지막 요소 선택
+    i = low - 1                                          # i: 피벗보다 작은 요소들의 경계 포인터 (초기값: low-1)
+
+    for j in range(low, high):                           # j: low부터 high-1까지 순회하며 피벗과 비교
+        if arr[j] <= pivot:                              # 현재 요소가 피벗 이하이면 왼쪽 파티션에 속함
+            i += 1                                       # 왼쪽 파티션 경계를 한 칸 오른쪽으로 확장
+            arr[i], arr[j] = arr[j], arr[i]             # 경계 위치와 현재 위치의 요소를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]       # 피벗을 최종 위치(i+1)로 이동
+    return i + 1                                         # 피벗의 최종 인덱스 반환
+
+
+# ── 테스트 ──────────────────────────────────────────
+data = [38, 27, 43, 3, 9, 82, 10]                        # 정렬할 샘플 데이터
+
+print("원본:", data)                                      # 정렬 전 배열 출력
+
+result = quicksort(data)                                  # 새 리스트를 반환하는 방식으로 정렬
+print("퀵소트(새 리스트):", result)                        # 정렬 결과 출력
+
+data2 = [38, 27, 43, 3, 9, 82, 10]                       # in-place 테스트용 복사본
+quicksort_inplace(data2, 0, len(data2) - 1)              # 원본 배열을 직접 정렬
+print("퀵소트(제자리):", data2)                            # 정렬 결과 출력
+```
+
+---
+
+**실행 결과:**
+```
+원본: [38, 27, 43, 3, 9, 82, 10]
+퀵소트(새 리스트): [3, 9, 10, 27, 38, 43, 82]
+퀵소트(제자리): [3, 9, 10, 27, 38, 43, 82]
+```
+
+**두 방식 비교:**
+
+| | 방식 1 (새 리스트) | 방식 2 (제자리) |
+|---|---|---|
+| 가독성 | 높음 | 보통 |
+| 공간 복잡도 | O(n) | O(log n) |
+| 시간 복잡도 | O(n log n) 평균 | O(n log n) 평균 |
+| 실무 적합성 | 교육/학습용 | 대용량 데이터 처리 |
+
+파일로 저장을 원하시면 권한을 허용해 주세요.

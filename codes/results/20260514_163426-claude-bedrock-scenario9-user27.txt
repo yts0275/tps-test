@@ -1,0 +1,111 @@
+## LangGraph Workflow 상세 흐름 분석
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 (Supervisor) |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 에이전트 |
+| `Editor` | Agent Node | 파일 편집 전담 에이전트 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Tool Node | Editor 전용 편집 도구 |
+| `test_tool` | Tool Node | Editor 전용 테스트 도구 |
+
+---
+
+### 전체 흐름
+
+```
+start
+  │
+  ▼
+SoftwareEngineer  ◄────────────────────────────────────┐
+  │                                                     │
+  ├─── analyze_code ──► CodeAnalyzer ◄──── continue ──── code_analysis_tool
+  │                         │                                    ▲
+  │                         │ (tool 호출)                        │
+  │                         └────────────────────────────────────┘
+  │                         │ done
+  │                         └──────────────────────────────────► SoftwareEngineer
+  │
+  ├─── edit_file ──► Editor ◄──── continue ──┬── code_edit_tool
+  │                    │                     └── test_tool
+  │                    │ (tool 호출)
+  │                    └──────────────────────────────────────── (위로 루프)
+  │                    │ done
+  │                    └──────────────────────────────────────► SoftwareEngineer
+  │
+  ├─────────────────► swe_tool
+  │                       │ continue
+  │                       └──────────────────────────────────── SoftwareEngineer (복귀)
+  │
+  └─────────────────► end
+```
+
+---
+
+### 단계별 상세 설명
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우 진입점. 사용자 요청이 **SoftwareEngineer** 노드로 전달된다.
+
+#### 2. `SoftwareEngineer` (Supervisor 판단)
+SoftwareEngineer는 현재 상황을 판단하여 4가지 엣지 중 하나를 선택한다:
+
+| 조건 | 전이 엣지 | 목적지 |
+|------|-----------|--------|
+| 코드 분석이 필요 | `analyze_code` | `CodeAnalyzer` |
+| 파일 수정이 필요 | `edit_file` | `Editor` |
+| 자체 도구 실행 필요 | *(무명)* | `swe_tool` |
+| 작업 완료 | *(무명)* | `end` |
+
+#### 3. `CodeAnalyzer` 서브루프
+```
+SoftwareEngineer ──analyze_code──► CodeAnalyzer
+                                       │
+                              ┌── tool 호출 필요?
+                              │         │ Yes
+                              │    code_analysis_tool
+                              │         │ continue
+                              └────────◄┘
+                                       │ done (분석 완료)
+                                       ▼
+                              SoftwareEngineer
+```
+- `CodeAnalyzer`는 분석 중 `code_analysis_tool`을 반복 호출할 수 있다.
+- `continue` 엣지로 도구 결과를 받아 다시 `CodeAnalyzer`로 복귀한다.
+- 분석이 완료되면 `done` 엣지로 **SoftwareEngineer**에 결과를 반환한다.
+
+#### 4. `Editor` 서브루프
+```
+SoftwareEngineer ──edit_file──► Editor
+                                   │
+                      ┌── tool 호출 필요?
+                      │         │ Yes
+                      │    ┌─── code_edit_tool
+                      │    └─── test_tool
+                      │         │ continue
+                      └────────◄┘
+                                   │ done (편집/테스트 완료)
+                                   ▼
+                          SoftwareEngineer
+```
+- `Editor`는 두 가지 도구(`code_edit_tool`, `test_tool`)를 선택적으로 호출할 수 있다.
+- 두 도구 모두 `continue` 엣지로 `Editor`에 결과를 돌려준다.
+- 편집과 테스트가 완료되면 `done` 엣지로 **SoftwareEngineer**에 결과를 반환한다.
+
+#### 5. `swe_tool` 루프
+- SoftwareEngineer가 직접 도구를 실행할 경우 `swe_tool`로 전이한다.
+- 실행 완료 후 `continue` 엣지로 **SoftwareEngineer**에 복귀한다.
+
+#### 6. `end`
+- SoftwareEngineer가 모든 작업이 완료되었다고 판단하면 `end` 노드로 전이하여 워크플로우를 종료한다.
+
+---
+
+### 설계 패턴 요약
+
+- **Supervisor 패턴**: `SoftwareEngineer`가 중앙에서 모든 에이전트를 조율
+- **ReAct 루프**: 각 에이전트(CodeAnalyzer, Editor)가 도구를 반복 호출하며 `continue` → 에이전트 → 도구 → `continue` 사이클을 형성
+- **계층적 에이전트**: 상위(SoftwareEngineer) → 하위 에이전트(CodeAnalyzer, Editor) → 도구(Tool Node) 3계층 구조

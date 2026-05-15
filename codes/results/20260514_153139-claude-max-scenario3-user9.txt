@@ -1,0 +1,46 @@
+파일 쓰기/실행 권한이 없어 코드를 직접 보여드리겠습니다.
+
+---
+
+```python
+def quicksort(arr, low, high):
+    if low < high:                              # 정렬할 범위가 2개 이상의 요소를 포함할 때만 진행
+        pivot_index = partition(arr, low, high) # 피벗 기준으로 배열을 분할하고 피벗의 최종 위치를 얻음
+        quicksort(arr, low, pivot_index - 1)    # 피벗 왼쪽 부분 배열을 재귀적으로 정렬
+        quicksort(arr, pivot_index + 1, high)   # 피벗 오른쪽 부분 배열을 재귀적으로 정렬
+
+
+def partition(arr, low, high):
+    pivot = arr[high]   # 맨 오른쪽 요소를 피벗으로 선택
+    i = low - 1         # 피벗보다 작은 요소들의 경계를 나타내는 인덱스 (초기값: low 앞)
+
+    for j in range(low, high):               # low부터 high-1까지 순회하며 피벗과 비교
+        if arr[j] <= pivot:                  # 현재 요소가 피벗 이하이면 왼쪽 영역으로 이동
+            i += 1                           # 작은 요소 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]  # 경계 위치와 현재 위치의 요소를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 최종 위치(경계 바로 오른쪽)로 이동
+    return i + 1                                    # 피벗의 최종 인덱스를 반환
+
+
+if __name__ == "__main__":
+    data = [64, 34, 25, 12, 22, 11, 90]    # 정렬할 샘플 배열
+    print("정렬 전:", data)                 # 정렬 전 배열 출력
+    quicksort(data, 0, len(data) - 1)       # 전체 배열에 대해 퀵소트 실행
+    print("정렬 후:", data)                 # 정렬 후 배열 출력
+```
+
+---
+
+**동작 흐름 요약:**
+
+| 함수 | 역할 |
+|---|---|
+| `quicksort(arr, low, high)` | 재귀적으로 분할 정복 수행 |
+| `partition(arr, low, high)` | 피벗을 기준으로 배열을 두 영역으로 분리 |
+
+- **피벗**: `arr[high]` (맨 오른쪽 요소)
+- **시간복잡도**: 평균 O(n log n), 최악 O(n²)
+- **공간복잡도**: O(log n) (재귀 스택)
+
+파일로 저장하려면 권한을 허용해 주시면 `quicksort.py`로 생성하겠습니다.

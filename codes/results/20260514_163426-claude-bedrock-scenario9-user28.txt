@@ -1,0 +1,144 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명합니다.
+
+---
+
+## LangGraph 워크플로우 구조 분석
+
+### 노드 분류
+
+| 분류 | 노드 | 역할 |
+|------|------|------|
+| **진입/종료** | `start`, `end` | 워크플로우 시작·종료 |
+| **Agent 노드** | `SoftwareEngineer`, `CodeAnalyzer`, `Editor` | LLM 기반 추론 에이전트 |
+| **Tool 노드** | `swe_tool`, `code_analysis_tool`, `code_edit_tool`, `test_tool` | 도구 실행 전담 노드 |
+
+### 엣지 표기 규칙
+
+- **실선 화살표** — 에이전트의 조건부 라우팅 결정 (conditional edge)
+- **점선 화살표** — 도구 호출 사이클 (tool call → result return)
+
+---
+
+## 전체 흐름 상세 서술
+
+### 1. `start` → `SoftwareEngineer`
+
+워크플로우가 시작되면 첫 번째로 **SoftwareEngineer** 노드에 진입한다. 이 노드는 전체 작업의 **중앙 오케스트레이터**로, 이후 흐름의 방향을 결정하는 허브 역할을 한다.
+
+---
+
+### 2. `SoftwareEngineer` — 라우팅 허브
+
+SoftwareEngineer는 현재 상태를 판단하여 4가지 경로 중 하나를 선택한다.
+
+| 엣지 라벨 | 목적지 | 의미 |
+|-----------|--------|------|
+| `analyze_code` | → `CodeAnalyzer` | 코드 분석이 필요하다고 판단 |
+| `edit_file` | → `Editor` | 파일 수정이 필요하다고 판단 |
+| *(점선)* | → `swe_tool` | 자체 도구를 직접 호출 |
+| `continue` | → `end` | 작업 완료, 종료 |
+
+> SoftwareEngineer는 작업이 끝날 때까지 CodeAnalyzer 또는 Editor로부터 `done` 신호를 받으며 반복적으로 재진입된다.
+
+---
+
+### 3. `SoftwareEngineer` ↔ `swe_tool` (도구 사이클)
+
+SoftwareEngineer가 자체적으로 도구를 사용해야 할 경우:
+
+```
+SoftwareEngineer --(점선)--> swe_tool --(점선, continue)--> SoftwareEngineer
+```
+
+도구 실행 결과를 받아 다시 SoftwareEngineer로 복귀하여 다음 판단을 이어간다.
+
+---
+
+### 4. `SoftwareEngineer` → `CodeAnalyzer` → 세부 흐름
+
+SoftwareEngineer가 `analyze_code`를 선택하면 **CodeAnalyzer**에 진입한다.
+
+```
+SoftwareEngineer --(analyze_code)--> CodeAnalyzer
+```
+
+**CodeAnalyzer** 내부 흐름:
+
+```
+CodeAnalyzer --(점선)--> code_analysis_tool --(점선)--> CodeAnalyzer
+```
+
+`code_analysis_tool`을 호출하여 코드 분석을 수행하고 결과를 돌려받는 루프를 가진다. 분석이 완료되면 두 가지 경로 중 하나를 선택한다:
+
+| 엣지 라벨 | 목적지 | 의미 |
+|-----------|--------|------|
+| `done` | → `SoftwareEngineer` | 분석 완료, 오케스트레이터로 결과 반환 |
+| `continue` | → `Editor` | 분석 후 즉시 편집 작업으로 연계 |
+
+---
+
+### 5. `SoftwareEngineer` → `Editor` → 세부 흐름
+
+SoftwareEngineer가 `edit_file`을 선택하거나 CodeAnalyzer로부터 `continue`를 받으면 **Editor**에 진입한다.
+
+**Editor** 내부 흐름:
+
+```
+Editor --(점선)--> code_edit_tool --(점선)--> Editor   # 파일 편집
+Editor --(점선)--> test_tool     --(점선)--> Editor   # 테스트 실행
+```
+
+`code_edit_tool`로 파일을 수정하고, `test_tool`로 테스트를 실행하는 각각의 도구 사이클을 가진다. 완료 후 두 가지 경로:
+
+| 엣지 라벨 | 목적지 | 의미 |
+|-----------|--------|------|
+| `done` | → `SoftwareEngineer` | 편집 완료, 오케스트레이터로 반환 |
+| `continue` | → `CodeAnalyzer` | 편집 후 추가 분석이 필요할 때 재분석 요청 |
+
+---
+
+### 6. 반복 순환 구조 (`continue` 루프)
+
+이 워크플로우의 핵심 특징은 **CodeAnalyzer ↔ Editor 사이의 순환**이다:
+
+```
+CodeAnalyzer --(continue)--> Editor --(continue)--> CodeAnalyzer
+```
+
+분석 → 편집 → 재분석 → 재편집을 반복하며 점진적으로 코드 품질을 향상시킨다.
+
+---
+
+### 7. 종료 조건
+
+SoftwareEngineer가 하위 에이전트로부터 `done`을 받은 뒤 전체 작업이 완료됐다고 판단하면 `continue` 라우팅으로 `end` 노드에 도달하며 워크플로우가 종료된다.
+
+---
+
+## 전체 흐름 요약도
+
+```
+start
+  └─► SoftwareEngineer ◄────────────────────────────────────────┐
+         │ analyze_code   │ edit_file   │ swe_tool(점선)  │ continue→end
+         ▼                ▼             ▼                  
+    CodeAnalyzer       Editor        swe_tool             
+    │  │ continue→Editor  │ continue→CodeAnalyzer  │(점선 반환)  
+    │  └──────────────────┘                        │
+    │  code_analysis_tool(점선 사이클)             │
+    │  done→SoftwareEngineer                        │
+    │                                               │
+    Editor: code_edit_tool + test_tool(점선 사이클)  
+    done→SoftwareEngineer ──────────────────────────┘
+```
+
+---
+
+## 설계 의도 요약
+
+| 특징 | 내용 |
+|------|------|
+| **역할 분리** | 분석(CodeAnalyzer)과 편집(Editor)을 전문 에이전트로 분리 |
+| **오케스트레이션** | SoftwareEngineer가 중앙에서 작업 위임 및 완료 판단 |
+| **도구 캡슐화** | 각 에이전트가 전용 tool 노드를 통해서만 외부 작업 수행 |
+| **반복 개선** | analyze ↔ edit 루프를 통해 멈추지 않고 점진적 코드 개선 가능 |

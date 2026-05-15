@@ -1,0 +1,113 @@
+## LangGraph Workflow 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `start` | 진입점 (oval) | 워크플로우 시작 |
+| `SoftwareEngineer` | 에이전트 노드 | 중앙 오케스트레이터 (라우팅 결정) |
+| `CodeAnalyzer` | 에이전트 노드 | 코드 분석 전담 |
+| `Editor` | 에이전트 노드 | 코드 편집 및 테스트 전담 |
+| `swe_tool` | 도구 노드 | SoftwareEngineer 직접 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer 전용 분석 도구 |
+| `code_edit_tool` | 도구 노드 | Editor 전용 편집 도구 |
+| `test_tool` | 도구 노드 | Editor 전용 테스트 도구 |
+| `end` | 종료점 (filled oval) | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 상세
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer`로 진입.
+
+---
+
+#### 2. SoftwareEngineer (오케스트레이터)
+
+`SoftwareEngineer`는 조건부 라우팅의 핵심 허브. 현재 상태를 평가하여 4가지 경로 중 하나를 선택:
+
+| 조건 | 목적지 | 레이블 |
+|------|--------|--------|
+| 코드 분석이 필요한 경우 | `CodeAnalyzer` | `analyze_code` |
+| 파일 편집이 필요한 경우 | `Editor` | `edit_file` |
+| 직접 도구 사용이 필요한 경우 | `swe_tool` | (직접 연결) |
+| 작업이 완료된 경우 | `end` | `continue` |
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                       ↕ (dashed)
+                               code_analysis_tool
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 반복 호출하여 코드를 분석 (점선 = 도구 호출/응답 루프)
+- 분석 완료 후 2가지 경로:
+  - `done` → `SoftwareEngineer` (분석 결과 보고, 다음 결정 위임)
+  - `continue` → `Editor` (분석 결과를 즉시 편집 단계로 전달)
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+                                   ↕ (dashed)
+                          code_edit_tool / test_tool
+```
+
+- `Editor`는 `code_edit_tool`로 코드를 수정하고 `test_tool`로 검증을 수행 (도구 호출/응답 루프)
+- 완료 후 2가지 경로:
+  - `done` → `SoftwareEngineer` (편집 결과 보고, 다음 결정 위임)
+  - `continue` → `CodeAnalyzer` (편집 후 재분석 필요 시)
+
+---
+
+#### 5. swe_tool 루프
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 도구를 실행하는 단순 루프
+- 실행 후 `continue` 레이블로 다시 `SoftwareEngineer`로 복귀
+
+---
+
+### 전체 제어 흐름 요약
+
+```
+start
+  └─> SoftwareEngineer ──────────────────────────────> end
+          │                                  ↑
+          │ analyze_code      done           │ continue
+          ▼         ──────────────▶          │
+      CodeAnalyzer                           │
+          │  ↕ code_analysis_tool            │
+          │                                  │
+          │ continue     done                │
+          ├──────────────────────────────────┘
+          ▼         ◀──────────────
+        Editor
+          │  ↕ code_edit_tool
+          │  ↕ test_tool
+          │
+          └── continue ──> CodeAnalyzer (재분석 루프)
+```
+
+---
+
+### 핵심 설계 패턴
+
+1. **계층적 오케스트레이션**: `SoftwareEngineer`가 항상 최상위 의사결정을 담당하며 전문 에이전트에 위임
+2. **에이전트 간 직접 전환**: `CodeAnalyzer ↔ Editor` 사이의 `continue` 엣지로 `SoftwareEngineer`를 거치지 않는 단축 경로 존재 → 왕복 지연 최소화
+3. **도구 루프 캡슐화**: 각 에이전트가 자신의 도구를 내부적으로 반복 호출하고, 완료 시에만 상위로 결과를 전달
+4. **명시적 종료 조건**: `SoftwareEngineer`가 작업 완료를 판단할 때만 `end`로 라우팅 — 중간 에이전트는 직접 종료 불가

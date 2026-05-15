@@ -1,0 +1,105 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 노드 구성 요약
+
+| 노드 | 유형 | 역할 |
+|------|------|------|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 | 작업 분석 후 라우팅 결정 |
+| `CodeAnalyzer` | 에이전트 | 코드 분석 전담 |
+| `Editor` | 에이전트 | 코드 편집/테스트 전담 |
+| `swe_tool` | 도구 노드 | SE 직접 호출 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer가 사용하는 분석 도구 |
+| `code_edit_tool` | 도구 노드 | Editor가 사용하는 편집 도구 |
+| `test_tool` | 도구 노드 | Editor가 사용하는 테스트 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 전체 흐름
+
+```
+start
+  │
+  ▼
+SoftwareEngineer  ◄──────────────────────────────────────┐
+  │                                                       │
+  ├─[analyze_code]──► CodeAnalyzer ◄──[continue]──────┐  │
+  │                        │  ▲                        │  │
+  │                        │  │                        │  │
+  │                   code_analysis_tool             [done]
+  │                        │                            │  │
+  │                   [continue]──────────────────► Editor│
+  │                                                    │  │
+  ├─[edit_file]────────────────────────────────────────┘  │
+  │                        │  ▲                           │
+  │               code_edit_tool / test_tool              │
+  │                                                  [done]┘
+  ├─[swe_tool]──► swe_tool
+  │
+  └─[continue]──► end
+```
+
+---
+
+### 단계별 상세 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입
+- 이 노드가 **슈퍼바이저 역할**을 담당하며, 전체 작업을 이해하고 다음 행동을 결정
+
+#### 2. `SoftwareEngineer` 라우팅 (조건부 엣지)
+`SoftwareEngineer`는 현재 상태를 판단해 4가지 중 하나로 분기:
+
+| 조건 | 엣지 레이블 | 목적지 |
+|------|------------|--------|
+| 코드 이해/분석 필요 | `analyze_code` | `CodeAnalyzer` |
+| 코드 수정 필요 | `edit_file` | `Editor` |
+| SE 전용 도구 필요 | (직접 호출) | `swe_tool` |
+| 작업 완료 | `continue` | `end` |
+
+#### 3. `CodeAnalyzer` 서브루프
+```
+CodeAnalyzer
+  ├── code_analysis_tool 호출 → 결과 반환 → CodeAnalyzer (반복 가능)
+  ├── [done] → SoftwareEngineer  (분석 완료, 상위로 복귀)
+  └── [continue] → Editor        (분석 결과 기반으로 편집 필요 시 직접 전달)
+```
+- `code_analysis_tool`을 반복 호출하며 코드 구조, 버그, 패턴 등을 분석
+- 분석만으로 충분하면 `done`으로 `SoftwareEngineer`에 복귀
+- 분석 후 즉시 편집이 필요하면 `continue`로 `Editor`에 직접 전달 (SoftwareEngineer 우회)
+
+#### 4. `Editor` 서브루프
+```
+Editor
+  ├── code_edit_tool 호출 → 결과 반환 → Editor  (편집 작업)
+  ├── test_tool 호출 → 결과 반환 → Editor        (편집 후 테스트)
+  ├── [done] → SoftwareEngineer  (편집/테스트 완료, 상위로 복귀)
+  └── [continue] → CodeAnalyzer  (편집 후 재분석 필요 시 직접 전달)
+```
+- `code_edit_tool`로 파일 수정, `test_tool`로 변경 사항 검증
+- 작업 완료 시 `done`으로 `SoftwareEngineer`에 복귀
+- 편집 결과를 재분석해야 할 경우 `continue`로 `CodeAnalyzer`에 직접 전달
+
+#### 5. `CodeAnalyzer` ↔ `Editor` 양방향 루프
+- 두 에이전트는 `SoftwareEngineer`를 거치지 않고 **직접 `continue` 엣지로 상호 전달** 가능
+- 이를 통해 분석 → 편집 → 재분석 → 재편집 사이클을 오케스트레이터 없이 효율적으로 수행
+
+#### 6. `swe_tool`
+- `SoftwareEngineer`가 직접 호출하는 전용 도구
+- 결과를 받아 다시 `SoftwareEngineer`로 복귀 (별도의 서브루프 없음)
+
+#### 7. 종료
+- `SoftwareEngineer`가 모든 작업이 완료되었다고 판단하면 `continue` 엣지로 `end` 노드 진입
+- 워크플로우 종료
+
+---
+
+### 설계 특징 요약
+
+- **계층적 구조**: `SoftwareEngineer`가 최상위 라우터, `CodeAnalyzer`·`Editor`가 전문 하위 에이전트
+- **에이전트 간 직접 통신**: `continue` 엣지를 통해 불필요한 상위 노드 경유 없이 효율적 협업
+- **도구 캡슐화**: 각 에이전트는 자신에게 할당된 도구만 사용 (관심사 분리)
+- **반복 실행 가능**: 각 에이전트 내부에서 도구를 여러 번 호출하는 루프 구조 지원

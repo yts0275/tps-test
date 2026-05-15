@@ -1,0 +1,117 @@
+이미지를 분석하여 워크플로우의 노드와 흐름을 상세히 서술합니다.
+
+---
+
+## LangGraph 워크플로우 상세 분석
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `start` | Entry Point | 워크플로우 진입점 |
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 에이전트 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 서브 에이전트 |
+| `Editor` | Agent Node | 파일 편집 전담 서브 에이전트 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | 코드 분석 도구 |
+| `code_edit_tool` | Tool Node | 코드 편집 도구 |
+| `test_tool` | Tool Node | 테스트 실행 도구 |
+| `end` | Terminal Node | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 (실선 = 에이전트 라우팅, 점선 = 도구 호출)
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 즉시 `SoftwareEngineer`로 제어권이 넘어간다.
+
+---
+
+#### 2. SoftwareEngineer (중앙 오케스트레이터)
+
+`SoftwareEngineer`는 상황에 따라 4가지 분기를 가진다:
+
+```
+SoftwareEngineer
+  ├─[analyze_code]──→ CodeAnalyzer     # 코드 분석이 필요할 때
+  ├─[edit_file]────→ Editor            # 파일 수정이 필요할 때
+  ├─[점선]──────────→ swe_tool         # 직접 SWE 도구 사용
+  └─[continue]─────→ end              # 모든 작업 완료 시 종료
+```
+
+- **`analyze_code`**: 코드를 분석해야 할 때 `CodeAnalyzer`에게 위임
+- **`edit_file`**: 파일 편집이 필요할 때 `Editor`에게 위임
+- **`swe_tool`**: 서브 에이전트 위임 없이 직접 도구 사용 (점선)
+- **`continue`**: 작업이 완전히 끝났을 때 `end`로 종료
+
+---
+
+#### 3. CodeAnalyzer 서브 에이전트 루프
+
+```
+CodeAnalyzer
+  ├─[점선/continue]──→ code_analysis_tool  # 코드 분석 도구 호출
+  ├─[점선/continue]──→ code_edit_tool      # 코드 편집 도구 호출
+  │
+  │  (도구 실행 완료 후 결과를 받아 continue 루프)
+  │
+  └─[done]──────────→ SoftwareEngineer    # 분석 완료 후 복귀
+```
+
+- `CodeAnalyzer`는 **`code_analysis_tool`** 과 **`code_edit_tool`** 두 가지 도구에 접근 가능
+- 분석 작업이 완료될 때까지 도구 호출 → 결과 수신의 `continue` 루프를 반복
+- 모든 분석이 끝나면 `done` 엣지로 **`SoftwareEngineer`에게 제어권 반환**
+
+---
+
+#### 4. Editor 서브 에이전트 루프
+
+```
+Editor
+  ├─[점선/continue]──→ code_edit_tool  # 파일 편집 도구 호출
+  ├─[점선/continue]──→ test_tool       # 테스트 실행 도구 호출
+  │
+  │  (도구 실행 완료 후 결과를 받아 continue 루프)
+  │
+  └─[done]──────────→ SoftwareEngineer    # 편집 완료 후 복귀
+```
+
+- `Editor`는 **`code_edit_tool`** 과 **`test_tool`** 두 가지 도구에 접근 가능
+- 편집 → 테스트 → (필요시 재편집)의 `continue` 루프를 반복
+- 편집 작업이 완료되면 `done` 엣지로 **`SoftwareEngineer`에게 제어권 반환**
+
+---
+
+### 전체 실행 시나리오 예시
+
+```
+start
+  └→ SoftwareEngineer (태스크 수신, 계획 수립)
+        │
+        ├─[analyze_code]→ CodeAnalyzer
+        │                    ├→ code_analysis_tool (분석 실행)
+        │                    ├→ code_edit_tool (필요 시 소규모 수정)
+        │                    └─[done]→ SoftwareEngineer (분석 결과 보고)
+        │
+        ├─[edit_file]──→ Editor
+        │                    ├→ code_edit_tool (코드 수정)
+        │                    ├→ test_tool (테스트 실행)
+        │                    ├→ code_edit_tool (테스트 실패 시 재수정)
+        │                    └─[done]→ SoftwareEngineer (편집 완료 보고)
+        │
+        └─[continue]───→ end (모든 작업 완료)
+```
+
+---
+
+### 설계 특징 요약
+
+| 특징 | 설명 |
+|------|------|
+| **계층적 멀티 에이전트** | `SoftwareEngineer`가 상위 오케스트레이터, `CodeAnalyzer`/`Editor`가 하위 에이전트 |
+| **도구 격리** | 각 서브 에이전트는 담당 도구만 사용 (역할 분리) |
+| **내부 루프 패턴** | 서브 에이전트는 작업 완료까지 `continue` 루프, 완료 시 `done`으로 복귀 |
+| **단일 종료점** | `SoftwareEngineer`만 `end`로 직접 전환 가능 (중앙 집중식 종료 제어) |

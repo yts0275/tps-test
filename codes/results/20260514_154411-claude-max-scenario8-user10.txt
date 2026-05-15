@@ -1,0 +1,139 @@
+## LangGraph 워크플로우 노드 흐름 상세 서술
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer** 를 중앙 오케스트레이터로 두고, 두 개의 전문 서브에이전트(`CodeAnalyzer`, `Editor`)와 직접 도구(`swe_tool`)를 라우팅하는 **계층적 멀티에이전트 구조**다.
+
+---
+
+### 노드 목록
+
+| 노드 | 유형 | 역할 |
+|---|---|---|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 에이전트 | 작업 분류 및 라우팅 |
+| `CodeAnalyzer` | 서브에이전트 | 코드 분석 전담 |
+| `Editor` | 서브에이전트 | 코드 편집 및 테스트 전담 |
+| `swe_tool` | 도구 노드 | 범용 SWE 도구 직접 실행 |
+| `code_analysis_tool` | 도구 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 도구 노드 | 코드 편집 도구 |
+| `test_tool` | 도구 노드 | 테스트 실행 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 상세
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입한다. 이 노드가 이후 모든 분기의 기준점이다.
+
+---
+
+#### 2. SoftwareEngineer → 조건부 라우팅 (점선 엣지)
+
+`SoftwareEngineer`는 현재 작업의 성격을 판단해 4가지 경로 중 하나를 선택한다:
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer   # 코드 분석이 필요할 때
+SoftwareEngineer --edit_file-----> Editor          # 코드 편집/테스트가 필요할 때
+SoftwareEngineer ----------------> swe_tool        # 범용 SWE 도구 직접 호출 시
+SoftwareEngineer --continue------> end             # 작업이 완료되었을 때
+```
+
+모든 엣지가 **점선(dashed)** 으로 표시되어 있어, 이는 **조건부 엣지(conditional edge)** 임을 나타낸다. 즉, LLM 에이전트의 판단에 따라 동적으로 경로가 결정된다.
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+`CodeAnalyzer` 노드는 코드 분석 도구를 반복 호출할 수 있는 **내부 루프**를 가진다:
+
+```
+CodeAnalyzer → code_analysis_tool   # 분석 도구 호출
+code_analysis_tool --continue--> CodeAnalyzer   # 도구 결과를 받아 다시 에이전트로
+```
+
+- `CodeAnalyzer`가 분석 작업을 수행하다가 도구 호출이 필요하면 `code_analysis_tool`로 이동
+- 도구 실행 후 결과를 `continue` 엣지를 통해 `CodeAnalyzer`로 반환
+- 이 루프는 분석이 완료될 때까지 반복된다
+- 분석 완료 시 `done` 엣지를 통해 `SoftwareEngineer`로 제어권 반환:
+
+```
+CodeAnalyzer --done--> SoftwareEngineer
+```
+
+---
+
+#### 4. Editor 서브루프
+
+`Editor` 노드는 **두 개의 도구**(`code_edit_tool`, `test_tool`)를 사용할 수 있는 더 복잡한 내부 루프를 가진다:
+
+```
+Editor → code_edit_tool     # 코드 편집 도구 호출
+Editor → test_tool          # 테스트 실행 도구 호출
+
+code_edit_tool --continue--> Editor   # 편집 결과 반환
+test_tool      --continue--> Editor   # 테스트 결과 반환
+```
+
+- `Editor`는 편집 작업과 테스트 실행을 번갈아 수행할 수 있다 (예: 코드 수정 → 테스트 → 실패 → 재수정 패턴)
+- 각 도구 노드는 작업 완료 후 `continue`를 통해 `Editor`로 결과를 반환
+- 편집 및 테스트가 모두 완료되면 `done` 엣지로 `SoftwareEngineer`에 제어권 반환:
+
+```
+Editor --done--> SoftwareEngineer
+```
+
+---
+
+#### 5. swe_tool 흐름
+
+`swe_tool`은 서브에이전트 없이 `SoftwareEngineer`가 직접 도구를 호출하는 경우다:
+
+```
+SoftwareEngineer → swe_tool
+swe_tool --continue--> SoftwareEngineer
+```
+
+도구 실행 결과를 받아 다시 `SoftwareEngineer`로 돌아와 다음 행동을 결정한다.
+
+---
+
+#### 6. 종료 흐름
+
+```
+SoftwareEngineer --continue--> end
+```
+
+`SoftwareEngineer`가 작업이 완전히 완료되었다고 판단하면 `end` 노드로 라우팅해 워크플로우를 종료한다.
+
+---
+
+### 전체 흐름 시나리오 예시
+
+```
+start
+  → SoftwareEngineer (작업 수신 및 분석)
+    → CodeAnalyzer (코드 파악 필요)
+      ↔ code_analysis_tool (반복 호출)
+    → SoftwareEngineer (분석 결과 수신)
+    → Editor (수정 작업 지시)
+      ↔ code_edit_tool (코드 수정)
+      ↔ test_tool (테스트 검증)
+    → SoftwareEngineer (수정 완료 확인)
+    → end
+```
+
+---
+
+### 핵심 설계 특징
+
+1. **Hub-and-Spoke 패턴**: `SoftwareEngineer`가 허브로서 모든 서브에이전트의 진입/반환 지점
+2. **Tool-calling 루프**: 각 서브에이전트는 필요한 도구를 반복 호출하며 작업을 완료하는 ReAct 패턴
+3. **조건부 라우팅**: 모든 분기는 LLM 판단 기반의 동적 라우팅 (점선 엣지)
+4. **관심사 분리**: 분석(`CodeAnalyzer`)과 편집(`Editor`)을 명확히 분리하여 각 에이전트의 역할 집중

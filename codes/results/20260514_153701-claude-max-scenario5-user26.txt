@@ -1,0 +1,36 @@
+파일 쓰기 권한이 필요합니다. 코드를 먼저 보여드리겠습니다.
+
+```python
+def quicksort(arr):                          # 퀵소트 함수 정의 (정렬할 리스트를 인자로 받음)
+    if len(arr) <= 1:                        # 리스트 길이가 0 또는 1이면 이미 정렬된 상태
+        return arr                           # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]              # 리스트 중간 인덱스 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]   # 피벗보다 작은 요소들을 왼쪽 리스트에 수집
+    middle = [x for x in arr if x == pivot] # 피벗과 같은 요소들을 중간 리스트에 수집 (중복 처리)
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소들을 오른쪽 리스트에 수집
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽 재귀 + 피벗 + 오른쪽 재귀로 합쳐서 반환
+
+
+if __name__ == "__main__":                  # 이 파일을 직접 실행할 때만 아래 코드 동작
+    sample = [3, 6, 8, 10, 1, 2, 1]        # 정렬할 예시 리스트 정의
+    print("정렬 전:", sample)               # 정렬 전 리스트 출력
+    result = quicksort(sample)              # 퀵소트 함수 호출하여 정렬 수행
+    print("정렬 후:", result)               # 정렬 후 결과 리스트 출력
+```
+
+**동작 방식:**
+
+1. **피벗 선택** — 배열 중간 값을 피벗으로 선택
+2. **분할** — 피벗보다 작은/같은/큰 세 그룹으로 나눔
+3. **재귀** — 작은 그룹과 큰 그룹을 각각 재귀 호출
+4. **병합** — `left + middle + right` 순서로 합쳐서 반환
+
+실행 예시:
+```
+정렬 전: [3, 6, 8, 10, 1, 2, 1]
+정렬 후: [1, 1, 2, 3, 6, 8, 10]
+```
+
+`quicksort.py`로 저장할까요?

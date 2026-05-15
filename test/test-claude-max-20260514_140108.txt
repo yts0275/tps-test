@@ -1,0 +1,35 @@
+============================================================
+Claude Code (Max 플랜) 성능 테스트
+시작: 2026-05-14 14:01:08.914541
+============================================================
+
+[▶] scenario1 실행 중...
+[!] scenario1 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario2 실행 중...
+[!] scenario2 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario3 실행 중...
+[!] scenario3 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario4 실행 중...
+[!] scenario4 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario5 실행 중...
+[!] scenario5 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario6 실행 중...
+[!] scenario6 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario7 실행 중...
+[!] scenario7 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario8 실행 중...
+[!] scenario8 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+[▶] scenario9 실행 중...
+[!] scenario9 예외: 'utf-8' codec can't decode byte 0xc7 in position 71: invalid continuation byte
+
+============================================================
+전체 완료  총 소요: 767.20초
+============================================================

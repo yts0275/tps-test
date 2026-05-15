@@ -1,0 +1,120 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명한다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 분석
+
+### 노드 구성
+
+| 노드 | 유형 | 역할 |
+|------|------|------|
+| `start` | Entry Point | 워크플로우 진입점 |
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 에이전트 |
+| `Editor` | Agent Node | 코드 편집 전담 에이전트 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | CodeAnalyzer 전용 도구 |
+| `code_edit_tool` | Tool Node | Editor 전용 편집 도구 |
+| `test_tool` | Tool Node | Editor 전용 테스트 도구 |
+| `end` | Exit Point | 워크플로우 종료 |
+
+---
+
+### 엣지 흐름 상세
+
+#### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입한다.
+
+---
+
+#### 2. SoftwareEngineer (오케스트레이터)
+
+`SoftwareEngineer`는 전체 흐름의 **중심 분기점**으로, 상황에 따라 4가지 경로 중 하나를 선택한다.
+
+```
+SoftwareEngineer ──analyze_code──→ CodeAnalyzer
+SoftwareEngineer ──edit_file──────→ Editor
+SoftwareEngineer ─────────────────→ swe_tool
+SoftwareEngineer ─────────────────→ end
+```
+
+| 조건 | 다음 노드 | 의미 |
+|------|----------|------|
+| `analyze_code` | CodeAnalyzer | 코드 분석이 필요하다고 판단 |
+| `edit_file` | Editor | 코드 수정이 필요하다고 판단 |
+| (tool call) | swe_tool | SoftwareEngineer 자체가 도구 호출 |
+| (task done) | end | 모든 작업이 완료됨 |
+
+---
+
+#### 3. CodeAnalyzer 서브그래프
+
+`CodeAnalyzer`는 코드 분석 작업을 수행하며, `code_analysis_tool`을 반복 호출할 수 있다.
+
+```
+CodeAnalyzer ⟷ code_analysis_tool   (도구 호출 ↔ 결과 반환, 반복 가능)
+
+CodeAnalyzer ──done──────────→ SoftwareEngineer   (분석 완료, 결과 보고)
+CodeAnalyzer ──continue──────→ Editor             (분석 후 직접 편집으로 전환)
+```
+
+- 분석 중 도구(`code_analysis_tool`)를 여러 번 호출할 수 있다.
+- 분석이 완료되면 `done` 엣지로 `SoftwareEngineer`에 결과를 반환한다.
+- 분석 결과에 따라 `continue` 엣지로 바로 `Editor`로 넘어갈 수도 있다.
+
+---
+
+#### 4. Editor 서브그래프
+
+`Editor`는 코드 수정 및 테스트를 담당하며, 두 가지 도구를 활용한다.
+
+```
+Editor ⟷ code_edit_tool   (편집 도구 호출 ↔ 결과 반환, 반복 가능)
+Editor ⟷ test_tool        (테스트 도구 호출 ↔ 결과 반환, 반복 가능)
+
+Editor ──done──────────→ SoftwareEngineer   (편집 완료, 결과 보고)
+Editor ──continue──────→ CodeAnalyzer       (편집 후 재분석 필요)
+```
+
+- 편집(`code_edit_tool`)과 테스트(`test_tool`)를 반복 수행할 수 있다.
+- 완료 시 `done` 엣지로 `SoftwareEngineer`에 결과를 반환한다.
+- 테스트 실패 등으로 추가 분석이 필요하면 `continue` 엣지로 `CodeAnalyzer`로 역전환한다.
+
+---
+
+#### 5. swe_tool 서브그래프
+
+```
+SoftwareEngineer → swe_tool ──continue──→ SoftwareEngineer
+```
+
+`SoftwareEngineer`가 직접 도구를 호출하는 경로로, 도구 실행 완료 후 `continue` 엣지로 `SoftwareEngineer`에 결과를 반환한다.
+
+---
+
+### 전체 실행 시나리오 예시
+
+```
+start
+  → SoftwareEngineer  (작업 분석, analyze_code 결정)
+  → CodeAnalyzer      (code_analysis_tool 반복 호출)
+  → SoftwareEngineer  (done: 분석 결과 수신, edit_file 결정)
+  → Editor            (code_edit_tool로 수정 → test_tool로 테스트)
+  → CodeAnalyzer      (continue: 테스트 실패 → 재분석)
+  → Editor            (done: 재분석 후 재편집)
+  → SoftwareEngineer  (done: 최종 결과 수신, 완료 판단)
+  → end
+```
+
+---
+
+### 설계 패턴 요약
+
+- **SoftwareEngineer가 오케스트레이터**: 모든 서브에이전트의 진입/종료를 통제하는 중앙 관리자 역할
+- **CodeAnalyzer ↔ Editor 순환 가능**: `continue` 엣지를 통해 분석→편집→재분석 루프를 형성, 코드 품질이 충족될 때까지 반복
+- **각 에이전트는 독립 도구 세트 보유**: 역할 분리(SRP)가 명확히 적용됨
+- **점선 엣지**: 도구 호출 및 반환 경로 (LangGraph의 tool call 패턴)
+- **실선 엣지**: 에이전트 간 상태 전이 경로

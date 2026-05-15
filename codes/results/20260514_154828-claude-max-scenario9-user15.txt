@@ -1,0 +1,106 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명합니다.
+
+---
+
+## 전체 구조 개요
+
+이 워크플로우는 **소프트웨어 엔지니어링 멀티에이전트 시스템**으로, `SoftwareEngineer`가 오케스트레이터 역할을 하며 두 개의 서브에이전트(`CodeAnalyzer`, `Editor`)와 도구들을 조율합니다.
+
+---
+
+## 노드 종류
+
+| 노드 | 역할 |
+|---|---|
+| `start` | 워크플로우 진입점 |
+| `SoftwareEngineer` | 중앙 오케스트레이터 (라우터) |
+| `CodeAnalyzer` | 코드 분석 에이전트 |
+| `Editor` | 파일 편집 에이전트 |
+| `swe_tool` | SoftwareEngineer 전용 직접 도구 |
+| `code_analysis_tool` | CodeAnalyzer가 호출하는 도구 |
+| `code_edit_tool` | Editor가 호출하는 편집 도구 |
+| `test_tool` | Editor가 호출하는 테스트 도구 |
+| `end` | 워크플로우 종료점 |
+
+---
+
+## 흐름 상세 분석
+
+### 1. 진입 및 초기 라우팅
+
+```
+start → SoftwareEngineer
+```
+
+워크플로우가 시작되면 `SoftwareEngineer`가 첫 번째로 실행됩니다. 이 노드는 태스크를 분석하고 다음 4가지 경로 중 하나를 선택합니다:
+
+- `analyze_code` → `CodeAnalyzer`로 분기
+- `edit_file` → `Editor`로 분기
+- → `swe_tool` 직접 호출
+- → `end` 종료
+
+---
+
+### 2. CodeAnalyzer 서브그래프
+
+```
+SoftwareEngineer --[analyze_code]--> CodeAnalyzer
+                                          ↕ (continue 루프)
+                                    code_analysis_tool
+```
+
+- `SoftwareEngineer`가 코드 분석이 필요하다고 판단하면 `analyze_code` 엣지를 통해 `CodeAnalyzer`로 전달합니다.
+- `CodeAnalyzer`는 `code_analysis_tool`을 반복 호출할 수 있습니다 (`continue` 루프).
+- 분석이 완료되면 두 가지 경로로 나뉩니다:
+  - `done` → `SoftwareEngineer`로 결과 반환
+  - `continue` → `Editor`로 직접 연결 (분석 결과를 바탕으로 바로 편집 단계로 이동)
+
+---
+
+### 3. Editor 서브그래프
+
+```
+SoftwareEngineer --[edit_file]--> Editor
+CodeAnalyzer     --[continue]--> Editor
+                                    ↕ (continue 루프)
+                            code_edit_tool / test_tool
+```
+
+- `Editor`는 `code_edit_tool`과 `test_tool` 두 가지 도구를 사용할 수 있습니다.
+- 각 도구 실행 후 `continue`를 통해 `Editor`로 돌아와 다음 작업을 수행합니다 (반복 가능).
+- 편집 완료 후 두 가지 경로:
+  - `done` → `SoftwareEngineer`로 결과 반환
+  - `continue` → `CodeAnalyzer`로 역방향 연결 (편집 후 재분석이 필요한 경우)
+
+---
+
+### 4. swe_tool 직접 호출
+
+```
+SoftwareEngineer → swe_tool --[continue]--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 서브에이전트를 거치지 않고 직접 도구를 실행하는 경로입니다.
+- 실행 완료 후 `continue`를 통해 `SoftwareEngineer`로 돌아옵니다.
+
+---
+
+### 5. 종료
+
+```
+SoftwareEngineer → end
+```
+
+- `SoftwareEngineer`가 태스크가 완전히 완료되었다고 판단하면 `end`로 전환하여 워크플로우를 종료합니다.
+
+---
+
+## 핵심 설계 패턴
+
+1. **계층적 오케스트레이션**: `SoftwareEngineer`가 모든 흐름을 제어하며, 서브에이전트들은 결과를 반드시 오케스트레이터에게 돌려보냅니다(`done`).
+
+2. **도구 루프 (ReAct 패턴)**: `CodeAnalyzer`와 `Editor` 모두 자신의 도구를 `continue` 루프를 통해 반복 호출하여 멀티스텝 작업을 수행합니다.
+
+3. **에이전트 간 직접 전환**: `CodeAnalyzer → Editor` 및 `Editor → CodeAnalyzer` 간 직접 전환이 가능하여, 분석-편집 사이클을 오케스트레이터를 거치지 않고 효율적으로 반복할 수 있습니다.
+
+4. **점선 vs 실선**: 점선은 도구 호출/반환(LangGraph의 tool node 패턴), 실선은 에이전트 간 라우팅을 나타냅니다.

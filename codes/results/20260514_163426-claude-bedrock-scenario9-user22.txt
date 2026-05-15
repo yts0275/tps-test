@@ -1,0 +1,145 @@
+이미지에서 LangGraph 워크플로우를 분석해 설명하겠습니다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 상세 분석
+
+### 전체 구조 요약
+
+3개의 **에이전트 노드** + 4개의 **툴 노드** + 2개의 **제어 노드**로 구성된 멀티에이전트 소프트웨어 엔지니어링 워크플로우.
+
+---
+
+### 노드 목록
+
+| 노드 | 종류 | 역할 |
+|------|------|------|
+| `start` | 제어 노드 | 진입점 |
+| `SoftwareEngineer` | 에이전트 | 중앙 오케스트레이터/라우터 |
+| `CodeAnalyzer` | 에이전트 | 코드 분석 전담 |
+| `Editor` | 에이전트 | 코드 편집 전담 |
+| `swe_tool` | 툴 노드 | SWE 범용 도구 |
+| `code_analysis_tool` | 툴 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 툴 노드 | 코드 편집 도구 |
+| `test_tool` | 툴 노드 | 테스트 실행 도구 |
+| `end` | 제어 노드 | 종료점 |
+
+---
+
+### 흐름 상세 설명
+
+#### 1. 진입 및 초기화
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 **실선** 화살표로 `SoftwareEngineer`가 즉시 활성화된다. 이 노드가 전체 흐름의 핵심 의사결정자다.
+
+---
+
+#### 2. SoftwareEngineer의 조건부 라우팅 (핵심)
+
+`SoftwareEngineer`는 현재 태스크를 분석하여 **4가지 경로** 중 하나를 선택한다 (모두 점선 화살표 = 조건부):
+
+| 엣지 레이블 | 목적지 | 조건 |
+|------------|--------|------|
+| `analyze_code` | → `CodeAnalyzer` | 코드 분석이 필요할 때 |
+| `edit_file` | → `Editor` | 파일 편집이 필요할 때 |
+| *(없음)* | → `swe_tool` | 범용 SWE 작업 필요 시 |
+| *(없음)* | → `end` | 태스크 완료 시 |
+
+---
+
+#### 3. CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+    CodeAnalyzer --> code_analysis_tool
+    code_analysis_tool --continue--> CodeAnalyzer   ← 내부 반복
+    
+    CodeAnalyzer --> code_edit_tool
+    code_edit_tool --continue--> CodeAnalyzer        ← 내부 반복
+
+CodeAnalyzer --done--> SoftwareEngineer
+```
+
+- `CodeAnalyzer`는 분석 중 **두 가지 툴**을 순환 사용 가능
+- `code_analysis_tool`: 코드 구조/로직 분석
+- `code_edit_tool`: 분석 과정에서 부분 수정 가능
+- 툴 실행 후 `continue`로 `CodeAnalyzer`에 결과가 반환되어 반복 처리
+- 분석 완료 시 `done` 신호로 `SoftwareEngineer`에게 제어권 반환
+
+---
+
+#### 4. Editor 서브루프
+
+```
+SoftwareEngineer --edit_file--> Editor
+    Editor --> code_edit_tool
+    code_edit_tool --continue--> Editor   ← 내부 반복
+
+    Editor --> test_tool
+    test_tool --continue--> Editor        ← 내부 반복 (테스트-수정 사이클)
+
+Editor --done--> SoftwareEngineer
+```
+
+- `Editor`는 **편집 → 테스트 → 재편집** 사이클을 반복 가능
+- `code_edit_tool`: 실제 파일 편집 수행
+- `test_tool`: 편집 후 테스트 실행, 실패 시 `continue`로 `Editor`에 반환하여 재수정
+- 편집 및 검증 완료 시 `done`으로 `SoftwareEngineer`에 제어권 반환
+
+---
+
+#### 5. swe_tool 처리
+
+```
+SoftwareEngineer --> swe_tool
+swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 사용하는 범용 도구
+- 실행 완료 후 `continue`로 `SoftwareEngineer`에 결과 반환
+- `SoftwareEngineer`는 결과를 받아 다음 경로를 다시 결정
+
+---
+
+#### 6. 종료
+
+```
+SoftwareEngineer --> end
+```
+
+- 모든 태스크가 완료되었다고 판단하면 `SoftwareEngineer`가 `end`로 라우팅
+- 워크플로우 종료
+
+---
+
+### 전체 흐름 패턴
+
+```
+start
+  └─→ SoftwareEngineer ←─────────────────────────────┐
+         │                                             │
+         ├─[analyze_code]→ CodeAnalyzer               │
+         │                   ↕ code_analysis_tool      │
+         │                   ↕ code_edit_tool          │
+         │                 [done] ───────────────────→ ┤
+         │                                             │
+         ├─[edit_file]──→ Editor                      │
+         │                   ↕ code_edit_tool          │
+         │                   ↕ test_tool               │
+         │                 [done] ───────────────────→ ┤
+         │                                             │
+         ├──────────────→ swe_tool                    │
+         │               [continue] ─────────────────→ ┘
+         │
+         └──────────────→ end
+```
+
+### 설계 특징
+
+1. **Supervisor 패턴**: `SoftwareEngineer`가 중앙 라우터로서 전문 에이전트에게 위임
+2. **서브루프(ReAct 루프)**: 각 에이전트가 툴과 `continue` 사이클로 반복 처리 가능
+3. **관심사 분리**: 분석(`CodeAnalyzer`)과 편집(`Editor`)을 분리하여 전문화
+4. **공유 툴**: `code_edit_tool`은 `CodeAnalyzer`와 `Editor` 양쪽에서 공유 사용
+5. **동적 종료**: `SoftwareEngineer`가 완료 여부를 판단하여 `end`로 분기

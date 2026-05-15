@@ -1,0 +1,57 @@
+파일 생성 권한이 필요합니다. 대신 코드를 직접 출력하겠습니다.
+
+---
+
+```python
+def quicksort(arr):                                          # 퀵소트 함수 정의: 정렬할 리스트를 인자로 받음
+    if len(arr) <= 1:                                        # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                                           # 그대로 반환 (기저 조건)
+
+    pivot = arr[len(arr) // 2]                               # 중간 인덱스 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]                    # 피벗보다 작은 요소들을 왼쪽 부분 리스트로 분류
+    middle = [x for x in arr if x == pivot]                 # 피벗과 같은 요소들을 중간 리스트로 분류 (중복 처리)
+    right = [x for x in arr if x > pivot]                   # 피벗보다 큰 요소들을 오른쪽 부분 리스트로 분류
+
+    return quicksort(left) + middle + quicksort(right)       # 왼쪽/중간/오른쪽을 재귀 정렬 후 합쳐 반환
+
+
+def quicksort_inplace(arr, low, high):                       # 제자리(in-place) 퀵소트: 추가 메모리 없이 정렬
+    if low < high:                                           # 정렬 범위가 유효한지 확인 (low < high일 때만 진행)
+        pivot_index = partition(arr, low, high)              # 파티션 수행 후 피벗의 최종 위치 인덱스를 받음
+        quicksort_inplace(arr, low, pivot_index - 1)         # 피벗 왼쪽 부분 재귀 정렬
+        quicksort_inplace(arr, pivot_index + 1, high)        # 피벗 오른쪽 부분 재귀 정렬
+
+
+def partition(arr, low, high):                               # 파티션 함수: 피벗 기준으로 배열을 두 부분으로 나눔
+    pivot = arr[high]                                        # 마지막 요소를 피벗으로 선택
+    i = low - 1                                              # 작은 요소들의 경계를 가리키는 포인터 초기화
+
+    for j in range(low, high):                               # low부터 high-1까지 순회하며 피벗과 비교
+        if arr[j] <= pivot:                                  # 현재 요소가 피벗 이하이면
+            i += 1                                           # 작은 요소 경계를 한 칸 오른쪽으로 이동
+            arr[i], arr[j] = arr[j], arr[i]                  # 현재 요소와 경계 위치 요소를 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]            # 피벗을 올바른 최종 위치(i+1)에 배치
+    return i + 1                                             # 피벗의 최종 인덱스 반환
+
+
+if __name__ == "__main__":                                   # 스크립트로 직접 실행될 때만 아래 코드 수행
+    sample = [3, 6, 8, 10, 1, 2, 1]                         # 테스트용 샘플 리스트 정의
+
+    result = quicksort(sample)                               # 재귀 방식 퀵소트 호출
+    print("재귀 퀵소트 결과:", result)                        # 정렬 결과 출력
+
+    sample2 = [3, 6, 8, 10, 1, 2, 1]                        # 제자리 퀵소트용 별도 샘플 리스트 정의
+    quicksort_inplace(sample2, 0, len(sample2) - 1)          # 제자리 퀵소트 호출 (리스트 직접 수정)
+    print("제자리 퀵소트 결과:", sample2)                     # 정렬된 리스트 출력
+```
+
+---
+
+두 가지 버전을 구현했습니다.
+
+**`quicksort` (재귀 방식)** — 리스트 컴프리헨션으로 피벗 기준 분할 후 재귀 합산. 코드가 간결하고 읽기 쉬우나 추가 메모리를 사용합니다.
+
+**`quicksort_inplace` + `partition` (제자리 방식)** — 포인터 두 개(`i`, `j`)로 배열 내부에서 직접 교환. 추가 메모리 없이 O(log n) 스택 공간만 사용합니다.
+
+파일로 저장을 원하시면 권한을 허용해 주세요.

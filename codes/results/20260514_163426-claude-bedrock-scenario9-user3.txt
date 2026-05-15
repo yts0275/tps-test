@@ -1,0 +1,122 @@
+## LangGraph 워크플로우 노드 흐름 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 타입 | 역할 |
+|---|---|---|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 | 작업 계획 및 라우팅 |
+| `CodeAnalyzer` | 에이전트 | 코드 분석 전담 |
+| `Editor` | 에이전트 | 파일 편집 전담 |
+| `swe_tool` | 도구 노드 | 범용 SWE 도구 실행 |
+| `code_analysis_tool` | 도구 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 도구 노드 | 코드 편집 도구 |
+| `test_tool` | 도구 노드 | 테스트 실행 도구 |
+| `end` | 종료점 | 워크플로우 종료 |
+
+---
+
+### 전체 흐름
+
+```
+start
+  │
+  ▼
+SoftwareEngineer  ←─────────────────────────────────┐
+  │                                                  │
+  ├──[analyze_code]──► CodeAnalyzer ──[done]─────────┤
+  │                      │    ▲                      │
+  │                      │    └──[continue]──────────┤
+  │                      ▼                           │
+  │                 code_analysis_tool               │
+  │                      │                           │
+  │                      └──[continue]──► Editor ────┤
+  │                                        │  ▲      │
+  ├──[edit_file]────────────────────────►  │  │      │
+  │                                        │  └──[continue]─►CodeAnalyzer
+  │                               ┌────────┤          │
+  │                               │        ├──► code_edit_tool
+  │                               │        └──► test_tool
+  │                               └─[done]──────────┘
+  │
+  ├──[swe_tool]──► swe_tool ──[continue]──► SoftwareEngineer
+  │
+  └──[end 조건 충족]──► end
+```
+
+---
+
+### 각 노드별 상세 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우가 시작되면 **SoftwareEngineer** 노드가 첫 번째로 실행됨
+- 사용자 요청을 받아 전체 작업 전략을 수립하는 **메인 오케스트레이터** 역할
+
+#### 2. `SoftwareEngineer` 라우팅 결정 (조건부 엣지)
+SoftwareEngineer는 현재 상태를 평가하여 4가지 경로 중 하나를 선택:
+
+| 엣지 레이블 | 목적지 | 선택 조건 |
+|---|---|---|
+| `analyze_code` | CodeAnalyzer | 코드를 분석/이해해야 할 때 |
+| `edit_file` | Editor | 파일 수정이 필요할 때 |
+| `swe_tool` | swe_tool | 범용 SWE 도구가 필요할 때 |
+| `end` | end | 작업이 완료되었을 때 |
+
+#### 3. `CodeAnalyzer` 루프
+```
+SoftwareEngineer
+    │ [analyze_code]
+    ▼
+CodeAnalyzer
+    ├──► code_analysis_tool (도구 호출 → 결과 수신)
+    │
+    ├──[done]──► SoftwareEngineer   # 분석 완료, 결과를 SE에 보고
+    └──[continue]──► Editor         # 분석 후 즉시 편집 필요 시 직접 이동
+```
+- `code_analysis_tool`을 호출하여 실제 코드 분석 수행
+- 분석 완료(`done`) 시 SoftwareEngineer로 결과 반환
+- 분석 결과가 바로 편집으로 이어질 경우(`continue`) Editor로 직행
+
+#### 4. `Editor` 루프
+```
+SoftwareEngineer 또는 CodeAnalyzer
+    │ [edit_file 또는 continue]
+    ▼
+Editor
+    ├──► code_edit_tool (파일 편집 도구 호출)
+    ├──► test_tool      (테스트 실행 도구 호출)
+    │
+    ├──[done]──► SoftwareEngineer   # 편집/테스트 완료, SE에 보고
+    └──[continue]──► CodeAnalyzer   # 편집 후 재분석 필요 시 루프백
+```
+- `code_edit_tool`과 `test_tool` 두 가지 도구를 모두 사용 가능
+- 편집 후 테스트 실패 등으로 재분석이 필요하면(`continue`) CodeAnalyzer로 루프백
+- 완료 시(`done`) SoftwareEngineer로 결과 반환
+
+#### 5. `swe_tool` 노드
+```
+SoftwareEngineer
+    │ [swe_tool]
+    ▼
+swe_tool
+    │ [continue]
+    ▼
+SoftwareEngineer  # 결과를 다시 SE로 반환
+```
+- 코드 분석/편집 외의 범용 SWE 작업 처리
+- 실행 완료 후 반드시 SoftwareEngineer로 복귀
+
+#### 6. `end` 종료
+- SoftwareEngineer가 모든 작업이 완료되었다고 판단할 때만 도달
+- 워크플로우 전체 종료
+
+---
+
+### 핵심 설계 패턴
+
+1. **Hub-and-Spoke**: `SoftwareEngineer`가 허브 역할로 모든 결과를 수렴하고 다음 행동을 결정
+2. **양방향 루프**: `CodeAnalyzer` ↔ `Editor` 간 직접 `continue` 엣지로 SE를 거치지 않는 효율적 반복 가능
+3. **도구 분리**: 실제 도구(tool nodes)는 각 에이전트 노드에 종속되어 있어 책임 분리가 명확
+4. **조기 종료 방지**: 모든 서브 에이전트는 반드시 `done`/`continue`로 상위 노드에 제어권 반환

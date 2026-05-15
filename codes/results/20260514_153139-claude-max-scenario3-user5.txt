@@ -1,0 +1,55 @@
+파일 쓰기 권한이 없어서 코드를 직접 보여드리겠습니다.
+
+```python
+def quicksort(arr):                                    # 퀵소트 함수 정의, arr은 정렬할 리스트
+    if len(arr) <= 1:                                  # 원소가 0개 또는 1개면 이미 정렬된 상태
+        return arr                                     # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                         # 중간 인덱스의 원소를 피벗으로 선택
+
+    left = [x for x in arr if x < pivot]               # 피벗보다 작은 원소들을 왼쪽 리스트에 모음
+    middle = [x for x in arr if x == pivot]            # 피벗과 같은 원소들을 중간 리스트에 모음
+    right = [x for x in arr if x > pivot]              # 피벗보다 큰 원소들을 오른쪽 리스트에 모음
+
+    return quicksort(left) + middle + quicksort(right) # 왼쪽·중간·오른쪽을 재귀 정렬 후 합쳐서 반환
+
+
+def quicksort_inplace(arr, low, high):                 # 제자리(in-place) 퀵소트 함수 정의
+    if low < high:                                     # 정렬 범위가 2개 이상일 때만 진행
+        pivot_idx = partition(arr, low, high)          # 파티션 수행 후 피벗의 최종 위치를 받음
+        quicksort_inplace(arr, low, pivot_idx - 1)     # 피벗 왼쪽 구간을 재귀적으로 정렬
+        quicksort_inplace(arr, pivot_idx + 1, high)    # 피벗 오른쪽 구간을 재귀적으로 정렬
+
+
+def partition(arr, low, high):                         # 파티션 함수: 피벗 기준으로 원소를 재배치
+    pivot = arr[high]                                  # 맨 오른쪽 원소를 피벗으로 선택
+    i = low - 1                                        # i는 피벗보다 작은 영역의 마지막 인덱스
+
+    for j in range(low, high):                         # j로 low~high-1 범위를 순회
+        if arr[j] <= pivot:                            # 현재 원소가 피벗 이하이면
+            i += 1                                     # 작은 영역을 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]            # 현재 원소를 작은 영역 끝으로 교환
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]      # 피벗을 작은 영역 바로 다음 위치로 이동
+    return i + 1                                       # 피벗의 최종 인덱스 반환
+
+
+if __name__ == "__main__":
+    sample = [3, 6, 8, 10, 1, 2, 1]                   # 테스트용 예시 리스트
+
+    result = quicksort(sample)                         # 새 리스트 반환 방식으로 정렬
+    print("새 리스트 방식:", result)                    # 결과 출력
+
+    sample2 = [3, 6, 8, 10, 1, 2, 1]                  # 제자리 정렬용 별도 리스트
+    quicksort_inplace(sample2, 0, len(sample2) - 1)    # 제자리 방식으로 정렬 (원본 수정)
+    print("제자리 방식:  ", sample2)                   # 결과 출력
+```
+
+두 가지 방식으로 구현했습니다.
+
+| 방식 | 함수 | 특징 |
+|------|------|------|
+| **새 리스트 반환** | `quicksort` | 코드가 간결, 추가 메모리 O(n) 사용 |
+| **제자리(in-place)** | `quicksort_inplace` | 메모리 효율적, Lomuto 파티션 방식 |
+
+두 방식 모두 평균 시간복잡도 **O(n log n)**, 최악(이미 정렬된 경우) **O(n²)** 입니다.

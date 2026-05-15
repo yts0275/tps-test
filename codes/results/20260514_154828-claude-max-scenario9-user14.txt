@@ -1,0 +1,92 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer**를 중심 오케스트레이터로 두고, **CodeAnalyzer**와 **Editor** 두 전문 에이전트가 협력하는 계층적 구조다. 실선은 상태 전이(state transition), 점선은 도구 호출(tool call)을 나타낸다.
+
+---
+
+### 노드별 역할 및 전이 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우의 진입점. 태스크가 시작되면 무조건 **SoftwareEngineer** 노드로 진입한다.
+
+---
+
+#### 2. `SoftwareEngineer` (중앙 오케스트레이터)
+가장 핵심 노드. 현재 상태를 평가해 다음 액션을 결정하는 **라우터** 역할을 한다.
+
+| 전이 레이블 | 목적지 | 설명 |
+|---|---|---|
+| `analyze_code` | CodeAnalyzer | 코드 분석이 필요하다고 판단 시 |
+| `edit_file` | Editor | 파일 수정이 필요하다고 판단 시 |
+| *(직접 연결)* | swe_tool | SoftwareEngineer 자신의 도구 사용 시 |
+| *(조건부)* | end | 태스크 완료로 판단 시 종료 |
+
+---
+
+#### 3. `CodeAnalyzer` 노드
+코드 정적 분석 전담 에이전트.
+
+**입력 경로:**
+- `SoftwareEngineer` → `analyze_code` → `CodeAnalyzer`
+- `Editor` → `continue` → `CodeAnalyzer` (편집 후 검증 필요 시)
+
+**내부 도구 호출 (점선):**
+- `code_analysis_tool`: 실제 코드 분석 수행 후 결과를 CodeAnalyzer로 반환
+
+**출력 경로:**
+- `done` → `SoftwareEngineer`: 분석 완료 후 결과 보고
+- `continue` → `Editor`: 분석 결과를 바탕으로 즉시 편집 필요 시
+
+---
+
+#### 4. `Editor` 노드
+코드 편집 및 테스트 실행 전담 에이전트.
+
+**입력 경로:**
+- `SoftwareEngineer` → `edit_file` → `Editor`
+- `CodeAnalyzer` → `continue` → `Editor` (분석 결과 기반 편집 시)
+
+**내부 도구 호출 (점선):**
+- `code_edit_tool`: 실제 파일 수정 실행
+- `test_tool`: 수정 후 테스트 실행 및 검증
+
+**출력 경로:**
+- `done` → `SoftwareEngineer`: 편집 완료 후 결과 보고
+- `continue` → `CodeAnalyzer`: 편집 후 재분석이 필요하다고 판단 시
+
+---
+
+#### 5. `swe_tool` 노드
+SoftwareEngineer가 직접 사용하는 보조 도구 노드.
+
+- `SoftwareEngineer` → `swe_tool` → `continue` → `SoftwareEngineer`
+- 도구 실행 후 반드시 `SoftwareEngineer`로 복귀해 결과를 반영
+
+---
+
+#### 6. `end`
+- `SoftwareEngineer`가 태스크 완료를 판단할 때 전이되는 종료 노드
+
+---
+
+### 핵심 순환 패턴
+
+```
+SoftwareEngineer
+    ↓ analyze_code
+CodeAnalyzer → code_analysis_tool
+    ↓ done (or continue→Editor→continue→CodeAnalyzer 반복)
+SoftwareEngineer
+    ↓ edit_file
+Editor → code_edit_tool / test_tool
+    ↓ done
+SoftwareEngineer
+    ↓ (완료 조건 충족)
+end
+```
+
+**CodeAnalyzer ↔ Editor 간 `continue` 루프**가 핵심 설계 포인트로, SoftwareEngineer를 거치지 않고 두 에이전트가 직접 반복 협력할 수 있어 분석-수정 사이클을 효율적으로 처리한다.

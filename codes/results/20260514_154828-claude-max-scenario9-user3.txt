@@ -1,0 +1,96 @@
+## LangGraph Workflow 노드 흐름 상세 설명
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer**를 중앙 오케스트레이터로 두고, **CodeAnalyzer**와 **Editor**가 각각 전문 작업을 수행하며 협력하는 멀티-에이전트 구조다.
+
+---
+
+### 노드 및 엣지 상세
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우 진입점. 사용자 요청이 들어오면 무조건 **SoftwareEngineer** 노드로 라우팅된다.
+
+---
+
+#### 2. `SoftwareEngineer` (중앙 오케스트레이터)
+전체 작업을 파악하고 다음 4가지 경로 중 하나를 선택하는 **라우팅 허브** 역할.
+
+| 조건 (엣지 레이블) | 다음 노드 | 설명 |
+|---|---|---|
+| `analyze_code` | `CodeAnalyzer` | 코드 분석이 필요하다고 판단 |
+| `edit_file` | `Editor` | 파일 수정이 필요하다고 판단 |
+| (직접 라우팅) | `swe_tool` | 소프트웨어 엔지니어링 툴 직접 사용 |
+| (완료 판단) | `end` | 작업이 완전히 완료됨 |
+
+---
+
+#### 3. `CodeAnalyzer` 노드
+코드 분석 전담 에이전트. 내부적으로 `code_analysis_tool`과 루프를 형성한다.
+
+```
+CodeAnalyzer ⇄ code_analysis_tool  (반복 호출 가능)
+```
+
+분석 완료 후 두 가지 경로:
+
+| 조건 | 다음 노드 | 설명 |
+|---|---|---|
+| `done` | `SoftwareEngineer` | 분석 결과를 오케스트레이터에게 반환 |
+| `continue` | `Editor` | 분석 결과를 바탕으로 바로 편집 단계로 진행 |
+
+---
+
+#### 4. `Editor` 노드
+파일 수정 및 테스트 전담 에이전트. 두 가지 툴과 루프를 형성한다.
+
+```
+Editor ⇄ code_edit_tool   (코드 수정 반복)
+Editor ⇄ test_tool        (테스트 실행 반복)
+```
+
+작업 완료 후 두 가지 경로:
+
+| 조건 | 다음 노드 | 설명 |
+|---|---|---|
+| `done` | `SoftwareEngineer` | 수정 결과를 오케스트레이터에게 반환 |
+| `continue` | `CodeAnalyzer` | 수정 후 재분석이 필요한 경우 |
+
+---
+
+#### 5. `swe_tool` 노드
+SoftwareEngineer가 직접 사용하는 범용 툴 노드.
+
+| 조건 | 다음 노드 | 설명 |
+|---|---|---|
+| `continue` | `SoftwareEngineer` | 툴 실행 결과를 오케스트레이터에게 반환 |
+
+---
+
+#### 6. `end`
+워크플로우 종료. SoftwareEngineer가 작업이 완료됐다고 판단할 때만 도달한다.
+
+---
+
+### 주요 순환 패턴 (Cycle)
+
+```
+# 패턴 1: 분석 → 수정 → 재분석 사이클
+SoftwareEngineer → CodeAnalyzer → (continue) → Editor → (continue) → CodeAnalyzer → ...
+
+# 패턴 2: 오케스트레이터 중심 반복
+SoftwareEngineer → CodeAnalyzer → (done) → SoftwareEngineer → Editor → (done) → SoftwareEngineer → ...
+
+# 패턴 3: 단순 툴 호출 후 복귀
+SoftwareEngineer → swe_tool → (continue) → SoftwareEngineer → ...
+```
+
+---
+
+### 설계 의도 요약
+
+- **SoftwareEngineer**: 전체 맥락을 유지하며 작업 흐름을 제어하는 supervisory LLM
+- **CodeAnalyzer / Editor**: 각자 자신의 툴을 반복 호출하며 서브태스크를 완수하는 전문 에이전트
+- **done vs continue**: 서브 에이전트가 "완전히 끝났다(done)" vs "다음 단계로 넘겨야 한다(continue)"를 자체 판단해 라우팅을 결정하는 conditional edge 패턴

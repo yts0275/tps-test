@@ -1,0 +1,32 @@
+파일 생성 권한이 없어 코드를 직접 보여드립니다.
+
+```python
+def quicksort(arr):                                        # 퀵소트 함수 정의, 정렬할 리스트를 인자로 받음
+    if len(arr) <= 1:                                      # 리스트 길이가 1 이하면 더 분할 불가 — 재귀 기저 조건
+        return arr                                         # 그대로 반환 (이미 정렬된 상태)
+
+    pivot = arr[len(arr) // 2]                             # 중간 인덱스 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]                  # 피벗보다 작은 요소들로 왼쪽 부분 리스트 구성
+    middle = [x for x in arr if x == pivot]               # 피벗과 같은 요소들로 중간 리스트 구성 (중복값 처리)
+    right = [x for x in arr if x > pivot]                 # 피벗보다 큰 요소들로 오른쪽 부분 리스트 구성
+
+    return quicksort(left) + middle + quicksort(right)     # 왼쪽/오른쪽을 재귀 정렬 후 합쳐서 반환
+
+
+if __name__ == "__main__":
+    data = [3, 6, 8, 10, 1, 2, 1]                         # 정렬할 샘플 데이터 정의
+    print("정렬 전:", data)                                 # 정렬 전 리스트 출력
+    result = quicksort(data)                               # 퀵소트 실행
+    print("정렬 후:", result)                               # 정렬 결과 출력
+```
+
+**동작 흐름 요약:**
+
+1. **피벗 선택** — 중간 요소를 기준으로 잡음
+2. **분할** — 피벗보다 작으면 `left`, 같으면 `middle`, 크면 `right`
+3. **재귀** — `left`와 `right`를 다시 `quicksort`로 정렬
+4. **합병** — 세 리스트를 순서대로 이어붙여 반환
+
+실행 결과: `정렬 후: [1, 1, 2, 3, 6, 8, 10]`
+
+파일로 저장하려면 설정에서 파일 쓰기 권한을 허용해 주세요.

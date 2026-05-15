@@ -1,0 +1,26 @@
+파일 쓰기 권한이 필요합니다. 권한을 허용하시거나, 아래 코드를 직접 사용하실 수 있습니다.
+
+```python
+def quicksort(arr):                                  # 퀵소트 함수 정의, arr은 정렬할 리스트
+    if len(arr) <= 1:                                # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                                   # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                       # 중간 인덱스 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]             # 피벗보다 작은 요소들을 왼쪽 리스트로 분리
+    middle = [x for x in arr if x == pivot]          # 피벗과 같은 요소들을 중간 리스트로 분리
+    right = [x for x in arr if x > pivot]            # 피벗보다 큰 요소들을 오른쪽 리스트로 분리
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽 재귀 + 중간 + 오른쪽 재귀를 합쳐 반환
+
+
+if __name__ == "__main__":                           # 이 파일을 직접 실행할 때만 아래 코드 실행
+    sample = [3, 6, 8, 10, 1, 2, 1]                 # 테스트용 샘플 리스트 선언
+    print("정렬 전:", sample)                         # 정렬 전 리스트 출력
+    result = quicksort(sample)                       # 퀵소트 함수 호출
+    print("정렬 후:", result)                         # 정렬된 결과 출력
+```
+
+**동작 원리:**
+- 피벗을 기준으로 작은 값(`left`), 같은 값(`middle`), 큰 값(`right`)으로 분리
+- `left`와 `right`에 재귀적으로 퀵소트를 적용한 뒤 합침
+- 시간복잡도: 평균 O(n log n), 최악 O(n²)

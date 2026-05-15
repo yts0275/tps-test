@@ -1,0 +1,125 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 노드 구성
+
+| 노드 | 종류 | 역할 |
+|------|------|------|
+| `start` | 진입점 (oval) | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 (agent) | 전체 흐름을 지휘하는 중앙 감독자 |
+| `CodeAnalyzer` | 서브에이전트 | 코드 분석 전담 |
+| `Editor` | 서브에이전트 | 파일 편집 및 테스트 전담 |
+| `swe_tool` | 도구 노드 | SoftwareEngineer가 직접 호출하는 범용 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer가 사용하는 분석 도구 |
+| `code_edit_tool` | 도구 노드 | Editor가 사용하는 편집 도구 |
+| `test_tool` | 도구 노드 | Editor가 사용하는 테스트 도구 |
+| `end` | 종료점 (filled oval) | 워크플로우 종료 |
+
+---
+
+### 흐름 상세
+
+#### 1단계 — 진입
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 항상 `SoftwareEngineer`로 진입한다. 이 노드가 전체 태스크를 파악하고 다음 행동을 결정하는 중앙 의사결정자 역할을 한다.
+
+---
+
+#### 2단계 — SoftwareEngineer의 라우팅 (조건부 분기)
+
+`SoftwareEngineer`는 현재 상황에 따라 **4가지 경로** 중 하나를 선택한다:
+
+| 엣지 레이블 | 목적지 | 트리거 조건 |
+|------------|--------|------------|
+| `analyze_code` | `CodeAnalyzer` | 코드 구조/로직 분석이 필요할 때 |
+| `edit_file` | `Editor` | 파일 수정/생성이 필요할 때 |
+| (dashed) | `swe_tool` | 범용 엔지니어링 도구를 직접 쓸 때 |
+| `continue` | `end` | 모든 태스크가 완료되었을 때 |
+
+---
+
+#### 3단계-A — CodeAnalyzer 서브루프
+
+```
+SoftwareEngineer --[analyze_code]--> CodeAnalyzer
+                                         │
+                                    (dashed) ↓
+                               code_analysis_tool
+                                         │
+                                 [continue] ↓
+                               CodeAnalyzer (self-loop)
+                                         │
+                                   [done] ↓
+                               SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 `analyze_code`를 선택하면 `CodeAnalyzer`로 이동한다.
+- `CodeAnalyzer`는 `code_analysis_tool`을 반복 호출하며 분석을 수행한다. 분석이 끝나지 않았으면 `continue`로 자기 자신으로 루프백한다.
+- 분석이 완료되면 `done` 엣지를 통해 결과를 `SoftwareEngineer`로 반환한다.
+
+---
+
+#### 3단계-B — Editor 서브루프
+
+```
+SoftwareEngineer --[edit_file]--> Editor
+                                    │
+                       (dashed) ↓       ↓ (dashed)
+                  code_edit_tool    test_tool
+                              │       │
+                      [continue] ↓   ↓
+                              Editor (self-loop)
+                                    │
+                              [done] ↓
+                          SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 `edit_file`을 선택하면 `Editor`로 이동한다.
+- `Editor`는 `code_edit_tool`(파일 편집)과 `test_tool`(테스트 실행)을 필요에 따라 호출한다.
+- 편집 또는 테스트 후 아직 작업이 남아있으면 `continue`로 루프백한다 (예: 테스트 실패 → 재편집).
+- 편집 및 테스트가 모두 통과하면 `done` 엣지로 `SoftwareEngineer`에게 제어를 반환한다.
+
+---
+
+#### 3단계-C — swe_tool 직접 호출
+
+```
+SoftwareEngineer --[dashed]--> swe_tool
+                                   │
+                         [continue] ↓
+                         SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 별도 서브에이전트 없이 직접 도구를 쓸 때 `swe_tool`로 이동한다.
+- 도구 실행 후 `continue` 엣지로 즉시 `SoftwareEngineer`로 복귀한다.
+
+---
+
+#### 4단계 — 종료
+
+```
+SoftwareEngineer --[continue]--> end
+```
+
+`SoftwareEngineer`가 태스크 전체가 완료되었다고 판단하면 `end`로 라우팅하여 워크플로우를 종료한다.
+
+---
+
+### 전체 실행 패턴 요약
+
+```
+start
+  └→ SoftwareEngineer (판단)
+        ├─[analyze_code]→ CodeAnalyzer ⟳ code_analysis_tool → [done]→ SoftwareEngineer
+        ├─[edit_file]  → Editor ⟳ code_edit_tool / test_tool → [done]→ SoftwareEngineer
+        ├─[swe_tool]   → swe_tool → [continue]→ SoftwareEngineer
+        └─[continue]   → end
+```
+
+**핵심 설계 원칙:**
+- `SoftwareEngineer`는 **Supervisor 패턴**으로 전체를 조율하며 코드를 직접 실행하지 않는다.
+- 각 서브에이전트(`CodeAnalyzer`, `Editor`)는 자체 도구 루프를 가지므로 여러 단계의 작업을 독립적으로 처리한 뒤 결과만 반환한다.
+- 점선(dashed) 엣지는 **도구 호출**, 실선(solid) 엣지는 **에이전트 간 전환**을 나타낸다.

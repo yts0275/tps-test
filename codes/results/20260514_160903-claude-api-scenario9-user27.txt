@@ -1,0 +1,114 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명하겠습니다.
+
+---
+
+## 워크플로우 전체 구조
+
+이 그래프는 **소프트웨어 엔지니어링 멀티에이전트 시스템**으로, `SoftwareEngineer`가 오케스트레이터 역할을 하며 하위 에이전트와 툴 노드들을 조율합니다.
+
+---
+
+## 노드 종류
+
+| 노드 | 형태 | 역할 |
+|------|------|------|
+| `start` | 타원 | 진입점 |
+| `SoftwareEngineer` | 사각형 (보라) | 오케스트레이터 에이전트 |
+| `CodeAnalyzer` | 사각형 (보라) | 코드 분석 전담 에이전트 |
+| `Editor` | 사각형 (보라) | 코드 편집 및 테스트 전담 에이전트 |
+| `swe_tool` | 사각형 (회색) | SoftwareEngineer 직속 툴 노드 |
+| `code_analysis_tool` | 둥근 사각형 (보라) | CodeAnalyzer 전용 툴 |
+| `code_edit_tool` | 둥근 사각형 (보라) | Editor 전용 편집 툴 |
+| `test_tool` | 둥근 사각형 (보라) | Editor 전용 테스트 툴 |
+| `end` | 채워진 타원 (보라) | 종료점 |
+
+---
+
+## 엣지(Edge) 흐름 상세
+
+### 1. 진입 흐름
+```
+start → SoftwareEngineer
+```
+워크플로우 시작 시 항상 `SoftwareEngineer`로 진입합니다.
+
+---
+
+### 2. SoftwareEngineer의 라우팅 (조건부 분기)
+`SoftwareEngineer`는 상황을 판단하여 4가지 방향으로 분기합니다.
+
+```
+SoftwareEngineer ──analyze_code──→ CodeAnalyzer
+SoftwareEngineer ──edit_file──────→ Editor
+SoftwareEngineer ──────────────────→ swe_tool
+SoftwareEngineer ──────────────────→ end
+```
+
+- **`analyze_code`**: 코드 분석이 필요하다고 판단하면 `CodeAnalyzer`로 위임
+- **`edit_file`**: 코드 편집이 필요하다고 판단하면 `Editor`로 위임
+- **`swe_tool`**: 직접 처리 가능한 툴 호출이 필요할 때 직속 툴 실행
+- **`end`**: 작업 완료 판단 시 종료
+
+---
+
+### 3. CodeAnalyzer 서브그래프
+```
+CodeAnalyzer ←──────────────────→ code_analysis_tool   (툴 호출 ↔ 결과 수신)
+CodeAnalyzer ──continue──────────→ Editor               (분석 후 편집 필요 시)
+CodeAnalyzer ──done──────────────→ SoftwareEngineer     (분석 완료 후 보고)
+```
+
+- `CodeAnalyzer`는 내부 반복 루프로 `code_analysis_tool`을 여러 번 호출할 수 있습니다.
+- 분석 결과 편집이 필요하다면 `continue` 엣지로 직접 `Editor`에 넘깁니다.
+- 분석만으로 충분하면 `done`으로 `SoftwareEngineer`에 결과를 반환합니다.
+
+---
+
+### 4. Editor 서브그래프
+```
+Editor ←──────────────────────→ code_edit_tool   (편집 툴 호출 ↔ 결과 수신)
+Editor ←──────────────────────→ test_tool        (테스트 툴 호출 ↔ 결과 수신)
+Editor ──continue──────────────→ CodeAnalyzer    (편집 후 재분석 필요 시)
+Editor ──done──────────────────→ SoftwareEngineer (작업 완료 후 보고)
+```
+
+- `Editor`는 `code_edit_tool`로 파일을 수정하고, `test_tool`로 결과를 검증합니다.
+- 테스트 실패 등으로 재분석이 필요하면 `continue`로 `CodeAnalyzer`에 다시 위임합니다.
+- 편집 및 검증 완료 시 `done`으로 `SoftwareEngineer`에 결과를 반환합니다.
+
+---
+
+### 5. swe_tool → SoftwareEngineer 복귀
+```
+swe_tool ──continue──→ SoftwareEngineer
+```
+`swe_tool` 실행이 끝나면 항상 `SoftwareEngineer`로 돌아와 다음 판단을 이어갑니다.
+
+---
+
+## 전체 흐름 시나리오 (예시)
+
+```
+start
+  → SoftwareEngineer (요청 분석)
+    → [analyze_code] CodeAnalyzer
+        → code_analysis_tool (코드 구조 파악)
+        → code_analysis_tool (추가 분석)
+        → [continue] Editor
+            → code_edit_tool (코드 수정)
+            → test_tool (테스트 실행)
+            → [continue] CodeAnalyzer (재검증)
+                → code_analysis_tool
+                → [done] SoftwareEngineer (분석 완료 보고)
+    → SoftwareEngineer (최종 판단)
+  → end
+```
+
+---
+
+## 핵심 설계 패턴
+
+1. **Supervisor 패턴**: `SoftwareEngineer`가 모든 에이전트의 진입/종료를 통제합니다.
+2. **에이전트 간 직접 핸드오프**: `CodeAnalyzer ↔ Editor`가 `SoftwareEngineer`를 거치지 않고 `continue`로 직접 상호 위임 가능합니다.
+3. **툴 노드 캡슐화**: 각 에이전트는 자신에게 할당된 툴만 호출할 수 있어 역할이 명확히 분리됩니다.
+4. **반복 루프 허용**: 각 에이전트는 툴 결과를 받아 다시 툴을 호출하는 내부 루프를 가집니다.

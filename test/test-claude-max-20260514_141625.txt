@@ -1,0 +1,143 @@
+============================================================
+Claude Code (Max 플랜) 성능 테스트
+시작: 2026-05-14 14:16:25.441270
+============================================================
+
+[▶] scenario1 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 디코딩 성능 분석 (단일 요청)
+질문: 퀵소트 구현을 하고, 각 줄마다 주석을 달라.
+초당 토큰 생성량 (TPS): 4.41 tokens/s
+총 소요 시간: 49.4659초
+총 생성 토큰 수: 218
+결과 저장 완료: C:\Users\GGR\Desktop\AI_study\tps-test\codes\results\20260514_141715-claude-max-scenario1-user1.txt
+==================================================
+[!] scenario1 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario2 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 인코딩 성능 분석 (단일 요청)
+질문: 다음 코드를 보고 어떤 내용인지 3줄로 분석하라
+
+import datetime
+
+class Product:
+
+초당 토큰 생성량 (TPS): 4.24 tokens/s
+총 소요 시간: 10.6136초
+총 생성 토큰 수: 45
+결과 저장 완료: C:\Users\GGR\Desktop\AI_study\tps-test\codes\results\20260514_141728-claude-max-scenario2-user1.txt
+==================================================
+[!] scenario2 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario3 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 디코딩 성능 분석 (10 동시 요청)
+질문: 퀵소트 구현을 하고, 각 줄마다 주석을 달라.
+초당 토큰 생성량 (TPS): 34.89 tokens/s
+총 소요 시간: 72.4546초
+총 생성 토큰 수: 2528
+평균 초당 토큰 생성량: 3.49 tokens/s
+평균 생성 토큰 수: 252.80
+결과 파일 저장 완료 (20260514_141843-claude-max-scenario3-user1~10.txt)
+==================================================
+[!] scenario3 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario4 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 인코딩 성능 분석 (10 동시 요청)
+질문: 다음 코드를 보고 어떤 내용인지 3줄로 분석하라
+
+import datetime
+
+class Product:
+
+초당 토큰 생성량 (TPS): 18.77 tokens/s
+총 소요 시간: 26.5827초
+총 생성 토큰 수: 499
+평균 초당 토큰 생성량: 1.88 tokens/s
+평균 생성 토큰 수: 49.90
+결과 파일 저장 완료 (20260514_141912-claude-max-scenario4-user1~10.txt)
+==================================================
+[!] scenario4 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario5 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 디코딩 성능 분석 (30 동시 요청)
+질문: 퀵소트 구현을 하고, 각 줄마다 주석을 달라.
+초당 토큰 생성량 (TPS): 72.40 tokens/s
+총 소요 시간: 110.4941초
+총 생성 토큰 수: 8000
+평균 초당 토큰 생성량: 2.41 tokens/s
+평균 생성 토큰 수: 266.67
+결과 파일 저장 완료 (20260514_142105-claude-max-scenario5-user1~30.txt)
+==================================================
+[!] scenario5 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario6 실행 중...
+
+==================================================
+Claude Code (Max 플랜) 인코딩 성능 분석 (30 동시 요청)
+질문: 다음 코드를 보고 어떤 내용인지 3줄로 분석하라
+
+import datetime
+
+class Product:
+
+초당 토큰 생성량 (TPS): 31.67 tokens/s
+총 소요 시간: 54.4005초
+총 생성 토큰 수: 1723
+평균 초당 토큰 생성량: 1.06 tokens/s
+평균 생성 토큰 수: 57.43
+결과 파일 저장 완료 (20260514_142202-claude-max-scenario6-user1~30.txt)
+==================================================
+[!] scenario6 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario7 실행 중...
+
+==================================================
+Claude Code (Max 플랜) Vision 이미지 분석 (단일 요청)
+질문: 다음 Workflow 의 Node 들의 흐름에 대해 최대한 상세히 서술하라. @langgraph.png
+초당 토큰 생성량 (TPS): 12.17 tokens/s
+총 소요 시간: 40.3515초
+총 생성 토큰 수: 491
+결과 저장 완료: C:\Users\GGR\Desktop\AI_study\tps-test\codes\results\20260514_142246-claude-max-scenario7-user1.txt
+==================================================
+[!] scenario7 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario8 실행 중...
+
+==================================================
+Claude Code (Max 플랜) Vision 이미지 분석 (10 동시 요청)
+질문: 다음 Workflow 의 Node 들의 흐름에 대해 최대한 상세히 서술하라. @langgraph.png
+초당 토큰 생성량 (TPS): 76.59 tokens/s
+총 소요 시간: 65.9647초
+총 생성 토큰 수: 5052
+평균 초당 토큰 생성량: 7.66 tokens/s
+평균 생성 토큰 수: 505.20
+결과 파일 저장 완료 (20260514_142354-claude-max-scenario8-user1~10.txt)
+==================================================
+[!] scenario8 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+[▶] scenario9 실행 중...
+
+==================================================
+Claude Code (Max 플랜) Vision 이미지 분석 (30 동시 요청)
+질문: 다음 Workflow 의 Node 들의 흐름에 대해 최대한 상세히 서술하라. @langgraph.png
+초당 토큰 생성량 (TPS): 121.40 tokens/s
+총 소요 시간: 116.0360초
+총 생성 토큰 수: 14087
+평균 초당 토큰 생성량: 4.05 tokens/s
+평균 생성 토큰 수: 469.57
+결과 파일 저장 완료 (20260514_142552-claude-max-scenario9-user1~30.txt)
+==================================================
+[!] scenario9 예외: 'cp949' codec can't encode character '\u2713' in position 1: illegal multibyte sequence
+
+============================================================
+전체 완료  총 소요: 569.44초
+============================================================

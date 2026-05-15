@@ -1,0 +1,118 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명하겠습니다.
+
+---
+
+## LangGraph 워크플로우 노드 흐름 분석
+
+### 노드 구성
+
+| 노드 | 유형 | 역할 |
+|---|---|---|
+| `start` | Entry Point | 워크플로우 시작점 |
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 에이전트 |
+| `Editor` | Agent Node | 코드 편집/테스트 전담 에이전트 |
+| `swe_tool` | Tool Node | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | Tool Node | 코드 분석 도구 |
+| `code_edit_tool` | Tool Node | 코드 편집 도구 |
+| `test_tool` | Tool Node | 테스트 실행 도구 |
+| `end` | Terminal Node | 워크플로우 종료점 |
+
+---
+
+### 엣지 구분 (화살표 의미)
+
+- **실선 화살표**: 에이전트 간 라우팅 (조건부 전환)
+- **점선 화살표**: Tool Call / Tool Return (도구 호출 및 응답)
+
+---
+
+### 상세 흐름
+
+#### 1. 진입 단계
+
+```
+start → SoftwareEngineer
+```
+워크플로우가 시작되면 무조건 `SoftwareEngineer` 노드로 진입한다. 이 노드가 전체 워크플로우의 **중앙 오케스트레이터** 역할을 수행한다.
+
+---
+
+#### 2. SoftwareEngineer 노드 — 분기 결정
+
+`SoftwareEngineer`는 현재 상태를 판단하여 **4가지 경로** 중 하나를 선택한다.
+
+| 조건 | 목적지 | 엣지 레이블 |
+|---|---|---|
+| 코드를 분석해야 할 때 | `CodeAnalyzer` | `analyze_code` |
+| 파일을 수정해야 할 때 | `Editor` | `edit_file` |
+| 자체 도구를 써야 할 때 | `swe_tool` | (암묵적) |
+| 작업이 완료되었을 때 | `end` | (암묵적) |
+
+---
+
+#### 3. CodeAnalyzer 서브플로우
+
+```
+SoftwareEngineer --analyze_code--> CodeAnalyzer
+                                        ↕ (점선)
+                                   code_analysis_tool
+```
+
+- `CodeAnalyzer`는 `code_analysis_tool`을 **반복 호출**하여 코드를 분석한다 (점선 양방향).
+- 분석 완료 후 **2가지 경로**로 분기한다:
+  - `done` → `SoftwareEngineer`: 분석 결과를 오케스트레이터에게 보고하고 다음 판단을 위임
+  - `continue` → `Editor`: 분석 결과를 바탕으로 즉시 편집 단계로 이동
+
+---
+
+#### 4. Editor 서브플로우
+
+```
+SoftwareEngineer --edit_file--> Editor
+                                   ↕ (점선) code_edit_tool
+                                   ↕ (점선) test_tool
+```
+
+- `Editor`는 `code_edit_tool`과 `test_tool` **두 가지 도구**를 활용한다.
+- `code_edit_tool`: 실제 파일 수정 수행
+- `test_tool`: 수정 후 테스트 실행으로 결과 검증
+- 완료 후 **2가지 경로**로 분기한다:
+  - `done` → `SoftwareEngineer`: 편집/테스트 결과를 오케스트레이터에게 보고
+  - `continue` → `CodeAnalyzer`: 편집 후 재분석이 필요할 경우 코드 분석으로 루프백
+
+---
+
+#### 5. swe_tool 서브플로우
+
+```
+SoftwareEngineer → swe_tool --continue--> SoftwareEngineer
+```
+
+- `SoftwareEngineer`가 직접 사용하는 전용 도구 노드이다.
+- 도구 실행 완료 후 `continue` 엣지로 **항상 `SoftwareEngineer`로 복귀**한다.
+
+---
+
+#### 6. 종료 단계
+
+```
+SoftwareEngineer → end
+```
+`SoftwareEngineer`가 작업이 완전히 완료되었다고 판단하면 `end` 노드로 전이하여 워크플로우가 종료된다.
+
+---
+
+### 전체 순환 구조 요약
+
+```
+start
+  └─► SoftwareEngineer ──────────────────────────────► end
+         │  ▲                    ▲  ▲
+analyze_code│  │done          done│  │continue
+         ▼  │                 │  │
+      CodeAnalyzer ──continue──► Editor
+         ↕  (code_analysis_tool)  ↕ (code_edit_tool, test_tool)
+```
+
+핵심 패턴은 **SoftwareEngineer를 허브로 하는 다중 에이전트 루프**이며, 작업이 완료될 때까지 `CodeAnalyzer ↔ Editor ↔ SoftwareEngineer` 간 반복 순환이 일어나는 구조이다.

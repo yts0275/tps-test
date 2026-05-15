@@ -1,0 +1,92 @@
+## LangGraph Workflow 노드 흐름 상세 분석
+
+---
+
+### 전체 구조 개요
+
+이 그래프는 **SoftwareEngineer**를 중심 오케스트레이터로 하는 멀티에이전트 LangGraph 워크플로우다. 실선은 상태 전이(state transition), 점선은 조건부 전이 또는 툴 호출을 나타낸다.
+
+---
+
+### 노드별 역할
+
+| 노드 | 타입 | 역할 |
+|------|------|------|
+| `SoftwareEngineer` | Agent Node | 중앙 오케스트레이터 — 작업 분석 후 라우팅 결정 |
+| `CodeAnalyzer` | Agent Node | 코드 분석 전담 에이전트 |
+| `Editor` | Agent Node | 코드 편집 및 테스트 전담 에이전트 |
+| `swe_tool` | Tool Node | SoftwareEngineer가 직접 호출하는 툴 |
+| `code_analysis_tool` | Tool Node | CodeAnalyzer 전용 분석 툴 |
+| `code_edit_tool` | Tool Node | Editor 전용 편집 툴 |
+| `test_tool` | Tool Node | Editor 전용 테스트 실행 툴 |
+
+---
+
+### 흐름 상세 서술
+
+#### 1. 진입점: `start → SoftwareEngineer`
+워크플로우가 시작되면 항상 `SoftwareEngineer` 노드로 진입한다.
+
+#### 2. `SoftwareEngineer` — 중앙 라우터
+수신한 요청을 분석하여 세 가지 경로 중 하나를 선택한다:
+
+- **`analyze_code` 엣지** → `CodeAnalyzer` 호출: 코드 이해/분석이 필요한 경우
+- **`edit_file` 엣지** → `Editor` 호출: 코드 작성/수정이 필요한 경우
+- **`swe_tool` 엣지 (점선)** → 툴 직접 호출: 서브에이전트 없이 직접 처리 가능한 경우
+- **`end` 엣지 (점선)** → 작업 완료 시 워크플로우 종료
+
+#### 3. `CodeAnalyzer` — 코드 분석 루프
+```
+CodeAnalyzer ↔ code_analysis_tool  (점선: 툴 호출/결과 수신 반복)
+CodeAnalyzer → CodeAnalyzer        (continue: 분석 미완료 시 자기 자신으로 루프)
+CodeAnalyzer → SoftwareEngineer    (done: 분석 완료 시 결과 반환)
+```
+- `code_analysis_tool`을 반복 호출하며 코드를 분석
+- 분석이 완료되지 않으면 `continue`로 자기 자신을 재호출 (내부 루프)
+- 분석 완료 후 `done` 엣지로 `SoftwareEngineer`에 결과 반환
+
+#### 4. `Editor` — 편집 및 테스트 루프
+```
+Editor ↔ code_edit_tool  (점선: 코드 수정 툴 호출)
+Editor ↔ test_tool       (점선: 테스트 실행 툴 호출)
+Editor → Editor          (continue: 편집/테스트 미완료 시 자기 자신으로 루프)
+Editor → SoftwareEngineer (done: 작업 완료 시 결과 반환)
+```
+- `code_edit_tool`로 코드를 수정하고, `test_tool`로 결과를 검증
+- 테스트 실패 또는 추가 편집 필요 시 `continue`로 내부 루프 반복
+- 편집+검증 완료 후 `done` 엣지로 `SoftwareEngineer`에 반환
+
+#### 5. `swe_tool` — 단순 툴 실행
+```
+swe_tool → SoftwareEngineer  (continue: 툴 실행 결과 반환)
+```
+- `SoftwareEngineer`가 직접 처리할 수 있는 단순 작업에 사용
+- 실행 완료 후 `continue` 엣지로 `SoftwareEngineer`에 제어권 반환
+
+#### 6. 종료: `→ end`
+`SoftwareEngineer`가 전체 작업이 완료되었다고 판단하면 `end` 노드로 전이하여 워크플로우를 종료한다.
+
+---
+
+### 전체 순환 흐름 요약
+
+```
+start
+  └→ SoftwareEngineer
+        ├→ [analyze_code] → CodeAnalyzer
+        │                        ↕ code_analysis_tool
+        │                        ↺ continue (내부 루프)
+        │                        └→ [done] → SoftwareEngineer
+        │
+        ├→ [edit_file] → Editor
+        │                    ↕ code_edit_tool
+        │                    ↕ test_tool
+        │                    ↺ continue (내부 루프)
+        │                    └→ [done] → SoftwareEngineer
+        │
+        ├→ swe_tool → [continue] → SoftwareEngineer
+        │
+        └→ end
+```
+
+**핵심 패턴**: 각 서브에이전트(`CodeAnalyzer`, `Editor`)는 자신의 툴을 반복 호출하며 독립적인 내부 루프를 돌다가, 작업이 완료되면 `SoftwareEngineer`로 제어권을 반환하는 **ReAct(Reason + Act) 패턴**을 구현하고 있다.

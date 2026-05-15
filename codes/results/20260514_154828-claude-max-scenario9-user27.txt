@@ -1,0 +1,96 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 서술합니다.
+
+---
+
+## LangGraph 워크플로우 구조 분석
+
+### 노드 구성
+
+| 노드 | 종류 | 역할 |
+|------|------|------|
+| `start` | 진입점 (oval) | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 | 작업 분석 및 라우팅 결정 |
+| `CodeAnalyzer` | 서브에이전트 | 코드 분석 전담 |
+| `Editor` | 서브에이전트 | 코드 편집 전담 |
+| `swe_tool` | 툴 노드 | 소프트웨어 엔지니어링 도구 실행 |
+| `code_analysis_tool` | 툴 노드 | 코드 분석 도구 |
+| `code_edit_tool` | 툴 노드 | 코드 편집 도구 |
+| `test_tool` | 툴 노드 | 테스트 실행 도구 |
+| `end` | 종료점 (filled oval) | 워크플로우 종료 |
+
+---
+
+### 전체 흐름
+
+```
+start
+  │
+  ▼
+SoftwareEngineer ──────────────────────────────────────┐
+  │                                                     │
+  ├── [analyze_code] ──► CodeAnalyzer                  │
+  │                          │  ▲                      │
+  │                [continue] │  │ [done]              │
+  │                          ▼  │                      │
+  │                    code_analysis_tool               │
+  │                          ──────► (결과 반환)        │
+  │                                                     │
+  ├── [edit_file] ──► Editor                           │
+  │                      │  ▲                          │
+  │             [continue]│  │ [done]                  │
+  │                      ▼  │                          │
+  │               code_edit_tool / test_tool            │
+  │                                                     │
+  ├── [swe_tool] ──► swe_tool ──[continue]─────────────┘
+  │
+  └── ──► end
+```
+
+---
+
+### 노드별 상세 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우 진입 즉시 `SoftwareEngineer` 노드로 이동
+- 이 노드는 **중앙 오케스트레이터** 역할로, 들어온 작업 요청을 분석하여 어떤 하위 노드로 라우팅할지 결정
+
+---
+
+#### 2. `SoftwareEngineer` → `CodeAnalyzer` (라우팅 조건: `analyze_code`)
+- 코드 분석이 필요하다고 판단될 때 `CodeAnalyzer`로 위임
+- **CodeAnalyzer 내부 루프:**
+  - `code_analysis_tool`을 호출하여 실제 분석 작업 수행 (AST 파싱, 의존성 분석 등)
+  - 툴 결과를 받아 추가 분석이 필요하면 `continue` 조건으로 **자기 자신을 재호출** (self-loop)
+  - 분석이 완료되면 `done` 조건으로 `SoftwareEngineer`에게 결과 반환
+
+---
+
+#### 3. `SoftwareEngineer` → `Editor` (라우팅 조건: `edit_file`)
+- 코드 수정이 필요하다고 판단될 때 `Editor`로 위임
+- **Editor 내부 루프:**
+  - `code_edit_tool`로 파일 수정 수행
+  - `test_tool`로 수정 후 테스트 실행
+  - 수정/테스트 결과에 따라 추가 작업이 필요하면 `continue` 조건으로 **자기 자신을 재호출** (self-loop)
+  - 편집이 완료되면 `done` 조건으로 `SoftwareEngineer`에게 결과 반환
+
+---
+
+#### 4. `SoftwareEngineer` → `swe_tool` → `SoftwareEngineer` (조건: `continue`)
+- 복잡한 소프트웨어 엔지니어링 도구(예: 검색, 파일 시스템 조작 등)가 필요할 때 직접 `swe_tool` 노드로 분기
+- 도구 실행 후 `continue` 조건으로 다시 `SoftwareEngineer`로 복귀하여 다음 액션 결정
+
+---
+
+#### 5. `SoftwareEngineer` → `end`
+- 모든 작업이 완료되었다고 판단하면 `end` 노드로 이동하여 워크플로우 종료
+
+---
+
+### 핵심 설계 패턴 요약
+
+| 패턴 | 설명 |
+|------|------|
+| **Hub-and-Spoke** | `SoftwareEngineer`가 중심 허브로, 모든 서브에이전트로의 라우팅을 단독 담당 |
+| **Self-loop (ReAct)** | `CodeAnalyzer`와 `Editor`는 각자 툴을 반복 호출하며 독립적으로 작업을 완결 |
+| **Done 신호** | 서브에이전트가 작업 완료 시 `done`을 반환하여 제어권을 오케스트레이터에게 돌려줌 |
+| **조건부 엣지 (dashed)** | 점선 화살표는 LangGraph의 `conditional_edges`를 나타내며, 노드의 출력값에 따라 동적 라우팅 |

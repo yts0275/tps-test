@@ -1,0 +1,60 @@
+파일 저장 권한이 없어 코드를 직접 출력합니다.
+
+---
+
+### 퀵소트 구현 (Python)
+
+```python
+def quicksort(arr):                              # 퀵소트 함수 정의 (정렬할 배열을 인자로 받음)
+    if len(arr) <= 1:                            # 배열 길이가 0 또는 1이면
+        return arr                               # 이미 정렬된 상태이므로 그대로 반환
+
+    pivot = arr[len(arr) // 2]                   # 배열 중간 인덱스 요소를 피벗으로 선택
+
+    left   = [x for x in arr if x < pivot]      # 피벗보다 작은 요소들로 왼쪽 부분 배열 생성
+    middle = [x for x in arr if x == pivot]     # 피벗과 같은 요소들로 중간 배열 생성 (중복 처리)
+    right  = [x for x in arr if x > pivot]      # 피벗보다 큰 요소들로 오른쪽 부분 배열 생성
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽·중간·오른쪽 재귀 정렬 후 합쳐 반환
+
+
+def quicksort_inplace(arr, low, high):           # 제자리(in-place) 퀵소트 함수 정의
+    if low < high:                               # 정렬 범위가 유효할 때만 실행 (low >= high면 종료)
+        pivot_idx = partition(arr, low, high)    # 분할 수행 후 피벗의 최종 위치 인덱스 획득
+        quicksort_inplace(arr, low, pivot_idx - 1)   # 피벗 왼쪽 부분 배열 재귀 정렬
+        quicksort_inplace(arr, pivot_idx + 1, high)  # 피벗 오른쪽 부분 배열 재귀 정렬
+
+
+def partition(arr, low, high):                   # 분할 함수: 피벗 기준으로 배열을 두 부분으로 나눔
+    pivot = arr[high]                            # 맨 오른쪽 요소를 피벗으로 선택
+    i = low - 1                                  # 피벗보다 작은 영역의 오른쪽 경계 (초기값: 범위 밖)
+
+    for j in range(low, high):                   # low부터 high-1까지 순회
+        if arr[j] <= pivot:                      # 현재 요소가 피벗 이하이면
+            i += 1                               # 작은 영역 경계를 오른쪽으로 한 칸 확장
+            arr[i], arr[j] = arr[j], arr[i]      # 현재 요소를 작은 영역 끝으로 스왑
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]  # 피벗을 작은 영역 바로 오른쪽(최종 위치)으로 이동
+    return i + 1                                 # 피벗이 위치한 인덱스 반환
+
+
+# ── 테스트 ──────────────────────────────────────────────
+if __name__ == "__main__":
+    data = [3, 6, 8, 10, 1, 2, 1]               # 테스트용 정수 배열 정의
+
+    result = quicksort(data)                     # 새 배열 반환 방식으로 정렬
+    print("새 배열 방식:", result)               # 정렬 결과 출력 → [1, 1, 2, 3, 6, 8, 10]
+
+    data2 = [3, 6, 8, 10, 1, 2, 1]              # 제자리 정렬 테스트용 배열 별도 정의
+    quicksort_inplace(data2, 0, len(data2) - 1)  # 원본 배열을 직접 수정하는 방식으로 정렬
+    print("제자리 방식:  ", data2)               # 정렬 결과 출력 → [1, 1, 2, 3, 6, 8, 10]
+```
+
+---
+
+두 가지 버전을 구현했습니다.
+
+| 버전 | 방식 | 특징 |
+|------|------|------|
+| `quicksort` | 새 배열 반환 | 코드가 간결, 추가 메모리 O(n) 사용 |
+| `quicksort_inplace` | 원본 배열 수정 | 추가 메모리 O(log n) (재귀 스택만), 실무에서 더 일반적 |

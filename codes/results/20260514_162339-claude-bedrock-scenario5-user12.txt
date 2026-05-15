@@ -1,0 +1,31 @@
+파일 작성 권한이 필요합니다. 대신 코드를 직접 보여드리겠습니다.
+
+```python
+def quicksort(arr):                              # 퀵소트 함수 정의: 정렬할 리스트를 인자로 받음
+    if len(arr) <= 1:                            # 원소가 1개 이하이면 이미 정렬된 상태
+        return arr                               # 그대로 반환 (재귀 종료 조건)
+
+    pivot = arr[len(arr) // 2]                   # 중간 인덱스의 값을 피벗으로 선택
+    left = [x for x in arr if x < pivot]        # 피벗보다 작은 원소들을 왼쪽 부분 리스트로 모음
+    middle = [x for x in arr if x == pivot]     # 피벗과 같은 원소들을 중간 리스트로 모음 (중복 처리)
+    right = [x for x in arr if x > pivot]       # 피벗보다 큰 원소들을 오른쪽 부분 리스트로 모음
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽·중간·오른쪽을 재귀적으로 정렬 후 합쳐서 반환
+
+
+if __name__ == "__main__":                       # 스크립트 직접 실행 시에만 아래 코드 동작
+    sample = [3, 6, 8, 10, 1, 2, 1]             # 테스트용 정렬되지 않은 리스트 생성
+    print("정렬 전:", sample)                    # 정렬 전 리스트 출력
+    sorted_arr = quicksort(sample)               # 퀵소트 함수 호출하여 정렬 수행
+    print("정렬 후:", sorted_arr)               # 정렬 결과 출력
+```
+
+**동작 흐름 요약:**
+
+1. **종료 조건** — 리스트가 비어있거나 원소가 1개면 바로 반환
+2. **피벗 선택** — 중간값을 피벗으로 사용 (최악의 경우 O(n²)을 줄이기 위해)
+3. **분할** — `left / middle / right` 세 그룹으로 분리
+4. **재귀 정렬** — 왼쪽과 오른쪽을 재귀적으로 다시 정렬
+5. **병합** — 세 리스트를 이어 붙여 반환
+
+평균 시간 복잡도는 **O(n log n)**, 공간 복잡도는 **O(n)** (새 리스트 생성 방식 기준)입니다.

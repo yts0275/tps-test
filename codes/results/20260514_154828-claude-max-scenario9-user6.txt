@@ -1,0 +1,98 @@
+## LangGraph Workflow Node 흐름 상세 설명
+
+---
+
+### 전체 구조 개요
+
+이 워크플로우는 **SoftwareEngineer**를 중심 오케스트레이터로 두고, **CodeAnalyzer**와 **Editor** 두 전문 에이전트 노드가 협력하는 멀티 에이전트 구조다. 각 노드는 도구(tool)를 호출할 수 있으며, 작업 완료 여부에 따라 흐름이 분기된다.
+
+---
+
+### 노드별 역할 및 전환 흐름
+
+#### 1. `start` → `SoftwareEngineer`
+- 워크플로우 진입점.
+- 모든 실행은 `SoftwareEngineer` 노드에서 시작된다.
+
+---
+
+#### 2. `SoftwareEngineer` (오케스트레이터)
+작업 요청을 받아 **무엇을 해야 할지 판단**하고 적절한 노드로 분기하는 중앙 제어 노드.
+
+| 전환 조건 | 다음 노드 |
+|---|---|
+| `analyze_code` | `CodeAnalyzer` |
+| `edit_file` | `Editor` |
+| (직접 도구 사용) | `swe_tool` |
+| `continue` | 자기 자신 (self-loop) |
+| 모든 작업 완료 | `end` |
+
+- **self-loop (`continue`)**: 아직 판단이 필요하거나 추가 지시가 있을 때 자기 자신으로 되돌아와 재평가한다.
+- **`swe_tool`**: SoftwareEngineer가 직접 범용 도구를 사용할 때 호출되는 노드이며, 실행 후 `continue`로 SoftwareEngineer에 결과를 반환한다.
+
+---
+
+#### 3. `CodeAnalyzer` (코드 분석 전문 에이전트)
+코드 구조, 의존성, 문제점 등을 분석하는 역할.
+
+- **도구 호출**: `code_analysis_tool` (점선 화살표 = tool call)
+  - 분석 도구를 반복 호출하며 결과를 수집한다.
+  - 도구 결과를 받아 다시 자신의 노드로 루프(`continue`)할 수 있다.
+
+| 전환 조건 | 다음 노드 |
+|---|---|
+| `done` | `SoftwareEngineer` (분석 완료, 결과 보고) |
+| `continue` | `Editor` (분석 결과를 바탕으로 편집 단계로 넘김) |
+| `continue` | `CodeAnalyzer` 자신 (추가 분석 반복) |
+
+---
+
+#### 4. `Editor` (코드 편집 전문 에이전트)
+실제 파일을 수정하고 테스트를 실행하는 역할.
+
+- **도구 호출**:
+  - `code_edit_tool`: 파일 편집 수행
+  - `test_tool`: 변경 사항에 대한 테스트 실행
+
+| 전환 조건 | 다음 노드 |
+|---|---|
+| `done` | `SoftwareEngineer` (편집 완료, 결과 보고) |
+| `continue` | `CodeAnalyzer` (편집 후 재분석 필요 시) |
+| `continue` | `Editor` 자신 (추가 편집 반복) |
+
+---
+
+#### 5. `end`
+- 모든 작업이 완료된 최종 상태.
+- `SoftwareEngineer`가 작업이 끝났다고 판단할 때 전환된다.
+
+---
+
+### 핵심 흐름 패턴 요약
+
+```
+start
+  └→ SoftwareEngineer
+        ├→ [analyze_code] → CodeAnalyzer
+        │       ├→ code_analysis_tool (반복 가능)
+        │       ├→ [done] → SoftwareEngineer
+        │       └→ [continue] → Editor
+        │
+        ├→ [edit_file] → Editor
+        │       ├→ code_edit_tool / test_tool (반복 가능)
+        │       ├→ [done] → SoftwareEngineer
+        │       └→ [continue] → CodeAnalyzer (재분석)
+        │
+        ├→ swe_tool → [continue] → SoftwareEngineer
+        ├→ [continue] → SoftwareEngineer (self-loop)
+        └→ end
+```
+
+---
+
+### 설계 의도 해석
+
+- **실선**: 노드 간 상태 전환 (LangGraph edge)
+- **점선**: 도구(tool) 호출 후 결과 반환 (tool call loop)
+- `done` vs `continue` 분기는 각 에이전트가 **작업 완료 여부를 스스로 판단**해 오케스트레이터에 보고할지, 아니면 다음 단계로 직접 넘어갈지 결정하는 구조다.
+- `CodeAnalyzer ↔ Editor` 간 직접 전환은 SoftwareEngineer를 거치지 않고 **분석-편집 사이클을 효율적으로 반복**할 수 있게 한다.

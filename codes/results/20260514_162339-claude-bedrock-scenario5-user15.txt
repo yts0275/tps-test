@@ -1,0 +1,35 @@
+파일 쓰기 권한이 거부되었으니, 코드를 직접 보여드리겠습니다.
+
+```python
+def quicksort(arr):                          # 퀵소트 함수 정의, arr은 정렬할 리스트
+    if len(arr) <= 1:                        # 리스트 길이가 1 이하이면 이미 정렬된 상태
+        return arr                           # 그대로 반환 (재귀 탈출 조건)
+
+    pivot = arr[len(arr) // 2]              # 중간 인덱스 요소를 피벗으로 선택
+    left = [x for x in arr if x < pivot]   # 피벗보다 작은 요소만 모아 left 리스트 생성
+    middle = [x for x in arr if x == pivot] # 피벗과 같은 요소만 모아 middle 리스트 생성
+    right = [x for x in arr if x > pivot]  # 피벗보다 큰 요소만 모아 right 리스트 생성
+
+    return quicksort(left) + middle + quicksort(right)  # 왼쪽·중간·오른쪽을 재귀 정렬 후 합쳐 반환
+
+
+if __name__ == "__main__":
+    data = [3, 6, 8, 10, 1, 2, 1]          # 테스트용 정렬되지 않은 리스트
+    print("정렬 전:", data)                  # 정렬 전 리스트 출력
+    result = quicksort(data)                # 퀵소트 실행
+    print("정렬 후:", result)                # 정렬 후 리스트 출력
+```
+
+**동작 방식:**
+1. **피벗 선택** — 배열 중간 요소를 피벗으로 선택
+2. **분할** — 피벗 기준으로 left / middle / right 세 그룹으로 나눔
+3. **재귀** — left와 right를 각각 재귀적으로 정렬
+4. **병합** — 세 그룹을 순서대로 이어 붙여 반환
+
+실행 결과:
+```
+정렬 전: [3, 6, 8, 10, 1, 2, 1]
+정렬 후: [1, 1, 2, 3, 6, 8, 10]
+```
+
+**시간 복잡도:** 평균 O(n log n), 최악(이미 정렬된 경우) O(n²). 중간값 피벗 선택으로 최악 케이스 발생 가능성을 줄였습니다.

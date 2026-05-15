@@ -1,0 +1,104 @@
+이미지를 분석하여 LangGraph 워크플로우의 노드 흐름을 상세히 설명합니다.
+
+---
+
+## 전체 구조 개요
+
+이 워크플로우는 **소프트웨어 엔지니어링 멀티 에이전트 시스템**으로, `SoftwareEngineer`가 오케스트레이터 역할을 하며 두 개의 서브 에이전트(`CodeAnalyzer`, `Editor`)와 세 개의 도구 노드를 조율합니다.
+
+---
+
+## 노드 목록
+
+| 노드 | 유형 | 역할 |
+|------|------|------|
+| `start` | 진입점 | 워크플로우 시작 |
+| `SoftwareEngineer` | 오케스트레이터 에이전트 | 작업 분류 및 라우팅 |
+| `CodeAnalyzer` | 서브 에이전트 | 코드 분석 담당 |
+| `Editor` | 서브 에이전트 | 코드 편집/테스트 담당 |
+| `swe_tool` | 도구 노드 | SoftwareEngineer 전용 도구 |
+| `code_analysis_tool` | 도구 노드 | CodeAnalyzer 전용 분석 도구 |
+| `code_edit_tool` | 도구 노드 | Editor 전용 편집 도구 |
+| `test_tool` | 도구 노드 | Editor 전용 테스트 도구 |
+| `end` | 종료점 | 워크플로우 완료 |
+
+---
+
+## 상세 흐름
+
+### 1. 진입 — `start` → `SoftwareEngineer`
+워크플로우가 시작되면 제어권이 곧바로 `SoftwareEngineer` 에이전트로 넘어갑니다. 이 노드는 **중앙 의사결정자**로, 들어온 요청을 분석하여 다음 네 가지 경로 중 하나를 선택합니다.
+
+---
+
+### 2. `SoftwareEngineer`의 조건부 라우팅 (4가지 분기)
+
+```
+SoftwareEngineer
+  ├─ analyze_code ──→ CodeAnalyzer   (코드 분석이 필요한 경우)
+  ├─ edit_file    ──→ Editor          (파일 편집이 필요한 경우)
+  ├─ (tool call)  ──→ swe_tool        (직접 도구 사용이 필요한 경우)
+  └─ continue     ──→ end             (작업 완료 판단 시)
+```
+
+- **`analyze_code`**: 요청이 코드 이해/분석을 요구할 때 `CodeAnalyzer`로 위임
+- **`edit_file`**: 파일 수정이 필요할 때 `Editor`로 위임
+- **`swe_tool`** (점선): 에이전트를 거치지 않고 도구를 직접 호출, 결과를 받아 다시 `SoftwareEngineer`로 복귀
+- **`continue`**: 모든 작업이 완료되었다고 판단하면 `end`로 종료
+
+---
+
+### 3. `CodeAnalyzer` 서브그래프
+
+```
+CodeAnalyzer
+  ├─ (점선) ──→ code_analysis_tool ──→ (결과 반환, 점선)
+  ├─ done     ──→ SoftwareEngineer    (분석 완료, 오케스트레이터 복귀)
+  └─ continue ──→ Editor              (분석 후 편집 작업으로 직접 이동)
+```
+
+- `code_analysis_tool`은 **점선(tool call)** 으로 연결되어 있어, 에이전트가 내부적으로 도구를 호출하고 결과를 받는 구조입니다.
+- `done` 엣지: 분석만으로 충분할 때 `SoftwareEngineer`에게 결과를 보고하고 복귀
+- `continue` 엣지: 분석 결과를 바탕으로 즉시 편집이 필요하다 판단하면 `Editor`로 직접 전달 (오케스트레이터를 거치지 않음)
+
+---
+
+### 4. `Editor` 서브그래프
+
+```
+Editor
+  ├─ (점선) ──→ code_edit_tool ──→ (결과 반환, 점선)
+  ├─ (점선) ──→ test_tool      ──→ (결과 반환, 점선)
+  ├─ done     ──→ SoftwareEngineer    (편집/테스트 완료, 오케스트레이터 복귀)
+  └─ continue ──→ CodeAnalyzer        (재분석 필요 시 루프백)
+```
+
+- `code_edit_tool`: 실제 파일 수정을 수행하는 도구
+- `test_tool`: 수정 후 테스트를 실행하는 도구
+- `done` 엣지: 편집 및 테스트가 완료되면 `SoftwareEngineer`에 보고
+- `continue` 엣지: 편집 후 재분석이 필요하면 `CodeAnalyzer`로 루프백 → `CodeAnalyzer`는 다시 `Editor`로 이어질 수 있어 **순환 루프** 형성 가능
+
+---
+
+## 전체 실행 시나리오 예시
+
+```
+start
+  → SoftwareEngineer (요청 파악)
+      → analyze_code → CodeAnalyzer
+          → code_analysis_tool (분석 실행)
+          → continue → Editor
+              → code_edit_tool (수정)
+              → test_tool (테스트)
+              → continue → CodeAnalyzer (재분석)
+              → done → SoftwareEngineer
+      → continue → end
+```
+
+---
+
+## 핵심 설계 패턴
+
+1. **점선 엣지 (Tool Call)**: 에이전트 → 도구 → 에이전트로 자동 복귀하는 LangGraph의 표준 tool call 패턴
+2. **순환 루프**: `CodeAnalyzer ↔ Editor` 간의 `continue` 엣지가 양방향으로 존재하여, 분석-편집-재분석 사이클이 반복될 수 있습니다
+3. **계층적 라우팅**: `SoftwareEngineer`가 최상위 의사결정을 담당하고, 서브 에이전트들은 자율적으로 도구를 활용하되 완료 시 반드시 오케스트레이터에 보고합니다
